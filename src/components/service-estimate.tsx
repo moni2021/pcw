@@ -1,19 +1,55 @@
 "use client";
 
-import React from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Separator } from '@/components/ui/separator';
-import { Printer } from 'lucide-react';
+import { Printer, Minus, Percent } from 'lucide-react';
 import type { ServiceEstimateData } from '@/lib/types';
+import { Label } from '@/components/ui/label';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Input } from '@/components/ui/input';
 
 interface ServiceEstimateProps {
   estimate: ServiceEstimateData;
 }
 
 export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
-  const { vehicle, serviceType, parts, labor, totalPrice } = estimate;
+  const { vehicle, serviceType, parts, labor } = estimate;
+
+  const [discountType, setDiscountType] = useState<'percentage' | 'rupees'>('percentage');
+  const [discountValue, setDiscountValue] = useState<number>(0);
+  const [finalTotal, setFinalTotal] = useState(estimate.totalPrice);
+  
+  const totalPartsPrice = useMemo(() => parts.reduce((sum, part) => sum + part.price, 0), [parts]);
+  const totalLaborCharge = useMemo(() => labor.reduce((sum, job) => sum + job.charge, 0), [labor]);
+
+  useEffect(() => {
+    let laborDiscount = 0;
+    const numericDiscountValue = Number(discountValue) || 0;
+
+    if (discountType === 'percentage') {
+      laborDiscount = totalLaborCharge * (numericDiscountValue / 100);
+    } else {
+      laborDiscount = numericDiscountValue;
+    }
+    
+    // Ensure discount doesn't exceed total labor charge
+    laborDiscount = Math.min(laborDiscount, totalLaborCharge);
+
+    const newTotal = totalPartsPrice + totalLaborCharge - laborDiscount;
+    setFinalTotal(newTotal);
+
+  }, [discountValue, discountType, totalLaborCharge, totalPartsPrice]);
+  
+  // Reset discount when estimate changes
+  useEffect(() => {
+    setDiscountValue(0);
+    setDiscountType('percentage');
+    setFinalTotal(estimate.totalPrice);
+  }, [estimate]);
+
 
   const handlePrint = () => {
     window.print();
@@ -83,11 +119,40 @@ export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
             ))}
           </TableBody>
         </Table>
+        
+        <div className="mt-4 flex flex-col items-end space-y-4 no-print">
+           <div className="flex items-center gap-4">
+              <Label>Discount on Labor</Label>
+               <RadioGroup defaultValue="percentage" value={discountType} onValueChange={(value) => setDiscountType(value as 'percentage' | 'rupees')} className="flex items-center">
+                    <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="percentage" id="r-percentage" />
+                        <Label htmlFor="r-percentage">Percentage (%)</Label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="rupees" id="r-rupees" />
+                        <Label htmlFor="r-rupees">Rupees (₹)</Label>
+                    </div>
+                </RadioGroup>
+           </div>
+            <div className="relative w-48">
+                <Input 
+                    type="number" 
+                    placeholder="Enter Discount" 
+                    value={discountValue || ''}
+                    onChange={(e) => setDiscountValue(Number(e.target.value))}
+                    className="pl-8"
+                />
+                <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                    {discountType === 'percentage' ? <Percent className="h-4 w-4 text-muted-foreground" /> : <p className="text-muted-foreground">₹</p>}
+                </div>
+            </div>
+        </div>
+
       </CardContent>
       <CardFooter>
         <div className="w-full flex justify-end items-center">
             <p className="text-xl font-bold">Total Estimate:</p>
-            <p className="text-xl font-bold ml-4">₹{totalPrice.toFixed(2)}</p>
+            <p className="text-xl font-bold ml-4">₹{finalTotal.toFixed(2)}</p>
         </div>
       </CardFooter>
     </Card>
