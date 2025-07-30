@@ -95,6 +95,14 @@ export function EstimatorForm() {
     return (estimation?.totalCost || 0) + totalCustomLaborCost;
   }, [estimation, totalCustomLaborCost]);
 
+  const partsSubtotal = useMemo(() => {
+    return estimation?.parts.reduce((acc, part) => acc + part.cost, 0) || 0;
+  }, [estimation]);
+
+  const laborSubtotal = useMemo(() => {
+    return estimation?.laborItems.reduce((acc, item) => acc + item.cost, 0) || 0;
+  }, [estimation]);
+
   return (
     <div className="space-y-8">
       <Card className="shadow-lg border-2 border-border/50 rounded-2xl">
@@ -215,26 +223,45 @@ export function EstimatorForm() {
                     <TableHeader>
                       <TableRow>
                         <TableHead>Part Name</TableHead>
+                        <TableHead className="text-right">Cost</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {estimation.partsList.map((part, index) => (
-                        <TableRow key={index}><TableCell>{part}</TableCell></TableRow>
+                      {estimation.parts.map((part, index) => (
+                        <TableRow key={index}>
+                          <TableCell>{part.name}</TableCell>
+                          <TableCell className="text-right">₹{part.cost.toLocaleString()}</TableCell>
+                        </TableRow>
                       ))}
                     </TableBody>
                   </Table>
                 </div>
-                 <p className="text-right mt-2 font-medium">Subtotal for Parts: ₹{estimation.partsCost.toLocaleString()}</p>
+                 <p className="text-right mt-2 font-medium">Subtotal for Parts: ₹{partsSubtotal.toLocaleString()}</p>
               </div>
 
               <Separator />
 
               <div>
                 <h3 className="text-lg font-semibold mb-2 flex items-center"><Car className="mr-2 h-5 w-5 text-primary"/>AI Generated Labor</h3>
-                <div className="p-4 bg-secondary rounded-lg">
-                  <p className="text-secondary-foreground">{estimation.laborDescription}</p>
-                  <p className="text-right mt-2 font-medium">Labor Charges: ₹{estimation.laborCost.toLocaleString()}</p>
+                <div className="rounded-md border">
+                   <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Labor Name</TableHead>
+                        <TableHead className="text-right">Cost</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {estimation.laborItems.map((item, index) => (
+                        <TableRow key={index}>
+                          <TableCell>{item.name}</TableCell>
+                          <TableCell className="text-right">₹{item.cost.toLocaleString()}</TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
                 </div>
+                <p className="text-right mt-2 font-medium">Subtotal for Labor: ₹{laborSubtotal.toLocaleString()}</p>
               </div>
 
               <Separator />

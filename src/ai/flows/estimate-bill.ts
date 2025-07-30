@@ -19,10 +19,14 @@ const EstimateBillInputSchema = z.object({
 export type EstimateBillInput = z.infer<typeof EstimateBillInputSchema>;
 
 const EstimateBillOutputSchema = z.object({
-  partsCost: z.number().describe('The estimated cost of parts required for the service.'),
-  laborCost: z.number().describe('The estimated labor cost for the service.'),
-  partsList: z.array(z.string()).describe('List of part names required for the service.'),
-  laborDescription: z.string().describe('The description of the maintenance.'),
+  parts: z.array(z.object({
+    name: z.string().describe('The name of the part.'),
+    cost: z.number().describe('The cost of the part.'),
+  })).describe('List of parts required for the service with their costs.'),
+  laborItems: z.array(z.object({
+    name: z.string().describe('The name of the labor item.'),
+    cost: z.number().describe('The cost of the labor item.'),
+  })).describe('List of labor items with their costs.'),
   totalCost: z.number().describe('The estimated total cost of the service (parts + labor).'),
 });
 export type EstimateBillOutput = z.infer<typeof EstimateBillOutputSchema>;
@@ -42,11 +46,9 @@ const estimateBillPrompt = ai.definePrompt({
   Fuel Type: {{{fuelType}}}
 
   Consider the standard repair and maintenance procedures for Maruti Suzuki vehicles. Provide a detailed breakdown of the estimated bill, including:
-  - partsCost: The estimated cost of parts required for the service.
-  - laborCost: The estimated labor cost for the service.
-  - partsList: List of part names required for the service.
-  - laborDescription: The description of the maintenance.
-  - totalCost: The estimated total cost of the service (parts + labor).
+  - parts: A list of objects, each with 'name' and 'cost' of the part.
+  - laborItems: A list of objects, each with 'name' and 'cost' for each labor task.
+  - totalCost: The estimated total cost of the service (sum of all parts and labor costs).
 
   Ensure the estimation is accurate and reflects the current market prices for parts and labor.
 
