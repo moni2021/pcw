@@ -235,7 +235,7 @@ export function VehicleServiceForm() {
                 <Select onValueChange={setSelectedService} value={selectedService} disabled={!selectedYear}>
                     <SelectTrigger id="service-type">
                         <SelectValue placeholder="Select Service" />
-                    </Trigger>
+                    </SelectTrigger>
                     <SelectContent>
                         {Object.keys(serviceData).map(service => (
                             <SelectItem key={service} value={service}>
@@ -278,3 +278,5 @@ export function VehicleServiceForm() {
     </>
   );
 }
+
+    
