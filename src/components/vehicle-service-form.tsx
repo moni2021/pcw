@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
@@ -29,6 +29,7 @@ export function VehicleServiceForm() {
     setSelectedModel(model);
     setSelectedFuelType('');
     setSelectedYear('');
+    setSelectedService('');
     setEstimate(null);
     setError('');
     const vehicle = vehicles.find(v => v.model === model);
@@ -40,9 +41,57 @@ export function VehicleServiceForm() {
   const handleFuelTypeChange = (fuelType: string) => {
     setSelectedFuelType(fuelType);
     setSelectedYear('');
+    setSelectedService('');
     setEstimate(null);
     setError('');
   }
+  
+  const handleYearChange = (yearStr: string) => {
+      const year = parseInt(yearStr, 10);
+      setSelectedYear(yearStr);
+      setEstimate(null);
+      setError('');
+
+      const currentYear = new Date().getFullYear();
+      const vehicleAge = currentYear - year;
+      
+      let autoSelectedService = '';
+
+      if (vehicleAge <= 0) { // Current year or future
+          autoSelectedService = '1st Free Service (1,000 km)';
+      } else if (vehicleAge === 1) {
+          autoSelectedService = '3rd Free Service (10,000 km)';
+      } else {
+          const mileageKey = vehicleAge * 10000;
+          
+          // Find the closest matching service
+          const serviceKeys = Object.keys(serviceData);
+          let closestService = '';
+          let smallestDiff = Infinity;
+
+          for (const key of serviceKeys) {
+              const kmMatch = key.match(/\((\d{1,3}(,\d{3})*|\d+)\s?km\)/);
+              if (kmMatch) {
+                  const km = parseInt(kmMatch[1].replace(/,/g, ''), 10);
+                  const diff = Math.abs(mileageKey - km);
+                  if (diff < smallestDiff) {
+                      smallestDiff = diff;
+                      closestService = key;
+                  }
+              }
+          }
+          autoSelectedService = closestService || `Paid Service (${(vehicleAge * 10).toString()},000 km)`;
+      }
+      
+      // Check if the auto-selected service exists, otherwise pick the first paid one
+      if (serviceData[autoSelectedService as keyof typeof serviceData]) {
+        setSelectedService(autoSelectedService);
+      } else {
+        const firstPaidService = Object.keys(serviceData).find(s => s.startsWith('Paid'));
+        setSelectedService(firstPaidService || '');
+      }
+  }
+
 
   const handleSearch = () => {
     if (!selectedModel || !selectedFuelType || !selectedYear || !selectedService) {
@@ -59,7 +108,7 @@ export function VehicleServiceForm() {
     setTimeout(() => {
       const serviceInfo = serviceData[selectedService as keyof typeof serviceData];
       if (!serviceInfo) {
-        setError('Service data not found.');
+        setError('Service data not found for the selected criteria.');
         setEstimate(null);
         setIsLoading(false);
         return;
@@ -84,7 +133,7 @@ export function VehicleServiceForm() {
       
       setEstimate(newEstimate);
       setIsLoading(false);
-    }, 1500);
+    }, 1000);
   };
 
 
@@ -130,12 +179,12 @@ export function VehicleServiceForm() {
             
              <div className="space-y-2">
                 <Label htmlFor="production-year">Production Year</Label>
-                <Select onValueChange={setSelectedYear} value={selectedYear} disabled={!selectedFuelType}>
+                <Select onValueChange={handleYearChange} value={selectedYear} disabled={!selectedFuelType}>
                     <SelectTrigger id="production-year">
                         <SelectValue placeholder="Select Year" />
                     </SelectTrigger>
                     <SelectContent>
-                        {currentVehicle?.productionYears.map(year => (
+                        {currentVehicle?.productionYears.slice().reverse().map(year => (
                             <SelectItem key={year} value={String(year)}>
                                 {year}
                             </SelectItem>
@@ -147,7 +196,7 @@ export function VehicleServiceForm() {
 
             <div className="space-y-2">
                 <Label htmlFor="service-type">Service Type</Label>
-                <Select onValueChange={setSelectedService} value={selectedService}>
+                <Select onValueChange={setSelectedService} value={selectedService} disabled={!selectedYear}>
                     <SelectTrigger id="service-type">
                         <SelectValue placeholder="Select Service" />
                     </SelectTrigger>
@@ -165,7 +214,7 @@ export function VehicleServiceForm() {
         {error && <Alert variant="destructive"><AlertDescription>{error}</AlertDescription></Alert>}
       </CardContent>
       <CardFooter>
-        <Button onClick={handleSearch} className="w-full" disabled={isLoading}>
+        <Button onClick={handleSearch} className="w-full" disabled={isLoading || !selectedService}>
            {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : 'Get Estimate'}
         </Button>
       </CardFooter>

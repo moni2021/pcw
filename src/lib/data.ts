@@ -1,18 +1,23 @@
 import { Vehicle, ServiceData } from './types';
 
 export const vehicles: Vehicle[] = [
-  { model: 'Swift', fuelTypes: ['Petrol', 'Diesel', 'CNG'], productionYears: [2018, 2019, 2020, 2021, 2022, 2023] },
-  { model: 'Baleno', fuelTypes: ['Petrol', 'CNG'], productionYears: [2019, 2020, 2021, 2022, 2023] },
-  { model: 'Dzire', fuelTypes: ['Petrol', 'CNG'], productionYears: [2017, 2018, 2019, 2020, 2021, 2022, 2023] },
-  { model: 'Brezza', fuelTypes: ['Petrol'], productionYears: [2020, 2021, 2022, 2023] },
-  { model: 'Ertiga', fuelTypes: ['Petrol', 'CNG'], productionYears: [2019, 2020, 2021, 2022, 2023] },
-  { model: 'Wagon R', fuelTypes: ['Petrol', 'CNG'], productionYears: [2019, 2020, 2021, 2022, 2023] },
-  { model: 'Alto K10', fuelTypes: ['Petrol', 'CNG'], productionYears: [2022, 2023] },
-  { model: 'Celerio', fuelTypes: ['Petrol'], productionYears: [2021, 2022, 2023] },
-  { model: 'S-Presso', fuelTypes: ['Petrol', 'CNG'], productionYears: [2019, 2020, 2021, 2022, 2023] },
-  { model: 'Ignis', fuelTypes: ['Petrol'], productionYears: [2020, 2021, 2022, 2023] },
-  { model: 'XL6', fuelTypes: ['Petrol'], productionYears: [2019, 2020, 2021, 2022, 2023] },
-  { model: 'Grand Vitara', fuelTypes: ['Petrol', 'Hybrid'], productionYears: [2022, 2023] },
+  { model: 'Swift', fuelTypes: ['Petrol', 'Diesel', 'CNG'], productionYears: [2018, 2019, 2020, 2021, 2022, 2023, 2024] },
+  { model: 'Baleno', fuelTypes: ['Petrol', 'CNG'], productionYears: [2019, 2020, 2021, 2022, 2023, 2024] },
+  { model: 'Dzire', fuelTypes: ['Petrol', 'CNG'], productionYears: [2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024] },
+  { model: 'Brezza', fuelTypes: ['Petrol'], productionYears: [2020, 2021, 2022, 2023, 2024] },
+  { model: 'Ertiga', fuelTypes: ['Petrol', 'CNG'], productionYears: [2019, 2020, 2021, 2022, 2023, 2024] },
+  { model: 'Wagon R', fuelTypes: ['Petrol', 'CNG'], productionYears: [2019, 2020, 2021, 2022, 2023, 2024] },
+  { model: 'Alto K10', fuelTypes: ['Petrol', 'CNG'], productionYears: [2022, 2023, 2024] },
+  { model: 'Alto 800', fuelTypes: ['Petrol', 'CNG'], productionYears: [2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023] },
+  { model: 'Celerio', fuelTypes: ['Petrol'], productionYears: [2021, 2022, 2023, 2024] },
+  { model: 'S-Presso', fuelTypes: ['Petrol', 'CNG'], productionYears: [2019, 2020, 2021, 2022, 2023, 2024] },
+  { model: 'Ignis', fuelTypes: ['Petrol'], productionYears: [2020, 2021, 2022, 2023, 2024] },
+  { model: 'XL6', fuelTypes: ['Petrol'], productionYears: [2019, 2020, 2021, 2022, 2023, 2024] },
+  { model: 'Grand Vitara', fuelTypes: ['Petrol', 'Hybrid'], productionYears: [2022, 2023, 2024] },
+  { model: 'Ciaz', fuelTypes: ['Petrol'], productionYears: [2018, 2019, 2020, 2021, 2022, 2023, 2024] },
+  { model: 'S-Cross', fuelTypes: ['Petrol'], productionYears: [2017, 2018, 2019, 2020, 2021] },
+  { model: 'Jimny', fuelTypes: ['Petrol'], productionYears: [2023, 2024] },
+  { model: 'Fronx', fuelTypes: ['Petrol'], productionYears: [2023, 2024] },
 ];
 
 export const serviceData: ServiceData = {
