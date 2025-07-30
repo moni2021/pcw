@@ -25,36 +25,42 @@ export default function LoginPage() {
   const [confirmationResult, setConfirmationResult] = useState<ConfirmationResult | null>(null);
   
   const otpInputs = useRef<(HTMLInputElement | null)[]>([]);
-
-  // Add a ref for the reCAPTCHA container
   const recaptchaContainerRef = useRef<HTMLDivElement>(null);
+  
+  // This ref will hold the RecaptchaVerifier instance
+  const recaptchaVerifierRef = useRef<RecaptchaVerifier | null>(null);
 
   useEffect(() => {
-    if (step === 'phone' && recaptchaContainerRef.current) {
-        const recaptchaVerifier = new RecaptchaVerifier(auth, recaptchaContainerRef.current, {
+    // Initialize reCAPTCHA only once
+    if (!recaptchaVerifierRef.current && recaptchaContainerRef.current) {
+        recaptchaVerifierRef.current = new RecaptchaVerifier(auth, recaptchaContainerRef.current, {
             'size': 'invisible',
             'callback': () => {
               // reCAPTCHA solved, allow signInWithPhoneNumber.
             }
         });
-        // Make the verifier available to the component
-        (window as any).recaptchaVerifier = recaptchaVerifier;
     }
-  }, [step]);
+  }, []);
 
 
   const handlePhoneSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
-    // Simple validation for Indian phone numbers
+    
     if (!/^\+?91\d{10}$/.test(phoneNumber)) {
       setError('Please enter a valid 10-digit Indian phone number (e.g., +919876543210).');
       return;
     }
+    
+    if (!recaptchaVerifierRef.current) {
+        setError("reCAPTCHA not initialized. Please try again in a moment.");
+        return;
+    }
+    
     setIsLoading(true);
     
     try {
-        const verifier = (window as any).recaptchaVerifier;
+        const verifier = recaptchaVerifierRef.current;
         const result = await signInWithPhoneNumber(auth, phoneNumber, verifier);
         setConfirmationResult(result);
         setStep('otp');
@@ -64,6 +70,13 @@ export default function LoginPage() {
         })
     } catch (err: any) {
         console.error("Firebase Auth Error:", err);
+        // Reset reCAPTCHA on error
+        if (recaptchaVerifierRef.current) {
+            recaptchaVerifierRef.current.render().then((widgetId) => {
+                 // @ts-ignore
+                grecaptcha.reset(widgetId);
+            });
+        }
         setError(err.message || 'Failed to send OTP. Please try again.');
     } finally {
         setIsLoading(false);
@@ -101,7 +114,6 @@ export default function LoginPage() {
 
     try {
         await confirmationResult.confirm(enteredOtp);
-        // User signed in successfully.
         toast({
           title: "Login Successful",
           description: "You have been successfully logged in.",
@@ -117,7 +129,7 @@ export default function LoginPage() {
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-center p-4 bg-gray-50 dark:bg-gray-900">
-      <div ref={recaptchaContainerRef}></div>
+      <div id="recaptcha-container" ref={recaptchaContainerRef}></div>
       <Card className="w-full max-w-md shadow-xl">
         <CardHeader className="text-center">
           <CardTitle className="text-2xl">Admin Login</CardTitle>
