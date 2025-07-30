@@ -19,6 +19,7 @@ import { Separator } from '@/components/ui/separator';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
 import { Alert, AlertDescription, AlertTitle } from './ui/alert';
+import * as XLSX from 'xlsx';
 
 const formSchema = z.object({
   vehicleModel: z.string({ required_error: 'Please select a vehicle model.' }).min(1, 'Please select a vehicle model.'),
@@ -68,11 +69,14 @@ export function EstimatorForm() {
         return;
       }
 
-      if (!file.type.includes('csv') && !file.name.endsWith('.csv')) {
+      const allowedExtensions = ['.csv', '.xls', '.xlsx', '.html'];
+      const fileExtension = '.' + file.name.split('.').pop()?.toLowerCase();
+      
+      if (!allowedExtensions.includes(fileExtension)) {
         toast({
           variant: 'destructive',
           title: 'Invalid File Type',
-          description: 'Please upload a CSV file.',
+          description: 'Please upload a CSV, Excel, or HTML file.',
         });
          if (fileInputRef.current) {
           fileInputRef.current.value = '';
@@ -81,12 +85,26 @@ export function EstimatorForm() {
       }
 
       const reader = new FileReader();
-      reader.onload = (e) => {
-        const text = e.target?.result as string;
-        form.setValue('uploadedData', text);
-        setUploadedFileName(file.name);
-      };
-      reader.readAsText(file);
+
+      if (fileExtension === '.xls' || fileExtension === '.xlsx') {
+        reader.onload = (e) => {
+          const data = e.target?.result;
+          const workbook = XLSX.read(data, { type: 'array' });
+          const sheetName = workbook.SheetNames[0];
+          const worksheet = workbook.Sheets[sheetName];
+          const csvText = XLSX.utils.sheet_to_csv(worksheet);
+          form.setValue('uploadedData', csvText);
+          setUploadedFileName(file.name);
+        };
+        reader.readAsArrayBuffer(file);
+      } else {
+        reader.onload = (e) => {
+          const text = e.target?.result as string;
+          form.setValue('uploadedData', text);
+          setUploadedFileName(file.name);
+        };
+        reader.readAsText(file);
+      }
     }
   };
 
@@ -235,10 +253,10 @@ export function EstimatorForm() {
               )}
               
               <FormItem>
-                <FormLabel>Upload Service Data (Optional CSV)</FormLabel>
+                <FormLabel>Upload Service Data (Optional)</FormLabel>
                 <div className="flex items-center gap-2">
                   <FormControl>
-                     <Input type="file" ref={fileInputRef} onChange={handleFileChange} className="hidden" id="file-upload" accept=".csv"/>
+                     <Input type="file" ref={fileInputRef} onChange={handleFileChange} className="hidden" id="file-upload" accept=".csv,.xls,.xlsx,.html"/>
                   </FormControl>
                   <Button type="button" variant="outline" onClick={() => fileInputRef.current?.click()}>
                     <FileUp className="mr-2 h-4 w-4" />
@@ -253,6 +271,7 @@ export function EstimatorForm() {
                     </div>
                   )}
                 </div>
+                 <p className="text-xs text-muted-foreground mt-1">Accepts CSV, Excel, and HTML files.</p>
                 <FormMessage />
               </FormItem>
               
