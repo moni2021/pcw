@@ -18,6 +18,8 @@ export const vehicles: Vehicle[] = [
   { model: 'S-Cross', fuelTypes: ['Petrol'], productionYears: [2017, 2018, 2019, 2020, 2021] },
   { model: 'Jimny', fuelTypes: ['Petrol'], productionYears: [2023, 2024] },
   { model: 'Fronx', fuelTypes: ['Petrol'], productionYears: [2023, 2024] },
+  { model: 'Invicto', fuelTypes: ['Hybrid'], productionYears: [2023, 2024] },
+  { model: 'Eeco', fuelTypes: ['Petrol', 'CNG'], productionYears: [2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024] },
 ];
 
 export const serviceData: ServiceData = {
