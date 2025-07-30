@@ -10,6 +10,7 @@ import { ServiceEstimate } from './service-estimate';
 import type { ServiceEstimateData, Vehicle } from '@/lib/types';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Loader2 } from 'lucide-react';
+import { Separator } from './ui/separator';
 
 export function VehicleServiceForm() {
   const [selectedModel, setSelectedModel] = useState<string>('');
@@ -72,19 +73,9 @@ export function VehicleServiceForm() {
       
       setEstimate(newEstimate);
       setIsLoading(false);
-    }, 2000); // Increased timeout to show loading screen
+    }, 1500);
   };
 
-  if (isLoading) {
-    return (
-        <Card className="mt-8 shadow-lg">
-            <CardContent className="p-6 flex flex-col items-center justify-center space-y-4 h-48">
-                <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                <p className="text-lg font-semibold">Generating estimate for your {selectedModel}...</p>
-            </CardContent>
-        </Card>
-    )
-  }
 
   return (
     <>
@@ -93,7 +84,7 @@ export function VehicleServiceForm() {
         <CardDescription>Select your vehicle and service type to get an instant price quote.</CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-2">
                 <Label htmlFor="vehicle-model">Vehicle Model</Label>
                 <Select onValueChange={handleModelChange} value={selectedModel}>
@@ -126,7 +117,7 @@ export function VehicleServiceForm() {
                 </Select>
             </div>
             
-            <div className="space-y-2 md:col-span-2">
+            <div className="space-y-2 sm:col-span-2">
                 <Label htmlFor="service-type">Service Type</Label>
                 <Select onValueChange={setSelectedService} value={selectedService}>
                     <SelectTrigger id="service-type">
@@ -151,7 +142,22 @@ export function VehicleServiceForm() {
         </Button>
       </CardFooter>
 
-      {estimate && <ServiceEstimate estimate={estimate} />}
+      {isLoading && (
+         <div className="p-6">
+            <Separator />
+            <div className="flex flex-col items-center justify-center space-y-4 h-48">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                <p className="text-lg font-semibold">Generating estimate for your {selectedModel}...</p>
+            </div>
+         </div>
+      )}
+
+      {estimate && !isLoading && (
+        <>
+            <Separator />
+            <ServiceEstimate estimate={estimate} />
+        </>
+      )}
     </>
   );
 }
