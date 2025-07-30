@@ -1,10 +1,10 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, useRef } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
-import { Car, Fuel, Loader2, PlusCircle, Trash2, Wrench } from 'lucide-react';
+import { Car, Fuel, Loader2, PlusCircle, Trash2, Wrench, FileUp, X } from 'lucide-react';
 import { getBillEstimate } from '@/app/actions';
 import { vehicleModels, serviceTypes, type VehicleModel } from '@/lib/data';
 import type { EstimateBillOutput } from '@/ai/flows/estimate-bill';
@@ -24,6 +24,7 @@ const formSchema = z.object({
   vehicleModel: z.string({ required_error: 'Please select a vehicle model.' }).min(1, 'Please select a vehicle model.'),
   serviceType: z.string({ required_error: 'Please select a service type.' }).min(1, 'Please select a service type.'),
   fuelType: z.string({ required_error: 'Please select a fuel type.' }).min(1, 'Please select a fuel type.'),
+  uploadedData: z.string().optional(),
 });
 
 type CustomLaborItem = { id: number; description: string; cost: string };
@@ -34,11 +35,13 @@ export function EstimatorForm() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [customLaborItems, setCustomLaborItems] = useState<CustomLaborItem[]>([]);
+  const [uploadedFileName, setUploadedFileName] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: { vehicleModel: '', serviceType: '', fuelType: '' },
+    defaultValues: { vehicleModel: '', serviceType: '', fuelType: '', uploadedData: '' },
   });
 
   const selectedModelName = form.watch('vehicleModel');
@@ -52,6 +55,48 @@ export function EstimatorForm() {
       setSelectedModel(null);
     }
   }, [selectedModelName, form]);
+
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      if (file.size > 1024 * 1024) { // 1MB limit
+        toast({
+          variant: 'destructive',
+          title: 'File too large',
+          description: 'Please upload a file smaller than 1MB.',
+        });
+        return;
+      }
+
+      if (!file.type.includes('csv') && !file.name.endsWith('.csv')) {
+        toast({
+          variant: 'destructive',
+          title: 'Invalid File Type',
+          description: 'Please upload a CSV file.',
+        });
+         if (fileInputRef.current) {
+          fileInputRef.current.value = '';
+        }
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const text = e.target?.result as string;
+        form.setValue('uploadedData', text);
+        setUploadedFileName(file.name);
+      };
+      reader.readAsText(file);
+    }
+  };
+
+  const removeUploadedFile = () => {
+    form.setValue('uploadedData', '');
+    setUploadedFileName(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  }
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     setIsLoading(true);
@@ -188,6 +233,29 @@ export function EstimatorForm() {
                   )}
                 />
               )}
+              
+              <FormItem>
+                <FormLabel>Upload Service Data (Optional CSV)</FormLabel>
+                <div className="flex items-center gap-2">
+                  <FormControl>
+                     <Input type="file" ref={fileInputRef} onChange={handleFileChange} className="hidden" id="file-upload" accept=".csv"/>
+                  </FormControl>
+                  <Button type="button" variant="outline" onClick={() => fileInputRef.current?.click()}>
+                    <FileUp className="mr-2 h-4 w-4" />
+                    Upload File
+                  </Button>
+                  {uploadedFileName && (
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground bg-muted px-3 py-1.5 rounded-md">
+                      <span>{uploadedFileName}</span>
+                      <Button type="button" variant="ghost" size="icon" className="h-6 w-6" onClick={removeUploadedFile}>
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  )}
+                </div>
+                <FormMessage />
+              </FormItem>
+              
               <div className="flex justify-end">
                 <Button type="submit" disabled={isLoading} size="lg" className="bg-accent text-accent-foreground hover:bg-accent/90 w-full md:w-auto">
                   {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Wrench className="mr-2 h-4 w-4" />}

@@ -15,6 +15,7 @@ const EstimateBillInputSchema = z.object({
   vehicleModel: z.string().describe('The model of the Maruti Suzuki vehicle.'),
   serviceType: z.string().describe('The type of service to be performed (e.g., 3rd free service, 20PMS, 30PMS).'),
   fuelType: z.string().describe('The fuel type of the vehicle (e.g., petrol, diesel, CNG).'),
+  uploadedData: z.string().optional().describe('Optional CSV data from the user containing past service records to improve estimation accuracy.'),
 });
 export type EstimateBillInput = z.infer<typeof EstimateBillInputSchema>;
 
@@ -51,6 +52,13 @@ const estimateBillPrompt = ai.definePrompt({
   - totalCost: The estimated total cost of the service (sum of all parts and labor costs).
 
   Ensure the estimation is accurate and reflects the current market prices for parts and labor.
+  
+  {{#if uploadedData}}
+  The user has provided the following data from a CSV file. Use this data to improve the accuracy of your estimation. This data represents past service records and should be given high priority.
+  
+  CSV Data:
+  {{{uploadedData}}}
+  {{/if}}
 
   Please provide the response in JSON format.
   `,

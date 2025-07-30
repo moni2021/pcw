@@ -12,8 +12,8 @@ export default function Home() {
           <h1 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl md:text-5xl font-headline">
             Maruti Service Estimator
           </h1>
-          <p className="mt-3 text-lg text-muted-foreground max-w-2xl mx-auto">
-            Get an instant cost estimate for your next Maruti Suzuki service. Select your vehicle, service type, and let our AI do the rest.
+          <p className="mt-3 text-lg text-muted-foreground max-w-3xl mx-auto">
+            Get an instant cost estimate for your next Maruti Suzuki service. Select your vehicle, service type, and let our AI do the rest. For a more accurate estimate, you can optionally upload a CSV file with past service data.
           </p>
         </header>
         <EstimatorForm />

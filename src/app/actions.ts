@@ -7,6 +7,7 @@ const ActionInputSchema = z.object({
   vehicleModel: z.string(),
   serviceType: z.string(),
   fuelType: z.string(),
+  uploadedData: z.string().optional(),
 });
 
 export async function getBillEstimate(
