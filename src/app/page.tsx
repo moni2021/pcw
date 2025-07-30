@@ -1,35 +1,46 @@
 import { VehicleServiceForm } from '@/components/vehicle-service-form';
-import Link from 'next/link';
+import { Header } from '@/components/header';
+import Image from 'next/image';
+import { Card } from '@/components/ui/card';
 
 export default function Home() {
   return (
-    <main className="flex min-h-screen flex-col items-center bg-gray-50 dark:bg-gray-900">
-      <div className="w-full max-w-4xl mx-auto p-4 sm:p-6 md:p-8">
-        <header className="mb-8 text-center">
-          <h1 className="text-4xl font-bold text-gray-800 dark:text-white">
-            Maruti Suzuki Service Estimator
-          </h1>
-          <p className="text-lg text-gray-600 dark:text-gray-300 mt-2">
-            Get an instant estimate for your vehicle's service
-          </p>
-        </header>
-        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-6 md:p-8">
-          <VehicleServiceForm />
-        </div>
-        <footer className="mt-8 text-center text-gray-500 dark:text-gray-400 text-sm">
-          <p>
-            This is an unofficial estimator. Prices are indicative and may vary.
-          </p>
-          <p>
-            Built with Next.js and Tailwind CSS.
-          </p>
-          <p className="mt-2">
-            <Link href="/admin/login" className="hover:underline text-primary">
-              Admin Login
-            </Link>
-          </p>
-        </footer>
-      </div>
-    </main>
+    <div className="flex min-h-screen w-full flex-col bg-background">
+      <Header />
+      <main className="flex-1">
+        <section className="w-full py-12 md:py-24 lg:py-32">
+          <div className="container px-4 md:px-6">
+            <div className="grid gap-6 lg:grid-cols-2 lg:gap-12 xl:gap-16">
+              <div className="flex flex-col justify-center space-y-4">
+                <div className="space-y-2">
+                  <h1 className="text-3xl font-bold tracking-tighter sm:text-5xl xl:text-6xl/none bg-clip-text text-transparent bg-gradient-to-r from-primary to-cyan-400">
+                    Robotic Precision Service Estimator
+                  </h1>
+                  <p className="max-w-[600px] text-muted-foreground md:text-xl">
+                    Get instant, accurate service estimates for your Maruti Suzuki vehicle. Our advanced system provides transparent pricing for all your maintenance needs.
+                  </p>
+                </div>
+                <Card className="bg-card/50 backdrop-blur-sm">
+                  <VehicleServiceForm />
+                </Card>
+              </div>
+              <Image
+                alt="Robot analyzing a car"
+                className="mx-auto aspect-square overflow-hidden rounded-xl object-cover sm:w-full lg:order-last"
+                data-ai-hint="robot car"
+                height="550"
+                src="https://placehold.co/550x550.png"
+                width="550"
+              />
+            </div>
+          </div>
+        </section>
+      </main>
+      <footer className="flex flex-col gap-2 sm:flex-row py-6 w-full shrink-0 items-center px-4 md:px-6 border-t">
+        <p className="text-xs text-muted-foreground">
+          © Maruti Suzuki Service Estimator. An unofficial tool. Prices are indicative.
+        </p>
+      </footer>
+    </div>
   );
 }

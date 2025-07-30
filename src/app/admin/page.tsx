@@ -4,22 +4,25 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { serviceData, vehicles } from '@/lib/data';
-import type { Part, Labor, Service } from '@/lib/types';
+import { serviceData } from '@/lib/data';
+import type { Part, Labor, Service, ServiceData } from '@/lib/types';
 import { auth } from '@/lib/firebase';
 import { onAuthStateChanged, signOut, User } from 'firebase/auth';
 import { Loader2 } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
+import { updateServiceData } from '@/ai/flows/updateDataFlow';
+import Link from 'next/link';
+
 
 export default function AdminPage() {
   const router = useRouter();
   const { toast } = useToast();
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [editableServiceData, setEditableServiceData] = useState(JSON.parse(JSON.stringify(serviceData)));
+  const [isSaving, setIsSaving] = useState(false);
+  const [editableServiceData, setEditableServiceData] = useState<ServiceData>(() => JSON.parse(JSON.stringify(serviceData)));
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -64,13 +67,27 @@ export default function AdminPage() {
     setEditableServiceData(updatedData);
   };
   
-  const handleSaveChanges = () => {
-    // Here you would typically send the updated data to your backend/database
-    console.log("Saving data:", editableServiceData);
-    toast({
-        title: "Changes Saved!",
-        description: "Your updates have been saved successfully (check console).",
-    });
+  const handleSaveChanges = async () => {
+    setIsSaving(true);
+    try {
+      const result = await updateServiceData(editableServiceData);
+      if (result.success) {
+        toast({
+            title: "Changes Saved!",
+            description: "Your updates have been saved successfully.",
+        });
+      } else {
+        throw new Error(result.error || "Unknown error occurred");
+      }
+    } catch (error: any) {
+       toast({
+            title: "Error Saving Changes",
+            description: error.message || "Could not write to data file.",
+            variant: "destructive",
+       });
+    } finally {
+        setIsSaving(false);
+    }
   };
 
   if (isLoading || !user) {
@@ -86,9 +103,14 @@ export default function AdminPage() {
     <main className="flex min-h-screen flex-col items-center p-4 sm:p-6 md:p-8 bg-gray-50 dark:bg-gray-900">
       <div className="w-full max-w-6xl mx-auto">
         <header className="mb-8 flex justify-between items-center">
-          <h1 className="text-4xl font-bold text-gray-800 dark:text-white">
-            Admin Panel
-          </h1>
+            <div className="flex items-center gap-4">
+                 <h1 className="text-4xl font-bold text-gray-800 dark:text-white">
+                    Admin Panel
+                </h1>
+                 <Button variant="outline" asChild>
+                    <Link href="/">Go to Homepage</Link>
+                </Button>
+            </div>
           <Button onClick={handleLogout}>Logout</Button>
         </header>
 
@@ -158,7 +180,9 @@ export default function AdminPage() {
             ))}
           </CardContent>
            <CardFooter>
-            <Button onClick={handleSaveChanges} className="w-full md:w-auto">Save Changes</Button>
+            <Button onClick={handleSaveChanges} disabled={isSaving} className="w-full md:w-auto">
+                {isSaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : 'Save Changes'}
+            </Button>
           </CardFooter>
         </Card>
       </div>
