@@ -156,7 +156,7 @@ export function VehicleServiceForm() {
       
       setEstimate(newEstimate);
       setIsLoading(false);
-    }, 2000); // Increased timeout to allow animation to play
+    }, 3500); // Increased timeout to allow animation to play
   };
 
 
@@ -278,5 +278,3 @@ export function VehicleServiceForm() {
     </>
   );
 }
-
-    

@@ -88,7 +88,7 @@
 
 @layer utilities {
   .animate-drive-off {
-    animation: drive-off 1.5s ease-in-out forwards;
+    animation: drive-off 3s ease-in-out forwards;
   }
   .animate-fade-in-up {
     animation: fade-in-up 0.8s ease-in-out forwards;
