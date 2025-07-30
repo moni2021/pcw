@@ -10,7 +10,7 @@ import { serviceData } from '@/lib/data';
 import type { Part, Labor, Service, ServiceData } from '@/lib/types';
 import { auth } from '@/lib/firebase';
 import { onAuthStateChanged, signOut, User } from 'firebase/auth';
-import { Loader2, ArrowLeft } from 'lucide-react';
+import { Loader2, ArrowLeft, PlusCircle, Trash2 } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 import { updateServiceData } from '@/ai/flows/updateDataFlow';
 import Link from 'next/link';
@@ -54,18 +54,39 @@ export default function AdminPage() {
       });
     }
   };
+  
+    const handleDataChange = (serviceType: string, itemType: 'parts' | 'labor', index: number, field: 'name' | 'price' | 'charge', value: string) => {
+        const updatedData = { ...editableServiceData };
+        const service = updatedData[serviceType] as Service;
+        const item = service[itemType][index];
 
-  const handlePartPriceChange = (serviceType: string, partIndex: number, newPrice: string) => {
-    const updatedData = { ...editableServiceData };
-    updatedData[serviceType].parts[partIndex].price = parseFloat(newPrice) || 0;
-    setEditableServiceData(updatedData);
-  };
+        if (field === 'name') {
+            item.name = value;
+        } else if ((field === 'price' && itemType === 'parts') || (field === 'charge' && itemType === 'labor')) {
+            (item as any)[field] = parseFloat(value) || 0;
+        }
+        
+        setEditableServiceData(updatedData);
+    };
 
-  const handleLaborChargeChange = (serviceType: string, laborIndex: number, newCharge: string) => {
-    const updatedData = { ...editableServiceData };
-    updatedData[serviceType].labor[laborIndex].charge = parseFloat(newCharge) || 0;
-    setEditableServiceData(updatedData);
-  };
+    const handleAddItem = (serviceType: string, itemType: 'parts' | 'labor') => {
+        const updatedData = { ...editableServiceData };
+        const service = updatedData[serviceType] as Service;
+        if (itemType === 'parts') {
+            service.parts.push({ name: 'New Part', price: 0 });
+        } else {
+            service.labor.push({ name: 'New Labor', charge: 0 });
+        }
+        setEditableServiceData(updatedData);
+    };
+
+    const handleRemoveItem = (serviceType: string, itemType: 'parts' | 'labor', index: number) => {
+        const updatedData = { ...editableServiceData };
+        const service = updatedData[serviceType] as Service;
+        service[itemType].splice(index, 1);
+        setEditableServiceData(updatedData);
+    };
+
   
   const handleSaveChanges = async () => {
     setIsSaving(true);
@@ -130,26 +151,44 @@ export default function AdminPage() {
                 <h3 className="text-xl font-semibold mb-4 text-gray-700 dark:text-gray-200 capitalize">{serviceType.replace(/_/g, ' ')}</h3>
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                     <div>
-                        <h4 className="font-semibold mb-2">Parts</h4>
+                        <div className="flex justify-between items-center mb-2">
+                            <h4 className="font-semibold">Parts</h4>
+                            <Button size="sm" variant="outline" onClick={() => handleAddItem(serviceType, 'parts')}>
+                                <PlusCircle className="mr-2 h-4 w-4" /> Add Part
+                            </Button>
+                        </div>
                         <div className="overflow-x-auto border rounded-lg">
                             <Table>
                               <TableHeader>
                                 <TableRow>
                                   <TableHead>Part Name</TableHead>
-                                  <TableHead className="w-[150px] text-right">Price (₹)</TableHead>
+                                  <TableHead className="w-[120px] text-right">Price (₹)</TableHead>
+                                  <TableHead className="w-[50px] text-right">Action</TableHead>
                                 </TableRow>
                               </TableHeader>
                               <TableBody>
                                 {(serviceDetails as Service).parts.map((part, index) => (
                                   <TableRow key={index}>
-                                    <TableCell>{part.name}</TableCell>
-                                    <TableCell className="text-right">
+                                    <TableCell>
+                                      <Input
+                                        type="text"
+                                        value={part.name}
+                                        onChange={(e) => handleDataChange(serviceType, 'parts', index, 'name', e.target.value)}
+                                        className="h-9"
+                                      />
+                                    </TableCell>
+                                    <TableCell>
                                       <Input
                                         type="number"
                                         value={part.price}
-                                        onChange={(e) => handlePartPriceChange(serviceType, index, e.target.value)}
-                                        className="h-9 w-28 ml-auto"
+                                        onChange={(e) => handleDataChange(serviceType, 'parts', index, 'price', e.target.value)}
+                                        className="h-9 w-24 ml-auto text-right"
                                       />
+                                    </TableCell>
+                                    <TableCell className="text-right">
+                                        <Button variant="ghost" size="icon" onClick={() => handleRemoveItem(serviceType, 'parts', index)}>
+                                            <Trash2 className="h-4 w-4 text-destructive" />
+                                        </Button>
                                     </TableCell>
                                   </TableRow>
                                 ))}
@@ -158,26 +197,44 @@ export default function AdminPage() {
                         </div>
                     </div>
                     <div>
-                        <h4 className="font-semibold mb-2">Labor</h4>
+                         <div className="flex justify-between items-center mb-2">
+                            <h4 className="font-semibold">Labor</h4>
+                            <Button size="sm" variant="outline" onClick={() => handleAddItem(serviceType, 'labor')}>
+                                <PlusCircle className="mr-2 h-4 w-4" /> Add Labor
+                            </Button>
+                        </div>
                         <div className="overflow-x-auto border rounded-lg">
                             <Table>
                               <TableHeader>
                                 <TableRow>
                                   <TableHead>Labor Name</TableHead>
-                                  <TableHead className="w-[150px] text-right">Charge (₹)</TableHead>
+                                  <TableHead className="w-[120px] text-right">Charge (₹)</TableHead>
+                                  <TableHead className="w-[50px] text-right">Action</TableHead>
                                 </TableRow>
                               </TableHeader>
                               <TableBody>
                                 {(serviceDetails as Service).labor.map((labor, index) => (
                                   <TableRow key={index}>
-                                    <TableCell>{labor.name}</TableCell>
-                                    <TableCell className="text-right">
+                                    <TableCell>
+                                       <Input
+                                        type="text"
+                                        value={labor.name}
+                                        onChange={(e) => handleDataChange(serviceType, 'labor', index, 'name', e.target.value)}
+                                        className="h-9"
+                                      />
+                                    </TableCell>
+                                    <TableCell>
                                       <Input
                                         type="number"
                                         value={labor.charge}
-                                        onChange={(e) => handleLaborChargeChange(serviceType, index, e.target.value)}
-                                        className="h-9 w-28 ml-auto"
+                                        onChange={(e) => handleDataChange(serviceType, 'labor', index, 'charge', e.target.value)}
+                                        className="h-9 w-24 ml-auto text-right"
                                       />
+                                    </TableCell>
+                                     <TableCell className="text-right">
+                                        <Button variant="ghost" size="icon" onClick={() => handleRemoveItem(serviceType, 'labor', index)}>
+                                            <Trash2 className="h-4 w-4 text-destructive" />
+                                        </Button>
                                     </TableCell>
                                   </TableRow>
                                 ))}
