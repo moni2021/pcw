@@ -3,13 +3,14 @@
 import React, { useState, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { serviceData, vehicles } from '@/lib/data';
 import { ServiceEstimate } from './service-estimate';
 import type { ServiceEstimateData, Vehicle } from '@/lib/types';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Loader2 } from 'lucide-react';
+import Image from 'next/image';
 
 export function VehicleServiceForm() {
   const [selectedModel, setSelectedModel] = useState<string>('');
@@ -42,6 +43,7 @@ export function VehicleServiceForm() {
     }
     
     setIsLoading(true);
+    setEstimate(null);
     setError('');
 
     // Simulate API call
@@ -71,8 +73,29 @@ export function VehicleServiceForm() {
       
       setEstimate(newEstimate);
       setIsLoading(false);
-    }, 500);
+    }, 2000); // Increased timeout to show loading screen
   };
+
+  if (isLoading) {
+    return (
+        <Card className="mt-8 shadow-lg">
+            <CardContent className="p-6 flex flex-col items-center justify-center space-y-4">
+                 {currentVehicle?.imageUrl && (
+                    <Image
+                        src={currentVehicle.imageUrl}
+                        alt={currentVehicle.model}
+                        width={400}
+                        height={300}
+                        className="rounded-lg object-cover"
+                        data-ai-hint="car"
+                    />
+                 )}
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                <p className="text-lg font-semibold">Generating estimate for your {selectedModel}...</p>
+            </CardContent>
+        </Card>
+    )
+  }
 
   return (
     <>

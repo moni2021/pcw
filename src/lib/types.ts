@@ -3,6 +3,7 @@ import { z } from 'zod';
 export const VehicleSchema = z.object({
   model: z.string(),
   fuelTypes: z.array(z.string()),
+  imageUrl: z.string().optional(),
 });
 export type Vehicle = z.infer<typeof VehicleSchema>;
 
