@@ -75,7 +75,7 @@ export const serviceData: ServiceData = {
     ],
     recommendedLabor: [
         { name: 'Wheel Alignment & Balancing', charge: 800 },
-        { name: 'Interior Germ Kleen', charge: 700 }
+        { name: '3M Interior Germ Kleen', charge: 700 }
     ]
   },
   'Paid Service (30,000 km)': {
@@ -90,7 +90,8 @@ export const serviceData: ServiceData = {
         { name: 'Standard Labor Charge', charge: 1600 },
     ],
     recommendedLabor: [
-        { name: 'Tire Rotation', charge: 350 }
+        { name: 'Tire Rotation', charge: 350 },
+        { name: '3M Car Polish', charge: 1200 },
     ]
   },
   'Paid Service (40,000 km)': {
@@ -111,7 +112,8 @@ export const serviceData: ServiceData = {
     recommendedLabor: [
       { name: 'Wheel Alignment & Balancing', charge: 800 },
       { name: 'Throttle Body Cleaning', charge: 500 },
-      { name: 'Injector Cleaning', charge: 900 }
+      { name: 'Injector Cleaning', charge: 900 },
+      { name: '3M Underbody Coating (1-year warranty)', charge: 2500 }
     ],
   },
     'Paid Service (50,000 km)': {
@@ -138,7 +140,8 @@ export const serviceData: ServiceData = {
     labor: [{ name: 'Standard Labor Charge', charge: 2000 }],
     recommendedLabor: [
       { name: 'Wheel Alignment & Balancing', charge: 800 },
-      { name: 'AC Service', charge: 2500 }
+      { name: 'AC Service', charge: 2500 },
+      { name: '3M Paint Protection Film (Bonnet)', charge: 4000 }
     ],
   },
   'Paid Service (70,000 km)': {
@@ -171,7 +174,8 @@ export const serviceData: ServiceData = {
     recommendedLabor: [
       { name: 'Wheel Alignment & Balancing', charge: 800 },
       { name: 'Throttle Body Cleaning', charge: 500 },
-      { name: 'Suspension Check', charge: 750 }
+      { name: 'Suspension Check', charge: 750 },
+      { name: '3M Silencer Coating', charge: 800 }
     ],
   },
   'Paid Service (90,000 km)': {
@@ -204,7 +208,8 @@ export const serviceData: ServiceData = {
     ],
     recommendedLabor: [
         { "name": "Wheel Alignment & Balancing", "charge": 800 },
-        { "name": "Injector Cleaning", "charge": 900 }
+        { "name": "Injector Cleaning", "charge": 900 },
+        { "name": "3M Interior Germ Kleen", "charge": 700 }
     ]
   },
   'Paid Service (120,000 km)': {
