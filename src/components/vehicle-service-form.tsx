@@ -10,7 +10,6 @@ import { ServiceEstimate } from './service-estimate';
 import type { ServiceEstimateData, Vehicle } from '@/lib/types';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Loader2 } from 'lucide-react';
-import Image from 'next/image';
 
 export function VehicleServiceForm() {
   const [selectedModel, setSelectedModel] = useState<string>('');
@@ -79,17 +78,7 @@ export function VehicleServiceForm() {
   if (isLoading) {
     return (
         <Card className="mt-8 shadow-lg">
-            <CardContent className="p-6 flex flex-col items-center justify-center space-y-4">
-                 {currentVehicle?.imageUrl && (
-                    <Image
-                        src={currentVehicle.imageUrl}
-                        alt={currentVehicle.model}
-                        width={400}
-                        height={300}
-                        className="rounded-lg object-cover"
-                        data-ai-hint="car"
-                    />
-                 )}
+            <CardContent className="p-6 flex flex-col items-center justify-center space-y-4 h-48">
                 <Loader2 className="h-8 w-8 animate-spin text-primary" />
                 <p className="text-lg font-semibold">Generating estimate for your {selectedModel}...</p>
             </CardContent>

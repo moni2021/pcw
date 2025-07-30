@@ -1,18 +1,18 @@
 import { Vehicle, ServiceData } from './types';
 
 export const vehicles: Vehicle[] = [
-  { model: 'Swift', fuelTypes: ['Petrol', 'Diesel', 'CNG'], imageUrl: 'https://placehold.co/400x300.png' },
-  { model: 'Baleno', fuelTypes: ['Petrol', 'CNG'], imageUrl: 'https://placehold.co/400x300.png' },
-  { model: 'Dzire', fuelTypes: ['Petrol', 'CNG'], imageUrl: 'https://placehold.co/400x300.png' },
-  { model: 'Brezza', fuelTypes: ['Petrol'], imageUrl: 'https://placehold.co/400x300.png' },
-  { model: 'Ertiga', fuelTypes: ['Petrol', 'CNG'], imageUrl: 'https://placehold.co/400x300.png' },
-  { model: 'Wagon R', fuelTypes: ['Petrol', 'CNG'], imageUrl: 'https://placehold.co/400x300.png' },
-  { model: 'Alto K10', fuelTypes: ['Petrol', 'CNG'], imageUrl: 'https://placehold.co/400x300.png' },
-  { model: 'Celerio', fuelTypes: ['Petrol'], imageUrl: 'https://placehold.co/400x300.png' },
-  { model: 'S-Presso', fuelTypes: ['Petrol', 'CNG'], imageUrl: 'https://placehold.co/400x300.png' },
-  { model: 'Ignis', fuelTypes: ['Petrol'], imageUrl: 'https://placehold.co/400x300.png' },
-  { model: 'XL6', fuelTypes: ['Petrol'], imageUrl: 'https://placehold.co/400x300.png' },
-  { model: 'Grand Vitara', fuelTypes: ['Petrol', 'Hybrid'], imageUrl: 'https://placehold.co/400x300.png' },
+  { model: 'Swift', fuelTypes: ['Petrol', 'Diesel', 'CNG'] },
+  { model: 'Baleno', fuelTypes: ['Petrol', 'CNG'] },
+  { model: 'Dzire', fuelTypes: ['Petrol', 'CNG'] },
+  { model: 'Brezza', fuelTypes: ['Petrol'] },
+  { model: 'Ertiga', fuelTypes: ['Petrol', 'CNG'] },
+  { model: 'Wagon R', fuelTypes: ['Petrol', 'CNG'] },
+  { model: 'Alto K10', fuelTypes: ['Petrol', 'CNG'] },
+  { model: 'Celerio', fuelTypes: ['Petrol'] },
+  { model: 'S-Presso', fuelTypes: ['Petrol', 'CNG'] },
+  { model: 'Ignis', fuelTypes: ['Petrol'] },
+  { model: 'XL6', fuelTypes: ['Petrol'] },
+  { model: 'Grand Vitara', fuelTypes: ['Petrol', 'Hybrid'] },
 ];
 
 export const serviceData: ServiceData = {

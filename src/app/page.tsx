@@ -1,6 +1,5 @@
 import { VehicleServiceForm } from '@/components/vehicle-service-form';
 import { Header } from '@/components/header';
-import Image from 'next/image';
 import { Card } from '@/components/ui/card';
 
 export default function Home() {
@@ -10,25 +9,17 @@ export default function Home() {
       <main className="flex-1">
         <section className="w-full py-12 md:py-24 lg:py-32">
           <div className="container px-4 md:px-6">
-            <div className="grid gap-6 lg:grid-cols-2 lg:gap-12 xl:gap-16">
+            <div className="grid gap-6 lg:grid-cols-1 lg:gap-12 xl:gap-16">
               <div className="flex flex-col justify-center space-y-4">
                 <div className="space-y-2">
-                  <p className="max-w-[600px] text-muted-foreground md:text-xl">
+                  <p className="mx-auto max-w-[700px] text-center text-muted-foreground md:text-xl">
                     Get instant, accurate service estimates for your Maruti Suzuki vehicle. Our advanced system provides transparent pricing for all your maintenance needs.
                   </p>
                 </div>
-                <Card className="bg-card/50 backdrop-blur-sm">
+                <Card className="mx-auto w-full max-w-2xl bg-card/50 backdrop-blur-sm">
                   <VehicleServiceForm />
                 </Card>
               </div>
-              <Image
-                alt="Robot analyzing a car"
-                className="mx-auto aspect-square overflow-hidden rounded-xl object-cover sm:w-full lg:order-last"
-                data-ai-hint="robot car"
-                height="550"
-                src="https://placehold.co/550x550.png"
-                width="550"
-              />
             </div>
           </div>
         </section>
