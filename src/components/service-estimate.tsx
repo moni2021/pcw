@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useState, useMemo, useEffect } from 'react';
@@ -29,10 +30,10 @@ export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
   const totalPartsPrice = useMemo(() => parts.reduce((sum, part) => sum + part.price, 0), [parts]);
   const baseLaborCharge = useMemo(() => labor.reduce((sum, job) => sum + job.charge, 0), [labor]);
   const recommendedLaborCharge = useMemo(() => selectedRecommended.reduce((sum, job) => sum + job.charge, 0), [selectedRecommended]);
+  const totalLaborCharge = useMemo(() => baseLaborCharge + recommendedLaborCharge, [baseLaborCharge, recommendedLaborCharge]);
+  const gstOnLabor = useMemo(() => totalLaborCharge * 0.18, [totalLaborCharge]);
 
   useEffect(() => {
-    const totalLaborCharge = baseLaborCharge + recommendedLaborCharge;
-
     let laborDiscount = 0;
     const numericDiscountValue = Number(discountValue) || 0;
 
@@ -44,17 +45,16 @@ export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
     
     laborDiscount = Math.min(laborDiscount, totalLaborCharge);
 
-    const newTotal = totalPartsPrice + totalLaborCharge - laborDiscount;
+    const newTotal = totalPartsPrice + totalLaborCharge + gstOnLabor - laborDiscount;
     setFinalTotal(newTotal);
 
-  }, [discountValue, discountType, baseLaborCharge, recommendedLaborCharge, totalPartsPrice]);
+  }, [discountValue, discountType, totalLaborCharge, totalPartsPrice, gstOnLabor]);
   
   useEffect(() => {
     // Reset state when a new estimate is received
     setDiscountValue(0);
     setDiscountType('percentage');
     setSelectedRecommended([]);
-    setFinalTotal(estimate.totalPrice);
   }, [estimate]);
 
 
@@ -245,7 +245,11 @@ export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
           </div>
            <div className="w-full flex justify-between items-center text-sm text-muted-foreground">
               <p>Subtotal (Labor):</p>
-              <p>₹{(baseLaborCharge + recommendedLaborCharge).toFixed(2)}</p>
+              <p>₹{totalLaborCharge.toFixed(2)}</p>
+          </div>
+          <div className="w-full flex justify-between items-center text-sm text-muted-foreground">
+              <p>GST on Labor (18%):</p>
+              <p>₹{gstOnLabor.toFixed(2)}</p>
           </div>
         <Separator className="my-1"/>
         <div className="w-full flex justify-between items-center">
