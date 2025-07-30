@@ -19,6 +19,7 @@ import { Separator } from '@/components/ui/separator';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
 import { Alert, AlertDescription, AlertTitle } from './ui/alert';
+import { Progress } from '@/components/ui/progress';
 import * as XLSX from 'xlsx';
 
 const formSchema = z.object({
@@ -37,6 +38,7 @@ export function EstimatorForm() {
   const [error, setError] = useState<string | null>(null);
   const [customLaborItems, setCustomLaborItems] = useState<CustomLaborItem[]>([]);
   const [uploadedFileName, setUploadedFileName] = useState<string | null>(null);
+  const [uploadProgress, setUploadProgress] = useState<number | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
 
@@ -60,12 +62,16 @@ export function EstimatorForm() {
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
+      setUploadProgress(0); // Start progress
+      setUploadedFileName(file.name);
+
       if (file.size > 1024 * 1024) { // 1MB limit
         toast({
           variant: 'destructive',
           title: 'File too large',
           description: 'Please upload a file smaller than 1MB.',
         });
+        removeUploadedFile();
         return;
       }
 
@@ -78,39 +84,77 @@ export function EstimatorForm() {
           title: 'Invalid File Type',
           description: 'Please upload a CSV, Excel, or HTML file.',
         });
-         if (fileInputRef.current) {
-          fileInputRef.current.value = '';
-        }
+        removeUploadedFile();
         return;
       }
 
       const reader = new FileReader();
 
+      reader.onprogress = (event) => {
+        if (event.lengthComputable) {
+          const percentage = Math.round((event.loaded / event.total) * 100);
+          setUploadProgress(percentage);
+        }
+      };
+
+      reader.onloadstart = () => {
+        setUploadProgress(0);
+      };
+
+      reader.onload = (e) => {
+        setUploadProgress(100);
+        const data = e.target?.result;
+        let fileContent = '';
+
+        try {
+          if (fileExtension === '.xls' || fileExtension === '.xlsx') {
+            const workbook = XLSX.read(data, { type: 'array' });
+            const sheetName = workbook.SheetNames[0];
+            const worksheet = workbook.Sheets[sheetName];
+            fileContent = XLSX.utils.sheet_to_csv(worksheet);
+          } else {
+            fileContent = data as string;
+          }
+          form.setValue('uploadedData', fileContent);
+        } catch (error) {
+          console.error("File parsing error:", error);
+          toast({
+            variant: "destructive",
+            title: "File Read Error",
+            description: "Could not read the uploaded file. It might be corrupted or in an unsupported format.",
+          });
+          removeUploadedFile();
+          return;
+        }
+
+        // Hide progress bar after a short delay
+        setTimeout(() => {
+          setUploadProgress(null);
+        }, 500);
+      };
+
+      reader.onerror = () => {
+        toast({
+          variant: 'destructive',
+          title: 'File Read Error',
+          description: 'There was an error reading the file.',
+        });
+        removeUploadedFile();
+      };
+      
       if (fileExtension === '.xls' || fileExtension === '.xlsx') {
-        reader.onload = (e) => {
-          const data = e.target?.result;
-          const workbook = XLSX.read(data, { type: 'array' });
-          const sheetName = workbook.SheetNames[0];
-          const worksheet = workbook.Sheets[sheetName];
-          const csvText = XLSX.utils.sheet_to_csv(worksheet);
-          form.setValue('uploadedData', csvText);
-          setUploadedFileName(file.name);
-        };
         reader.readAsArrayBuffer(file);
       } else {
-        reader.onload = (e) => {
-          const text = e.target?.result as string;
-          form.setValue('uploadedData', text);
-          setUploadedFileName(file.name);
-        };
         reader.readAsText(file);
       }
     }
   };
 
+
   const removeUploadedFile = () => {
     form.setValue('uploadedData', '');
     setUploadedFileName(null);
+    setUploadProgress(null);
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
@@ -262,7 +306,7 @@ export function EstimatorForm() {
                     <FileUp className="mr-2 h-4 w-4" />
                     Upload File
                   </Button>
-                  {uploadedFileName && (
+                  {uploadedFileName && uploadProgress === null && (
                     <div className="flex items-center gap-2 text-sm text-muted-foreground bg-muted px-3 py-1.5 rounded-md">
                       <span>{uploadedFileName}</span>
                       <Button type="button" variant="ghost" size="icon" className="h-6 w-6" onClick={removeUploadedFile}>
@@ -274,6 +318,16 @@ export function EstimatorForm() {
                  <p className="text-xs text-muted-foreground mt-1">Accepts CSV, Excel, and HTML files.</p>
                 <FormMessage />
               </FormItem>
+
+              {uploadProgress !== null && (
+                 <div className="space-y-2">
+                    <div className="flex justify-between items-center">
+                        <span className="text-sm text-muted-foreground">{uploadedFileName}</span>
+                        <span className="text-sm font-medium text-primary">{uploadProgress}%</span>
+                    </div>
+                    <Progress value={uploadProgress} className="w-full h-2" />
+                 </div>
+              )}
               
               <div className="flex justify-end">
                 <Button type="submit" disabled={isLoading} size="lg" className="bg-accent text-accent-foreground hover:bg-accent/90 w-full md:w-auto">
@@ -422,3 +476,5 @@ function EstimationSkeleton() {
     </Card>
   )
 }
+
+    
