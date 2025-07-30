@@ -65,35 +65,46 @@ export default function AdminPage() {
     }
   };
   
-    const handleDataChange = (serviceType: string, itemType: 'parts' | 'labor', index: number, field: 'name' | 'price' | 'charge', value: string) => {
+    const handleDataChange = (serviceType: string, itemType: 'parts' | 'labor' | 'recommendedLabor', index: number, field: 'name' | 'price' | 'charge', value: string) => {
         const updatedData = { ...editableServiceData };
         const service = updatedData[serviceType] as Service;
-        const item = service[itemType][index];
+        const items = service[itemType];
+        if (!items) return;
+        const item = items[index];
 
         if (field === 'name') {
             item.name = value;
-        } else if ((field === 'price' && itemType === 'parts') || (field === 'charge' && itemType === 'labor')) {
+        } else if ((field === 'price' && itemType === 'parts') || (field === 'charge' && (itemType === 'labor' || itemType === 'recommendedLabor'))) {
             (item as any)[field] = parseFloat(value) || 0;
         }
         
         setEditableServiceData(updatedData);
     };
 
-    const handleAddItem = (serviceType: string, itemType: 'parts' | 'labor') => {
+    const handleAddItem = (serviceType: string, itemType: 'parts' | 'labor' | 'recommendedLabor') => {
         const updatedData = { ...editableServiceData };
         const service = updatedData[serviceType] as Service;
+
         if (itemType === 'parts') {
             service.parts.push({ name: 'New Part', price: 0 });
-        } else {
+        } else if (itemType === 'labor') {
             service.labor.push({ name: 'New Labor', charge: 0 });
+        } else if (itemType === 'recommendedLabor') {
+            if (!service.recommendedLabor) {
+                service.recommendedLabor = [];
+            }
+            service.recommendedLabor.push({ name: 'New Recommended Labor', charge: 0 });
         }
         setEditableServiceData(updatedData);
     };
 
-    const handleRemoveItem = (serviceType: string, itemType: 'parts' | 'labor', index: number) => {
+    const handleRemoveItem = (serviceType: string, itemType: 'parts' | 'labor' | 'recommendedLabor', index: number) => {
         const updatedData = { ...editableServiceData };
         const service = updatedData[serviceType] as Service;
-        service[itemType].splice(index, 1);
+        const items = service[itemType];
+        if (items) {
+            items.splice(index, 1);
+        }
         setEditableServiceData(updatedData);
     };
 
@@ -271,6 +282,52 @@ export default function AdminPage() {
                                 </div>
                             </div>
                         </div>
+                         <div className="mt-8">
+                                <div className="flex justify-between items-center mb-2">
+                                    <h4 className="font-semibold">Recommended Labor</h4>
+                                    <Button size="sm" variant="outline" onClick={() => handleAddItem(serviceType, 'recommendedLabor')}>
+                                        <PlusCircle className="mr-2 h-4 w-4" /> Add Recommended Labor
+                                    </Button>
+                                </div>
+                                <div className="overflow-x-auto border rounded-lg">
+                                    <Table>
+                                    <TableHeader>
+                                        <TableRow>
+                                        <TableHead>Labor Name</TableHead>
+                                        <TableHead className="w-[120px] text-right">Charge (₹)</TableHead>
+                                        <TableHead className="w-[50px] text-right">Action</TableHead>
+                                        </TableRow>
+                                    </TableHeader>
+                                    <TableBody>
+                                        {((serviceDetails as Service).recommendedLabor || []).map((labor, index) => (
+                                        <TableRow key={index}>
+                                            <TableCell>
+                                            <Input
+                                                type="text"
+                                                value={labor.name}
+                                                onChange={(e) => handleDataChange(serviceType, 'recommendedLabor', index, 'name', e.target.value)}
+                                                className="h-9"
+                                            />
+                                            </TableCell>
+                                            <TableCell>
+                                            <Input
+                                                type="number"
+                                                value={labor.charge}
+                                                onChange={(e) => handleDataChange(serviceType, 'recommendedLabor', index, 'charge', e.target.value)}
+                                                className="h-9 w-24 ml-auto text-right"
+                                            />
+                                            </TableCell>
+                                            <TableCell className="text-right">
+                                                <Button variant="ghost" size="icon" onClick={() => handleRemoveItem(serviceType, 'recommendedLabor', index)}>
+                                                    <Trash2 className="h-4 w-4 text-destructive" />
+                                                </Button>
+                                            </TableCell>
+                                        </TableRow>
+                                        ))}
+                                    </TableBody>
+                                    </Table>
+                                </div>
+                            </div>
                     </div>
                     ))}
                 </CardContent>

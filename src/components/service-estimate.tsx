@@ -5,27 +5,33 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Separator } from '@/components/ui/separator';
-import { Printer, Percent } from 'lucide-react';
-import type { ServiceEstimateData } from '@/lib/types';
+import { Printer, Percent, PlusCircle } from 'lucide-react';
+import type { ServiceEstimateData, Labor } from '@/lib/types';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Input } from '@/components/ui/input';
+import { Checkbox } from './ui/checkbox';
+import { cn } from '@/lib/utils';
 
 interface ServiceEstimateProps {
   estimate: ServiceEstimateData;
 }
 
 export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
-  const { vehicle, serviceType, parts, labor } = estimate;
+  const { vehicle, serviceType, parts, labor, recommendedLabor } = estimate;
 
   const [discountType, setDiscountType] = useState<'percentage' | 'rupees'>('percentage');
   const [discountValue, setDiscountValue] = useState<number>(0);
+  const [selectedRecommended, setSelectedRecommended] = useState<Labor[]>([]);
   const [finalTotal, setFinalTotal] = useState(estimate.totalPrice);
   
   const totalPartsPrice = useMemo(() => parts.reduce((sum, part) => sum + part.price, 0), [parts]);
-  const totalLaborCharge = useMemo(() => labor.reduce((sum, job) => sum + job.charge, 0), [labor]);
+  const baseLaborCharge = useMemo(() => labor.reduce((sum, job) => sum + job.charge, 0), [labor]);
+  const recommendedLaborCharge = useMemo(() => selectedRecommended.reduce((sum, job) => sum + job.charge, 0), [selectedRecommended]);
 
   useEffect(() => {
+    const totalLaborCharge = baseLaborCharge + recommendedLaborCharge;
+
     let laborDiscount = 0;
     const numericDiscountValue = Number(discountValue) || 0;
 
@@ -40,11 +46,13 @@ export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
     const newTotal = totalPartsPrice + totalLaborCharge - laborDiscount;
     setFinalTotal(newTotal);
 
-  }, [discountValue, discountType, totalLaborCharge, totalPartsPrice]);
+  }, [discountValue, discountType, baseLaborCharge, recommendedLaborCharge, totalPartsPrice]);
   
   useEffect(() => {
+    // Reset state when a new estimate is received
     setDiscountValue(0);
     setDiscountType('percentage');
+    setSelectedRecommended([]);
     setFinalTotal(estimate.totalPrice);
   }, [estimate]);
 
@@ -52,6 +60,17 @@ export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
   const handlePrint = () => {
     window.print();
   };
+
+  const handleRecommendedChange = (job: Labor) => {
+    setSelectedRecommended(prev => {
+        const isSelected = prev.find(item => item.name === job.name);
+        if (isSelected) {
+            return prev.filter(item => item.name !== job.name);
+        } else {
+            return [...prev, job];
+        }
+    })
+  }
 
   return (
     <div className="print-container">
@@ -104,7 +123,7 @@ export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
           </div>
           
           <div>
-            <h3 className="text-lg font-semibold mb-2">Labor Charges</h3>
+            <h3 className="text-lg font-semibold mb-2">Standard Labor Charges</h3>
              <div className="overflow-x-auto">
                 <Table>
                   <TableHeader>
@@ -124,6 +143,32 @@ export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
                 </Table>
              </div>
           </div>
+            
+          {recommendedLabor && recommendedLabor.length > 0 && (
+             <div className="space-y-4 rounded-lg border border-dashed p-4 no-print">
+                <h3 className="text-lg font-semibold mb-2 flex items-center gap-2 text-primary"> <PlusCircle className="h-5 w-5"/> Recommended Services</h3>
+                <p className="text-sm text-muted-foreground">Select any additional services you would like to include.</p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {recommendedLabor.map((job, index) => (
+                        <div key={index} className="flex items-center space-x-3 rounded-md bg-muted/30 p-3">
+                             <Checkbox 
+                                id={`rec-${index}`} 
+                                onCheckedChange={() => handleRecommendedChange(job)}
+                                checked={!!selectedRecommended.find(item => item.name === job.name)}
+                            />
+                            <label
+                                htmlFor={`rec-${index}`}
+                                className="flex-1 text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                            >
+                                {job.name}
+                            </label>
+                            <p className="text-sm font-semibold">₹{job.charge.toFixed(2)}</p>
+                        </div>
+                    ))}
+                </div>
+            </div>
+          )}
+
         </div>
         
         <div className="mt-6 flex flex-col items-end space-y-4 no-print">
@@ -153,14 +198,66 @@ export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
                 </div>
             </div>
         </div>
+        
+         <div className="print-only mt-4 space-y-4 hidden">
+              {selectedRecommended.length > 0 && (
+                  <div>
+                    <h3 className="text-lg font-semibold mb-2">Additional Services</h3>
+                    <div className="overflow-x-auto">
+                        <Table>
+                          <TableHeader>
+                            <TableRow>
+                              <TableHead>Service Description</TableHead>
+                              <TableHead className="text-right">Charge (₹)</TableHead>
+                            </TableRow>
+                          </TableHeader>
+                          <TableBody>
+                            {selectedRecommended.map((job, index) => (
+                              <TableRow key={`print-rec-${index}`}>
+                                <TableCell className="font-medium">{job.name}</TableCell>
+                                <TableCell className="text-right">{job.charge.toFixed(2)}</TableCell>
+                              </TableRow>
+                            ))}
+                          </TableBody>
+                        </Table>
+                    </div>
+                  </div>
+              )}
+         </div>
+
 
       </CardContent>
-      <CardFooter className="bg-muted/50 p-4 mt-6 rounded-b-lg">
+      <CardFooter className={cn("bg-muted/50 p-4 mt-6 rounded-b-lg flex-col items-stretch gap-2", {
+        "print:mt-2 print:p-2": true
+      })}>
+          <div className="w-full flex justify-between items-center text-sm text-muted-foreground">
+              <p>Subtotal (Parts):</p>
+              <p>₹{totalPartsPrice.toFixed(2)}</p>
+          </div>
+           <div className="w-full flex justify-between items-center text-sm text-muted-foreground">
+              <p>Subtotal (Labor):</p>
+              <p>₹{(baseLaborCharge + recommendedLaborCharge).toFixed(2)}</p>
+          </div>
+        <Separator className="my-1"/>
         <div className="w-full flex justify-between items-center">
             <p className="text-xl font-bold">Total Estimate:</p>
             <p className="text-xl font-bold">₹{finalTotal.toFixed(2)}</p>
         </div>
       </CardFooter>
+      <style jsx global>{`
+        @media print {
+            .no-print {
+                display: none;
+            }
+            .print-only {
+                display: block !important;
+            }
+            .print-container {
+                box-shadow: none;
+                border: none;
+            }
+        }
+      `}</style>
     </div>
   );
 }

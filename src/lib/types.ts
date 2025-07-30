@@ -24,6 +24,7 @@ export type Labor = z.infer<typeof LaborSchema>;
 export const ServiceSchema = z.object({
   parts: z.array(PartSchema),
   labor: z.array(LaborSchema),
+  recommendedLabor: z.array(LaborSchema).optional(),
 });
 export type Service = z.infer<typeof ServiceSchema>;
 
@@ -39,6 +40,7 @@ export const ServiceEstimateDataSchema = z.object({
     serviceType: z.string(),
     parts: z.array(PartSchema),
     labor: z.array(LaborSchema),
+    recommendedLabor: z.array(LaborSchema).optional(),
     totalPrice: z.number(),
 });
 export type ServiceEstimateData = z.infer<typeof ServiceEstimateDataSchema>;

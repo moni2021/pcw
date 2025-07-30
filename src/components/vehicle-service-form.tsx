@@ -56,7 +56,7 @@ export function VehicleServiceForm() {
         return;
       }
       
-      const { parts, labor } = serviceInfo;
+      const { parts, labor, recommendedLabor } = serviceInfo;
       const totalPartsPrice = parts.reduce((sum, part) => sum + part.price, 0);
       const totalLaborCharge = labor.reduce((sum, job) => sum + job.charge, 0);
 
@@ -68,6 +68,7 @@ export function VehicleServiceForm() {
         serviceType: selectedService,
         parts,
         labor,
+        recommendedLabor: recommendedLabor || [],
         totalPrice: totalPartsPrice + totalLaborCharge,
       };
       
