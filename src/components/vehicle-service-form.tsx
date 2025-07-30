@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useState, useMemo, useEffect } from 'react';
@@ -12,7 +13,6 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Loader2, Car, Tag, Building2 } from 'lucide-react';
 import { Separator } from './ui/separator';
 import { Badge } from '@/components/ui/badge';
-import { VehicleCombobox } from './vehicle-combobox';
 
 export function VehicleServiceForm() {
   const [selectedModel, setSelectedModel] = useState<string>('');
@@ -159,11 +159,18 @@ export function VehicleServiceForm() {
       <CardContent className="space-y-6">
         <div className="space-y-2">
             <Label htmlFor="vehicle-model">Vehicle Model</Label>
-            <VehicleCombobox 
-                vehicles={vehicles}
-                value={selectedModel}
-                onSelect={handleModelChange}
-            />
+             <Select onValueChange={handleModelChange} value={selectedModel}>
+                <SelectTrigger id="vehicle-model">
+                    <SelectValue placeholder="Select Model" />
+                </SelectTrigger>
+                <SelectContent>
+                    {vehicles.map(vehicle => (
+                        <SelectItem key={vehicle.model} value={vehicle.model}>
+                            {vehicle.model}
+                        </SelectItem>
+                    ))}
+                </SelectContent>
+            </Select>
         </div>
 
         {currentVehicle && (
