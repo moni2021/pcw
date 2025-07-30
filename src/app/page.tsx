@@ -1,4 +1,5 @@
 import { VehicleServiceForm } from '@/components/vehicle-service-form';
+import Link from 'next/link';
 
 export default function Home() {
   return (
@@ -19,7 +20,14 @@ export default function Home() {
           <p>
             This is an unofficial estimator. Prices are indicative and may vary.
           </p>
-          <p>Built with Next.js and Tailwind CSS.</p>
+          <p>
+            Built with Next.js and Tailwind CSS.
+          </p>
+          <p className="mt-2">
+            <Link href="/admin/login" className="hover:underline text-primary">
+              Admin Login
+            </Link>
+          </p>
         </footer>
       </div>
     </main>
