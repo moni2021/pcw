@@ -21,6 +21,7 @@ interface ServiceEstimateProps {
 
 export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
   const { vehicle, serviceType, parts, labor, recommendedLabor } = estimate;
+  const GST_RATE = 0.18;
 
   const [discountType, setDiscountType] = useState<'percentage' | 'rupees'>('percentage');
   const [discountValue, setDiscountValue] = useState<number>(0);
@@ -31,7 +32,7 @@ export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
   const baseLaborCharge = useMemo(() => labor.reduce((sum, job) => sum + job.charge, 0), [labor]);
   const recommendedLaborCharge = useMemo(() => selectedRecommended.reduce((sum, job) => sum + job.charge, 0), [selectedRecommended]);
   const totalLaborCharge = useMemo(() => baseLaborCharge + recommendedLaborCharge, [baseLaborCharge, recommendedLaborCharge]);
-  const gstOnLabor = useMemo(() => totalLaborCharge * 0.18, [totalLaborCharge]);
+  const gstOnLabor = useMemo(() => totalLaborCharge * GST_RATE, [totalLaborCharge]);
 
   useEffect(() => {
     let laborDiscount = 0;
@@ -139,6 +140,8 @@ export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
                     <TableRow>
                       <TableHead>Labor Description</TableHead>
                       <TableHead className="text-right">Charge (₹)</TableHead>
+                      <TableHead className="text-right">GST (18%)</TableHead>
+                      <TableHead className="text-right">Total (₹)</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -146,6 +149,8 @@ export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
                       <TableRow key={index}>
                         <TableCell className="font-medium">{job.name}</TableCell>
                         <TableCell className="text-right">{job.charge.toFixed(2)}</TableCell>
+                        <TableCell className="text-right">{(job.charge * GST_RATE).toFixed(2)}</TableCell>
+                        <TableCell className="text-right font-semibold">{(job.charge * (1 + GST_RATE)).toFixed(2)}</TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
@@ -156,7 +161,7 @@ export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
           {recommendedLabor && recommendedLabor.length > 0 && (
              <div className="space-y-4 rounded-lg border border-dashed p-4 no-print">
                 <h3 className="text-lg font-semibold mb-2 flex items-center gap-2 text-primary"> <PlusCircle className="h-5 w-5"/> Recommended Services</h3>
-                <p className="text-sm text-muted-foreground">Select any additional services you would like to include.</p>
+                <p className="text-sm text-muted-foreground">Select any additional services you would like to include. Prices include 18% GST.</p>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     {recommendedLabor.map((job, index) => (
                         <div key={index} className="flex items-center space-x-3 rounded-md bg-muted/30 p-3">
@@ -170,8 +175,11 @@ export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
                                 className="flex-1 text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                             >
                                 {job.name}
+                                <span className="block text-xs text-muted-foreground">
+                                    (₹{job.charge.toFixed(2)} + ₹{(job.charge * GST_RATE).toFixed(2)} GST)
+                                </span>
                             </label>
-                            <p className="text-sm font-semibold">₹{job.charge.toFixed(2)}</p>
+                            <p className="text-sm font-semibold">₹{(job.charge * (1 + GST_RATE)).toFixed(2)}</p>
                         </div>
                     ))}
                 </div>
@@ -182,7 +190,7 @@ export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
         
         <div className="mt-6 flex flex-col items-end space-y-4 no-print">
            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4">
-              <Label className="mt-2 sm:mt-0">Discount on Labor</Label>
+              <Label className="mt-2 sm:mt-0">Discount on Labor (Base Charge)</Label>
                <RadioGroup defaultValue="percentage" value={discountType} onValueChange={(value) => setDiscountType(value as 'percentage' | 'rupees')} className="flex items-center">
                     <div className="flex items-center space-x-2">
                         <RadioGroupItem value="percentage" id="r-percentage" />
@@ -218,6 +226,8 @@ export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
                             <TableRow>
                               <TableHead>Service Description</TableHead>
                               <TableHead className="text-right">Charge (₹)</TableHead>
+                              <TableHead className="text-right">GST (18%)</TableHead>
+                              <TableHead className="text-right">Total (₹)</TableHead>
                             </TableRow>
                           </TableHeader>
                           <TableBody>
@@ -225,6 +235,8 @@ export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
                               <TableRow key={`print-rec-${index}`}>
                                 <TableCell className="font-medium">{job.name}</TableCell>
                                 <TableCell className="text-right">{job.charge.toFixed(2)}</TableCell>
+                                <TableCell className="text-right">{(job.charge * GST_RATE).toFixed(2)}</TableCell>
+                                <TableCell className="text-right font-semibold">{(job.charge * (1 + GST_RATE)).toFixed(2)}</TableCell>
                               </TableRow>
                             ))}
                           </TableBody>
@@ -248,7 +260,7 @@ export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
               <p>₹{totalLaborCharge.toFixed(2)}</p>
           </div>
           <div className="w-full flex justify-between items-center text-sm text-muted-foreground">
-              <p>GST on Labor (18%):</p>
+              <p>Total GST on Labor (18%):</p>
               <p>₹{gstOnLabor.toFixed(2)}</p>
           </div>
         <Separator className="my-1"/>
