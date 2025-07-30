@@ -1,18 +1,18 @@
 import { Vehicle, ServiceData } from './types';
 
 export const vehicles: Vehicle[] = [
-  { model: 'Swift', fuelTypes: ['Petrol', 'Diesel', 'CNG'] },
-  { model: 'Baleno', fuelTypes: ['Petrol', 'CNG'] },
-  { model: 'Dzire', fuelTypes: ['Petrol', 'CNG'] },
-  { model: 'Brezza', fuelTypes: ['Petrol'] },
-  { model: 'Ertiga', fuelTypes: ['Petrol', 'CNG'] },
-  { model: 'Wagon R', fuelTypes: ['Petrol', 'CNG'] },
-  { model: 'Alto K10', fuelTypes: ['Petrol', 'CNG'] },
-  { model: 'Celerio', fuelTypes: ['Petrol'] },
-  { model: 'S-Presso', fuelTypes: ['Petrol', 'CNG'] },
-  { model: 'Ignis', fuelTypes: ['Petrol'] },
-  { model: 'XL6', fuelTypes: ['Petrol'] },
-  { model: 'Grand Vitara', fuelTypes: ['Petrol', 'Hybrid'] },
+  { model: 'Swift', fuelTypes: ['Petrol', 'Diesel', 'CNG'], productionYears: [2018, 2019, 2020, 2021, 2022, 2023] },
+  { model: 'Baleno', fuelTypes: ['Petrol', 'CNG'], productionYears: [2019, 2020, 2021, 2022, 2023] },
+  { model: 'Dzire', fuelTypes: ['Petrol', 'CNG'], productionYears: [2017, 2018, 2019, 2020, 2021, 2022, 2023] },
+  { model: 'Brezza', fuelTypes: ['Petrol'], productionYears: [2020, 2021, 2022, 2023] },
+  { model: 'Ertiga', fuelTypes: ['Petrol', 'CNG'], productionYears: [2019, 2020, 2021, 2022, 2023] },
+  { model: 'Wagon R', fuelTypes: ['Petrol', 'CNG'], productionYears: [2019, 2020, 2021, 2022, 2023] },
+  { model: 'Alto K10', fuelTypes: ['Petrol', 'CNG'], productionYears: [2022, 2023] },
+  { model: 'Celerio', fuelTypes: ['Petrol'], productionYears: [2021, 2022, 2023] },
+  { model: 'S-Presso', fuelTypes: ['Petrol', 'CNG'], productionYears: [2019, 2020, 2021, 2022, 2023] },
+  { model: 'Ignis', fuelTypes: ['Petrol'], productionYears: [2020, 2021, 2022, 2023] },
+  { model: 'XL6', fuelTypes: ['Petrol'], productionYears: [2019, 2020, 2021, 2022, 2023] },
+  { model: 'Grand Vitara', fuelTypes: ['Petrol', 'Hybrid'], productionYears: [2022, 2023] },
 ];
 
 export const serviceData: ServiceData = {

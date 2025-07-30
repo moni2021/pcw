@@ -85,7 +85,7 @@ export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
         <div className="grid grid-cols-2 gap-4 mb-6 text-sm">
           <div>
             <p className="font-semibold text-muted-foreground">Vehicle Model</p>
-            <p>{vehicle.model}</p>
+            <p>{vehicle.model} ({vehicle.productionYear})</p>
           </div>
           <div>
             <p className="font-semibold text-muted-foreground">Fuel Type</p>

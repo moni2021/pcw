@@ -3,6 +3,7 @@ import { z } from 'zod';
 export const VehicleSchema = z.object({
   model: z.string(),
   fuelTypes: z.array(z.string()),
+  productionYears: z.array(z.number()),
 });
 export type Vehicle = z.infer<typeof VehicleSchema>;
 
@@ -36,6 +37,7 @@ export const ServiceEstimateDataSchema = z.object({
     vehicle: z.object({
         model: z.string(),
         fuelType: z.string(),
+        productionYear: z.number(),
     }),
     serviceType: z.string(),
     parts: z.array(PartSchema),

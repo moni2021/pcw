@@ -15,6 +15,7 @@ import { Separator } from './ui/separator';
 export function VehicleServiceForm() {
   const [selectedModel, setSelectedModel] = useState<string>('');
   const [selectedFuelType, setSelectedFuelType] = useState<string>('');
+  const [selectedYear, setSelectedYear] = useState<string>('');
   const [selectedService, setSelectedService] = useState<string>('');
   const [estimate, setEstimate] = useState<ServiceEstimateData | null>(null);
   const [error, setError] = useState<string>('');
@@ -27,6 +28,7 @@ export function VehicleServiceForm() {
   const handleModelChange = (model: string) => {
     setSelectedModel(model);
     setSelectedFuelType('');
+    setSelectedYear('');
     setEstimate(null);
     setError('');
     const vehicle = vehicles.find(v => v.model === model);
@@ -35,8 +37,15 @@ export function VehicleServiceForm() {
     }
   };
 
+  const handleFuelTypeChange = (fuelType: string) => {
+    setSelectedFuelType(fuelType);
+    setSelectedYear('');
+    setEstimate(null);
+    setError('');
+  }
+
   const handleSearch = () => {
-    if (!selectedModel || !selectedFuelType || !selectedService) {
+    if (!selectedModel || !selectedFuelType || !selectedYear || !selectedService) {
       setError('Please fill all the fields to get an estimate.');
       setEstimate(null);
       return;
@@ -64,6 +73,7 @@ export function VehicleServiceForm() {
         vehicle: {
           model: selectedModel,
           fuelType: selectedFuelType,
+          productionYear: parseInt(selectedYear, 10),
         },
         serviceType: selectedService,
         parts,
@@ -104,7 +114,7 @@ export function VehicleServiceForm() {
             
             <div className="space-y-2">
                 <Label htmlFor="fuel-type">Fuel Type</Label>
-                <Select onValueChange={setSelectedFuelType} value={selectedFuelType} disabled={!currentVehicle || currentVehicle.fuelTypes.length <= 1}>
+                <Select onValueChange={handleFuelTypeChange} value={selectedFuelType} disabled={!currentVehicle || currentVehicle.fuelTypes.length <= 1}>
                     <SelectTrigger id="fuel-type">
                         <SelectValue placeholder="Select Fuel Type" />
                     </SelectTrigger>
@@ -118,7 +128,24 @@ export function VehicleServiceForm() {
                 </Select>
             </div>
             
-            <div className="space-y-2 sm:col-span-2">
+             <div className="space-y-2">
+                <Label htmlFor="production-year">Production Year</Label>
+                <Select onValueChange={setSelectedYear} value={selectedYear} disabled={!selectedFuelType}>
+                    <SelectTrigger id="production-year">
+                        <SelectValue placeholder="Select Year" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        {currentVehicle?.productionYears.map(year => (
+                            <SelectItem key={year} value={String(year)}>
+                                {year}
+                            </SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
+            </div>
+
+
+            <div className="space-y-2">
                 <Label htmlFor="service-type">Service Type</Label>
                 <Select onValueChange={setSelectedService} value={selectedService}>
                     <SelectTrigger id="service-type">
