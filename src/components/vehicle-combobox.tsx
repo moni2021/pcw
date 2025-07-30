@@ -22,17 +22,16 @@ import type { Vehicle } from "@/lib/types"
 
 interface VehicleComboboxProps {
     vehicles: Vehicle[];
+    value: string;
     onSelect: (model: string) => void;
 }
 
-export function VehicleCombobox({ vehicles, onSelect }: VehicleComboboxProps) {
+export function VehicleCombobox({ vehicles, value, onSelect }: VehicleComboboxProps) {
   const [open, setOpen] = React.useState(false)
-  const [value, setValue] = React.useState("")
 
   const handleSelect = (currentValue: string) => {
     const selectedVehicle = vehicles.find(v => v.model.toLowerCase() === currentValue);
     const model = selectedVehicle ? selectedVehicle.model : "";
-    setValue(model);
     onSelect(model);
     setOpen(false);
   }

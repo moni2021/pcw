@@ -161,6 +161,7 @@ export function VehicleServiceForm() {
             <Label htmlFor="vehicle-model">Vehicle Model</Label>
             <VehicleCombobox 
                 vehicles={vehicles}
+                value={selectedModel}
                 onSelect={handleModelChange}
             />
         </div>
