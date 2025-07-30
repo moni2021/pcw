@@ -10,10 +10,13 @@ import { serviceData } from '@/lib/data';
 import type { Part, Labor, Service, ServiceData } from '@/lib/types';
 import { auth } from '@/lib/firebase';
 import { onAuthStateChanged, signOut, User } from 'firebase/auth';
-import { Loader2, ArrowLeft, PlusCircle, Trash2 } from 'lucide-react';
+import { Loader2, ArrowLeft, PlusCircle, Trash2, ChevronsUpDown } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 import { updateServiceData } from '@/ai/flows/updateDataFlow';
 import Link from 'next/link';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import { Textarea } from '@/components/ui/textarea';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 
 export default function AdminPage() {
@@ -23,6 +26,8 @@ export default function AdminPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [editableServiceData, setEditableServiceData] = useState<ServiceData>(() => JSON.parse(JSON.stringify(serviceData)));
+  const [jsonDataString, setJsonDataString] = useState('');
+  const [jsonError, setJsonError] = useState('');
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -36,6 +41,11 @@ export default function AdminPage() {
 
     return () => unsubscribe();
   }, [router]);
+  
+  useEffect(() => {
+    setJsonDataString(JSON.stringify(editableServiceData, null, 2));
+  }, [editableServiceData]);
+
 
   const handleLogout = async () => {
     try {
@@ -90,6 +100,7 @@ export default function AdminPage() {
   
   const handleSaveChanges = async () => {
     setIsSaving(true);
+    setJsonError('');
     try {
       const result = await updateServiceData(editableServiceData);
       if (result.success) {
@@ -110,6 +121,22 @@ export default function AdminPage() {
         setIsSaving(false);
     }
   };
+  
+  const handleJsonUpdate = () => {
+    setJsonError('');
+    try {
+        const parsedData = JSON.parse(jsonDataString);
+        // Add basic validation if needed
+        setEditableServiceData(parsedData);
+        toast({
+            title: "Data Loaded",
+            description: "JSON data has been loaded into the editor. Review the changes and click 'Save All Changes' to persist them.",
+        });
+    } catch (error: any) {
+        setJsonError(`Invalid JSON: ${error.message}`);
+    }
+  };
+
 
   if (isLoading || !user) {
     return (
@@ -132,7 +159,7 @@ export default function AdminPage() {
           <div className="flex items-center gap-2">
             <Button variant="outline" asChild size="sm">
                 <Link href="/">
-                    <ArrowLeft />
+                    <ArrowLeft className="mr-2 h-4 w-4" />
                     <span>Go to Homepage</span>
                 </Link>
             </Button>
@@ -140,118 +167,146 @@ export default function AdminPage() {
           </div>
         </header>
 
-        <Card className="shadow-lg">
-          <CardHeader>
-            <CardTitle>Manage Service Data</CardTitle>
-            <CardDescription>Update the prices for parts and labor for each service type.</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-8">
-            {Object.entries(editableServiceData).map(([serviceType, serviceDetails]) => (
-              <div key={serviceType}>
-                <h3 className="text-xl font-semibold mb-4 text-gray-700 dark:text-gray-200 capitalize">{serviceType.replace(/_/g, ' ')}</h3>
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                    <div>
-                        <div className="flex justify-between items-center mb-2">
-                            <h4 className="font-semibold">Parts</h4>
-                            <Button size="sm" variant="outline" onClick={() => handleAddItem(serviceType, 'parts')}>
-                                <PlusCircle className="mr-2 h-4 w-4" /> Add Part
-                            </Button>
-                        </div>
-                        <div className="overflow-x-auto border rounded-lg">
-                            <Table>
-                              <TableHeader>
-                                <TableRow>
-                                  <TableHead>Part Name</TableHead>
-                                  <TableHead className="w-[120px] text-right">Price (₹)</TableHead>
-                                  <TableHead className="w-[50px] text-right">Action</TableHead>
-                                </TableRow>
-                              </TableHeader>
-                              <TableBody>
-                                {(serviceDetails as Service).parts.map((part, index) => (
-                                  <TableRow key={index}>
-                                    <TableCell>
-                                      <Input
-                                        type="text"
-                                        value={part.name}
-                                        onChange={(e) => handleDataChange(serviceType, 'parts', index, 'name', e.target.value)}
-                                        className="h-9"
-                                      />
-                                    </TableCell>
-                                    <TableCell>
-                                      <Input
-                                        type="number"
-                                        value={part.price}
-                                        onChange={(e) => handleDataChange(serviceType, 'parts', index, 'price', e.target.value)}
-                                        className="h-9 w-24 ml-auto text-right"
-                                      />
-                                    </TableCell>
-                                    <TableCell className="text-right">
-                                        <Button variant="ghost" size="icon" onClick={() => handleRemoveItem(serviceType, 'parts', index)}>
-                                            <Trash2 className="h-4 w-4 text-destructive" />
-                                        </Button>
-                                    </TableCell>
-                                  </TableRow>
-                                ))}
-                              </TableBody>
-                            </Table>
+        <div className="space-y-8">
+            <Card className="shadow-lg">
+                <CardHeader>
+                    <CardTitle>Manage Service Data</CardTitle>
+                    <CardDescription>Update the prices for parts and labor for each service type.</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-8">
+                    {Object.entries(editableServiceData).map(([serviceType, serviceDetails]) => (
+                    <div key={serviceType}>
+                        <h3 className="text-xl font-semibold mb-4 text-gray-700 dark:text-gray-200 capitalize">{serviceType.replace(/_/g, ' ')}</h3>
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                            <div>
+                                <div className="flex justify-between items-center mb-2">
+                                    <h4 className="font-semibold">Parts</h4>
+                                    <Button size="sm" variant="outline" onClick={() => handleAddItem(serviceType, 'parts')}>
+                                        <PlusCircle className="mr-2 h-4 w-4" /> Add Part
+                                    </Button>
+                                </div>
+                                <div className="overflow-x-auto border rounded-lg">
+                                    <Table>
+                                    <TableHeader>
+                                        <TableRow>
+                                        <TableHead>Part Name</TableHead>
+                                        <TableHead className="w-[120px] text-right">Price (₹)</TableHead>
+                                        <TableHead className="w-[50px] text-right">Action</TableHead>
+                                        </TableRow>
+                                    </TableHeader>
+                                    <TableBody>
+                                        {(serviceDetails as Service).parts.map((part, index) => (
+                                        <TableRow key={index}>
+                                            <TableCell>
+                                            <Input
+                                                type="text"
+                                                value={part.name}
+                                                onChange={(e) => handleDataChange(serviceType, 'parts', index, 'name', e.target.value)}
+                                                className="h-9"
+                                            />
+                                            </TableCell>
+                                            <TableCell>
+                                            <Input
+                                                type="number"
+                                                value={part.price}
+                                                onChange={(e) => handleDataChange(serviceType, 'parts', index, 'price', e.target.value)}
+                                                className="h-9 w-24 ml-auto text-right"
+                                            />
+                                            </TableCell>
+                                            <TableCell className="text-right">
+                                                <Button variant="ghost" size="icon" onClick={() => handleRemoveItem(serviceType, 'parts', index)}>
+                                                    <Trash2 className="h-4 w-4 text-destructive" />
+                                                </Button>
+                                            </TableCell>
+                                        </TableRow>
+                                        ))}
+                                    </TableBody>
+                                    </Table>
+                                </div>
+                            </div>
+                            <div>
+                                <div className="flex justify-between items-center mb-2">
+                                    <h4 className="font-semibold">Labor</h4>
+                                    <Button size="sm" variant="outline" onClick={() => handleAddItem(serviceType, 'labor')}>
+                                        <PlusCircle className="mr-2 h-4 w-4" /> Add Labor
+                                    </Button>
+                                </div>
+                                <div className="overflow-x-auto border rounded-lg">
+                                    <Table>
+                                    <TableHeader>
+                                        <TableRow>
+                                        <TableHead>Labor Name</TableHead>
+                                        <TableHead className="w-[120px] text-right">Charge (₹)</TableHead>
+                                        <TableHead className="w-[50px] text-right">Action</TableHead>
+                                        </TableRow>
+                                    </TableHeader>
+                                    <TableBody>
+                                        {(serviceDetails as Service).labor.map((labor, index) => (
+                                        <TableRow key={index}>
+                                            <TableCell>
+                                            <Input
+                                                type="text"
+                                                value={labor.name}
+                                                onChange={(e) => handleDataChange(serviceType, 'labor', index, 'name', e.target.value)}
+                                                className="h-9"
+                                            />
+                                            </TableCell>
+                                            <TableCell>
+                                            <Input
+                                                type="number"
+                                                value={labor.charge}
+                                                onChange={(e) => handleDataChange(serviceType, 'labor', index, 'charge', e.target.value)}
+                                                className="h-9 w-24 ml-auto text-right"
+                                            />
+                                            </TableCell>
+                                            <TableCell className="text-right">
+                                                <Button variant="ghost" size="icon" onClick={() => handleRemoveItem(serviceType, 'labor', index)}>
+                                                    <Trash2 className="h-4 w-4 text-destructive" />
+                                                </Button>
+                                            </TableCell>
+                                        </TableRow>
+                                        ))}
+                                    </TableBody>
+                                    </Table>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                    <div>
-                         <div className="flex justify-between items-center mb-2">
-                            <h4 className="font-semibold">Labor</h4>
-                            <Button size="sm" variant="outline" onClick={() => handleAddItem(serviceType, 'labor')}>
-                                <PlusCircle className="mr-2 h-4 w-4" /> Add Labor
-                            </Button>
-                        </div>
-                        <div className="overflow-x-auto border rounded-lg">
-                            <Table>
-                              <TableHeader>
-                                <TableRow>
-                                  <TableHead>Labor Name</TableHead>
-                                  <TableHead className="w-[120px] text-right">Charge (₹)</TableHead>
-                                  <TableHead className="w-[50px] text-right">Action</TableHead>
-                                </TableRow>
-                              </TableHeader>
-                              <TableBody>
-                                {(serviceDetails as Service).labor.map((labor, index) => (
-                                  <TableRow key={index}>
-                                    <TableCell>
-                                       <Input
-                                        type="text"
-                                        value={labor.name}
-                                        onChange={(e) => handleDataChange(serviceType, 'labor', index, 'name', e.target.value)}
-                                        className="h-9"
-                                      />
-                                    </TableCell>
-                                    <TableCell>
-                                      <Input
-                                        type="number"
-                                        value={labor.charge}
-                                        onChange={(e) => handleDataChange(serviceType, 'labor', index, 'charge', e.target.value)}
-                                        className="h-9 w-24 ml-auto text-right"
-                                      />
-                                    </TableCell>
-                                     <TableCell className="text-right">
-                                        <Button variant="ghost" size="icon" onClick={() => handleRemoveItem(serviceType, 'labor', index)}>
-                                            <Trash2 className="h-4 w-4 text-destructive" />
-                                        </Button>
-                                    </TableCell>
-                                  </TableRow>
-                                ))}
-                              </TableBody>
-                            </Table>
-                        </div>
-                    </div>
-                </div>
-              </div>
-            ))}
-          </CardContent>
-           <CardFooter>
-            <Button onClick={handleSaveChanges} disabled={isSaving} className="w-full sm:w-auto">
-                {isSaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : 'Save All Changes'}
-            </Button>
-          </CardFooter>
-        </Card>
+                    ))}
+                </CardContent>
+                <CardFooter>
+                    <Button onClick={handleSaveChanges} disabled={isSaving} className="w-full sm:w-auto">
+                        {isSaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : 'Save All Changes'}
+                    </Button>
+                </CardFooter>
+            </Card>
+
+             <Card className="shadow-lg">
+                <Accordion type="single" collapsible>
+                    <AccordionItem value="item-1">
+                        <AccordionTrigger className="px-6">
+                             <div className="flex items-center gap-2">
+                                <ChevronsUpDown className="h-4 w-4" />
+                                <h3 className="text-lg font-semibold">Bulk Data Management (JSON)</h3>
+                            </div>
+                        </AccordionTrigger>
+                        <AccordionContent className="px-6 pt-4">
+                            <p className="text-sm text-muted-foreground mb-4">
+                                You can edit the entire service data object below. Copy the text, make your changes in a text editor, and then paste it back. Click 'Load JSON Data' to apply your changes to the editor above, then click 'Save All Changes' to persist them.
+                            </p>
+                             <Textarea 
+                                value={jsonDataString}
+                                onChange={(e) => setJsonDataString(e.target.value)}
+                                className="min-h-[400px] font-mono text-xs"
+                                placeholder="Paste your service data JSON here..."
+                            />
+                            {jsonError && <Alert variant="destructive" className="mt-4"><AlertDescription>{jsonError}</AlertDescription></Alert>}
+                            <Button onClick={handleJsonUpdate} className="mt-4">Load JSON Data into Editor</Button>
+                        </AccordionContent>
+                    </AccordionItem>
+                </Accordion>
+             </Card>
+        </div>
       </div>
     </main>
   );
