@@ -36,7 +36,6 @@ export const serviceData: ServiceData = {
   '1st Free Service (1,000 km)': {
     parts: [{ name: 'Washer, drain plug', price: 50 }],
     labor: [{ name: 'General Inspection & Wash', charge: 0 }],
-    recommendedLabor: [],
   },
   '2nd Free Service (5,000 km)': {
     parts: [
@@ -45,7 +44,6 @@ export const serviceData: ServiceData = {
       { name: 'Washer, drain plug', price: 50 },
     ],
     labor: [{ name: 'General Inspection & Wash', charge: 0 }],
-    recommendedLabor: [],
   },
   '3rd Free Service (10,000 km)': {
     parts: [
@@ -59,7 +57,6 @@ export const serviceData: ServiceData = {
         { name: 'General Inspection & Wash', charge: 0 },
         { name: 'Tire Rotation', charge: 0 }
     ],
-    recommendedLabor: [],
   },
   'Paid Service (20,000 km)': {
     parts: [
@@ -75,6 +72,8 @@ export const serviceData: ServiceData = {
     ],
     recommendedLabor: [
         { name: 'Wheel Alignment & Balancing', charge: 800 },
+    ],
+    optionalServices: [
         { name: '3M Interior Germ Kleen', charge: 700 }
     ]
   },
@@ -91,6 +90,8 @@ export const serviceData: ServiceData = {
     ],
     recommendedLabor: [
         { name: 'Tire Rotation', charge: 350 },
+    ],
+    optionalServices: [
         { name: '3M Car Polish', charge: 1200 },
     ]
   },
@@ -113,6 +114,8 @@ export const serviceData: ServiceData = {
       { name: 'Wheel Alignment & Balancing', charge: 800 },
       { name: 'Throttle Body Cleaning', charge: 500 },
       { name: 'Injector Cleaning', charge: 900 },
+    ],
+    optionalServices: [
       { name: '3M Underbody Coating (1-year warranty)', charge: 2500 }
     ],
   },
@@ -141,7 +144,9 @@ export const serviceData: ServiceData = {
     recommendedLabor: [
       { name: 'Wheel Alignment & Balancing', charge: 800 },
       { name: 'AC Service', charge: 2500 },
-      { name: '3M Paint Protection Film (Bonnet)', charge: 4000 }
+    ],
+    optionalServices: [
+        { name: '3M Paint Protection Film (Bonnet)', charge: 4000 }
     ],
   },
   'Paid Service (70,000 km)': {
@@ -175,7 +180,9 @@ export const serviceData: ServiceData = {
       { name: 'Wheel Alignment & Balancing', charge: 800 },
       { name: 'Throttle Body Cleaning', charge: 500 },
       { name: 'Suspension Check', charge: 750 },
-      { name: '3M Silencer Coating', charge: 800 }
+    ],
+    optionalServices: [
+        { name: '3M Silencer Coating', charge: 800 }
     ],
   },
   'Paid Service (90,000 km)': {
@@ -208,7 +215,9 @@ export const serviceData: ServiceData = {
     ],
     recommendedLabor: [
         { "name": "Wheel Alignment & Balancing", "charge": 800 },
-        { "name": "Injector Cleaning", "charge": 900 },
+        { "name": "Injector Cleaning", "charge": 900 }
+    ],
+    optionalServices: [
         { "name": "3M Interior Germ Kleen", "charge": 700 }
     ]
   },

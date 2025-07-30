@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Separator } from '@/components/ui/separator';
-import { Printer, Percent, PlusCircle } from 'lucide-react';
+import { Printer, Percent, PlusCircle, Sparkles } from 'lucide-react';
 import type { ServiceEstimateData, Labor } from '@/lib/types';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
@@ -20,42 +20,49 @@ interface ServiceEstimateProps {
 }
 
 export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
-  const { vehicle, serviceType, parts, labor, recommendedLabor } = estimate;
+  const { vehicle, serviceType, parts, labor, recommendedLabor, optionalServices } = estimate;
   const GST_RATE = 0.18;
 
   const [discountType, setDiscountType] = useState<'percentage' | 'rupees'>('percentage');
   const [discountValue, setDiscountValue] = useState<number>(0);
   const [selectedRecommended, setSelectedRecommended] = useState<Labor[]>([]);
+  const [selectedOptional, setSelectedOptional] = useState<Labor[]>([]);
   const [finalTotal, setFinalTotal] = useState(estimate.totalPrice);
   
   const totalPartsPrice = useMemo(() => parts.reduce((sum, part) => sum + part.price, 0), [parts]);
   const baseLaborCharge = useMemo(() => labor.reduce((sum, job) => sum + job.charge, 0), [labor]);
   const recommendedLaborCharge = useMemo(() => selectedRecommended.reduce((sum, job) => sum + job.charge, 0), [selectedRecommended]);
-  const totalLaborCharge = useMemo(() => baseLaborCharge + recommendedLaborCharge, [baseLaborCharge, recommendedLaborCharge]);
+  const optionalServiceCharge = useMemo(() => selectedOptional.reduce((sum, job) => sum + job.charge, 0), [selectedOptional]);
+  
+  const totalLaborCharge = useMemo(() => baseLaborCharge + recommendedLaborCharge + optionalServiceCharge, [baseLaborCharge, recommendedLaborCharge, optionalServiceCharge]);
   const gstOnLabor = useMemo(() => totalLaborCharge * GST_RATE, [totalLaborCharge]);
 
   useEffect(() => {
     let laborDiscount = 0;
     const numericDiscountValue = Number(discountValue) || 0;
 
+    // Discount is only applied to base labor + recommended, not premium optional services
+    const discountableLabor = baseLaborCharge + recommendedLaborCharge;
+
     if (discountType === 'percentage') {
-      laborDiscount = totalLaborCharge * (numericDiscountValue / 100);
+      laborDiscount = discountableLabor * (numericDiscountValue / 100);
     } else {
       laborDiscount = numericDiscountValue;
     }
     
-    laborDiscount = Math.min(laborDiscount, totalLaborCharge);
+    laborDiscount = Math.min(laborDiscount, discountableLabor);
 
     const newTotal = totalPartsPrice + totalLaborCharge + gstOnLabor - laborDiscount;
     setFinalTotal(newTotal);
 
-  }, [discountValue, discountType, totalLaborCharge, totalPartsPrice, gstOnLabor]);
+  }, [discountValue, discountType, totalLaborCharge, totalPartsPrice, gstOnLabor, baseLaborCharge, recommendedLaborCharge]);
   
   useEffect(() => {
     // Reset state when a new estimate is received
     setDiscountValue(0);
     setDiscountType('percentage');
     setSelectedRecommended([]);
+    setSelectedOptional([]);
   }, [estimate]);
 
 
@@ -63,8 +70,11 @@ export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
     window.print();
   };
 
-  const handleRecommendedChange = (job: Labor) => {
-    setSelectedRecommended(prev => {
+  const handleRecommendedChange = (job: Labor, type: 'recommended' | 'optional') => {
+    const setter = type === 'recommended' ? setSelectedRecommended : setSelectedOptional;
+    const getter = type === 'recommended' ? selectedRecommended : selectedOptional;
+    
+    setter(prev => {
         const isSelected = prev.find(item => item.name === job.name);
         if (isSelected) {
             return prev.filter(item => item.name !== job.name);
@@ -161,13 +171,13 @@ export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
           {recommendedLabor && recommendedLabor.length > 0 && (
              <div className="space-y-4 rounded-lg border border-dashed p-4 no-print">
                 <h3 className="text-lg font-semibold mb-2 flex items-center gap-2 text-primary"> <PlusCircle className="h-5 w-5"/> Recommended Services</h3>
-                <p className="text-sm text-muted-foreground">Select any additional services you would like to include. Prices include 18% GST.</p>
+                <p className="text-sm text-muted-foreground">Select any additional services you would like to include.</p>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     {recommendedLabor.map((job, index) => (
                         <div key={index} className="flex items-center space-x-3 rounded-md bg-muted/30 p-3">
                              <Checkbox 
                                 id={`rec-${index}`} 
-                                onCheckedChange={() => handleRecommendedChange(job)}
+                                onCheckedChange={() => handleRecommendedChange(job, 'recommended')}
                                 checked={!!selectedRecommended.find(item => item.name === job.name)}
                             />
                             <label
@@ -186,11 +196,39 @@ export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
             </div>
           )}
 
+          {optionalServices && optionalServices.length > 0 && (
+             <div className="space-y-4 rounded-lg border border-dashed p-4 no-print border-primary/50 bg-primary/5">
+                <h3 className="text-lg font-semibold mb-2 flex items-center gap-2 text-primary"> <Sparkles className="h-5 w-5"/> 3M Optional Services</h3>
+                <p className="text-sm text-muted-foreground">Select any premium 3M services to add.</p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {optionalServices.map((job, index) => (
+                        <div key={index} className="flex items-center space-x-3 rounded-md bg-muted/30 p-3">
+                             <Checkbox 
+                                id={`opt-${index}`} 
+                                onCheckedChange={() => handleRecommendedChange(job, 'optional')}
+                                checked={!!selectedOptional.find(item => item.name === job.name)}
+                            />
+                            <label
+                                htmlFor={`opt-${index}`}
+                                className="flex-1 text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                            >
+                                {job.name}
+                                <span className="block text-xs text-muted-foreground">
+                                    (₹{job.charge.toFixed(2)} + ₹{(job.charge * GST_RATE).toFixed(2)} GST)
+                                </span>
+                            </label>
+                            <p className="text-sm font-semibold">₹{(job.charge * (1 + GST_RATE)).toFixed(2)}</p>
+                        </div>
+                    ))}
+                </div>
+            </div>
+          )}
+
         </div>
         
         <div className="mt-6 flex flex-col items-end space-y-4 no-print">
            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4">
-              <Label className="mt-2 sm:mt-0">Discount on Labor (Base Charge)</Label>
+              <Label className="mt-2 sm:mt-0">Discount on Labor</Label>
                <RadioGroup defaultValue="percentage" value={discountType} onValueChange={(value) => setDiscountType(value as 'percentage' | 'rupees')} className="flex items-center">
                     <div className="flex items-center space-x-2">
                         <RadioGroupItem value="percentage" id="r-percentage" />
@@ -217,7 +255,7 @@ export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
         </div>
         
          <div className="print-only mt-4 space-y-4 hidden">
-              {selectedRecommended.length > 0 && (
+              {[...selectedRecommended, ...selectedOptional].length > 0 && (
                   <div>
                     <h3 className="text-lg font-semibold mb-2">Additional Services</h3>
                     <div className="overflow-x-auto">
@@ -231,7 +269,7 @@ export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
                             </TableRow>
                           </TableHeader>
                           <TableBody>
-                            {selectedRecommended.map((job, index) => (
+                            {[...selectedRecommended, ...selectedOptional].map((job, index) => (
                               <TableRow key={`print-rec-${index}`}>
                                 <TableCell className="font-medium">{job.name}</TableCell>
                                 <TableCell className="text-right">{job.charge.toFixed(2)}</TableCell>
