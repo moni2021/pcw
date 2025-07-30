@@ -30,7 +30,7 @@ export function VehicleServiceForm() {
   }, [selectedModel]);
 
   useEffect(() => {
-    if (currentVehicle) {
+    if (currentVehicle && currentVehicle.brand) {
       setTheme(currentVehicle.brand.toLowerCase() as 'arena' | 'nexa');
     } else {
       setTheme('default');
@@ -156,7 +156,7 @@ export function VehicleServiceForm() {
       
       setEstimate(newEstimate);
       setIsLoading(false);
-    }, 1000);
+    }, 2000); // Increased timeout to allow animation to play
   };
 
 
@@ -235,7 +235,7 @@ export function VehicleServiceForm() {
                 <Select onValueChange={setSelectedService} value={selectedService} disabled={!selectedYear}>
                     <SelectTrigger id="service-type">
                         <SelectValue placeholder="Select Service" />
-                    </SelectTrigger>
+                    </Trigger>
                     <SelectContent>
                         {Object.keys(serviceData).map(service => (
                             <SelectItem key={service} value={service}>
@@ -256,20 +256,24 @@ export function VehicleServiceForm() {
       </CardFooter>
 
       {isLoading && (
-         <div className="p-6">
+         <div className="relative p-6 overflow-x-hidden">
             <Separator />
             <div className="flex flex-col items-center justify-center space-y-4 h-48">
-                <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                <p className="text-lg font-semibold">Generating estimate for your {selectedModel}...</p>
+                 <div className="absolute left-0 w-full">
+                    <div className="animate-drive-off">
+                        <Car className="h-12 w-12 text-primary" />
+                    </div>
+                </div>
+                <p className="text-lg font-semibold animate-pulse">Generating estimate for your {selectedModel}...</p>
             </div>
          </div>
       )}
 
       {estimate && !isLoading && (
-        <>
+        <div className="animate-fade-in-up">
             <Separator />
             <ServiceEstimate estimate={estimate} />
-        </>
+        </div>
       )}
     </>
   );
