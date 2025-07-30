@@ -13,8 +13,10 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Loader2, Car, Tag, Building2 } from 'lucide-react';
 import { Separator } from './ui/separator';
 import { Badge } from '@/components/ui/badge';
+import { useTheme } from '@/context/ThemeContext';
 
 export function VehicleServiceForm() {
+  const { setTheme } = useTheme();
   const [selectedModel, setSelectedModel] = useState<string>('');
   const [selectedFuelType, setSelectedFuelType] = useState<string>('');
   const [selectedYear, setSelectedYear] = useState<string>('');
@@ -26,6 +28,14 @@ export function VehicleServiceForm() {
   const currentVehicle = useMemo(() => {
     return vehicles.find(v => v.model === selectedModel);
   }, [selectedModel]);
+
+  useEffect(() => {
+    if (currentVehicle) {
+      setTheme(currentVehicle.brand.toLowerCase() as 'arena' | 'nexa');
+    } else {
+      setTheme('default');
+    }
+  }, [currentVehicle, setTheme]);
 
   const handleModelChange = (model: string) => {
     const vehicle = vehicles.find(v => v.model === model);
