@@ -10,7 +10,7 @@ import { serviceData } from '@/lib/data';
 import type { Part, Labor, Service, ServiceData } from '@/lib/types';
 import { auth } from '@/lib/firebase';
 import { onAuthStateChanged, signOut, User } from 'firebase/auth';
-import { Loader2, ArrowLeft, PlusCircle, Trash2, ChevronsUpDown } from 'lucide-react';
+import { Loader2, ArrowLeft, PlusCircle, Trash2, ChevronsUpDown, Copy } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 import { updateServiceData } from '@/ai/flows/updateDataFlow';
 import Link from 'next/link';
@@ -146,6 +146,29 @@ export default function AdminPage() {
     } catch (error: any) {
         setJsonError(`Invalid JSON: ${error.message}`);
     }
+  };
+  
+  const jsonTemplate = `{
+  "Service Name (e.g., Paid Service (20,000 km))": {
+    "parts": [
+      { "name": "Part Name", "price": 100 },
+      { "name": "Another Part", "price": 200 }
+    ],
+    "labor": [
+      { "name": "Labor Description", "charge": 500 }
+    ],
+    "recommendedLabor": [
+      { "name": "Recommended Service", "charge": 300 }
+    ]
+  }
+}`;
+
+  const handleCopyTemplate = () => {
+    navigator.clipboard.writeText(jsonTemplate);
+    toast({
+      title: "Template Copied!",
+      description: "The JSON structure template has been copied to your clipboard.",
+    });
   };
 
 
@@ -347,16 +370,38 @@ export default function AdminPage() {
                                 <h3 className="text-lg font-semibold">Bulk Data Management (JSON)</h3>
                             </div>
                         </AccordionTrigger>
-                        <AccordionContent className="px-6 pt-4">
-                            <p className="text-sm text-muted-foreground mb-4">
-                                You can edit the entire service data object below. Copy the text, make your changes in a text editor, and then paste it back. Click 'Load JSON Data' to apply your changes to the editor above, then click 'Save All Changes' to persist them.
-                            </p>
-                             <Textarea 
-                                value={jsonDataString}
-                                onChange={(e) => setJsonDataString(e.target.value)}
-                                className="min-h-[400px] font-mono text-xs"
-                                placeholder="Paste your service data JSON here..."
-                            />
+                        <AccordionContent className="px-6 pt-4 space-y-4">
+                            <div>
+                                <h4 className="font-semibold text-md mb-2">JSON Structure Guide</h4>
+                                <p className="text-sm text-muted-foreground mb-2">
+                                    Your JSON must be an object where keys are service names. Each service must match the structure below.
+                                </p>
+                                <div className="bg-muted/50 rounded-lg p-4 relative">
+                                    <pre className="text-xs overflow-x-auto"><code className="font-mono">{jsonTemplate}</code></pre>
+                                    <Button
+                                        size="icon"
+                                        variant="ghost"
+                                        className="absolute top-2 right-2 h-7 w-7"
+                                        onClick={handleCopyTemplate}
+                                    >
+                                        <Copy className="h-4 w-4" />
+                                    </Button>
+                                </div>
+                            </div>
+                             
+                            <div>
+                                <h4 className="font-semibold text-md mb-2">Live Data Editor</h4>
+                                <p className="text-sm text-muted-foreground mb-4">
+                                    You can edit the entire service data object below. Copy the text, make your changes in a text editor, and then paste it back. Click 'Load JSON Data' to apply your changes to the editor above, then click 'Save All Changes' to persist them.
+                                </p>
+                                 <Textarea 
+                                    value={jsonDataString}
+                                    onChange={(e) => setJsonDataString(e.target.value)}
+                                    className="min-h-[400px] font-mono text-xs"
+                                    placeholder="Paste your service data JSON here..."
+                                />
+                            </div>
+
                             {jsonError && <Alert variant="destructive" className="mt-4"><AlertDescription>{jsonError}</AlertDescription></Alert>}
                             <Button onClick={handleJsonUpdate} className="mt-4">Load JSON Data into Editor</Button>
                         </AccordionContent>
