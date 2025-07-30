@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -9,19 +9,48 @@ import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/componen
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { serviceData, vehicles } from '@/lib/data';
 import type { Part, Labor, Service } from '@/lib/types';
+import { auth } from '@/lib/firebase';
+import { onAuthStateChanged, signOut, User } from 'firebase/auth';
+import { Loader2 } from 'lucide-react';
+import { useToast } from "@/hooks/use-toast";
 
 export default function AdminPage() {
   const router = useRouter();
-  const [isAuthenticated, setIsAuthenticated] = useState(true); // Should be false in production
+  const { toast } = useToast();
+  const [user, setUser] = useState<User | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const [editableServiceData, setEditableServiceData] = useState(JSON.parse(JSON.stringify(serviceData)));
 
-  // In a real app, you would check for authentication status from a context or a hook
-  // For now, we'll just redirect if not authenticated.
-  // React.useEffect(() => {
-  //   if (!isAuthenticated) {
-  //     router.push('/admin/login');
-  //   }
-  // }, [isAuthenticated, router]);
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        setUser(user);
+      } else {
+        router.push('/admin/login');
+      }
+      setIsLoading(false);
+    });
+
+    return () => unsubscribe();
+  }, [router]);
+
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      toast({
+        title: "Logged Out",
+        description: "You have been successfully logged out.",
+      });
+      router.push('/admin/login');
+    } catch (error) {
+      console.error("Logout Error:", error);
+      toast({
+        title: "Logout Failed",
+        description: "An error occurred during logout. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
 
   const handlePartPriceChange = (serviceType: string, partIndex: number, newPrice: string) => {
     const updatedData = { ...editableServiceData };
@@ -38,11 +67,19 @@ export default function AdminPage() {
   const handleSaveChanges = () => {
     // Here you would typically send the updated data to your backend/database
     console.log("Saving data:", editableServiceData);
-    alert("Changes saved successfully! (Check console for data)");
+    toast({
+        title: "Changes Saved!",
+        description: "Your updates have been saved successfully (check console).",
+    });
   };
 
-  if (!isAuthenticated) {
-    return null; // Or a loading spinner
+  if (isLoading || !user) {
+    return (
+        <main className="flex min-h-screen flex-col items-center justify-center p-4 bg-gray-50 dark:bg-gray-900">
+            <Loader2 className="h-16 w-16 animate-spin text-primary" />
+            <p className="mt-4 text-lg">Loading Admin Panel...</p>
+        </main>
+    )
   }
 
   return (
@@ -52,7 +89,7 @@ export default function AdminPage() {
           <h1 className="text-4xl font-bold text-gray-800 dark:text-white">
             Admin Panel
           </h1>
-          <Button onClick={() => setIsAuthenticated(false)}>Logout</Button>
+          <Button onClick={handleLogout}>Logout</Button>
         </header>
 
         <Card className="shadow-xl">

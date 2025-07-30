@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -8,31 +8,65 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Loader2 } from 'lucide-react';
+import { RecaptchaVerifier, signInWithPhoneNumber, ConfirmationResult } from 'firebase/auth';
+import { auth } from '@/lib/firebase';
+import { useToast } from "@/hooks/use-toast"
+
 
 export default function LoginPage() {
   const router = useRouter();
+  const { toast } = useToast();
   const [step, setStep] = useState<'phone' | 'otp'>('phone');
   const [phoneNumber, setPhoneNumber] = useState('');
   const [otp, setOtp] = useState(new Array(6).fill(""));
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [confirmationResult, setConfirmationResult] = useState<ConfirmationResult | null>(null);
   
   const otpInputs = useRef<(HTMLInputElement | null)[]>([]);
 
-  const handlePhoneSubmit = (e: React.FormEvent) => {
+  // Add a ref for the reCAPTCHA container
+  const recaptchaContainerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (step === 'phone' && recaptchaContainerRef.current) {
+        const recaptchaVerifier = new RecaptchaVerifier(auth, recaptchaContainerRef.current, {
+            'size': 'invisible',
+            'callback': () => {
+              // reCAPTCHA solved, allow signInWithPhoneNumber.
+            }
+        });
+        // Make the verifier available to the component
+        (window as any).recaptchaVerifier = recaptchaVerifier;
+    }
+  }, [step]);
+
+
+  const handlePhoneSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
-    if (!/^\d{10}$/.test(phoneNumber)) {
-      setError('Please enter a valid 10-digit phone number.');
+    // Simple validation for Indian phone numbers
+    if (!/^\+?91\d{10}$/.test(phoneNumber)) {
+      setError('Please enter a valid 10-digit Indian phone number (e.g., +919876543210).');
       return;
     }
     setIsLoading(true);
-    // In a real app, you would call your backend to send an OTP
-    console.log(`Sending OTP to ${phoneNumber}`);
-    setTimeout(() => {
-      setIsLoading(false);
-      setStep('otp');
-    }, 1500);
+    
+    try {
+        const verifier = (window as any).recaptchaVerifier;
+        const result = await signInWithPhoneNumber(auth, phoneNumber, verifier);
+        setConfirmationResult(result);
+        setStep('otp');
+        toast({
+          title: "OTP Sent",
+          description: `An OTP has been sent to ${phoneNumber}.`,
+        })
+    } catch (err: any) {
+        console.error("Firebase Auth Error:", err);
+        setError(err.message || 'Failed to send OTP. Please try again.');
+    } finally {
+        setIsLoading(false);
+    }
   };
   
   const handleOtpChange = (element: HTMLInputElement, index: number) => {
@@ -52,28 +86,37 @@ export default function LoginPage() {
     }
   }
 
-  const handleOtpSubmit = (e: React.FormEvent) => {
+  const handleOtpSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     setIsLoading(true);
     const enteredOtp = otp.join('');
-    // In a real app, you'd verify the OTP with your backend.
-    // We'll simulate it here. The "correct" OTP is 123456
-    console.log(`Verifying OTP ${enteredOtp}`);
-    setTimeout(() => {
-        if (enteredOtp === '123456') {
-            // On successful login, you'd typically store a token/session
-            // and redirect to the admin dashboard.
-            router.push('/admin');
-        } else {
-            setError('Invalid OTP. Please try again.');
-        }
+
+    if (!confirmationResult) {
+        setError("Something went wrong. Please try sending the OTP again.");
         setIsLoading(false);
-    }, 1500);
+        return;
+    }
+
+    try {
+        await confirmationResult.confirm(enteredOtp);
+        // User signed in successfully.
+        toast({
+          title: "Login Successful",
+          description: "You have been successfully logged in.",
+        })
+        router.push('/admin');
+    } catch (err: any) {
+        console.error("Firebase OTP Error:", err);
+        setError('Invalid OTP or the code has expired. Please try again.');
+    } finally {
+        setIsLoading(false);
+    }
   };
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-center p-4 bg-gray-50 dark:bg-gray-900">
+      <div ref={recaptchaContainerRef}></div>
       <Card className="w-full max-w-md shadow-xl">
         <CardHeader className="text-center">
           <CardTitle className="text-2xl">Admin Login</CardTitle>
@@ -89,7 +132,7 @@ export default function LoginPage() {
                 <Input
                   id="phone"
                   type="tel"
-                  placeholder="9876543210"
+                  placeholder="+919876543210"
                   value={phoneNumber}
                   onChange={(e) => setPhoneNumber(e.target.value)}
                   required
@@ -120,7 +163,7 @@ export default function LoginPage() {
               <Button type="submit" className="w-full" disabled={isLoading}>
                  {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : 'Verify & Login'}
               </Button>
-              <Button variant="link" size="sm" onClick={() => setStep('phone')} className="w-full">
+              <Button variant="link" size="sm" onClick={() => { setStep('phone'); setError(''); setOtp(new Array(6).fill("")); }} className="w-full">
                 Back to phone number entry
               </Button>
             </form>
