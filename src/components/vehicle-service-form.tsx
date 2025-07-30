@@ -3,14 +3,16 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
+import { CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { serviceData, vehicles } from '@/lib/data';
 import { ServiceEstimate } from './service-estimate';
 import type { ServiceEstimateData, Vehicle } from '@/lib/types';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Car, Tag, Building2 } from 'lucide-react';
 import { Separator } from './ui/separator';
+import { Badge } from '@/components/ui/badge';
+import { VehicleCombobox } from './vehicle-combobox';
 
 export function VehicleServiceForm() {
   const [selectedModel, setSelectedModel] = useState<string>('');
@@ -26,13 +28,14 @@ export function VehicleServiceForm() {
   }, [selectedModel]);
 
   const handleModelChange = (model: string) => {
+    const vehicle = vehicles.find(v => v.model === model);
     setSelectedModel(model);
     setSelectedFuelType('');
     setSelectedYear('');
     setSelectedService('');
     setEstimate(null);
     setError('');
-    const vehicle = vehicles.find(v => v.model === model);
+    
     if (vehicle && vehicle.fuelTypes.length === 1) {
       setSelectedFuelType(vehicle.fuelTypes[0]);
     }
@@ -106,6 +109,14 @@ export function VehicleServiceForm() {
 
     // Simulate API call
     setTimeout(() => {
+       const vehicleInfo = vehicles.find(v => v.model === selectedModel);
+       if (!vehicleInfo) {
+           setError('Vehicle data not found.');
+           setEstimate(null);
+           setIsLoading(false);
+           return;
+       }
+
       const serviceInfo = serviceData[selectedService as keyof typeof serviceData];
       if (!serviceInfo) {
         setError('Service data not found for the selected criteria.');
@@ -123,6 +134,8 @@ export function VehicleServiceForm() {
           model: selectedModel,
           fuelType: selectedFuelType,
           productionYear: parseInt(selectedYear, 10),
+          brand: vehicleInfo.brand,
+          category: vehicleInfo.category,
         },
         serviceType: selectedService,
         parts,
@@ -144,23 +157,28 @@ export function VehicleServiceForm() {
         <CardDescription>Select your vehicle and service type to get an instant price quote.</CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
+        <div className="space-y-2">
+            <Label htmlFor="vehicle-model">Vehicle Model</Label>
+            <VehicleCombobox 
+                vehicles={vehicles}
+                onSelect={handleModelChange}
+            />
+        </div>
+
+        {currentVehicle && (
+             <div className="flex flex-wrap gap-2 items-center">
+                 <Badge variant="outline">
+                    <Building2 className="mr-1 h-3 w-3" />
+                    {currentVehicle.brand}
+                </Badge>
+                <Badge variant="outline">
+                    <Tag className="mr-1 h-3 w-3" />
+                    {currentVehicle.category}
+                </Badge>
+             </div>
+        )}
+
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="space-y-2">
-                <Label htmlFor="vehicle-model">Vehicle Model</Label>
-                <Select onValueChange={handleModelChange} value={selectedModel}>
-                    <SelectTrigger id="vehicle-model">
-                        <SelectValue placeholder="Select Model" />
-                    </SelectTrigger>
-                    <SelectContent>
-                        {vehicles.map(vehicle => (
-                            <SelectItem key={vehicle.model} value={vehicle.model}>
-                                {vehicle.model}
-                            </SelectItem>
-                        ))}
-                    </SelectContent>
-                </Select>
-            </div>
-            
             <div className="space-y-2">
                 <Label htmlFor="fuel-type">Fuel Type</Label>
                 <Select onValueChange={handleFuelTypeChange} value={selectedFuelType} disabled={!currentVehicle || currentVehicle.fuelTypes.length <= 1}>
@@ -194,7 +212,7 @@ export function VehicleServiceForm() {
             </div>
 
 
-            <div className="space-y-2">
+            <div className="space-y-2 sm:col-span-2">
                 <Label htmlFor="service-type">Service Type</Label>
                 <Select onValueChange={setSelectedService} value={selectedService} disabled={!selectedYear}>
                     <SelectTrigger id="service-type">

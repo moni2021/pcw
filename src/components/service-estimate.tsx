@@ -12,6 +12,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Input } from '@/components/ui/input';
 import { Checkbox } from './ui/checkbox';
 import { cn } from '@/lib/utils';
+import { Badge } from '@/components/ui/badge';
 
 interface ServiceEstimateProps {
   estimate: ServiceEstimateData;
@@ -90,6 +91,14 @@ export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
           <div>
             <p className="font-semibold text-muted-foreground">Fuel Type</p>
             <p>{vehicle.fuelType}</p>
+          </div>
+           <div>
+            <p className="font-semibold text-muted-foreground">Brand</p>
+             <Badge variant="secondary">{vehicle.brand}</Badge>
+          </div>
+           <div>
+            <p className="font-semibold text-muted-foreground">Category</p>
+            <Badge variant="secondary">{vehicle.category}</Badge>
           </div>
           <div className="col-span-2">
             <p className="font-semibold text-muted-foreground">Service Type</p>

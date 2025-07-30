@@ -2,6 +2,9 @@ import { z } from 'zod';
 
 export const VehicleSchema = z.object({
   model: z.string(),
+  brand: z.enum(['Arena', 'Nexa', 'Commercial']),
+  category: z.string(),
+  variants: z.array(z.string()),
   fuelTypes: z.array(z.string()),
   productionYears: z.array(z.number()),
 });
@@ -38,6 +41,8 @@ export const ServiceEstimateDataSchema = z.object({
         model: z.string(),
         fuelType: z.string(),
         productionYear: z.number(),
+        brand: z.string(),
+        category: z.string(),
     }),
     serviceType: z.string(),
     parts: z.array(PartSchema),
