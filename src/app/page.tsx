@@ -13,9 +13,6 @@ export default function Home() {
             <div className="grid gap-6 lg:grid-cols-2 lg:gap-12 xl:gap-16">
               <div className="flex flex-col justify-center space-y-4">
                 <div className="space-y-2">
-                  <h1 className="text-3xl font-bold tracking-tighter sm:text-5xl xl:text-6xl/none bg-clip-text text-transparent bg-gradient-to-r from-primary to-cyan-400">
-                    Robotic Precision Service Estimator
-                  </h1>
                   <p className="max-w-[600px] text-muted-foreground md:text-xl">
                     Get instant, accurate service estimates for your Maruti Suzuki vehicle. Our advanced system provides transparent pricing for all your maintenance needs.
                   </p>
