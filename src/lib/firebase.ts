@@ -2,7 +2,6 @@
 
 import { initializeApp, getApps, getApp, FirebaseApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
-import { getFirestore, Firestore } from 'firebase/firestore';
 
 const firebaseConfig = {
   projectId: 'maruti-service-estimator',
@@ -23,19 +22,5 @@ if (!getApps().length) {
 }
 
 const auth = getAuth(app);
-let db: Firestore | null = null;
 
-const getDb = (): Firestore | null => {
-    if (db) {
-        return db;
-    }
-    // Check if we are on the client side before initializing Firestore
-    if (typeof window !== 'undefined') {
-        db = getFirestore(app);
-        return db;
-    }
-    return null;
-}
-
-
-export { app, auth, getDb };
+export { app, auth };
