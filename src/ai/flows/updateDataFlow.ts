@@ -5,7 +5,7 @@
  */
 
 import { ai } from '@/ai/genkit';
-import { z } from 'genkit';
+import { z } from 'zod';
 import { ServiceDataSchema, ServiceData } from '@/lib/types';
 import fs from 'fs/promises';
 import path from 'path';
