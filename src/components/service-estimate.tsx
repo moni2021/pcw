@@ -106,7 +106,7 @@ export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
 
   return (
     <div className="print-container">
-        <CardHeader className="flex flex-row items-center justify-between">
+        <CardHeader className="flex flex-row items-center justify-between print:pb-2">
             <CardTitle>Service Estimate</CardTitle>
             <Button onClick={handlePrint} variant="ghost" size="icon" className="no-print" type="button">
             <Printer className="h-5 w-5" />
@@ -357,19 +357,19 @@ export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
       <CardFooter className={cn("bg-muted/50 p-4 mt-6 rounded-b-lg flex-col items-stretch gap-2", {
         "print:mt-2 print:p-2": true
       })}>
-          <div className="w-full flex justify-between items-center text-sm text-muted-foreground">
+          <div className="w-full flex justify-between items-center text-sm text-muted-foreground no-print">
               <p>Subtotal (Parts):</p>
               <p>₹{totalPartsPrice.toFixed(2)}</p>
           </div>
-           <div className="w-full flex justify-between items-center text-sm text-muted-foreground">
+           <div className="w-full flex justify-between items-center text-sm text-muted-foreground no-print">
               <p>Subtotal (Labor):</p>
               <p>₹{totalLaborCharge.toFixed(2)}</p>
           </div>
-          <div className="w-full flex justify-between items-center text-sm text-muted-foreground">
+          <div className="w-full flex justify-between items-center text-sm text-muted-foreground no-print">
               <p>Total GST on Labor (18%):</p>
               <p>₹{gstOnLabor.toFixed(2)}</p>
           </div>
-        <Separator className="my-1"/>
+        <Separator className="my-1 no-print"/>
         <div className="w-full flex justify-between items-center">
             <p className="text-xl font-bold">Total Estimate:</p>
             <p className="text-xl font-bold">₹{finalTotal.toFixed(2)}</p>
@@ -377,15 +377,26 @@ export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
       </CardFooter>
       <style jsx global>{`
         @media print {
+            body {
+                background: #fff;
+                color: #000;
+            }
             .no-print {
-                display: none;
+                display: none !important;
             }
             .print-only {
                 display: block !important;
             }
-            .print-container {
-                box-shadow: none;
-                border: none;
+            .print-container, .print-container .card-content, .print-container .card-header, .print-container .card-footer {
+                box-shadow: none !important;
+                border: none !important;
+                padding-left: 0;
+                padding-right: 0;
+            }
+            .print-container .card-footer {
+                background: #f8f8f8 !important;
+                -webkit-print-color-adjust: exact; 
+                print-color-adjust: exact;
             }
         }
       `}</style>
