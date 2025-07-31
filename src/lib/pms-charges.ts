@@ -1,88 +1,52 @@
 
 export const pmsCharges = [
  {
-  "model": "ALTO",
+  "model": "Alto 800",
   "labourDesc": "PMS - 1P 30K/50K/70K/90K/100K/110K",
   "labourCode": "ZE21L0P",
   "basicAmt": 1335
  },
  {
-  "model": "ALTO 800",
+  "model": "Alto K10",
   "labourDesc": "PMS - 1P 30K/50K/70K/90K/100K/110K",
   "labourCode": "ZE21L0P",
   "basicAmt": 1335
  },
  {
-  "model": "ALTO K10",
+  "model": "Celerio",
   "labourDesc": "PMS - 1P 30K/50K/70K/90K/100K/110K",
   "labourCode": "ZE21L0P",
   "basicAmt": 1335
  },
  {
-  "model": "ALTO K10C",
-  "labourDesc": "PMS - 1P 30K/50K/70K/90K/100K/110K",
-  "labourCode": "ZE21L0P",
-  "basicAmt": 1335
- },
- {
-  "model": "A-STAR",
-  "labourDesc": "PMS - 1P 30K/50K/70K/90K/100K/110K",
-  "labourCode": "ZE21L0P",
-  "basicAmt": 1215
- },
- {
-  "model": "CELERIO",
-  "labourDesc": "PMS - 1P 30K/50K/70K/90K/100K/110K",
-  "labourCode": "ZE21L0P",
-  "basicAmt": 1335
- },
- {
-  "model": "CELERIO CNG",
-  "labourDesc": "PMS - 1P 30K/50K/70K/90K/100K/110K",
-  "labourCode": "ZE21L0P",
-  "basicAmt": 1335
- },
- {
-  "model": "CIAZ PETROL",
+  "model": "Ciaz",
   "labourDesc": "PMS - 1P 30K/50K/70K/90K/100K/110K",
   "labourCode": "ZE21L0P",
   "basicAmt": 1545
  },
  {
-  "model": "EECO",
+  "model": "Eeco",
   "labourDesc": "PMS - 1P 30K/50K/70K/90K/100K/110K",
   "labourCode": "ZE21L0P",
   "basicAmt": 1180
  },
  {
-  "model": "EECO CARGO",
+  "model": "Eeco Cargo",
   "labourDesc": "PMS - 1P 30K/50K/70K/90K/100K/110K",
   "labourCode": "ZE21L0P",
   "basicAmt": 1180
  },
  {
-  "model": "EECO K12N 2022",
-  "labourDesc": "PMS - 1P 30K/50K/70K/90K/100K/110K",
-  "labourCode": "ZE21L0P",
-  "basicAmt": 1180
- },
- {
-  "model": "ERTIGA PETROL",
+  "model": "Ertiga",
   "labourDesc": "PMS - 1P 30K/50K/70K/90K/100K/110K",
   "labourCode": "ZE21L0P",
   "basicAmt": 1605
  },
  {
-  "model": "IGNIS-PETROL",
+  "model": "Ignis",
   "labourDesc": "PMS - 1P 30K/50K/70K/90K/100K/110K",
   "labourCode": "ZE21L0P",
   "basicAmt": 1410
- },
- {
-  "model": "M 800",
-  "labourDesc": "PMS - 1P 30K/50K/70K/90K/100K/110K",
-  "labourCode": "ZE21L0P",
-  "basicAmt": 1080
  },
  {
   "model": "Baleno",
@@ -91,211 +55,115 @@ export const pmsCharges = [
   "basicAmt": 1400
  },
  {
-  "model": "EECO",
+  "model": "Eeco",
   "labourDesc": "PMS - 1P 20K",
   "labourCode": "ZE61L0P",
   "basicAmt": 1255
  },
  {
-  "model": "EECO CARGO",
+  "model": "Eeco Cargo",
   "labourDesc": "PMS - 1P 20K",
   "labourCode": "ZE61L0P",
   "basicAmt": 1255
  },
  {
-  "model": "MARUTI GRAND VITARA Smart Hybrid",
+  "model": "Grand Vitara",
   "labourDesc": "PMS - 1P 30K/50K/70K/90K/100K/110K",
   "labourCode": "ZE21L0P",
   "basicAmt": 1530
  },
  {
-  "model": "MARUTI GRAND VITARA Strong Hybrid",
-  "labourDesc": "PMS - 1P 30K/50K/70K/90K/100K/110K",
-  "labourCode": "ZE21L0P",
-  "basicAmt": 1530
- },
- {
-  "model": "MARUTI S-CROSS SMART HYBRID 1.5L",
+  "model": "S-Cross",
   "labourDesc": "PMS - 1P 30K/50K/70K/90K/100K/110K",
   "labourCode": "ZE21L0P",
   "basicAmt": 1605
  },
  {
-  "model": "Baleno",
-  "labourDesc": "PMS - 1P 30K/50K/70K/90K/100K/110K",
-  "labourCode": "ZE21L0P",
-  "basicAmt": 1400
- },
- {
-  "model": "NEW BREZZA",
+  "model": "Brezza",
   "labourDesc": "PMS - 1P 30K/50K/70K/90K/100K/110K",
   "labourCode": "ZE21L0P",
   "basicAmt": 1530
  },
  {
-  "model": "NEW CELERIO 2021",
-  "labourDesc": "PMS - 1P 30K/50K/70K/90K/100K/110K",
-  "labourCode": "ZE21L0P",
-  "basicAmt": 1335
- },
- {
-  "model": "New Dzire Petrol",
+  "model": "Dzire",
   "labourDesc": "PMS - 1P 30K/50K/70K/90K/100K/110K",
   "labourCode": "ZE21L0P",
   "basicAmt": 1410
  },
  {
-  "model": "NEW ERTIGA PETROL",
-  "labourDesc": "PMS - 1P 30K/50K/70K/90K/100K/110K",
-  "labourCode": "ZE21L0P",
-  "basicAmt": 1605
- },
- {
-  "model": "NEW SWIFT PETROL",
+  "model": "Swift",
   "labourDesc": "PMS - 1P 30K/50K/70K/90K/100K/110K",
   "labourCode": "ZE21L0P",
   "basicAmt": 1410
  },
  {
-  "model": "NEW WAGON R 1.2L PETROL",
+  "model": "Wagon R",
   "labourDesc": "PMS - 1P 30K/50K/70K/90K/100K/110K",
   "labourCode": "ZE21L0P",
   "basicAmt": 1335
  },
  {
-  "model": "NEW WAGON R 1L PETROL",
-  "labourDesc": "PMS - 1P 30K/50K/70K/90K/100K/110K",
-  "labourCode": "ZE21L0P",
-  "basicAmt": 1335
- },
- {
-  "model": "OMNI",
-  "labourDesc": "PMS - 1P 30K/50K/70K/90K/100K/110K",
-  "labourCode": "ZE21L0P",
-  "basicAmt": 1180
- },
- {
-  "model": "RITZ",
+  "model": "Ritz",
   "labourDesc": "PMS - 1P 30K/50K/70K/90K/100K/110K",
   "labourCode": "ZE21L0P",
   "basicAmt": 1320
  },
  {
-  "model": "S-PRESSO",
+  "model": "S-Presso",
   "labourDesc": "PMS - 1P 30K/50K/70K/90K/100K/110K",
   "labourCode": "ZE21L0P",
   "basicAmt": 1335
  },
  {
-  "model": "SUPER CARRY PETROL",
+  "model": "Super Carry",
   "labourDesc": "PMS - 1P 30K/50K/70K/90K/100K/110K",
   "labourCode": "ZE21L0P",
   "basicAmt": 370
  },
  {
-  "model": "SWIFT",
-  "labourDesc": "PMS - 1P 30K/50K/70K/90K/100K/110K",
-  "labourCode": "ZE21L0P",
-  "basicAmt": 1410
- },
- {
-  "model": "SWIFT DZIRE",
-  "labourDesc": "PMS - 1P 30K/50K/70K/90K/100K/110K",
-  "labourCode": "ZE21L0P",
-  "basicAmt": 1410
- },
- {
-  "model": "SWIFT NEW / DZIRE NEW PETROL",
-  "labourDesc": "PMS - 1P 30K/50K/70K/90K/100K/110K",
-  "labourCode": "ZE21L0P",
-  "basicAmt": 1410
- },
- {
-  "model": "VITARA BREZZA K15B BS-VI",
-  "labourDesc": "PMS - 1P 30K/50K/70K/90K/100K/110K",
-  "labourCode": "ZE21L0P",
-  "basicAmt": 1530
- },
- {
-  "model": "WAGON R",
-  "labourDesc": "PMS - 1P 30K/50K/70K/90K/100K/110K",
-  "labourCode": "ZE21L0P",
-  "basicAmt": 1335
- },
- {
-  "model": "WAGON-R NEW",
-  "labourDesc": "PMS - 1P 30K/50K/70K/90K/100K/110K",
-  "labourCode": "ZE21L0P",
-  "basicAmt": 1335
- },
- {
-  "model": "ZEN ESTILO",
-  "labourDesc": "PMS - 1P 30K/50K/70K/90K/100K/110K",
-  "labourCode": "ZE21L0P",
-  "basicAmt": 1215
- },
- {
-  "model": "NEW SWIFT PETROL",
+  "model": "Swift",
   "labourDesc": "PMS - 2P 20K/40K/60K/80K",
   "labourCode": "ZE22L0P",
   "basicAmt": 1490
  },
  {
-  "model": "ALTO",
+  "model": "Alto 800",
   "labourDesc": "PMS - 2P 20K/40K/60K/80K",
   "labourCode": "ZE22L0P",
   "basicAmt": 1435
  },
  {
-  "model": "ALTO 800",
+  "model": "Alto K10",
   "labourDesc": "PMS - 2P 20K/40K/60K/80K",
   "labourCode": "ZE22L0P",
   "basicAmt": 1435
  },
  {
-  "model": "ALTO K10",
+  "model": "Celerio",
   "labourDesc": "PMS - 2P 20K/40K/60K/80K",
   "labourCode": "ZE22L0P",
   "basicAmt": 1435
  },
  {
-  "model": "ALTO K10C",
-  "labourDesc": "PMS - 2P 20K/40K/60K/80K",
-  "labourCode": "ZE22L0P",
-  "basicAmt": 1435
- },
- {
-  "model": "CELERIO",
-  "labourDesc": "PMS - 2P 20K/40K/60K/80K",
-  "labourCode": "ZE22L0P",
-  "basicAmt": 1435
- },
- {
-  "model": "EECO K12N 2022",
+  "model": "Eeco",
   "labourDesc": "PMS - 2P 20K/40K/60K/80K",
   "labourCode": "ZE22L0P",
   "basicAmt": 1295
  },
  {
-  "model": "ERTIGA PETROL",
+  "model": "Ertiga",
   "labourDesc": "PMS - 2P 20K/40K/60K/80K",
   "labourCode": "ZE22L0P",
   "basicAmt": 1675
  },
  {
-  "model": "Fronx Domestic P74",
+  "model": "Fronx",
   "labourDesc": "PMS - 2P 20K/40K/60K/80K",
   "labourCode": "ZE22L0P",
   "basicAmt": 1475
  },
  {
-  "model": "Fronx Turbo Smart Hybrid Domestic P74",
-  "labourDesc": "PMS - 2P 20K/40K/60K/80K",
-  "labourCode": "ZE22L0P",
-  "basicAmt": 1475
- },
- {
-  "model": "IGNIS-PETROL",
+  "model": "Ignis",
   "labourDesc": "PMS - 2P 20K/40K/60K/80K",
   "labourCode": "ZE22L0P",
   "basicAmt": 1490
@@ -307,295 +175,163 @@ export const pmsCharges = [
   "basicAmt": 1475
  },
  {
-  "model": "EECO",
+  "model": "Eeco Cargo",
   "labourDesc": "PMS - 2P 20K/40K/60K/80K",
   "labourCode": "ZE22L0P",
   "basicAmt": 1295
  },
  {
-  "model": "EECO CARGO",
-  "labourDesc": "PMS - 2P 20K/40K/60K/80K",
-  "labourCode": "ZE22L0P",
-  "basicAmt": 1295
- },
- {
-  "model": "MARUTI GRAND VITARA Smart Hybrid",
+  "model": "Grand Vitara",
   "labourDesc": "PMS - 2P 20K/40K/60K/80K",
   "labourCode": "ZE22L0P",
   "basicAmt": 1630
  },
  {
-  "model": "MARUTI GRAND VITARA Strong Hybrid",
-  "labourDesc": "PMS - 2P 20K/40K/60K/80K",
-  "labourCode": "ZE22L0P",
-  "basicAmt": 1680
- },
- {
-  "model": "MARUTI S-CROSS SMART HYBRID 1.5L",
+  "model": "S-Cross",
   "labourDesc": "PMS - 2P 20K/40K/60K/80K",
   "labourCode": "ZE22L0P",
   "basicAmt": 1675
  },
  {
-  "model": "Baleno",
-  "labourDesc": "PMS - 2P 20K/40K/60K/80K",
-  "labourCode": "ZE22L0P",
-  "basicAmt": 1475
- },
- {
-  "model": "NEW BREZZA",
+  "model": "Brezza",
   "labourDesc": "PMS - 2P 20K/40K/60K/80K",
   "labourCode": "ZE22L0P",
   "basicAmt": 1630
  },
  {
-  "model": "NEW CELERIO 2021",
-  "labourDesc": "PMS - 2P 20K/40K/60K/80K",
-  "labourCode": "ZE22L0P",
-  "basicAmt": 1435
- },
- {
-  "model": "NEW CIAZ PETROL",
+  "model": "Ciaz",
   "labourDesc": "PMS - 2P 20K/40K/60K/80K",
   "labourCode": "ZE22L0P",
   "basicAmt": 1590
  },
  {
-  "model": "New Dzire Petrol",
+  "model": "Dzire",
   "labourDesc": "PMS - 2P 20K/40K/60K/80K",
   "labourCode": "ZE22L0P",
   "basicAmt": 1490
  },
  {
-  "model": "NEW ERTIGA PETROL",
-  "labourDesc": "PMS - 2P 20K/40K/60K/80K",
-  "labourCode": "ZE22L0P",
-  "basicAmt": 1675
- },
- {
-  "model": "NEW WAGON R 1.2L PETROL",
+  "model": "Wagon R",
   "labourDesc": "PMS - 2P 20K/40K/60K/80K",
   "labourCode": "ZE22L0P",
   "basicAmt": 1435
  },
  {
-  "model": "NEW WAGON R 1L PETROL",
-  "labourDesc": "PMS - 2P 20K/40K/60K/80K",
-  "labourCode": "ZE22L0P",
-  "basicAmt": 1435
- },
- {
-  "model": "OMNI",
-  "labourDesc": "PMS - 2P 20K/40K/60K/80K",
-  "labourCode": "ZE22L0P",
-  "basicAmt": 1295
- },
- {
-  "model": "RITZ",
+  "model": "Ritz",
   "labourDesc": "PMS - 2P 20K/40K/60K/80K",
   "labourCode": "ZE22L0P",
   "basicAmt": 1405
  },
  {
-  "model": "S-PRESSO",
+  "model": "S-Presso",
   "labourDesc": "PMS - 2P 20K/40K/60K/80K",
   "labourCode": "ZE22L0P",
   "basicAmt": 1435
  },
  {
-  "model": "SUPER CARRY PETROL",
+  "model": "Super Carry",
   "labourDesc": "PMS - 2P 20K/40K/60K/80K",
   "labourCode": "ZE22L0P",
   "basicAmt": 370
  },
  {
-  "model": "SWIFT",
-  "labourDesc": "PMS - 2P 20K/40K/60K/80K",
-  "labourCode": "ZE22L0P",
-  "basicAmt": 1490
- },
- {
-  "model": "SWIFT NEW / DZIRE NEW PETROL",
-  "labourDesc": "PMS - 2P 20K/40K/60K/80K",
-  "labourCode": "ZE22L0P",
-  "basicAmt": 1490
- },
- {
-  "model": "VITARA BREZZA K15B BS-VI",
-  "labourDesc": "PMS - 2P 20K/40K/60K/80K",
-  "labourCode": "ZE22L0P",
-  "basicAmt": 1630
- },
- {
-  "model": "WAGON R",
-  "labourDesc": "PMS - 2P 20K/40K/60K/80K",
-  "labourCode": "ZE22L0P",
-  "basicAmt": 1435
- },
- {
-  "model": "WAGON-R NEW",
-  "labourDesc": "PMS - 2P 20K/40K/60K/80K",
-  "labourCode": "ZE22L0P",
-  "basicAmt": 1435
- },
- {
-  "model": "ZEN ESTILO",
-  "labourDesc": "PMS - 2P 20K/40K/60K/80K",
-  "labourCode": "ZE22L0P",
-  "basicAmt": 1295
- },
- {
-  "model": "CIAZ DIESEL",
+  "model": "Ciaz",
   "labourDesc": "PMS - 1D 20K/40K/50K/70K/80K/100K/110K",
   "labourCode": "ZE23L0D",
   "basicAmt": 1640
  },
  {
-  "model": "DZIRE TOUR DIESEL",
-  "labourDesc": "PMS - 1D 20K/40K/50K/70K/80K/100K/110K",
-  "labourCode": "ZE23L0D",
-  "basicAmt": 1210
- },
- {
-  "model": "ERTIGA DIESEL",
-  "labourDesc": "PMS - 1D 20K/40K/50K/70K/80K/100K/110K",
-  "labourCode": "ZE23L0D",
-  "basicAmt": 1640
- },
- {
-  "model": "New Dzire Diesel",
+  "model": "Dzire",
   "labourDesc": "PMS - 1D 20K/40K/50K/70K/80K/100K/110K",
   "labourCode": "ZE23L0D",
   "basicAmt": 1555
  },
  {
-  "model": "S-CROSS (D13)",
+  "model": "Ertiga",
   "labourDesc": "PMS - 1D 20K/40K/50K/70K/80K/100K/110K",
   "labourCode": "ZE23L0D",
   "basicAmt": 1640
  },
  {
-  "model": "SUPER CARRY",
+  "model": "S-Cross",
+  "labourDesc": "PMS - 1D 20K/40K/50K/70K/80K/100K/110K",
+  "labourCode": "ZE23L0D",
+  "basicAmt": 1640
+ },
+ {
+  "model": "Super Carry",
   "labourDesc": "PMS - 1D 20K/40K/50K/70K/80K/100K/110K",
   "labourCode": "ZE23L0D",
   "basicAmt": 370
  },
  {
-  "model": "SWIFT",
-  "labourDesc": "PMS - 2P 20K/40K/60K/80K",
-  "labourCode": "ZE22L0P",
-  "basicAmt": 1490
- },
- {
-  "model": "SWIFT NEW / DZIRE NEW PETROL",
-  "labourDesc": "PMS - 2P 20K/40K/60K/80K",
-  "labourCode": "ZE22L0P",
-  "basicAmt": 1490
- },
- {
-  "model": "SWIFT NEW/  DZIRE NEW DIESEL",
+  "model": "Swift",
   "labourDesc": "PMS - 1D 20K/40K/50K/70K/80K/100K/110K",
   "labourCode": "ZE23L0D",
   "basicAmt": 1555
  },
  {
-  "model": "VITARA BREZZA 1.3D",
+  "model": "Brezza",
   "labourDesc": "PMS - 1D 20K/40K/50K/70K/80K/100K/110K",
   "labourCode": "ZE23L0D",
   "basicAmt": 1555
  },
  {
-  "model": "VITARA BREZZA K15B BS-VI",
-  "labourDesc": "PMS - 2P 20K/40K/60K/80K",
-  "labourCode": "ZE22L0P",
-  "basicAmt": 1630
- },
- {
-  "model": "WAGON R",
-  "labourDesc": "PMS - 2P 20K/40K/60K/80K",
-  "labourCode": "ZE22L0P",
-  "basicAmt": 1435
- },
- {
-  "model": "WAGON-R NEW",
-  "labourDesc": "PMS - 2P 20K/40K/60K/80K",
-  "labourCode": "ZE22L0P",
-  "basicAmt": 1435
- },
- {
-  "model": "ZEN ESTILO",
-  "labourDesc": "PMS - 2P 20K/40K/60K/80K",
-  "labourCode": "ZE22L0P",
-  "basicAmt": 1295
- },
- {
-  "model": "DZIRE TOUR DIESEL",
+  "model": "Dzire",
   "labourDesc": "PMS - 2D 30K/60K/90K",
   "labourCode": "ZE24L0D",
   "basicAmt": 1850
  },
  {
-  "model": "S-CROSS (D13)",
+  "model": "S-Cross",
   "labourDesc": "PMS - 2D 30K/60K/90K",
   "labourCode": "ZE24L0D",
   "basicAmt": 2520
  },
  {
-  "model": "S-CROSS (D16)",
-  "labourDesc": "PMS - 2D 30K/60K/90K",
-  "labourCode": "ZE24L0D",
-  "basicAmt": 2520
- },
- {
-  "model": "SUPER CARRY",
+  "model": "Super Carry",
   "labourDesc": "PMS - 2D 30K/60K/90K",
   "labourCode": "ZE24L0D",
   "basicAmt": 540
  },
  {
-  "model": "SWIFT NEW/  DZIRE NEW DIESEL",
+  "model": "Swift",
   "labourDesc": "PMS - 2D 30K/60K/90K",
   "labourCode": "ZE24L0D",
   "basicAmt": 2310
  },
  {
-  "model": "VITARA BREZZA 1.3D",
+  "model": "Brezza",
   "labourDesc": "PMS - 2D 30K/60K/90K",
   "labourCode": "ZE24L0D",
   "basicAmt": 2310
  },
  {
-  "model": "ALTO 800",
+  "model": "Alto 800",
   "labourDesc": "PMS 20/30/40/60/80/90",
   "labourCode": "ZE25L0P",
   "basicAmt": 1460
  },
  {
-  "model": "ALTO K10",
+  "model": "Alto K10",
   "labourDesc": "PMS 20/30/40/60/80/90",
   "labourCode": "ZE25L0P",
   "basicAmt": 1460
  },
  {
-  "model": "ALTO K10C",
+  "model": "Celerio",
   "labourDesc": "PMS 20/30/40/60/80/90",
   "labourCode": "ZE25L0P",
   "basicAmt": 1460
  },
  {
-  "model": "CELERIO",
-  "labourDesc": "PMS 20/30/40/60/80/90",
-  "labourCode": "ZE25L0P",
-  "basicAmt": 1460
- },
- {
-  "model": "EECO K12N 2022",
+  "model": "Eeco",
   "labourDesc": "PMS 20/30/40/60/80/90",
   "labourCode": "ZE25L0P",
   "basicAmt": 1320
  },
  {
-  "model": "IGNIS-PETROL",
+  "model": "Ignis",
   "labourDesc": "PMS 20/30/40/60/80/90",
   "labourCode": "ZE25L0P",
   "basicAmt": 1515
@@ -607,115 +343,67 @@ export const pmsCharges = [
   "basicAmt": 1500
  },
  {
-  "model": "EECO",
+  "model": "Eeco Cargo",
   "labourDesc": "PMS 20/30/40/60/80/90",
   "labourCode": "ZE25L0P",
   "basicAmt": 1320
  },
  {
-  "model": "EECO CARGO",
-  "labourDesc": "PMS 20/30/40/60/80/90",
-  "labourCode": "ZE25L0P",
-  "basicAmt": 1320
- },
- {
-  "model": "NEW CELERIO 2021",
-  "labourDesc": "PMS 20/30/40/60/80/90",
-  "labourCode": "ZE25L0P",
-  "basicAmt": 1460
- },
- {
-  "model": "New Dzire Petrol",
+  "model": "Dzire",
   "labourDesc": "PMS 20/30/40/60/80/90",
   "labourCode": "ZE25L0P",
   "basicAmt": 1515
  },
  {
-  "model": "NEW SWIFT DZIRE TOUR S PETROL",
-  "labourDesc": "PMS 20/30/40/60/80/90",
-  "labourCode": "ZE25L0P",
-  "basicAmt": 1320
- },
- {
-  "model": "NEW SWIFT PETROL",
+  "model": "Swift",
   "labourDesc": "PMS 20/30/40/60/80/90",
   "labourCode": "ZE25L0P",
   "basicAmt": 1515
  },
  {
-  "model": "NEW WAGON R 1.2L PETROL",
+  "model": "Wagon R",
   "labourDesc": "PMS 20/30/40/60/80/90",
   "labourCode": "ZE25L0P",
   "basicAmt": 1460
  },
  {
-  "model": "NEW WAGON R 1L PETROL",
+  "model": "S-Presso",
   "labourDesc": "PMS 20/30/40/60/80/90",
   "labourCode": "ZE25L0P",
   "basicAmt": 1460
  },
  {
-  "model": "S-PRESSO",
-  "labourDesc": "PMS 20/30/40/60/80/90",
-  "labourCode": "ZE25L0P",
-  "basicAmt": 1460
- },
- {
-  "model": "SWIFT NEW / DZIRE NEW PETROL",
-  "labourDesc": "PMS 20/30/40/60/80/90",
-  "labourCode": "ZE25L0P",
-  "basicAmt": 1515
- },
- {
-  "model": "VITARA BREZZA K15B BS-VI",
+  "model": "Brezza",
   "labourDesc": "PMS 20/30/40/60/80/90",
   "labourCode": "ZE25L0P",
   "basicAmt": 1655
  },
  {
-  "model": "WAGON-R NEW",
-  "labourDesc": "PMS 20/30/40/60/80/90",
-  "labourCode": "ZE25L0P",
-  "basicAmt": 1460
- },
- {
-  "model": "ALTO",
+  "model": "Alto 800",
   "labourDesc": "PMS 50/70/100",
   "labourCode": "ZE26L0P",
   "basicAmt": 1480
  },
  {
-  "model": "ALTO 800",
+  "model": "Alto K10",
   "labourDesc": "PMS 50/70/100",
   "labourCode": "ZE26L0P",
   "basicAmt": 1480
  },
  {
-  "model": "ALTO K10",
+  "model": "Celerio",
   "labourDesc": "PMS 50/70/100",
   "labourCode": "ZE26L0P",
   "basicAmt": 1480
  },
  {
-  "model": "ALTO K10C",
-  "labourDesc": "PMS 50/70/100",
-  "labourCode": "ZE26L0P",
-  "basicAmt": 1480
- },
- {
-  "model": "CELERIO",
-  "labourDesc": "PMS 50/70/100",
-  "labourCode": "ZE26L0P",
-  "basicAmt": 1480
- },
- {
-  "model": "ERTIGA PETROL",
+  "model": "Ertiga",
   "labourDesc": "PMS 50/70/100",
   "labourCode": "ZE26L0P",
   "basicAmt": 1720
  },
  {
-  "model": "IGNIS-PETROL",
+  "model": "Ignis",
   "labourDesc": "PMS 50/70/100",
   "labourCode": "ZE26L0P",
   "basicAmt": 1535
@@ -727,199 +415,121 @@ export const pmsCharges = [
   "basicAmt": 1520
  },
  {
-  "model": "EECO",
+  "model": "Eeco",
   "labourDesc": "PMS 50/70/100",
   "labourCode": "ZE26L0P",
   "basicAmt": 1340
  },
  {
-  "model": "EECO CARGO",
+  "model": "Eeco Cargo",
   "labourDesc": "PMS 50/70/100",
   "labourCode": "ZE26L0P",
   "basicAmt": 1340
  },
  {
-  "model": "Baleno",
-  "labourDesc": "PMS 50/70/100",
-  "labourCode": "ZE26L0P",
-  "basicAmt": 1520
- },
- {
-  "model": "NEW BREZZA",
+  "model": "Brezza",
   "labourDesc": "PMS 50/70/100",
   "labourCode": "ZE26L0P",
   "basicAmt": 1675
  },
  {
-  "model": "NEW CIAZ PETROL",
+  "model": "Ciaz",
   "labourDesc": "PMS 50/70/100",
   "labourCode": "ZE26L0P",
   "basicAmt": 1635
  },
  {
-  "model": "New Dzire Petrol",
+  "model": "Dzire",
   "labourDesc": "PMS 50/70/100",
   "labourCode": "ZE26L0P",
   "basicAmt": 1535
  },
  {
-  "model": "NEW ERTIGA PETROL",
-  "labourDesc": "PMS 50/70/100",
-  "labourCode": "ZE26L0P",
-  "basicAmt": 1720
- },
- {
-  "model": "NEW SWIFT PETROL",
+  "model": "Swift",
   "labourDesc": "PMS 50/70/100",
   "labourCode": "ZE26L0P",
   "basicAmt": 1535
  },
  {
-  "model": "NEW WAGON R 1.2L PETROL",
+  "model": "Wagon R",
   "labourDesc": "PMS 50/70/100",
   "labourCode": "ZE26L0P",
   "basicAmt": 1480
  },
  {
-  "model": "OMNI",
-  "labourDesc": "PMS 50/70/100",
-  "labourCode": "ZE26L0P",
-  "basicAmt": 1180
- },
- {
-  "model": "SWIFT NEW / DZIRE NEW PETROL",
-  "labourDesc": "PMS 50/70/100",
-  "labourCode": "ZE26L0P",
-  "basicAmt": 1535
- },
- {
-  "model": "VITARA BREZZA K15B BS-VI",
-  "labourDesc": "PMS 50/70/100",
-  "labourCode": "ZE26L0P",
-  "basicAmt": 1675
- },
- {
-  "model": "WAGON R",
-  "labourDesc": "PMS 50/70/100",
-  "labourCode": "ZE26L0P",
-  "basicAmt": 1480
- },
- {
-  "model": "WAGON-R NEW",
-  "labourDesc": "PMS 50/70/100",
-  "labourCode": "ZE26L0P",
-  "basicAmt": 1480
- },
- {
-  "model": "ALTO 800",
+  "model": "Alto 800",
   "labourDesc": "PMS - 1P 20K",
   "labourCode": "ZE61L0P",
   "basicAmt": 1385
  },
  {
-  "model": "ALTO K10C",
+  "model": "Alto K10",
   "labourDesc": "PMS - 1P 20K",
   "labourCode": "ZE61L0P",
   "basicAmt": 1385
  },
  {
-  "model": "DAZZLING NEW DZIRE",
+  "model": "Dzire",
   "labourDesc": "PMS - 1P 20K",
   "labourCode": "ZE61L0P",
   "basicAmt": 1440
  },
  {
-  "model": "EECO K12N 2022",
-  "labourDesc": "PMS - 1P 20K",
-  "labourCode": "ZE61L0P",
-  "basicAmt": 1255
- },
- {
-  "model": "EPIC NEW SWIFT",
+  "model": "Swift",
   "labourDesc": "PMS - 1P 20K",
   "labourCode": "ZE61L0P",
   "basicAmt": 1440
  },
  {
-  "model": "Fronx Domestic P74",
+  "model": "Fronx",
   "labourDesc": "PMS - 1P 20K",
   "labourCode": "ZE61L0P",
   "basicAmt": 1430
  },
  {
-  "model": "Fronx Turbo Smart Hybrid Domestic P74",
-  "labourDesc": "PMS - 1P 20K",
-  "labourCode": "ZE61L0P",
-  "basicAmt": 1430
- },
- {
-  "model": "IGNIS-PETROL",
+  "model": "Ignis",
   "labourDesc": "PMS - 1P 20K",
   "labourCode": "ZE61L0P",
   "basicAmt": 1440
  },
  {
-  "model": "Jimny 5 Door Domestic P74",
+  "model": "Jimny",
   "labourDesc": "PMS - 1P 20K",
   "labourCode": "ZE61L0P",
   "basicAmt": 1430
  },
  {
-  "model": "MARUTI GRAND VITARA Smart Hybrid",
+  "model": "Grand Vitara",
   "labourDesc": "PMS - 1P 20K",
   "labourCode": "ZE61L0P",
   "basicAmt": 1430
  },
  {
-  "model": "Baleno",
+  "model": "Brezza",
   "labourDesc": "PMS - 1P 20K",
   "labourCode": "ZE61L0P",
   "basicAmt": 1430
  },
  {
-  "model": "NEW BREZZA",
-  "labourDesc": "PMS - 1P 20K",
-  "labourCode": "ZE61L0P",
-  "basicAmt": 1430
- },
- {
-  "model": "NEW CELERIO 2021",
+  "model": "Celerio",
   "labourDesc": "PMS - 1P 20K",
   "labourCode": "ZE61L0P",
   "basicAmt": 1385
  },
  {
-  "model": "New Dzire Petrol",
-  "labourDesc": "PMS - 1P 20K",
-  "labourCode": "ZE61L0P",
-  "basicAmt": 1440
- },
- {
-  "model": "NEW ERTIGA PETROL",
+  "model": "Ertiga",
   "labourDesc": "PMS - 1P 20K",
   "labourCode": "ZE61L0P",
   "basicAmt": 1645
  },
  {
-  "model": "NEW SWIFT PETROL",
-  "labourDesc": "PMS - 1P 20K",
-  "labourCode": "ZE61L0P",
-  "basicAmt": 1440
- },
- {
-  "model": "NEW WAGON R 1.2L PETROL",
+  "model": "Wagon R",
   "labourDesc": "PMS - 1P 20K",
   "labourCode": "ZE61L0P",
   "basicAmt": 1385
  },
  {
-  "model": "NEW WAGON R 1L PETROL",
-  "labourDesc": "PMS - 1P 20K",
-  "labourCode": "ZE61L0P",
-  "basicAmt": 1385
- },
- {
-  "model": "S-PRESSO",
+  "model": "S-Presso",
   "labourDesc": "PMS - 1P 20K",
   "labourCode": "ZE61L0P",
   "basicAmt": 1385
@@ -931,31 +541,31 @@ export const pmsCharges = [
   "basicAmt": 1645
  },
  {
-  "model": "ALTO 800",
+  "model": "Alto 800",
   "labourDesc": "PMS - 2P 30K",
   "labourCode": "ZE62L0P",
   "basicAmt": 1410
  },
  {
-  "model": "ALTO K10C",
+  "model": "Alto K10",
   "labourDesc": "PMS - 2P 30K",
   "labourCode": "ZE62L0P",
   "basicAmt": 1410
  },
  {
-  "model": "EECO K12N 2022",
+  "model": "Eeco",
   "labourDesc": "PMS - 2P 30K",
   "labourCode": "ZE62L0P",
   "basicAmt": 1275
  },
  {
-  "model": "Fronx Domestic P74",
+  "model": "Fronx",
   "labourDesc": "PMS - 2P 30K",
   "labourCode": "ZE62L0P",
   "basicAmt": 1455
  },
  {
-  "model": "IGNIS-PETROL",
+  "model": "Ignis",
   "labourDesc": "PMS - 2P 30K",
   "labourCode": "ZE62L0P",
   "basicAmt": 1465
@@ -967,89 +577,51 @@ export const pmsCharges = [
   "basicAmt": 1455
  },
  {
-  "model": "EECO",
+  "model": "Eeco Cargo",
   "labourDesc": "PMS - 2P 30K",
   "labourCode": "ZE62L0P",
   "basicAmt": 1275
  },
  {
-  "model": "EECO CARGO",
-  "labourDesc": "PMS - 2P 30K",
-  "labourCode": "ZE62L0P",
-  "basicAmt": 1275
- },
- {
-  "model": "Baleno",
+  "model": "Brezza",
   "labourDesc": "PMS - 2P 30K",
   "labourCode": "ZE62L0P",
   "basicAmt": 1455
  },
  {
-  "model": "NEW BREZZA",
-  "labourDesc": "PMS - 2P 30K",
-  "labourCode": "ZE62L0P",
-  "basicAmt": 1455
- },
- {
-  "model": "NEW CELERIO 2021",
+  "model": "Celerio",
   "labourDesc": "PMS - 2P 30K",
   "labourCode": "ZE62L0P",
   "basicAmt": 1410
  },
  {
-  "model": "New Dzire Petrol",
+  "model": "Dzire",
   "labourDesc": "PMS - 2P 30K",
   "labourCode": "ZE62L0P",
   "basicAmt": 1465
  },
  {
-  "model": "NEW ERTIGA PETROL",
+  "model": "Ertiga",
   "labourDesc": "PMS - 2P 30K",
   "labourCode": "ZE62L0P",
   "basicAmt": 1660
  },
  {
-  "model": "NEW SWIFT DZIRE TOUR S PETROL",
-  "labourDesc": "PMS - 2P 30K",
-  "labourCode": "ZE62L0P",
-  "basicAmt": 1275
- },
- {
-  "model": "NEW SWIFT PETROL",
+  "model": "Swift",
   "labourDesc": "PMS - 2P 30K",
   "labourCode": "ZE62L0P",
   "basicAmt": 1465
  },
  {
-  "model": "NEW WAGON R 1.2L PETROL",
+  "model": "Wagon R",
   "labourDesc": "PMS - 2P 30K",
   "labourCode": "ZE62L0P",
   "basicAmt": 1410
  },
  {
-  "model": "NEW WAGON R 1L PETROL",
+  "model": "S-Presso",
   "labourDesc": "PMS - 2P 30K",
   "labourCode": "ZE62L0P",
   "basicAmt": 1410
- },
- {
-  "model": "S-PRESSO",
-  "labourDesc": "PMS - 2P 30K",
-  "labourCode": "ZE62L0P",
-  "basicAmt": 1410
- },
- {
-  "model": "VITARA BREZZA K15B BS-VI",
-  "labourDesc": "PMS - 2P 30K",
-  "labourCode": "ZE62L0P",
-  "basicAmt": 1455
- },
- {
-  "model": "EECO CARGO",
-  "labourDesc": "PMS - 1P 30K/50K/70K/90K/100K/110K",
-  "labourCode": "ZE21L0P",
-  "basicAmt": 1180
  }
 ];
-
-    
