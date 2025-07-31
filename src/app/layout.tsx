@@ -29,9 +29,15 @@ export default function RootLayout({
             dangerouslySetInnerHTML={{
               __html: `
             if (typeof window.__REACT_DEVTOOLS_GLOBAL_HOOK__ === 'object') {
-              for (let [key, value] of Object.entries(window.__REACT_DEVTOOLS_GLOBAL_HOOK__)) {
-                window.__REACT_DEVTOOLS_GLOBAL_HOOK__[key] = typeof value == 'function' ? () => {} : null;
-              }
+              Object.defineProperty(window, '__REACT_DEVTOOLS_GLOBAL_HOOK__', {
+                value: {
+                  inject: function() {},
+                  onCommitFiberRoot: function() {},
+                  onCommitFiberUnmount: function() {},
+                  supportsFiber: true,
+                },
+                configurable: false
+              });
             }
           `,
             }}
