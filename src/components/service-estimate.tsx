@@ -198,8 +198,8 @@ export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
                           <SelectValue placeholder="Select a custom labor item" />
                       </SelectTrigger>
                       <SelectContent>
-                          {availableCustomLabor.map(job => (
-                              <SelectItem key={job.name} value={job.name} disabled={customLabor.some(l => l.name === job.name)}>
+                          {availableCustomLabor.map((job, index) => (
+                              <SelectItem key={`${job.name}-${index}`} value={job.name} disabled={customLabor.some(l => l.name === job.name)}>
                                   {job.name} - ₹{job.charge.toFixed(2)}
                               </SelectItem>
                           ))}
