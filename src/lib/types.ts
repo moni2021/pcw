@@ -24,6 +24,13 @@ export const LaborSchema = z.object({
 });
 export type Labor = z.infer<typeof LaborSchema>;
 
+export const CustomLaborSchema = z.object({
+    name: z.string(),
+    model: z.string(),
+    charge: z.number(),
+});
+export type CustomLabor = z.infer<typeof CustomLaborSchema>;
+
 
 export const ServiceSchema = z.object({
   parts: z.array(PartSchema),

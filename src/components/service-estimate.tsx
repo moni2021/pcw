@@ -6,14 +6,17 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Separator } from '@/components/ui/separator';
-import { Printer, Percent, PlusCircle, Sparkles } from 'lucide-react';
-import type { ServiceEstimateData, Labor } from '@/lib/types';
+import { Printer, Percent, PlusCircle, Sparkles, Wrench } from 'lucide-react';
+import type { ServiceEstimateData, Labor, CustomLabor as CustomLaborType } from '@/lib/types';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Input } from '@/components/ui/input';
 import { Checkbox } from './ui/checkbox';
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
+import { customLaborData } from '@/lib/custom-labor-data';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+
 
 interface ServiceEstimateProps {
   estimate: ServiceEstimateData;
@@ -27,14 +30,20 @@ export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
   const [discountValue, setDiscountValue] = useState<number>(0);
   const [selectedRecommended, setSelectedRecommended] = useState<Labor[]>([]);
   const [selectedOptional, setSelectedOptional] = useState<Labor[]>([]);
+  const [customLabor, setCustomLabor] = useState<Labor[]>([]);
   const [finalTotal, setFinalTotal] = useState(estimate.totalPrice);
   
   const totalPartsPrice = useMemo(() => parts.reduce((sum, part) => sum + part.price, 0), [parts]);
   const baseLaborCharge = useMemo(() => labor.reduce((sum, job) => sum + job.charge, 0), [labor]);
   const recommendedLaborCharge = useMemo(() => selectedRecommended.reduce((sum, job) => sum + job.charge, 0), [selectedRecommended]);
   const optionalServiceCharge = useMemo(() => selectedOptional.reduce((sum, job) => sum + job.charge, 0), [selectedOptional]);
+  const customLaborCharge = useMemo(() => customLabor.reduce((sum, job) => sum + job.charge, 0), [customLabor]);
+
+  const availableCustomLabor = useMemo(() => {
+    return customLaborData.filter(item => item.model === vehicle.model);
+  }, [vehicle.model]);
   
-  const totalLaborCharge = useMemo(() => baseLaborCharge + recommendedLaborCharge + optionalServiceCharge, [baseLaborCharge, recommendedLaborCharge, optionalServiceCharge]);
+  const totalLaborCharge = useMemo(() => baseLaborCharge + recommendedLaborCharge + optionalServiceCharge + customLaborCharge, [baseLaborCharge, recommendedLaborCharge, optionalServiceCharge, customLaborCharge]);
   const gstOnLabor = useMemo(() => totalLaborCharge * GST_RATE, [totalLaborCharge]);
 
   useEffect(() => {
@@ -42,7 +51,7 @@ export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
     const numericDiscountValue = Number(discountValue) || 0;
 
     // Discount is only applied to base labor + recommended, not premium optional services
-    const discountableLabor = baseLaborCharge + recommendedLaborCharge;
+    const discountableLabor = baseLaborCharge + recommendedLaborCharge + customLaborCharge;
 
     if (discountType === 'percentage') {
       laborDiscount = discountableLabor * (numericDiscountValue / 100);
@@ -55,7 +64,7 @@ export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
     const newTotal = totalPartsPrice + totalLaborCharge + gstOnLabor - laborDiscount;
     setFinalTotal(newTotal);
 
-  }, [discountValue, discountType, totalLaborCharge, totalPartsPrice, gstOnLabor, baseLaborCharge, recommendedLaborCharge]);
+  }, [discountValue, discountType, totalLaborCharge, totalPartsPrice, gstOnLabor, baseLaborCharge, recommendedLaborCharge, customLaborCharge]);
   
   useEffect(() => {
     // Reset state when a new estimate is received
@@ -63,6 +72,7 @@ export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
     setDiscountType('percentage');
     setSelectedRecommended([]);
     setSelectedOptional([]);
+    setCustomLabor([]);
   }, [estimate]);
 
 
@@ -72,7 +82,6 @@ export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
 
   const handleOptionalChange = (job: Labor, type: 'recommended' | 'optional') => {
     const setter = type === 'recommended' ? setSelectedRecommended : setSelectedOptional;
-    const getter = type === 'recommended' ? selectedRecommended : selectedOptional;
     
     setter(prev => {
         const isSelected = prev.find(item => item.name === job.name);
@@ -83,6 +92,17 @@ export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
         }
     })
   }
+
+  const handleCustomLaborAdd = (laborName: string) => {
+      const selectedJob = availableCustomLabor.find(job => job.name === laborName);
+      if (selectedJob && !customLabor.some(l => l.name === selectedJob.name)) {
+          setCustomLabor(prev => [...prev, {name: selectedJob.name, charge: selectedJob.charge}]);
+      }
+  }
+   const handleCustomLaborRemove = (laborName: string) => {
+    setCustomLabor(prev => prev.filter(job => job.name !== laborName));
+  };
+
 
   return (
     <div className="print-container">
@@ -167,6 +187,54 @@ export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
                 </Table>
              </div>
           </div>
+
+          {availableCustomLabor.length > 0 && (
+            <div className="space-y-4 rounded-lg border border-dashed p-4 no-print">
+              <h3 className="text-lg font-semibold mb-2 flex items-center gap-2 text-primary"><Wrench className="h-5 w-5"/> Custom Labor</h3>
+              <p className="text-sm text-muted-foreground">Add custom labor charges for this vehicle.</p>
+              <div className="flex flex-col gap-4">
+                  <Select onValueChange={handleCustomLaborAdd}>
+                      <SelectTrigger>
+                          <SelectValue placeholder="Select a custom labor item" />
+                      </SelectTrigger>
+                      <SelectContent>
+                          {availableCustomLabor.map(job => (
+                              <SelectItem key={job.name} value={job.name} disabled={customLabor.some(l => l.name === job.name)}>
+                                  {job.name} - ₹{job.charge.toFixed(2)}
+                              </SelectItem>
+                          ))}
+                      </SelectContent>
+                  </Select>
+
+                  {customLabor.length > 0 && (
+                      <div className="overflow-x-auto">
+                        <Table>
+                          <TableHeader>
+                            <TableRow>
+                              <TableHead>Custom Labor</TableHead>
+                              <TableHead className="text-right">Charge (₹)</TableHead>
+                              <TableHead className="text-right"></TableHead>
+                            </TableRow>
+                          </TableHeader>
+                          <TableBody>
+                            {customLabor.map((job, index) => (
+                              <TableRow key={`custom-${index}`}>
+                                <TableCell className="font-medium">{job.name}</TableCell>
+                                <TableCell className="text-right">{job.charge.toFixed(2)}</TableCell>
+                                <TableCell className="text-right">
+                                  <Button variant="ghost" size="icon" onClick={() => handleCustomLaborRemove(job.name)}>
+                                    <PlusCircle className="h-4 w-4 rotate-45 text-destructive"/>
+                                  </Button>
+                                </TableCell>
+                              </TableRow>
+                            ))}
+                          </TableBody>
+                        </Table>
+                      </div>
+                  )}
+              </div>
+            </div>
+          )}
             
           {recommendedLabor && recommendedLabor.length > 0 && (
              <div className="space-y-4 rounded-lg border border-dashed p-4 no-print">
@@ -255,7 +323,7 @@ export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
         </div>
         
          <div className="print-only mt-4 space-y-4 hidden">
-              {[...selectedRecommended, ...selectedOptional].length > 0 && (
+              {[...customLabor, ...selectedRecommended, ...selectedOptional].length > 0 && (
                   <div>
                     <h3 className="text-lg font-semibold mb-2">Additional Services</h3>
                     <div className="overflow-x-auto">
@@ -269,7 +337,7 @@ export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
                             </TableRow>
                           </TableHeader>
                           <TableBody>
-                            {[...selectedRecommended, ...selectedOptional].map((job, index) => (
+                            {[...customLabor, ...selectedRecommended, ...selectedOptional].map((job, index) => (
                               <TableRow key={`print-rec-${index}`}>
                                 <TableCell className="font-medium">{job.name}</TableCell>
                                 <TableCell className="text-right">{job.charge.toFixed(2)}</TableCell>
