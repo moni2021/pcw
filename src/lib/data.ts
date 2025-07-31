@@ -86,56 +86,32 @@ const serviceTypeMapping: { [key: string]: string } = {
   "240 K SERVICE": "Paid Service (240,000 km)",
 };
 
-const oldModelMapping: { [key: string]: string[] } = {
-    "OLD MODEL- WAGON-R / CELERIO / ERTIGA / RITZ / SWIFT / ESTILLO / A-STAR / K10 / ALTO": [
-        "Wagon R", "Celerio", "Ertiga", "Ritz", "Swift", "Zen Estilo", "A-Star", "Alto K10", "Alto"
-    ],
-     "SWIFT (OLD)": ["Swift"],
-     "ERTIGA (OLD)": ["Ertiga"],
-     "RITZ (OLD)": ["Ritz"],
-     "GRAND VITARA": ["Grand Vitara"],
-     "MARUTI EECO": ["Eeco", "Eeco Cargo"],
-     "CELERIO NEW": ["Celerio"],
-     "XL6 (SMART HYBRID)": ["XL6"],
-     "NEW BALENO (SMART HYBIRD)": ["Baleno"],
-     "S-CROSS (SMART HYBRID)": ["S-Cross"],
+const processedServiceData = rawServiceData.flatMap(item => {
+    const modelName = item.MODEL.replace(/\(OLD\)/i, '').trim().toUpperCase();
 
-}
+    const standardServiceType = serviceTypeMapping[item['SERVICE TYPE']];
+    if (!standardServiceType) return null;
 
-export const processedServiceData = rawServiceData.flatMap(item => {
-    const modelName = item.MODEL.replace(/\(OLD\)/i, '').trim();
-    const models = oldModelMapping[item.MODEL] || [modelName];
+    const partsNames = item.PARTS.split('\n').filter(p => p.trim() !== '');
+    const partsAmounts = item.AMOUNT.split('\n').filter(p => p.trim() !== '').map(Number);
+    
+    const minLength = Math.min(partsNames.length, partsAmounts.length);
 
-    return models.map(model => {
-        const standardServiceType = serviceTypeMapping[item['SERVICE TYPE']];
-        if (!standardServiceType) return null;
-
-        const partsNames = item.PARTS.split('\n').filter(p => p.trim() !== '');
-        const partsAmounts = item.AMOUNT.split('\n').filter(p => p.trim() !== '').map(Number);
-        
-        // Ensure that parts and amounts have the same length
-        const minLength = Math.min(partsNames.length, partsAmounts.length);
-
-        const parts = partsNames.slice(0, minLength).map((name, index) => ({
-            name,
-            price: partsAmounts[index] || 0,
-        }));
-        
-        return {
-            key: `${standardServiceType}-${model.toUpperCase()}-${item.FUEL.toUpperCase()}`,
-            model: model.toUpperCase(),
-            fuel: item.FUEL.toUpperCase(),
-            serviceType: standardServiceType,
-            data: {
-                parts: parts,
-                labor: [], // Labor is handled by pms-charges now
-            } as Service
-        };
-    });
+    const parts = partsNames.slice(0, minLength).map((name, index) => ({
+        name: name.trim(),
+        price: partsAmounts[index] || 0,
+    }));
+    
+    return {
+        key: `${standardServiceType}-${modelName}-${item.FUEL.toUpperCase()}`,
+        data: {
+            parts: parts,
+            labor: [],
+        } as Service
+    };
 }).filter((item): item is NonNullable<typeof item> => item !== null);
 
 
-// Create a lookup object
 export const serviceDataLookup = processedServiceData.reduce((acc, item) => {
     if (item) {
         acc[item.key] = item.data;
@@ -157,12 +133,10 @@ export const serviceData: ServiceData = {
     ],
     labor: [{ name: 'General Inspection & Wash', charge: 0 }],
   },
-  // The rest will be populated dynamically
 };
 
-// Populate serviceData with dynamic keys for the dropdown
-const serviceTypes = new Set(Object.values(serviceTypeMapping));
-serviceTypes.forEach(type => {
+const allServiceTypes = new Set(Object.values(serviceTypeMapping));
+allServiceTypes.forEach(type => {
     if (!serviceData[type]) {
         serviceData[type] = { parts: [], labor: [] };
     }
