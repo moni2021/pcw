@@ -72,6 +72,7 @@ export function VehicleServiceForm() {
   const handleYearChange = (yearStr: string) => {
       const year = parseInt(yearStr, 10);
       setSelectedYear(yearStr);
+      setSelectedService('');
       setEstimate(null);
       setError('');
 
