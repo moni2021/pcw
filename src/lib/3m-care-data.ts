@@ -415,5 +415,3 @@ export const threeMCareData: { [model: string]: { name: string; charge: number }
     { name: "AC VENT CLEANING", charge: 650 },
   ]
 };
-
-    
