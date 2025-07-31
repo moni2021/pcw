@@ -45,6 +45,11 @@ const rawServiceData: any[] = [
     {"MODEL": "Alto K10", "FUEL": "PETROL", "SERVICE TYPE": "Paid Service (20,000 km)", "PARTS": "ENGINE OIL\nOIL FILTER\nDISTILLED WATER\nSHAMPOO\nDRAIN NUT\nWASHER\nBRAKE OIL\nCOOLANT", "AMOUNT": "1350\n95\n80\n54\n80\n7\n380\n280"},
     {"MODEL": "Alto K10", "FUEL": "PETROL", "SERVICE TYPE": "Paid Service (40,000 km)", "PARTS": "ENGINE OIL\nOIL FILTER\nDISTILLED WATER\nSHAMPOO\nDRAIN NUT\nWASHER\nBRAKE OIL\nCOOLANT\nSPARK-PLUGS\nAIR FILTER\nFUEL-FILTER\nGEAR OIL", "AMOUNT": "1350\n95\n80\n54\n80\n7\n380\n280\n820\n280\n325\n1000"},
 
+    // S-Presso
+    {"MODEL": "S-Presso", "FUEL": "PETROL", "SERVICE TYPE": "3rd Free Service (10,000 km)", "PARTS": "ENGINE OIL\nOIL FILTER\nDISTILLED WATER\nSHAMPOO", "AMOUNT": "1350\n95\n20\n54"},
+    {"MODEL": "S-Presso", "FUEL": "PETROL", "SERVICE TYPE": "Paid Service (20,000 km)", "PARTS": "ENGINE OIL\nOIL FILTER\nDISTILLED WATER\nSHAMPOO\nDRAIN NUT\nWASHER\nBRAKE OIL\nCOOLANT", "AMOUNT": "1350\n95\n80\n54\n80\n7\n380\n280"},
+    {"MODEL": "S-Presso", "FUEL": "PETROL", "SERVICE TYPE": "Paid Service (40,000 km)", "PARTS": "ENGINE OIL\nOIL FILTER\nDISTILLED WATER\nSHAMPOO\nDRAIN NUT\nWASHER\nBRAKE OIL\nCOOLANT\nSPARK-PLUGS\nAIR FILTER\nFUEL-FILTER\nGEAR OIL", "AMOUNT": "1350\n95\n80\n54\n80\n7\n380\n280\n820\n280\n325\n1000"},
+
     // Eeco & Eeco Cargo
     {"MODEL": "Eeco", "FUEL": "PETROL", "SERVICE TYPE": "3rd Free Service (10,000 km)", "PARTS": "ENGINE OIL\nOIL FILTER\nDISTILLED WATER\nSHAMPOO\nDRAIN NUT\nWASHER", "AMOUNT": "1807\n95\n20\n54\n80\n7"},
     {"MODEL": "Eeco", "FUEL": "PETROL", "SERVICE TYPE": "Paid Service (20,000 km)", "PARTS": "ENGINE OIL\nOIL FILTER\nDISTILLED WATER\nSHAMPOO\nDRAIN NUT\nWASHER\nCOOLANT\nBRAKE FLUID", "AMOUNT": "1807\n95\n80\n54\n80\n7\n280\n380"},
@@ -119,6 +124,7 @@ const rawServiceData: any[] = [
     'Alto 800': 'Alto 800',
     'Dzire': 'Dzire',
     'Ertiga': 'Ertiga',
+    'S-Presso': 'S-Presso',
   };
   
   const getStandardModelName = (name: string): string => {
@@ -193,3 +199,5 @@ const rawServiceData: any[] = [
           serviceData[type] = { parts: [], labor: [] };
       }
   });
+
+    
