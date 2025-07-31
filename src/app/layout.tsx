@@ -1,3 +1,4 @@
+
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
@@ -23,6 +24,18 @@ export default function RootLayout({
         <body className={`${inter.className} antialiased`}>
           {children}
           <Toaster />
+          {/* Disable react-devtools in production */}
+          <script
+            dangerouslySetInnerHTML={{
+              __html: `
+            if (typeof window.__REACT_DEVTOOLS_GLOBAL_HOOK__ === 'object') {
+              for (let [key, value] of Object.entries(window.__REACT_DEVTOOLS_GLOBAL_HOOK__)) {
+                window.__REACT_DEVTOOLS_GLOBAL_HOOK__[key] = typeof value == 'function' ? () => {} : null;
+              }
+            }
+          `,
+            }}
+          />
         </body>
       </ThemeProvider>
     </html>
