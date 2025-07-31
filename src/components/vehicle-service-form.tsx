@@ -15,6 +15,7 @@ import { Loader2, Car, Tag, Building2 } from 'lucide-react';
 import { Separator } from './ui/separator';
 import { Badge } from '@/components/ui/badge';
 import { useTheme } from '@/context/ThemeContext';
+import { threeMCareData } from '@/lib/3m-care-data';
 
 export function VehicleServiceForm() {
   const { setTheme } = useTheme();
@@ -126,14 +127,28 @@ export function VehicleServiceForm() {
        }
 
       const lookupKey = `${selectedService}-${selectedModel.toUpperCase()}-${selectedFuelType.toUpperCase()}`;
-      const serviceInfo: Service | undefined = serviceDataLookup[lookupKey];
+      let serviceInfo: Service | undefined = serviceDataLookup[lookupKey];
+
+      const pmsServiceRegex = /Paid Service \((\d+),000 km\)/;
+      const match = selectedService.match(pmsServiceRegex);
+
+      let pmsCharge = 0;
+      if (match) {
+        const km = parseInt(match[1], 10);
+        const pmsDesc = `PMS - 2P ${km}K`;
+        const pmsEntry = pmsCharges.find(p => p.model.toUpperCase() === selectedModel.toUpperCase() && p.labourDesc.includes(`${km}K`));
+        if (pmsEntry) {
+            pmsCharge = pmsEntry.basicAmt;
+        }
+      }
       
       if (!serviceInfo) {
         // Fallback for generic services like 1st and 2nd free service
         const genericService = serviceData[selectedService as keyof typeof serviceData];
         if (genericService) {
-            const totalPartsPrice = genericService.parts.reduce((sum, part) => sum + part.price, 0);
-            const totalLaborCharge = genericService.labor.reduce((sum, job) => sum + job.charge, 0);
+             const labor = pmsCharge > 0 ? [{ name: 'Periodic Maintenance Service', charge: pmsCharge }] : genericService.labor;
+             const totalPartsPrice = genericService.parts.reduce((sum, part) => sum + part.price, 0);
+             const totalLaborCharge = labor.reduce((sum, job) => sum + job.charge, 0);
              const newEstimate: ServiceEstimateData = {
                 vehicle: {
                     model: selectedModel,
@@ -144,9 +159,9 @@ export function VehicleServiceForm() {
                 },
                 serviceType: selectedService,
                 parts: genericService.parts,
-                labor: genericService.labor,
+                labor: labor,
                 recommendedLabor: genericService.recommendedLabor || [],
-                optionalServices: genericService.optionalServices || [],
+                optionalServices: threeMCareData[selectedModel] || [],
                 totalPrice: totalPartsPrice + totalLaborCharge,
             };
             setEstimate(newEstimate);
@@ -158,7 +173,9 @@ export function VehicleServiceForm() {
         return;
       }
       
-      const { parts, labor } = serviceInfo;
+      const { parts } = serviceInfo;
+
+      const labor = pmsCharge > 0 ? [{ name: 'Periodic Maintenance Service', charge: pmsCharge }] : serviceInfo.labor;
 
       const totalPartsPrice = parts.reduce((sum, part) => sum + part.price, 0);
       const totalLaborCharge = labor.reduce((sum, job) => sum + job.charge, 0);
@@ -175,7 +192,7 @@ export function VehicleServiceForm() {
         parts,
         labor,
         recommendedLabor: serviceInfo.recommendedLabor || [],
-        optionalServices: serviceInfo.optionalServices || [],
+        optionalServices: threeMCareData[selectedModel] || [],
         totalPrice: totalPartsPrice + totalLaborCharge,
       };
       
