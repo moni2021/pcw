@@ -17,6 +17,14 @@ import { Badge } from '@/components/ui/badge';
 import { useTheme } from '@/context/ThemeContext';
 import { threeMCareData } from '@/lib/3m-care-data';
 
+const commonServices: Labor[] = [
+    { name: 'NITROGEN GAS FILLING', charge: 200 },
+    { name: 'WHEEL ALIGNMENT (4 HEAD)', charge: 400 },
+    { name: 'ENGINE ROOM PAINTING', charge: 400 },
+    { name: 'STRUT GREASING', charge: 1650 },
+    { name: 'HEADLAMP FOCUSSING', charge: 400 },
+];
+
 export function VehicleServiceForm() {
   const { setTheme } = useTheme();
   const [selectedModel, setSelectedModel] = useState<string>('');
@@ -135,7 +143,6 @@ export function VehicleServiceForm() {
       let pmsCharge = 0;
       if (match) {
         const km = parseInt(match[1], 10);
-        const pmsDesc = `PMS - 2P ${km}K`;
         const pmsEntry = pmsCharges.find(p => p.model.toUpperCase() === selectedModel.toUpperCase() && p.labourDesc.includes(`${km}K`));
         if (pmsEntry) {
             pmsCharge = pmsEntry.basicAmt;
@@ -160,7 +167,7 @@ export function VehicleServiceForm() {
                 serviceType: selectedService,
                 parts: genericService.parts,
                 labor: labor,
-                recommendedLabor: genericService.recommendedLabor || [],
+                recommendedLabor: [...(genericService.recommendedLabor || []), ...commonServices],
                 optionalServices: threeMCareData[selectedModel] || [],
                 totalPrice: totalPartsPrice + totalLaborCharge,
             };
@@ -191,7 +198,7 @@ export function VehicleServiceForm() {
         serviceType: selectedService,
         parts,
         labor,
-        recommendedLabor: serviceInfo.recommendedLabor || [],
+        recommendedLabor: [...(serviceInfo.recommendedLabor || []), ...commonServices],
         optionalServices: threeMCareData[selectedModel] || [],
         totalPrice: totalPartsPrice + totalLaborCharge,
       };
