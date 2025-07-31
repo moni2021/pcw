@@ -22,7 +22,7 @@ interface ServiceEstimateProps {
 }
 
 export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
-  const { vehicle, serviceType, parts, labor, recommendedLabor, optionalServices } = estimate;
+  const { vehicle, serviceType, recommendedLabor, optionalServices } = estimate;
   const GST_RATE = 0.18;
 
   const [discountType, setDiscountType] = useState<'percentage' | 'rupees'>('percentage');
@@ -30,10 +30,8 @@ export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
   const [selectedRecommended, setSelectedRecommended] = useState<Labor[]>([]);
   const [selectedOptional, setSelectedOptional] = useState<Labor[]>([]);
   const [customLabor, setCustomLabor] = useState<Labor[]>([]);
-  const [finalTotal, setFinalTotal] = useState(estimate.totalPrice);
+  const [finalTotal, setFinalTotal] = useState(0);
   
-  const totalPartsPrice = useMemo(() => parts.reduce((sum, part) => sum + part.price, 0), [parts]);
-  const baseLaborCharge = useMemo(() => labor.reduce((sum, job) => sum + job.charge, 0), [labor]);
   const recommendedLaborCharge = useMemo(() => selectedRecommended.reduce((sum, job) => sum + job.charge, 0), [selectedRecommended]);
   const optionalServiceCharge = useMemo(() => selectedOptional.reduce((sum, job) => sum + job.charge, 0), [selectedOptional]);
   const customLaborCharge = useMemo(() => customLabor.reduce((sum, job) => sum + job.charge, 0), [customLabor]);
@@ -42,7 +40,7 @@ export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
     return customLaborData.filter(item => item.model === vehicle.model);
   }, [vehicle.model]);
   
-  const totalLaborCharge = useMemo(() => baseLaborCharge + recommendedLaborCharge + optionalServiceCharge + customLaborCharge, [baseLaborCharge, recommendedLaborCharge, optionalServiceCharge, customLaborCharge]);
+  const totalLaborCharge = useMemo(() => recommendedLaborCharge + optionalServiceCharge + customLaborCharge, [recommendedLaborCharge, optionalServiceCharge, customLaborCharge]);
   const gstOnLabor = useMemo(() => totalLaborCharge * GST_RATE, [totalLaborCharge]);
 
   useEffect(() => {
@@ -50,7 +48,7 @@ export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
     const numericDiscountValue = Number(discountValue) || 0;
 
     // Discount is only applied to base labor + recommended, not premium optional services
-    const discountableLabor = baseLaborCharge + recommendedLaborCharge + customLaborCharge;
+    const discountableLabor = recommendedLaborCharge + customLaborCharge;
 
     if (discountType === 'percentage') {
       laborDiscount = discountableLabor * (numericDiscountValue / 100);
@@ -60,10 +58,10 @@ export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
     
     laborDiscount = Math.min(laborDiscount, discountableLabor);
 
-    const newTotal = totalPartsPrice + totalLaborCharge + gstOnLabor - laborDiscount;
+    const newTotal = totalLaborCharge + gstOnLabor - laborDiscount;
     setFinalTotal(newTotal);
 
-  }, [discountValue, discountType, totalLaborCharge, totalPartsPrice, gstOnLabor, baseLaborCharge, recommendedLaborCharge, customLaborCharge]);
+  }, [discountValue, discountType, totalLaborCharge, gstOnLabor, recommendedLaborCharge, customLaborCharge]);
   
   useEffect(() => {
     // Reset state when a new estimate is received
@@ -295,12 +293,8 @@ export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
         </div>
       </CardContent>
       <CardFooter className="bg-muted/50 p-4 mt-6 rounded-b-lg flex-col items-stretch gap-2">
-          <div className="w-full flex justify-between items-center text-sm text-muted-foreground">
-              <p>Subtotal (Parts):</p>
-              <p>₹{totalPartsPrice.toFixed(2)}</p>
-          </div>
            <div className="w-full flex justify-between items-center text-sm text-muted-foreground">
-              <p>Subtotal (Labor):</p>
+              <p>Subtotal (Additional Labor):</p>
               <p>₹{totalLaborCharge.toFixed(2)}</p>
           </div>
           <div className="w-full flex justify-between items-center text-sm text-muted-foreground">
