@@ -1,6 +1,7 @@
 
 "use client";
 import React, { useState, useEffect, useRef } from 'react';
+import type { Firestore } from 'firebase/firestore';
 import { Button } from './ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from './ui/card';
 import { Input } from './ui/input';
@@ -24,7 +25,11 @@ export function Chat() {
   const [nickname, setNickname] = useState('');
   const [isSettingNickname, setIsSettingNickname] = useState(true);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const db = getDb();
+  const [db, setDb] = useState<Firestore | null>(null);
+
+  useEffect(() => {
+    setDb(getDb());
+  }, []);
 
   useEffect(() => {
     const storedNickname = localStorage.getItem('chatNickname');
