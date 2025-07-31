@@ -90,6 +90,15 @@ export const threeMCareData: { [model: string]: { name: string; charge: number }
     { name: "GLASS CLEANING", charge: 900 },
     { name: "AC VENT CLEANING", charge: 650 },
   ],
+  "Eeco Cargo": [
+    { name: "INTERIOR CLEANING", charge: 1250 },
+    { name: "BODY RUBBING & POLISHING", charge: 1250 },
+    { name: "ANTIRUST/ CHASSIS PAINT", charge: 2300 },
+    { name: "PAINT PROTECTION", charge: 3300 },
+    { name: "SILENCER COATING", charge: 800 },
+    { name: "GLASS CLEANING", charge: 900 },
+    { name: "AC VENT CLEANING", charge: 650 },
+  ],
   "Swift": [
     { name: "INTERIOR CLEANING", charge: 1250 },
     { name: "BODY RUBBING & POLISHING", charge: 1250 },
@@ -172,4 +181,3 @@ export const threeMCareData: { [model: string]: { name: string; charge: number }
     { name: "AC VENT CLEANING", charge: 650 },
   ]
 };
-    
