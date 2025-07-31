@@ -86,13 +86,13 @@ export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
 
   return (
     <div className="print-container">
-      <CardHeader className="flex flex-row items-center justify-between">
-        <CardTitle className="text-2xl">Service Estimate</CardTitle>
-        <Button onClick={handlePrint} variant="ghost" size="icon" className="no-print">
-          <Printer className="h-5 w-5" />
-          <span className="sr-only">Print</span>
-        </Button>
-      </CardHeader>
+        <CardHeader className="flex flex-row items-center justify-between">
+            <CardTitle>Service Estimate</CardTitle>
+            <Button onClick={handlePrint} variant="ghost" size="icon" className="no-print">
+            <Printer className="h-5 w-5" />
+            <span className="sr-only">Print</span>
+            </Button>
+        </CardHeader>
       <CardContent>
         <div className="grid grid-cols-2 gap-4 mb-6 text-sm">
           <div>

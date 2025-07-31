@@ -178,7 +178,7 @@ export default function AdminPage() {
                             <div>
                                 <div className="flex justify-between items-center mb-2">
                                     <h4 className="font-semibold">Parts</h4>
-                                    <Button size="sm" variant="outline" onClick={() => handleAddItem(serviceType, 'parts')}>
+                                    <Button size="sm" variant="outline" onClick={() => handleAddItem(serviceType, 'parts')} type="button">
                                         <PlusCircle className="mr-2 h-4 w-4" /> Add Part
                                     </Button>
                                 </div>
@@ -211,7 +211,7 @@ export default function AdminPage() {
                                             />
                                             </TableCell>
                                             <TableCell className="text-right">
-                                                <Button variant="ghost" size="icon" onClick={() => handleRemoveItem(serviceType, 'parts', index)}>
+                                                <Button variant="ghost" size="icon" onClick={() => handleRemoveItem(serviceType, 'parts', index)} type="button">
                                                     <Trash2 className="h-4 w-4 text-destructive" />
                                                 </Button>
                                             </TableCell>
@@ -224,7 +224,7 @@ export default function AdminPage() {
                             <div>
                                 <div className="flex justify-between items-center mb-2">
                                     <h4 className="font-semibold">Standard Labor</h4>
-                                    <Button size="sm" variant="outline" onClick={() => handleAddItem(serviceType, 'labor')}>
+                                    <Button size="sm" variant="outline" onClick={() => handleAddItem(serviceType, 'labor')} type="button">
                                         <PlusCircle className="mr-2 h-4 w-4" /> Add Labor
                                     </Button>
                                 </div>
@@ -257,7 +257,7 @@ export default function AdminPage() {
                                             />
                                             </TableCell>
                                             <TableCell className="text-right">
-                                                <Button variant="ghost" size="icon" onClick={() => handleRemoveItem(serviceType, 'labor', index)}>
+                                                <Button variant="ghost" size="icon" onClick={() => handleRemoveItem(serviceType, 'labor', index)} type="button">
                                                     <Trash2 className="h-4 w-4 text-destructive" />
                                                 </Button>
                                             </TableCell>
@@ -271,7 +271,7 @@ export default function AdminPage() {
                          <div className="mt-8">
                                 <div className="flex justify-between items-center mb-2">
                                     <h4 className="font-semibold">Recommended Labor</h4>
-                                    <Button size="sm" variant="outline" onClick={() => handleAddItem(serviceType, 'recommendedLabor')}>
+                                    <Button size="sm" variant="outline" onClick={() => handleAddItem(serviceType, 'recommendedLabor')} type="button">
                                         <PlusCircle className="mr-2 h-4 w-4" /> Add Recommended Labor
                                     </Button>
                                 </div>
@@ -304,7 +304,7 @@ export default function AdminPage() {
                                             />
                                             </TableCell>
                                             <TableCell className="text-right">
-                                                <Button variant="ghost" size="icon" onClick={() => handleRemoveItem(serviceType, 'recommendedLabor', index)}>
+                                                <Button variant="ghost" size="icon" onClick={() => handleRemoveItem(serviceType, 'recommendedLabor', index)} type="button">
                                                     <Trash2 className="h-4 w-4 text-destructive" />
                                                 </Button>
                                             </TableCell>
@@ -318,7 +318,7 @@ export default function AdminPage() {
                         <div className="mt-8">
                                 <div className="flex justify-between items-center mb-2">
                                     <h4 className="font-semibold">Optional Services (e.g., 3M)</h4>
-                                    <Button size="sm" variant="outline" onClick={() => handleAddItem(serviceType, 'optionalServices')}>
+                                    <Button size="sm" variant="outline" onClick={() => handleAddItem(serviceType, 'optionalServices')} type="button">
                                         <PlusCircle className="mr-2 h-4 w-4" /> Add Optional Service
                                     </Button>
                                 </div>
@@ -351,7 +351,7 @@ export default function AdminPage() {
                                             />
                                             </TableCell>
                                             <TableCell className="text-right">
-                                                <Button variant="ghost" size="icon" onClick={() => handleRemoveItem(serviceType, 'optionalServices', index)}>
+                                                <Button variant="ghost" size="icon" onClick={() => handleRemoveItem(serviceType, 'optionalServices', index)} type="button">
                                                     <Trash2 className="h-4 w-4 text-destructive" />
                                                 </Button>
                                             </TableCell>
@@ -367,7 +367,7 @@ export default function AdminPage() {
                     ))}
                 </CardContent>
                 <CardFooter>
-                    <Button onClick={handleSaveChanges} disabled={isSaving} className="w-full sm:w-auto">
+                    <Button onClick={handleSaveChanges} disabled={isSaving} className="w-full sm:w-auto" type="button">
                         {isSaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : 'Save All Changes'}
                     </Button>
                 </CardFooter>
@@ -377,7 +377,7 @@ export default function AdminPage() {
                 <Accordion type="single" collapsible>
                     <AccordionItem value="item-1">
                         <AccordionTrigger className="px-6">
-                             <div className="flex items-center gap-2">
+                            <div className="flex items-center gap-2">
                                 <ChevronsUpDown className="h-4 w-4" />
                                 <h3 className="text-lg font-semibold">Bulk Data Management (JSON)</h3>
                             </div>
@@ -395,6 +395,7 @@ export default function AdminPage() {
                                         variant="ghost"
                                         className="absolute top-2 right-2 h-7 w-7"
                                         onClick={handleCopyTemplate}
+                                        type="button"
                                     >
                                         <Copy className="h-4 w-4" />
                                     </Button>
@@ -415,7 +416,7 @@ export default function AdminPage() {
                             </div>
 
                             {jsonError && <Alert variant="destructive" className="mt-4"><AlertDescription>{jsonError}</AlertDescription></Alert>}
-                            <Button onClick={handleJsonUpdate} className="mt-4">Load JSON Data into Editor</Button>
+                            <Button onClick={handleJsonUpdate} className="mt-4" type="button">Load JSON Data into Editor</Button>
                         </AccordionContent>
                     </AccordionItem>
                 </Accordion>
