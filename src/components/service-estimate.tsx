@@ -131,54 +131,6 @@ export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
         <Separator className="my-4" />
 
         <div className="space-y-4">
-          <div>
-            <h3 className="text-lg font-semibold mb-2">Parts Replacement</h3>
-            <div className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Part Name</TableHead>
-                    <TableHead className="text-right">Price (₹)</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {parts.map((part, index) => (
-                    <TableRow key={index}>
-                      <TableCell className="font-medium">{part.name}</TableCell>
-                      <TableCell className="text-right">{part.price.toFixed(2)}</TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
-          </div>
-          
-          <div>
-            <h3 className="text-lg font-semibold mb-2">Standard Labor Charges</h3>
-             <div className="overflow-x-auto">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Labor Description</TableHead>
-                      <TableHead className="text-right">Charge (₹)</TableHead>
-                      <TableHead className="text-right">GST (18%)</TableHead>
-                      <TableHead className="text-right">Total (₹)</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {labor.map((job, index) => (
-                      <TableRow key={index}>
-                        <TableCell className="font-medium">{job.name}</TableCell>
-                        <TableCell className="text-right">{job.charge.toFixed(2)}</TableCell>
-                        <TableCell className="text-right">{(job.charge * GST_RATE).toFixed(2)}</TableCell>
-                        <TableCell className="text-right font-semibold">{(job.charge * (1 + GST_RATE)).toFixed(2)}</TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-             </div>
-          </div>
-          
           {[...customLabor, ...selectedRecommended, ...selectedOptional].length > 0 && (
               <div>
                 <h3 className="text-lg font-semibold mb-2">Additional Services</h3>

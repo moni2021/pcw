@@ -6,10 +6,9 @@ import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
-import { serviceData, vehicles, serviceDataLookup } from '@/lib/data';
-import { pmsCharges } from '@/lib/pms-charges';
+import { vehicles } from '@/lib/data';
 import { ServiceEstimate } from './service-estimate';
-import type { ServiceEstimateData, Vehicle, Labor, Service, Part } from '@/lib/types';
+import type { ServiceEstimateData, Vehicle, Labor } from '@/lib/types';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Loader2, Car, Tag, Building2 } from 'lucide-react';
 import { Separator } from './ui/separator';
@@ -30,7 +29,6 @@ export function VehicleServiceForm() {
   const [selectedModel, setSelectedModel] = useState<string>('');
   const [selectedFuelType, setSelectedFuelType] = useState<string>('');
   const [selectedYear, setSelectedYear] = useState<string>('');
-  const [selectedService, setSelectedService] = useState<string>('');
   const [estimate, setEstimate] = useState<ServiceEstimateData | null>(null);
   const [error, setError] = useState<string>('');
   const [isLoading, setIsLoading] = useState(false);
@@ -52,7 +50,6 @@ export function VehicleServiceForm() {
     setSelectedModel(model);
     setSelectedFuelType('');
     setSelectedYear('');
-    setSelectedService('');
     setEstimate(null);
     setError('');
     
@@ -64,58 +61,18 @@ export function VehicleServiceForm() {
   const handleFuelTypeChange = (fuelType: string) => {
     setSelectedFuelType(fuelType);
     setSelectedYear('');
-    setSelectedService('');
     setEstimate(null);
     setError('');
   }
   
   const handleYearChange = (yearStr: string) => {
-      const year = parseInt(yearStr, 10);
       setSelectedYear(yearStr);
-      setSelectedService('');
       setEstimate(null);
       setError('');
-
-      const currentYear = new Date().getFullYear();
-      const vehicleAge = currentYear - year;
-      
-      let autoSelectedService = '';
-
-      if (vehicleAge <= 0) { // Current year or future
-          autoSelectedService = '1st Free Service (1,000 km)';
-      } else if (vehicleAge === 1) {
-          autoSelectedService = '3rd Free Service (10,000 km)';
-      } else {
-          const mileageKey = vehicleAge * 10000;
-          
-          const serviceKeys = Object.keys(serviceData);
-          let closestService = '';
-          let smallestDiff = Infinity;
-
-          for (const key of serviceKeys) {
-              const kmMatch = key.match(/\((\d{1,3}(,\d{3})*|\d+)\s?km\)/);
-              if (kmMatch) {
-                  const km = parseInt(kmMatch[1].replace(/,/g, ''), 10);
-                  const diff = Math.abs(mileageKey - km);
-                  if (diff < smallestDiff) {
-                      smallestDiff = diff;
-                      closestService = key;
-                  }
-              }
-          }
-          autoSelectedService = closestService || `Paid Service (${(vehicleAge * 10).toString()},000 km)`;
-      }
-      
-      if (serviceData[autoSelectedService as keyof typeof serviceData] || serviceDataLookup[`${autoSelectedService}-${selectedModel.toUpperCase()}-${selectedFuelType.toUpperCase()}`]) {
-        setSelectedService(autoSelectedService);
-      } else {
-        const firstPaidService = Object.keys(serviceData).find(s => s.startsWith('Paid'));
-        setSelectedService(firstPaidService || '');
-      }
   }
 
   const handleSearch = () => {
-    if (!selectedModel || !selectedFuelType || !selectedService) {
+    if (!selectedModel || !selectedFuelType || !selectedYear) {
       setError('Please fill all the fields to get an estimate.');
       setEstimate(null);
       return;
@@ -125,7 +82,6 @@ export function VehicleServiceForm() {
     setEstimate(null);
     setError('');
 
-    // Simulate API call
     setTimeout(() => {
        const vehicleInfo = vehicles.find(v => v.model === selectedModel);
        if (!vehicleInfo) {
@@ -135,53 +91,6 @@ export function VehicleServiceForm() {
            return;
        }
 
-      const lookupKey = `${selectedService}-${selectedModel.toUpperCase()}-${selectedFuelType.toUpperCase()}`;
-      let serviceInfo: Service | undefined = serviceDataLookup[lookupKey];
-      
-      const pmsServiceRegex = /Paid Service \((\d{1,3}(,\d{3})*|\d+)\s?km\)/;
-      const match = selectedService.match(pmsServiceRegex);
-
-      let pmsCharge = 0;
-      if (match) {
-        const km = parseInt(match[1].replace(/,/g, ''), 10);
-        const pmsEntry = pmsCharges.find(p => p.model.toUpperCase() === selectedModel.toUpperCase() && p.labourDesc.includes(`${km}K`));
-        if (pmsEntry) {
-            pmsCharge = pmsEntry.basicAmt;
-        }
-      }
-      
-      let finalParts: Part[] = [];
-      let finalLabor: Labor[] = [];
-      let recommendedLabor: Labor[] = [];
-      let optionalServices: Labor[] = [];
-
-      if (serviceInfo) {
-          finalParts = serviceInfo.parts;
-          recommendedLabor = serviceInfo.recommendedLabor || [];
-          optionalServices = serviceInfo.optionalServices || [];
-          if (pmsCharge > 0) {
-              finalLabor = [{ name: 'Periodic Maintenance Service', charge: pmsCharge }];
-          } else {
-              finalLabor = serviceInfo.labor;
-          }
-      } else {
-          // Fallback for generic free services not in the lookup
-          const genericService = serviceData[selectedService as keyof typeof serviceData];
-          if (genericService) {
-              finalParts = genericService.parts;
-              finalLabor = genericService.labor;
-              recommendedLabor = genericService.recommendedLabor || [];
-              optionalServices = genericService.optionalServices || [];
-          } else {
-               setError('Service data not found for the selected vehicle model, fuel type, and service. Please check our database or contact support.');
-               setIsLoading(false);
-               return;
-          }
-      }
-      
-      const totalPartsPrice = finalParts.reduce((sum, part) => sum + part.price, 0);
-      const totalLaborCharge = finalLabor.reduce((sum, job) => sum + job.charge, 0);
-
       const newEstimate: ServiceEstimateData = {
         vehicle: {
           model: selectedModel,
@@ -190,12 +99,12 @@ export function VehicleServiceForm() {
           brand: vehicleInfo.brand,
           category: vehicleInfo.category,
         },
-        serviceType: selectedService,
-        parts: finalParts,
-        labor: finalLabor,
-        recommendedLabor: [...recommendedLabor, ...commonServices],
+        serviceType: 'Custom Service',
+        parts: [],
+        labor: [],
+        recommendedLabor: commonServices,
         optionalServices: threeMCareData[selectedModel] || [],
-        totalPrice: totalPartsPrice + totalLaborCharge,
+        totalPrice: 0,
       };
       
       setEstimate(newEstimate);
@@ -208,7 +117,7 @@ export function VehicleServiceForm() {
     <>
       <CardHeader>
         <CardTitle>Create an Estimate</CardTitle>
-        <CardDescription>Select your vehicle and service type to get an instant price quote.</CardDescription>
+        <CardDescription>Select your vehicle to see available optional services.</CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
         <div className="space-y-2">
@@ -272,29 +181,12 @@ export function VehicleServiceForm() {
                     </SelectContent>
                 </Select>
             </div>
-
-
-            <div className="space-y-2 sm:col-span-2">
-                <Label htmlFor="service-type">Service Type</Label>
-                <Select onValueChange={setSelectedService} value={selectedService} disabled={!selectedYear}>
-                    <SelectTrigger id="service-type">
-                        <SelectValue placeholder="Select Service" />
-                    </SelectTrigger>
-                    <SelectContent>
-                        {Object.keys(serviceData).map(service => (
-                            <SelectItem key={service} value={service}>
-                                {service}
-                            </SelectItem>
-                        ))}
-                    </SelectContent>
-                </Select>
-            </div>
         </div>
         
         {error && <Alert variant="destructive"><AlertDescription>{error}</AlertDescription></Alert>}
       </CardContent>
       <CardFooter>
-        <Button onClick={handleSearch} className="w-full" disabled={isLoading || !selectedService}>
+        <Button onClick={handleSearch} className="w-full" disabled={isLoading || !selectedYear}>
            {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : 'Get Estimate'}
         </Button>
       </CardFooter>
@@ -322,5 +214,3 @@ export function VehicleServiceForm() {
     </>
   );
 }
-
-    
