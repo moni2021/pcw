@@ -85,7 +85,7 @@ export const pmsCharges = [
   "basicAmt": 1080
  },
  {
-  "model": "MARUTI BALENO PETROL",
+  "model": "Baleno",
   "labourDesc": "PMS - 1P 30K/50K/70K/90K/100K/110K",
   "labourCode": "ZE21L0P",
   "basicAmt": 1400
@@ -121,7 +121,7 @@ export const pmsCharges = [
   "basicAmt": 1605
  },
  {
-  "model": "NEW BALENO",
+  "model": "Baleno",
   "labourDesc": "PMS - 1P 30K/50K/70K/90K/100K/110K",
   "labourCode": "ZE21L0P",
   "basicAmt": 1400
@@ -301,7 +301,7 @@ export const pmsCharges = [
   "basicAmt": 1490
  },
  {
-  "model": "MARUTI BALENO PETROL",
+  "model": "Baleno",
   "labourDesc": "PMS - 2P 20K/40K/60K/80K",
   "labourCode": "ZE22L0P",
   "basicAmt": 1475
@@ -337,7 +337,7 @@ export const pmsCharges = [
   "basicAmt": 1675
  },
  {
-  "model": "NEW BALENO",
+  "model": "Baleno",
   "labourDesc": "PMS - 2P 20K/40K/60K/80K",
   "labourCode": "ZE22L0P",
   "basicAmt": 1475
@@ -601,7 +601,7 @@ export const pmsCharges = [
   "basicAmt": 1515
  },
  {
-  "model": "MARUTI BALENO PETROL",
+  "model": "Baleno",
   "labourDesc": "PMS 20/30/40/60/80/90",
   "labourCode": "ZE25L0P",
   "basicAmt": 1500
@@ -721,7 +721,7 @@ export const pmsCharges = [
   "basicAmt": 1535
  },
  {
-  "model": "MARUTI BALENO PETROL",
+  "model": "Baleno",
   "labourDesc": "PMS 50/70/100",
   "labourCode": "ZE26L0P",
   "basicAmt": 1520
@@ -739,7 +739,7 @@ export const pmsCharges = [
   "basicAmt": 1340
  },
  {
-  "model": "NEW BALENO",
+  "model": "Baleno",
   "labourDesc": "PMS 50/70/100",
   "labourCode": "ZE26L0P",
   "basicAmt": 1520
@@ -871,7 +871,7 @@ export const pmsCharges = [
   "basicAmt": 1430
  },
  {
-  "model": "NEW BALENO",
+  "model": "Baleno",
   "labourDesc": "PMS - 1P 20K",
   "labourCode": "ZE61L0P",
   "basicAmt": 1430
@@ -961,7 +961,7 @@ export const pmsCharges = [
   "basicAmt": 1465
  },
  {
-  "model": "MARUTI BALENO PETROL",
+  "model": "Baleno",
   "labourDesc": "PMS - 2P 30K",
   "labourCode": "ZE62L0P",
   "basicAmt": 1455
@@ -979,7 +979,7 @@ export const pmsCharges = [
   "basicAmt": 1275
  },
  {
-  "model": "NEW BALENO",
+  "model": "Baleno",
   "labourDesc": "PMS - 2P 30K",
   "labourCode": "ZE62L0P",
   "basicAmt": 1455
@@ -1043,6 +1043,12 @@ export const pmsCharges = [
   "labourDesc": "PMS - 2P 30K",
   "labourCode": "ZE62L0P",
   "basicAmt": 1455
+ },
+ {
+  "model": "EECO CARGO",
+  "labourDesc": "PMS - 1P 30K/50K/70K/90K/100K/110K",
+  "labourCode": "ZE21L0P",
+  "basicAmt": 1180
  }
 ];
 
