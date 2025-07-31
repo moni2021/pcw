@@ -41,6 +41,14 @@ export default function Home() {
           © Maruti Suzuki Service Estimator. An unofficial tool. Prices are indicative. Made By Hiru Mani And His Team
         </p>
       </footer>
+      <div className="fixed bottom-4 right-4 z-50">
+        <Button asChild size="icon" variant="secondary" className="rounded-full shadow-lg">
+          <Link href="/admin">
+            <Settings className="h-5 w-5" />
+            <span className="sr-only">Go to Admin</span>
+          </Link>
+        </Button>
+      </div>
     </div>
   );
 }
