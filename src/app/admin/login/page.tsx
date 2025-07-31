@@ -1,12 +1,12 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { auth } from '@/lib/firebase';
-import { RecaptchaVerifier, signInWithPhoneNumber, onAuthStateChanged, User } from 'firebase/auth';
+import { RecaptchaVerifier, signInWithPhoneNumber, onAuthStateChanged, User, ConfirmationResult } from 'firebase/auth';
 import { Loader2, KeyRound } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -14,7 +14,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 declare global {
   interface Window {
     recaptchaVerifier: RecaptchaVerifier;
-    confirmationResult: any;
+    confirmationResult: ConfirmationResult;
   }
 }
 
@@ -27,6 +27,8 @@ export default function AdminLoginPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [user, setUser] = useState<User | null>(null);
+  const recaptchaContainerRef = useRef<HTMLDivElement>(null);
+
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -39,32 +41,17 @@ export default function AdminLoginPage() {
   }, [router]);
 
   const setupRecaptcha = () => {
-    if (!window.recaptchaVerifier) {
-      window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
+    if (recaptchaContainerRef.current && !window.recaptchaVerifier) {
+      window.recaptchaVerifier = new RecaptchaVerifier(auth, recaptchaContainerRef.current, {
         'size': 'invisible',
         'callback': (response: any) => {
           // reCAPTCHA solved, allow signInWithPhoneNumber.
         },
         'expired-callback': () => {
-          // Response expired. Ask user to solve reCAPTCHA again.
           setError("reCAPTCHA expired. Please try again.");
-          resetRecaptcha();
         }
       });
     }
-  };
-  
-  const resetRecaptcha = () => {
-    const recaptchaContainer = document.getElementById('recaptcha-container');
-    if (recaptchaContainer) {
-      recaptchaContainer.innerHTML = '';
-      const newRecaptchaContainer = document.createElement('div');
-      newRecaptchaContainer.id = 'recaptcha-container';
-      document.body.appendChild(newRecaptchaContainer);
-      // @ts-ignore
-      window.recaptchaVerifier = null;
-    }
-    setupRecaptcha();
   };
 
   useEffect(() => {
@@ -75,6 +62,10 @@ export default function AdminLoginPage() {
     e.preventDefault();
     setIsLoading(true);
     setError('');
+
+    if (!window.recaptchaVerifier) {
+        setupRecaptcha();
+    }
 
     const appVerifier = window.recaptchaVerifier;
     const formattedPhoneNumber = `+${phoneNumber.replace(/\D/g, '')}`;
@@ -89,8 +80,12 @@ export default function AdminLoginPage() {
       });
     } catch (error: any) {
       console.error("SMS Error:", error);
-      setError(`Failed to send OTP: ${error.message}. Please check the phone number and reCAPTCHA.`);
-      resetRecaptcha();
+      setError(`Failed to send OTP: ${error.message}. Please check the phone number and try again.`);
+      // Reset verifier
+      window.recaptchaVerifier.render().then((widgetId) => {
+        // @ts-ignore
+        grecaptcha.reset(widgetId);
+      });
     } finally {
       setIsLoading(false);
     }
@@ -100,6 +95,13 @@ export default function AdminLoginPage() {
     e.preventDefault();
     setIsLoading(true);
     setError('');
+
+    if (!window.confirmationResult) {
+        setError("Verification process has expired. Please request a new OTP.");
+        setStep('phone');
+        setIsLoading(false);
+        return;
+    }
 
     try {
       await window.confirmationResult.confirm(otp);
@@ -127,7 +129,7 @@ export default function AdminLoginPage() {
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-center p-4 bg-gray-50 dark:bg-gray-900">
-      <div id="recaptcha-container"></div>
+      <div ref={recaptchaContainerRef} id="recaptcha-container"></div>
       <Card className="w-full max-w-sm shadow-2xl">
         <CardHeader>
           <CardTitle className="flex items-center gap-2"><KeyRound/> Admin Login</CardTitle>
@@ -166,7 +168,7 @@ export default function AdminLoginPage() {
               <Button type="submit" className="w-full" disabled={isLoading}>
                 {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : 'Verify OTP'}
               </Button>
-              <Button variant="link" size="sm" onClick={() => { setStep('phone'); setError(''); }}>
+              <Button variant="link" size="sm" onClick={() => { setStep('phone'); setError(''); setOtp(''); }} type="button">
                 Entered the wrong number?
               </Button>
             </form>

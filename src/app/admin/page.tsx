@@ -68,14 +68,26 @@ export default function AdminPage() {
     const handleDataChange = (serviceType: string, itemType: 'parts' | 'labor' | 'recommendedLabor' | 'optionalServices', index: number, field: 'name' | 'price' | 'charge', value: string | number) => {
         const updatedData = { ...editableServiceData };
         const service = updatedData[serviceType] as Service;
+        
+        // Ensure the array exists before trying to access it
+        if (!service[itemType]) {
+            if (itemType === 'parts') service.parts = [];
+            else if (itemType === 'labor') service.labor = [];
+            else if (itemType === 'recommendedLabor') service.recommendedLabor = [];
+            else if (itemType === 'optionalServices') service.optionalServices = [];
+        }
+
         const items = service[itemType];
-        if (!items) return;
+        if (!items || !items[index]) return;
+        
         const item = items[index];
 
-        if (field === 'name') {
+        if (field === 'name' && (typeof item.name !== 'undefined')) {
             item.name = String(value);
-        } else if ((field === 'price' && itemType === 'parts') || (field === 'charge' && (itemType === 'labor' || itemType === 'recommendedLabor' || itemType === 'optionalServices'))) {
-            (item as any)[field] = parseFloat(String(value)) || 0;
+        } else if (field === 'price' && typeof (item as any).price !== 'undefined') {
+            (item as any).price = parseFloat(String(value)) || 0;
+        } else if (field === 'charge' && typeof (item as any).charge !== 'undefined') {
+            (item as any).charge = parseFloat(String(value)) || 0;
         }
         
         setEditableServiceData(updatedData);
@@ -86,8 +98,10 @@ export default function AdminPage() {
         const service = updatedData[serviceType] as Service;
 
         if (itemType === 'parts') {
+            if (!service.parts) service.parts = [];
             service.parts.push({ name: 'New Part', price: 0 });
         } else if (itemType === 'labor') {
+             if (!service.labor) service.labor = [];
             service.labor.push({ name: 'New Labor', charge: 0 });
         } else if (itemType === 'recommendedLabor') {
             if (!service.recommendedLabor) {
@@ -118,7 +132,9 @@ export default function AdminPage() {
     setIsSaving(true);
     setJsonError('');
     try {
-      const result = await updateServiceData(editableServiceData);
+      // Basic validation before saving
+      const parsedData = JSON.parse(JSON.stringify(editableServiceData));
+      const result = await updateServiceData(parsedData);
       if (result.success) {
         toast({
             title: "Changes Saved!",
@@ -205,7 +221,7 @@ export default function AdminPage() {
                     <span>Go to Homepage</span>
                 </Link>
             </Button>
-            <Button onClick={handleLogout} size="sm">Logout</Button>
+            <Button onClick={handleLogout} size="sm" type="button">Logout</Button>
           </div>
         </header>
 
@@ -426,16 +442,14 @@ export default function AdminPage() {
                 <Accordion type="single" collapsible>
                     <AccordionItem value="item-1">
                         <AccordionTrigger className="px-6">
-                            <CardTitle>
-                                <div className="flex items-center gap-2">
-                                    <ChevronsUpDown className="h-4 w-4" />
-                                    <h3 className="text-lg font-semibold">Bulk Data Management (JSON)</h3>
-                                </div>
-                            </CardTitle>
+                            <div className="flex items-center gap-2">
+                                <ChevronsUpDown className="h-4 w-4" />
+                                <h2 className="text-lg font-semibold">Bulk Data Management (JSON)</h2>
+                            </div>
                         </AccordionTrigger>
                         <AccordionContent className="px-6 pt-4 space-y-4">
                             <div>
-                                <h4 className="font-semibold text-md mb-2">JSON Structure Guide</h4>
+                                <h3 className="font-semibold text-md mb-2">JSON Structure Guide</h3>
                                 <p className="text-sm text-muted-foreground mb-2">
                                     Your JSON must be an object where keys are service names. Each service must match the structure below.
                                 </p>
@@ -454,7 +468,7 @@ export default function AdminPage() {
                             </div>
                              
                             <div>
-                                <h4 className="font-semibold text-md mb-2">Live Data Editor</h4>
+                                <h3 className="font-semibold text-md mb-2">Live Data Editor</h3>
                                 <p className="text-sm text-muted-foreground mb-4">
                                     You can edit the entire service data object below. Copy the text, make your changes in a text editor, and then paste it back. Click 'Load JSON Data' to apply your changes to the editor above, then click 'Save All Changes' to persist them.
                                 </p>

@@ -88,7 +88,7 @@ export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
     <div className="print-container">
         <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle>Service Estimate</CardTitle>
-            <Button onClick={handlePrint} variant="ghost" size="icon" className="no-print">
+            <Button onClick={handlePrint} variant="ghost" size="icon" className="no-print" type="button">
             <Printer className="h-5 w-5" />
             <span className="sr-only">Print</span>
             </Button>
