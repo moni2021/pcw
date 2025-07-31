@@ -65,7 +65,7 @@ export default function AdminPage() {
     }
   };
   
-    const handleDataChange = (serviceType: string, itemType: 'parts' | 'labor' | 'recommendedLabor', index: number, field: 'name' | 'price' | 'charge', value: string) => {
+    const handleDataChange = (serviceType: string, itemType: 'parts' | 'labor' | 'recommendedLabor' | 'optionalServices', index: number, field: 'name' | 'price' | 'charge', value: string) => {
         const updatedData = { ...editableServiceData };
         const service = updatedData[serviceType] as Service;
         const items = service[itemType];
@@ -74,14 +74,14 @@ export default function AdminPage() {
 
         if (field === 'name') {
             item.name = value;
-        } else if ((field === 'price' && itemType === 'parts') || (field === 'charge' && (itemType === 'labor' || itemType === 'recommendedLabor'))) {
+        } else if ((field === 'price' && itemType === 'parts') || (field === 'charge' && (itemType === 'labor' || itemType === 'recommendedLabor' || itemType === 'optionalServices'))) {
             (item as any)[field] = parseFloat(value) || 0;
         }
         
         setEditableServiceData(updatedData);
     };
 
-    const handleAddItem = (serviceType: string, itemType: 'parts' | 'labor' | 'recommendedLabor') => {
+    const handleAddItem = (serviceType: string, itemType: 'parts' | 'labor' | 'recommendedLabor' | 'optionalServices') => {
         const updatedData = { ...editableServiceData };
         const service = updatedData[serviceType] as Service;
 
@@ -94,11 +94,16 @@ export default function AdminPage() {
                 service.recommendedLabor = [];
             }
             service.recommendedLabor.push({ name: 'New Recommended Labor', charge: 0 });
+        } else if (itemType === 'optionalServices') {
+            if (!service.optionalServices) {
+                service.optionalServices = [];
+            }
+            service.optionalServices.push({ name: 'New Optional Service', charge: 0 });
         }
         setEditableServiceData(updatedData);
     };
 
-    const handleRemoveItem = (serviceType: string, itemType: 'parts' | 'labor' | 'recommendedLabor', index: number) => {
+    const handleRemoveItem = (serviceType: string, itemType: 'parts' | 'labor' | 'recommendedLabor' | 'optionalServices', index: number) => {
         const updatedData = { ...editableServiceData };
         const service = updatedData[serviceType] as Service;
         const items = service[itemType];
@@ -159,6 +164,9 @@ export default function AdminPage() {
     ],
     "recommendedLabor": [
       { "name": "Recommended Service", "charge": 300 }
+    ],
+    "optionalServices": [
+      { "name": "3M Optional Service", "charge": 1000 }
     ]
   }
 }`;
@@ -209,8 +217,12 @@ export default function AdminPage() {
                 </CardHeader>
                 <CardContent className="space-y-8">
                     {Object.entries(editableServiceData).map(([serviceType, serviceDetails]) => (
-                    <div key={serviceType}>
-                        <h3 className="text-xl font-semibold mb-4 text-gray-700 dark:text-gray-200 capitalize">{serviceType.replace(/_/g, ' ')}</h3>
+                    <Accordion type="single" collapsible className="w-full" key={serviceType}>
+                    <AccordionItem value={serviceType}>
+                        <AccordionTrigger>
+                            <h3 className="text-xl font-semibold text-gray-700 dark:text-gray-200 capitalize">{serviceType.replace(/_/g, ' ')}</h3>
+                        </AccordionTrigger>
+                        <AccordionContent className="space-y-8 pt-4">
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                             <div>
                                 <div className="flex justify-between items-center mb-2">
@@ -260,7 +272,7 @@ export default function AdminPage() {
                             </div>
                             <div>
                                 <div className="flex justify-between items-center mb-2">
-                                    <h4 className="font-semibold">Labor</h4>
+                                    <h4 className="font-semibold">Standard Labor</h4>
                                     <Button size="sm" variant="outline" onClick={() => handleAddItem(serviceType, 'labor')}>
                                         <PlusCircle className="mr-2 h-4 w-4" /> Add Labor
                                     </Button>
@@ -351,7 +363,56 @@ export default function AdminPage() {
                                     </Table>
                                 </div>
                             </div>
-                    </div>
+
+                        <div className="mt-8">
+                                <div className="flex justify-between items-center mb-2">
+                                    <h4 className="font-semibold">Optional Services (e.g., 3M)</h4>
+                                    <Button size="sm" variant="outline" onClick={() => handleAddItem(serviceType, 'optionalServices')}>
+                                        <PlusCircle className="mr-2 h-4 w-4" /> Add Optional Service
+                                    </Button>
+                                </div>
+                                <div className="overflow-x-auto border rounded-lg">
+                                    <Table>
+                                    <TableHeader>
+                                        <TableRow>
+                                        <TableHead>Service Name</TableHead>
+                                        <TableHead className="w-[120px] text-right">Charge (₹)</TableHead>
+                                        <TableHead className="w-[50px] text-right">Action</TableHead>
+                                        </TableRow>
+                                    </TableHeader>
+                                    <TableBody>
+                                        {((serviceDetails as Service).optionalServices || []).map((labor, index) => (
+                                        <TableRow key={index}>
+                                            <TableCell>
+                                            <Input
+                                                type="text"
+                                                value={labor.name}
+                                                onChange={(e) => handleDataChange(serviceType, 'optionalServices', index, 'name', e.target.value)}
+                                                className="h-9"
+                                            />
+                                            </TableCell>
+                                            <TableCell>
+                                            <Input
+                                                type="number"
+                                                value={labor.charge}
+                                                onChange={(e) => handleDataChange(serviceType, 'optionalServices', index, 'charge', e.target.value)}
+                                                className="h-9 w-24 ml-auto text-right"
+                                            />
+                                            </TableCell>
+                                            <TableCell className="text-right">
+                                                <Button variant="ghost" size="icon" onClick={() => handleRemoveItem(serviceType, 'optionalServices', index)}>
+                                                    <Trash2 className="h-4 w-4 text-destructive" />
+                                                </Button>
+                                            </TableCell>
+                                        </TableRow>
+                                        ))}
+                                    </TableBody>
+                                    </Table>
+                                </div>
+                            </div>
+                        </AccordionContent>
+                    </AccordionItem>
+                    </Accordion>
                     ))}
                 </CardContent>
                 <CardFooter>
