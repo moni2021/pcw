@@ -6,13 +6,12 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Separator } from '@/components/ui/separator';
-import { Printer, Percent, PlusCircle, Sparkles, Wrench } from 'lucide-react';
-import type { ServiceEstimateData, Labor, CustomLabor as CustomLaborType } from '@/lib/types';
+import { Percent, PlusCircle, Sparkles, Wrench } from 'lucide-react';
+import type { ServiceEstimateData, Labor } from '@/lib/types';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Input } from '@/components/ui/input';
 import { Checkbox } from './ui/checkbox';
-import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
 import { customLaborData } from '@/lib/custom-labor-data';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -76,10 +75,6 @@ export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
   }, [estimate]);
 
 
-  const handlePrint = () => {
-    window.print();
-  };
-
   const handleOptionalChange = (job: Labor, type: 'recommended' | 'optional') => {
     const setter = type === 'recommended' ? setSelectedRecommended : setSelectedOptional;
     
@@ -105,18 +100,9 @@ export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
 
 
   return (
-    <div className="print-container">
-        <CardHeader className="flex flex-row items-center justify-between">
-            <div className="print:hidden">
-                <CardTitle>Service Estimate</CardTitle>
-            </div>
-            <div className="hidden print:block">
-                <CardTitle>Service Estimate</CardTitle>
-            </div>
-            <Button onClick={handlePrint} variant="ghost" size="icon" className="no-print" type="button">
-                <Printer className="h-5 w-5" />
-                <span className="sr-only">Print</span>
-            </Button>
+    <div>
+        <CardHeader>
+            <CardTitle>Service Estimate</CardTitle>
         </CardHeader>
       <CardContent>
         <div className="grid grid-cols-2 gap-4 mb-6 text-sm">
@@ -192,9 +178,38 @@ export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
                 </Table>
              </div>
           </div>
+          
+          {[...customLabor, ...selectedRecommended, ...selectedOptional].length > 0 && (
+              <div>
+                <h3 className="text-lg font-semibold mb-2">Additional Services</h3>
+                <div className="overflow-x-auto">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Service Description</TableHead>
+                          <TableHead className="text-right">Charge (₹)</TableHead>
+                          <TableHead className="text-right">GST (18%)</TableHead>
+                          <TableHead className="text-right">Total (₹)</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {[...customLabor, ...selectedRecommended, ...selectedOptional].map((job, index) => (
+                          <TableRow key={`additional-${index}`}>
+                            <TableCell className="font-medium">{job.name}</TableCell>
+                            <TableCell className="text-right">{job.charge.toFixed(2)}</TableCell>
+                            <TableCell className="text-right">{(job.charge * GST_RATE).toFixed(2)}</TableCell>
+                            <TableCell className="text-right font-semibold">{(job.charge * (1 + GST_RATE)).toFixed(2)}</TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                </div>
+              </div>
+          )}
+
 
           {availableCustomLabor.length > 0 && (
-            <div className="space-y-4 rounded-lg border border-dashed p-4 no-print">
+            <div className="space-y-4 rounded-lg border border-dashed p-4">
               <h3 className="text-lg font-semibold mb-2 flex items-center gap-2 text-primary"><Wrench className="h-5 w-5"/> Custom Labor</h3>
               <p className="text-sm text-muted-foreground">Add custom labor charges for this vehicle.</p>
               <div className="flex flex-col gap-4">
@@ -242,7 +257,7 @@ export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
           )}
             
           {recommendedLabor && recommendedLabor.length > 0 && (
-             <div className="space-y-4 rounded-lg border border-dashed p-4 no-print">
+             <div className="space-y-4 rounded-lg border border-dashed p-4">
                 <h3 className="text-lg font-semibold mb-2 flex items-center gap-2 text-primary"> <PlusCircle className="h-5 w-5"/> Recommended Services</h3>
                 <p className="text-sm text-muted-foreground">Select any additional services you would like to include.</p>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -270,7 +285,7 @@ export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
           )}
 
           {optionalServices && optionalServices.length > 0 && (
-             <div className="space-y-4 rounded-lg border border-dashed p-4 no-print border-primary/50 bg-primary/5">
+             <div className="space-y-4 rounded-lg border border-dashed p-4 border-primary/50 bg-primary/5">
                 <h3 className="text-lg font-semibold mb-2 flex items-center gap-2 text-primary"> <Sparkles className="h-5 w-5"/> 3M Optional Services</h3>
                 <p className="text-sm text-muted-foreground">Select any premium 3M services to add.</p>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -299,7 +314,7 @@ export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
 
         </div>
         
-        <div className="mt-6 flex flex-col items-end space-y-4 no-print">
+        <div className="mt-6 flex flex-col items-end space-y-4">
            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4">
               <Label className="mt-2 sm:mt-0">Discount on Labor</Label>
                <RadioGroup defaultValue="percentage" value={discountType} onValueChange={(value) => setDiscountType(value as 'percentage' | 'rupees')} className="flex items-center">
@@ -326,83 +341,26 @@ export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
                 </div>
             </div>
         </div>
-        
-         <div className="print-only mt-4 space-y-4 hidden">
-              {[...customLabor, ...selectedRecommended, ...selectedOptional].length > 0 && (
-                  <div>
-                    <h3 className="text-lg font-semibold mb-2">Additional Services</h3>
-                    <div className="overflow-x-auto">
-                        <Table>
-                          <TableHeader>
-                            <TableRow>
-                              <TableHead>Service Description</TableHead>
-                              <TableHead className="text-right">Charge (₹)</TableHead>
-                              <TableHead className="text-right">GST (18%)</TableHead>
-                              <TableHead className="text-right">Total (₹)</TableHead>
-                            </TableRow>
-                          </TableHeader>
-                          <TableBody>
-                            {[...customLabor, ...selectedRecommended, ...selectedOptional].map((job, index) => (
-                              <TableRow key={`print-rec-${index}`}>
-                                <TableCell className="font-medium">{job.name}</TableCell>
-                                <TableCell className="text-right">{job.charge.toFixed(2)}</TableCell>
-                                <TableCell className="text-right">{(job.charge * GST_RATE).toFixed(2)}</TableCell>
-                                <TableCell className="text-right font-semibold">{(job.charge * (1 + GST_RATE)).toFixed(2)}</TableCell>
-                              </TableRow>
-                            ))}
-                          </TableBody>
-                        </Table>
-                    </div>
-                  </div>
-              )}
-         </div>
-
-
       </CardContent>
-      <CardFooter className="bg-muted/50 p-4 mt-6 rounded-b-lg flex-col items-stretch gap-2 print:mt-2 print:p-2">
-          <div className="w-full flex justify-between items-center text-sm text-muted-foreground no-print">
+      <CardFooter className="bg-muted/50 p-4 mt-6 rounded-b-lg flex-col items-stretch gap-2">
+          <div className="w-full flex justify-between items-center text-sm text-muted-foreground">
               <p>Subtotal (Parts):</p>
               <p>₹{totalPartsPrice.toFixed(2)}</p>
           </div>
-           <div className="w-full flex justify-between items-center text-sm text-muted-foreground no-print">
+           <div className="w-full flex justify-between items-center text-sm text-muted-foreground">
               <p>Subtotal (Labor):</p>
               <p>₹{totalLaborCharge.toFixed(2)}</p>
           </div>
-          <div className="w-full flex justify-between items-center text-sm text-muted-foreground no-print">
+          <div className="w-full flex justify-between items-center text-sm text-muted-foreground">
               <p>Total GST on Labor (18%):</p>
               <p>₹{gstOnLabor.toFixed(2)}</p>
           </div>
-        <Separator className="my-1 no-print"/>
+        <Separator className="my-1"/>
         <div className="w-full flex justify-between items-center">
             <p className="text-xl font-bold">Total Estimate:</p>
             <p className="text-xl font-bold">₹{finalTotal.toFixed(2)}</p>
         </div>
       </CardFooter>
-      <style jsx global>{`
-        @media print {
-            body {
-                background: #fff;
-                color: #000;
-            }
-            .no-print {
-                display: none !important;
-            }
-            .print-only {
-                display: block !important;
-            }
-            .print-container, .print-container .card-content, .print-container .card-header, .print-container .card-footer {
-                box-shadow: none !important;
-                border: none !important;
-                padding-left: 0;
-                padding-right: 0;
-            }
-            .print-container .card-footer {
-                background: #f8f8f8 !important;
-                -webkit-print-color-adjust: exact; 
-                print-color-adjust: exact;
-            }
-        }
-      `}</style>
     </div>
   );
 }
