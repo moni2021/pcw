@@ -1,4 +1,4 @@
-import { Vehicle, ServiceData } from './types';
+import { Vehicle, ServiceData, Service } from './types';
 
 export const vehicles: Vehicle[] = [
   // Arena
@@ -8,7 +8,7 @@ export const vehicles: Vehicle[] = [
   { model: 'Wagon R', brand: 'Arena', category: 'Hatchback', variants: ['LXi', 'VXi', 'ZXi', 'ZXi+'], fuelTypes: ['Petrol', 'CNG'], productionYears: [2019, 2020, 2021, 2022, 2023, 2024] },
   { model: 'Swift', brand: 'Arena', category: 'Hatchback', variants: ['LXI', 'VXI', 'ZXI', 'ZXI+'], fuelTypes: ['Petrol', 'Diesel', 'CNG'], productionYears: [2018, 2019, 2020, 2021, 2022, 2023, 2024] },
   { model: 'Dzire', brand: 'Arena', category: 'Sedan', variants: ['LXI', 'VXI', 'ZXI', 'ZXI+'], fuelTypes: ['Petrol', 'CNG'], productionYears: [2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024] },
-  { model: 'Ertiga', brand: 'Arena', category: 'MUV', variants: ['LXi', 'VXi', 'ZXi', 'ZXi+'], fuelTypes: ['Petrol', 'CNG'], productionYears: [2019, 2020, 2021, 2022, 2023, 2024] },
+  { model: 'Ertiga', brand: 'Arena', category: 'MUV', variants: ['LXi', 'VXi', 'ZXi', 'ZXi+'], fuelTypes: ['Petrol', 'CNG', 'Diesel'], productionYears: [2019, 2020, 2021, 2022, 2023, 2024] },
   { model: 'Brezza', brand: 'Arena', category: 'SUV', variants: ['LXI', 'VXI', 'ZXI', 'ZXI+'], fuelTypes: ['Petrol', 'Diesel'], productionYears: [2020, 2021, 2022, 2023, 2024] },
   { model: 'Eeco', brand: 'Arena', category: 'Van', variants: ['5-seater', '7-seater', 'Cargo'], fuelTypes: ['Petrol', 'CNG'], productionYears: [2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024] },
 
@@ -33,7 +33,6 @@ export const vehicles: Vehicle[] = [
 ];
 
 const rawServiceData = [
-    // Provided Data Here
     { "PARTS": "ENGINE OIL\nOIL FILTER\nDISTILLED WATER\nSHAMPOO\nDRAIN NUT\nWASHER", "AMOUNT": "1980\n385\n20\n51\n93\n7", "LABOUR": 0, "TOTAL": 2536, "MODEL": "BALENO", "FUEL": "DIESEL", "SERVICE TYPE": "FR3 OR 10 K KMS SERVICE" },
     { "PARTS": "ENGINE OIL\nOIL FILTER\nDISTILLED WATER\nSHAMPOO\nDRAIN NUT\nWASHER\nBRAKE OIL\nCOOLANT\nFUEL FILTER\nAIR FILTER", "AMOUNT": "1980\n385\n80\n51\n93\n7\n380\n550\n1665\n295", "LABOUR": 2270, "TOTAL": 7756, "MODEL": "BALENO", "FUEL": "DIESEL", "SERVICE TYPE": "20 K SERVICE" },
     { "PARTS": "ENGINE OIL\nOIL FILTER\nDISTILLED WATER\nSHAMPOO\nDRAIN NUT\nWASHER\nAC FILTER\nGUSKET EGR", "AMOUNT": "1980\n385\n20\n51\n93\n7\n378\n45", "LABOUR": 3625, "TOTAL": 6584, "MODEL": "BALENO", "FUEL": "DIESEL", "SERVICE TYPE": "30 K SERVICE" },
@@ -44,7 +43,20 @@ const rawServiceData = [
     { "PARTS": "ENGINE OIL\nOIL FILTER\nDISTILLED WATER\nSHAMPOO\nDRAIN NUT\nWASHER\nBRAKE OIL\nCOOLANT\nAIR FILTER\nFUEL FILTER", "AMOUNT": "1980\n385\n80\n51\n93\n7\n380\n550\n310\n1665", "LABOUR": 2270, "TOTAL": 7711, "MODEL": "BALENO", "FUEL": "DIESEL", "SERVICE TYPE": "80 K SERVICE" },
     { "PARTS": "ENGINE OIL\nOIL FILTER\nDISTILLED WATER\nSHAMPOO\nDRAIN NUT\nWASHER\nAC FILTER\n", "AMOUNT": "1980\n385\n20\n51\n93\n7\n378", "LABOUR": 3625, "TOTAL": 6539, "MODEL": "BALENO", "FUEL": "DIESEL", "SERVICE TYPE": "90 K SERVICE" },
     { "PARTS": "ENGINE OIL\nOIL FILTER\nDISTILLED WATER\nSHAMPOO\nDRAIN NUT\nWASHER\nBRAKE OIL\nCOOLANT\nAIR FILTER\nFUEL FILTER", "AMOUNT": "1980\n385\n80\n51\n93\n7\n378\n550\n310\n1665", "LABOUR": 2270, "TOTAL": 7769, "MODEL": "BALENO", "FUEL": "DIESEL", "SERVICE TYPE": "100 K SERVICE" },
-    // ... all other data provided by user
+    { "PARTS": "ENGINE OIL\nOIL FILTER\nDISTILLED WATER\nSHAMPOO\nDRAIN NUT\nWASHER", "AMOUNT": "1980\n385\n20\n51\n93\n7", "LABOUR": 2270, "TOTAL": 4806, "MODEL": "BALENO", "FUEL": "DIESEL", "SERVICE TYPE": "110 K SERVICE" },
+    { "PARTS": "ENGINE OIL\nOIL FILTER\nDISTILLED WATER\nSHAMPOO\nDRAIN NUT\nWASHER\nBRAKE OIL\nCOOLANT\nACC BELT\nAC FILTER\nFUEL FILTER\nAIR FILTER", "AMOUNT": "1980\n385\n80\n51\n93\n7\n380\n550\n895\n378\n1665\n310", "LABOUR": 3625, "TOTAL": 10339, "MODEL": "BALENO", "FUEL": "DIESEL", "SERVICE TYPE": "120 K SERVICE" },
+    { "PARTS": "ENGINE OIL\nOIL FILTER\nDISTILLED WATER\nSHAMPOO\nDRAIN NUT\nWASHER", "AMOUNT": "1980\n385\n20\n51\n93\n7", "LABOUR": 2270, "TOTAL": 4806, "MODEL": "BALENO", "FUEL": "DIESEL", "SERVICE TYPE": "130 K SERVICE" },
+    { "PARTS": "ENGINE OIL\nOIL FILTER\nDISTILLED WATER\nSHAMPOO\nDRAIN NUT\nWASHER", "AMOUNT": "1980\n385\n20\n51\n93\n7", "LABOUR": 2270, "TOTAL": 4806, "MODEL": "BALENO", "FUEL": "DIESEL", "SERVICE TYPE": "140 K SERVICE" },
+    { "PARTS": "ENGINE OIL\nOIL FILTER\nDISTILLED WATER\nSHAMPOO\nDRAIN NUT\nWASHER", "AMOUNT": "1980\n385\n20\n51\n93\n7", "LABOUR": 2270, "TOTAL": 4806, "MODEL": "BALENO", "FUEL": "DIESEL", "SERVICE TYPE": "150 K SERVICE" },
+    { "PARTS": "ENGINE OIL\nOIL FILTER\nDISTILLED WATER\nSHAMPOO\nDRAIN NUT\nWASHER\nBRAKE OIL\nCOOLANT\nAIR FILTER\nFUEL FILTER", "AMOUNT": "1980\n385\n80\n51\n93\n7\n380\n550\n310\n1665", "LABOUR": 2270, "TOTAL": 7711, "MODEL": "BALENO", "FUEL": "DIESEL", "SERVICE TYPE": "160 K SERVICE" },
+    { "PARTS": "ENGINE OIL\nOIL FILTER\nDISTILLED WATER\nSHAMPOO\nDRAIN NUT\nWASHER", "AMOUNT": "1980\n385\n20\n51\n93\n7", "LABOUR": 2270, "TOTAL": 4806, "MODEL": "BALENO", "FUEL": "DIESEL", "SERVICE TYPE": "170 K SERVICE" },
+    { "PARTS": "ENGINE OIL\nOIL FILTER\nDISTILLED WATER\nSHAMPOO\nDRAIN NUT\nWASHER\nAC FILTER", "AMOUNT": "1980\n385\n20\n51\n93\n7\n378", "LABOUR": 3625, "TOTAL": 6539, "MODEL": "BALENO", "FUEL": "DIESEL", "SERVICE TYPE": "180 K SERVICE" },
+    { "PARTS": "ENGINE OIL\nOIL FILTER\nDISTILLED WATER\nSHAMPOO\nDRAIN NUT\nWASHER", "AMOUNT": "1980\n385\n20\n51\n93\n7", "LABOUR": 2270, "TOTAL": 4806, "MODEL": "BALENO", "FUEL": "DIESEL", "SERVICE TYPE": "190 K SERVICE" },
+    { "PARTS": "ENGINE OIL\nOIL FILTER\nDISTILLED WATER\nSHAMPOO\nDRAIN NUT\nWASHER\nBRAKE OIL\nCOOLANT\nAIR FILTER\nFUEL FILTER", "AMOUNT": "1980\n385\n80\n51\n93\n7\n378\n550\n310\n1665", "LABOUR": 2270, "TOTAL": 7769, "MODEL": "BALENO", "FUEL": "DIESEL", "SERVICE TYPE": "200 K SERVICE" },
+    { "PARTS": "ENGINE OIL\nOIL FILTER\nDISTILLED WATER\nSHAMPOO\nDRAIN NUT\nWASHER", "AMOUNT": "1980\n385\n20\n51\n93\n7", "LABOUR": 2270, "TOTAL": 4806, "MODEL": "BALENO", "FUEL": "DIESEL", "SERVICE TYPE": "210 K SERVICE" },
+    { "PARTS": "ENGINE OIL\nOIL FILTER\nDISTILLED WATER\nSHAMPOO\nDRAIN NUT\nWASHER", "AMOUNT": "1980\n385\n20\n51\n93\n7", "LABOUR": 2270, "TOTAL": 4806, "MODEL": "BALENO", "FUEL": "DIESEL", "SERVICE TYPE": "220 K SERVICE" },
+    { "PARTS": "ENGINE OIL\nOIL FILTER\nDISTILLED WATER\nSHAMPOO\nDRAIN NUT\nWASHER", "AMOUNT": "1980\n385\n20\n51\n93\n7", "LABOUR": 2270, "TOTAL": 4806, "MODEL": "BALENO", "FUEL": "DIESEL", "SERVICE TYPE": "230 K SERVICE" },
+    { "PARTS": "ENGINE OIL\nOIL FILTER\nDISTILLED WATER\nSHAMPOO\nDRAIN NUT\nWASHER\nBRAKE OIL\nCOOLANT\nACC BELT\nAC FILTER\nFUEL FILTER\nAIR FILTER", "AMOUNT": "1980\n385\n80\n51\n93\n7\n380\n550\n895\n378\n1665\n310", "LABOUR": 3625, "TOTAL": 10339, "MODEL": "BALENO", "FUEL": "DIESEL", "SERVICE TYPE": "240 K SERVICE" },
 ];
 
 const serviceTypeMapping: { [key: string]: string } = {
@@ -77,19 +89,34 @@ const serviceTypeMapping: { [key: string]: string } = {
 const oldModelMapping: { [key: string]: string[] } = {
     "OLD MODEL- WAGON-R / CELERIO / ERTIGA / RITZ / SWIFT / ESTILLO / A-STAR / K10 / ALTO": [
         "Wagon R", "Celerio", "Ertiga", "Ritz", "Swift", "Zen Estilo", "A-Star", "Alto K10", "Alto"
-    ]
+    ],
+     "SWIFT (OLD)": ["Swift"],
+     "ERTIGA (OLD)": ["Ertiga"],
+     "RITZ (OLD)": ["Ritz"],
+     "GRAND VITARA": ["Grand Vitara"],
+     "MARUTI EECO": ["Eeco", "Eeco Cargo"],
+     "CELERIO NEW": ["Celerio"],
+     "XL6 (SMART HYBRID)": ["XL6"],
+     "NEW BALENO (SMART HYBIRD)": ["Baleno"],
+     "S-CROSS (SMART HYBRID)": ["S-Cross"],
+
 }
 
 export const processedServiceData = rawServiceData.flatMap(item => {
-    const models = oldModelMapping[item.MODEL] || [item.MODEL];
+    const modelName = item.MODEL.replace(/\(OLD\)/i, '').trim();
+    const models = oldModelMapping[item.MODEL] || [modelName];
+
     return models.map(model => {
         const standardServiceType = serviceTypeMapping[item['SERVICE TYPE']];
         if (!standardServiceType) return null;
 
         const partsNames = item.PARTS.split('\n').filter(p => p.trim() !== '');
         const partsAmounts = item.AMOUNT.split('\n').filter(p => p.trim() !== '').map(Number);
+        
+        // Ensure that parts and amounts have the same length
+        const minLength = Math.min(partsNames.length, partsAmounts.length);
 
-        const parts = partsNames.map((name, index) => ({
+        const parts = partsNames.slice(0, minLength).map((name, index) => ({
             name,
             price: partsAmounts[index] || 0,
         }));
@@ -101,12 +128,12 @@ export const processedServiceData = rawServiceData.flatMap(item => {
             serviceType: standardServiceType,
             data: {
                 parts: parts,
-                labor: [{ name: 'Periodic Maintenance Service', charge: item.LABOUR }],
-                // You can add recommended/optional services here if needed
-            }
+                labor: [], // Labor is handled by pms-charges now
+            } as Service
         };
     });
-}).filter(Boolean);
+}).filter((item): item is NonNullable<typeof item> => item !== null);
+
 
 // Create a lookup object
 export const serviceDataLookup = processedServiceData.reduce((acc, item) => {
@@ -114,7 +141,7 @@ export const serviceDataLookup = processedServiceData.reduce((acc, item) => {
         acc[item.key] = item.data;
     }
     return acc;
-}, {} as { [key: string]: any });
+}, {} as { [key: string]: Service });
 
 
 export const serviceData: ServiceData = {
@@ -134,8 +161,9 @@ export const serviceData: ServiceData = {
 };
 
 // Populate serviceData with dynamic keys for the dropdown
-processedServiceData.forEach(item => {
-    if (item && !serviceData[item.serviceType]) {
-        serviceData[item.serviceType] = { parts: [], labor: [] }; // Add a placeholder
+const serviceTypes = new Set(Object.values(serviceTypeMapping));
+serviceTypes.forEach(type => {
+    if (!serviceData[type]) {
+        serviceData[type] = { parts: [], labor: [] };
     }
 });
