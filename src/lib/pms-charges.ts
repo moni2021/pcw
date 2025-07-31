@@ -55,6 +55,12 @@ export const pmsCharges = [
   "basicAmt": 1400
  },
  {
+  "model": "Fronx",
+  "labourDesc": "PMS - 1P 30K/50K/70K/90K/100K/110K",
+  "labourCode": "ZE21L0P",
+  "basicAmt": 1400
+ },
+ {
   "model": "Eeco",
   "labourDesc": "PMS - 1P 20K",
   "labourCode": "ZE61L0P",
@@ -119,6 +125,18 @@ export const pmsCharges = [
   "labourDesc": "PMS - 1P 30K/50K/70K/90K/100K/110K",
   "labourCode": "ZE21L0P",
   "basicAmt": 370
+ },
+ {
+  "model": "XL6",
+  "labourDesc": "PMS - 1P 30K/50K/70K/90K/100K/110K",
+  "labourCode": "ZE21L0P",
+  "basicAmt": 1605
+ },
+ {
+  "model": "Jimny",
+  "labourDesc": "PMS - 1P 30K/50K/70K/90K/100K/110K",
+  "labourCode": "ZE21L0P",
+  "basicAmt": 1430
  },
  {
   "model": "Swift",
@@ -233,6 +251,18 @@ export const pmsCharges = [
   "labourDesc": "PMS - 2P 20K/40K/60K/80K",
   "labourCode": "ZE22L0P",
   "basicAmt": 370
+ },
+ {
+  "model": "XL6",
+  "labourDesc": "PMS - 2P 20K/40K/60K/80K",
+  "labourCode": "ZE22L0P",
+  "basicAmt": 1675
+ },
+ {
+  "model": "Jimny",
+  "labourDesc": "PMS - 2P 20K/40K/60K/80K",
+  "labourCode": "ZE22L0P",
+  "basicAmt": 1530
  },
  {
   "model": "Ciaz",
