@@ -1,6 +1,5 @@
 import Link from "next/link"
-import { Button } from "@/components/ui/button"
-import { Bot, User } from "lucide-react"
+import { Bot } from "lucide-react"
 
 export function Header() {
   return (
@@ -10,12 +9,7 @@ export function Header() {
         <span className="sr-only">Service Estimator</span>
       </Link>
       <nav className="ml-auto flex gap-4 sm:gap-6">
-        <Button asChild variant="ghost" size="icon">
-            <Link href="/admin">
-                <User className="h-5 w-5" />
-                <span className="sr-only">Admin Panel</span>
-            </Link>
-        </Button>
+        {/* Admin link removed */}
       </nav>
     </header>
   )
