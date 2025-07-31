@@ -70,7 +70,7 @@ export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
     window.print();
   };
 
-  const handleRecommendedChange = (job: Labor, type: 'recommended' | 'optional') => {
+  const handleOptionalChange = (job: Labor, type: 'recommended' | 'optional') => {
     const setter = type === 'recommended' ? setSelectedRecommended : setSelectedOptional;
     const getter = type === 'recommended' ? selectedRecommended : selectedOptional;
     
@@ -177,7 +177,7 @@ export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
                         <div key={index} className="flex items-center space-x-3 rounded-md bg-muted/30 p-3">
                              <Checkbox 
                                 id={`rec-${index}`} 
-                                onCheckedChange={() => handleRecommendedChange(job, 'recommended')}
+                                onCheckedChange={() => handleOptionalChange(job, 'recommended')}
                                 checked={!!selectedRecommended.find(item => item.name === job.name)}
                             />
                             <label
@@ -205,7 +205,7 @@ export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
                         <div key={index} className="flex items-center space-x-3 rounded-md bg-muted/30 p-3">
                              <Checkbox 
                                 id={`opt-${index}`} 
-                                onCheckedChange={() => handleRecommendedChange(job, 'optional')}
+                                onCheckedChange={() => handleOptionalChange(job, 'optional')}
                                 checked={!!selectedOptional.find(item => item.name === job.name)}
                             />
                             <label
