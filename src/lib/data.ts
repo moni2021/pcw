@@ -52,15 +52,20 @@ const parts = {
     fuelFilterPetrol: { name: "FUEL-FILTER", price: 325 },
     fuelFilterDiesel: { name: "FUEL-FILTER", price: 1650 },
     gearOil: { name: "GEAR OIL", price: 1000 },
-    accBelt: { name: "ACC BELT", price: 310 }
+    accBelt: { name: "ACC BELT", price: 310 },
+    differentialOil: { name: 'DIFFERENTIAL OIL', price: 600 },
+    transferCaseOil: { name: 'TRANSFER CASE OIL', price: 750 },
+    hybridTransaxleFluid: { name: 'HYBRID TRANSAXLE FLUID', price: 2500 }
 };
 
 const getPartsString = (partKeys: (keyof typeof parts)[]) => partKeys.map(k => parts[k].name).join('\n');
 const getAmountString = (partKeys: (keyof typeof parts)[]) => partKeys.map(k => parts[k].price).join('\n');
 
-const generateServiceData = (model: string, fuel: string) => {
+const generateServiceData = (model: string, fuel: string, options: { hasCNG?: boolean } = {}) => {
     const isDiesel = fuel === 'DIESEL';
-    const isPetrol = fuel === 'PETROL';
+    const isPetrol = fuel === 'PETROL' || fuel === 'HYBRID';
+    const isHybrid = fuel === 'HYBRID';
+    const isJimny = model === 'Jimny';
 
     const oil = isDiesel ? parts.engineOilDiesel : (model === 'Eeco' ? parts.engineOilEeco : parts.engineOilPetrol);
     const oilFilter = isDiesel ? parts.oilFilterDiesel : parts.oilFilter;
@@ -69,55 +74,103 @@ const generateServiceData = (model: string, fuel: string) => {
 
     const data: any[] = [];
 
-    // 10,000 km
+    // 10,000 km / 1 year (3rd Free Service)
     data.push({ "MODEL": model, "FUEL": fuel, "SERVICE TYPE": "3rd Free Service (10,000 km)", "PARTS": `${oil.name}\n${oilFilter.name}\n${commonConsumables}`, "AMOUNT": `${oil.price}\n${oilFilter.price}\n${commonConsumablesAmount}`});
 
-    // 20,000 km
-    let parts20k = [oil.name, oilFilter.name, parts.cabinAcFilter.name, parts.brakeFluid.name, parts.coolant.name, commonConsumables];
-    let amount20k = [oil.price, oilFilter.price, parts.cabinAcFilter.price, parts.brakeFluid.price, parts.coolant.price, commonConsumablesAmountLarge];
+    // 20,000 km / 2 years
+    let parts20k = [oil.name, oilFilter.name, parts.cabinAcFilter.name, parts.brakeFluid.name, parts.coolant.name];
+    let amount20k = [oil.price, oilFilter.price, parts.cabinAcFilter.price, parts.brakeFluid.price, parts.coolant.price];
     if (isDiesel) {
         parts20k.push(airFilter.name);
         amount20k.push(airFilter.price);
     }
-    data.push({ "MODEL": model, "FUEL": fuel, "SERVICE TYPE": "Paid Service (20,000 km)", "PARTS": parts20k.join('\n'), "AMOUNT": amount20k.join('\n')});
-
-    // 30,000 km
-    let parts30k = [oil.name, oilFilter.name, commonConsumables];
-    let amount30k = [oil.price, oilFilter.price, commonConsumablesAmount];
-     if (isDiesel) {
+    if (isJimny) {
+        parts20k.push(parts.transferCaseOil.name, parts.differentialOil.name);
+        amount20k.push(parts.transferCaseOil.price, parts.differentialOil.price);
+    }
+    data.push({ "MODEL": model, "FUEL": fuel, "SERVICE TYPE": "Paid Service (20,000 km)", "PARTS": `${parts20k.join('\n')}\n${commonConsumables}`, "AMOUNT": `${amount20k.join('\n')}\n${commonConsumablesAmountLarge}`});
+    
+    // 30,000 km / 3 years
+    let parts30k = [oil.name, oilFilter.name];
+    let amount30k = [oil.price, oilFilter.price];
+    if (isDiesel) {
         parts30k.push(fuelFilter.name);
         amount30k.push(fuelFilter.price);
     }
-    data.push({ "MODEL": model, "FUEL": fuel, "SERVICE TYPE": "Paid Service (30,000 km)", "PARTS": parts30k.join('\n'), "AMOUNT": amount30k.join('\n')});
+    data.push({ "MODEL": model, "FUEL": fuel, "SERVICE TYPE": "Paid Service (30,000 km)", "PARTS": `${parts30k.join('\n')}\n${commonConsumables}`, "AMOUNT": `${amount30k.join('\n')}\n${commonConsumablesAmount}`});
 
-    // 40,000 km
-    let parts40k = [oil.name, oilFilter.name, airFilter.name, parts.cabinAcFilter.name, parts.brakeFluid.name, parts.coolant.name, commonConsumables];
-    let amount40k = [oil.price, oilFilter.price, airFilter.price, parts.cabinAcFilter.price, parts.brakeFluid.price, parts.coolant.price, commonConsumablesAmountLarge];
-    if (isPetrol) {
-        parts40k.push(parts.sparkPlugs.name, fuelFilter.name, parts.gearOil.name);
-        amount40k.push(parts.sparkPlugs.price, fuelFilter.price, parts.gearOil.price);
+    // 40,000 km / 4 years
+    let parts40k = [oil.name, oilFilter.name, airFilter.name, parts.cabinAcFilter.name, parts.brakeFluid.name, parts.coolant.name, parts.sparkPlugs.name];
+    let amount40k = [oil.price, oilFilter.price, airFilter.price, parts.cabinAcFilter.price, parts.brakeFluid.price, parts.coolant.price, parts.sparkPlugs.price];
+     if (isPetrol) {
+        parts40k.push(fuelFilter.name);
+        amount40k.push(fuelFilter.price);
     }
-     data.push({ "MODEL": model, "FUEL": fuel, "SERVICE TYPE": "Paid Service (40,000 km)", "PARTS": parts40k.join('\n'), "AMOUNT": amount40k.join('\n')});
+    if (model !== 'Eeco' && isPetrol) {
+        parts40k.push(parts.gearOil.name);
+        amount40k.push(parts.gearOil.price);
+    }
+    if (isJimny) {
+        parts40k.push(parts.transferCaseOil.name, parts.differentialOil.name);
+        amount40k.push(parts.transferCaseOil.price, parts.differentialOil.price);
+    }
+     data.push({ "MODEL": model, "FUEL": fuel, "SERVICE TYPE": "Paid Service (40,000 km)", "PARTS": `${parts40k.join('\n')}\n${commonConsumables}`, "AMOUNT": `${amount40k.join('\n')}\n${commonConsumablesAmountLarge}`});
+    
+    // 50,000 km / 5 years
+    data.push({ "MODEL": model, "FUEL": fuel, "SERVICE TYPE": "Paid Service (50,000 km)", "PARTS": `${oil.name}\n${oilFilter.name}\n${commonConsumables}`, "AMOUNT": `${oil.price}\n${oilFilter.price}\n${commonConsumablesAmount}`});
+
+    // 60,000 km / 6 years
+    let parts60k = [oil.name, oilFilter.name, parts.cabinAcFilter.name, parts.brakeFluid.name, parts.coolant.name];
+    let amount60k = [oil.price, oilFilter.price, parts.cabinAcFilter.price, parts.brakeFluid.price, parts.coolant.price];
+    if (isDiesel) {
+        parts60k.push(airFilter.name, fuelFilter.name);
+        amount60k.push(airFilter.price, fuelFilter.price);
+    }
+    if (isJimny) {
+        parts60k.push(parts.transferCaseOil.name, parts.differentialOil.name);
+        amount60k.push(parts.transferCaseOil.price, parts.differentialOil.price);
+    }
+    data.push({ "MODEL": model, "FUEL": fuel, "SERVICE TYPE": "Paid Service (60,000 km)", "PARTS": `${parts60k.join('\n')}\n${commonConsumables}`, "AMOUNT": `${amount60k.join('\n')}\n${commonConsumablesAmountLarge}`});
+    
+    // 80,000 km / 8 years
+    let parts80k = [...parts40k]; // Starts with 40k parts
+    let amount80k = [...amount40k];
+    if (model === 'Eeco') {
+        parts80k.push(parts.accBelt.name);
+        amount80k.push(parts.accBelt.price);
+    }
+    if (isHybrid) {
+        parts80k.push(parts.hybridTransaxleFluid.name);
+        amount80k.push(parts.hybridTransaxleFluid.price);
+    }
+    data.push({ "MODEL": model, "FUEL": fuel, "SERVICE TYPE": "Paid Service (80,000 km)", "PARTS": `${parts80k.join('\n')}\n${commonConsumables}`, "AMOUNT": `${amount80k.join('\n')}\n${commonConsumablesAmountLarge}`});
+    
+    if (options.hasCNG) {
+        const cngFuel = "CNG";
+        data.push({ "MODEL": model, "FUEL": cngFuel, "SERVICE TYPE": "3rd Free Service (10,000 km)", "PARTS": `${oil.name}\n${oilFilter.name}\n${commonConsumables}`, "AMOUNT": `${oil.price}\n${oilFilter.price}\n${commonConsumablesAmount}`});
+        data.push({ "MODEL": model, "FUEL": cngFuel, "SERVICE TYPE": "Paid Service (20,000 km)", "PARTS": `${oil.name}\n${oilFilter.name}\n${parts.cabinAcFilter.name}\n${parts.brakeFluid.name}\n${parts.coolant.name}\n${commonConsumables}`, "AMOUNT": `${oil.price}\n${oilFilter.price}\n${parts.cabinAcFilter.price}\n${parts.brakeFluid.price}\n${parts.coolant.price}\n${commonConsumablesAmountLarge}`});
+        data.push({ "MODEL": model, "FUEL": cngFuel, "SERVICE TYPE": "Paid Service (30,000 km)", "PARTS": `${oil.name}\n${oilFilter.name}\n${commonConsumables}`, "AMOUNT": `${oil.price}\n${oilFilter.price}\n${commonConsumablesAmount}`});
+        data.push({ "MODEL": model, "FUEL": cngFuel, "SERVICE TYPE": "Paid Service (40,000 km)", "PARTS": `${oil.name}\n${oilFilter.name}\n${airFilter.name}\n${parts.cabinAcFilter.name}\n${parts.brakeFluid.name}\n${parts.coolant.name}\n${parts.sparkPlugs.name}\n${commonConsumables}`, "AMOUNT": `${oil.price}\n${oilFilter.price}\n${airFilter.price}\n${parts.cabinAcFilter.price}\n${parts.brakeFluid.price}\n${parts.coolant.price}\n${parts.sparkPlugs.price}\n${commonConsumablesAmountLarge}`});
+        data.push({ "MODEL": model, "FUEL": cngFuel, "SERVICE TYPE": "Paid Service (60,000 km)", "PARTS": `${oil.name}\n${oilFilter.name}\n${parts.cabinAcFilter.name}\n${parts.brakeFluid.name}\n${parts.coolant.name}\n${commonConsumables}`, "AMOUNT": `${oil.price}\n${oilFilter.price}\n${parts.cabinAcFilter.price}\n${parts.brakeFluid.price}\n${parts.coolant.price}\n${commonConsumablesAmountLarge}`});
+    }
 
     return data;
 }
 
-const petrolModels = ["Alto K10", "S-Presso", "Wagon R", "Celerio", "Swift", "Dzire", "Baleno", "Ignis", "Fronx", "Brezza", "Ertiga", "XL6", "Ciaz", "Grand Vitara", "Jimny", "Ritz", "Alto 800"];
-const dieselModels = ["Swift", "Dzire", "Baleno", "Brezza", "Ertiga", "S-Cross", "Ciaz", "Ritz"];
-
 let rawServiceData: any[] = [];
-petrolModels.forEach(model => rawServiceData.push(...generateServiceData(model, 'PETROL')));
-dieselModels.forEach(model => rawServiceData.push(...generateServiceData(model, 'DIESEL')));
 
-// Eeco specific
-rawServiceData.push(...generateServiceData('Eeco', 'PETROL'));
-rawServiceData.push({ "MODEL": "Eeco", "FUEL": "PETROL", "SERVICE TYPE": "Paid Service (80,000 km)", "PARTS": `${parts.engineOilEeco.name}\n${parts.oilFilter.name}\n${parts.coolant.name}\n${parts.brakeFluid.name}\n${parts.sparkPlugs.name}\n${parts.airFilter.name}\n${parts.fuelFilterPetrol.name}\n${parts.accBelt.name}\n${commonConsumables}`, "AMOUNT": `${parts.engineOilEeco.price}\n${parts.oilFilter.price}\n${parts.coolant.price}\n${parts.brakeFluid.price}\n${parts.sparkPlugs.price}\n${parts.airFilter.price}\n${parts.fuelFilterPetrol.price}\n${parts.accBelt.price}\n${commonConsumablesAmountLarge}` });
-
-
-// Grand Vitara Hybrid
-rawServiceData.push({ "MODEL": "Grand Vitara", "FUEL": "HYBRID", "SERVICE TYPE": "3rd Free Service (10,000 km)", "PARTS": `${parts.engineOilPetrol.name}\n${parts.oilFilter.name}\n${commonConsumables}`, "AMOUNT": `${parts.engineOilPetrol.price}\n${parts.oilFilter.price}\n${commonConsumablesAmount}`});
-rawServiceData.push({ "MODEL": "Grand Vitara", "FUEL": "HYBRID", "SERVICE TYPE": "Paid Service (20,000 km)", "PARTS": `${parts.engineOilPetrol.name}\n${parts.oilFilter.name}\n${parts.cabinAcFilter.name}\n${parts.brakeFluid.name}\n${parts.coolant.name}\n${commonConsumables}`, "AMOUNT": `${parts.engineOilPetrol.price}\n${parts.oilFilter.price}\n${parts.cabinAcFilter.price}\n${parts.brakeFluid.price}\n${parts.coolant.price}\n${commonConsumablesAmountLarge}`});
-rawServiceData.push({ "MODEL": "Grand Vitara", "FUEL": "HYBRID", "SERVICE TYPE": "Paid Service (40,000 km)", "PARTS": `${parts.engineOilPetrol.name}\n${parts.oilFilter.name}\n${parts.airFilter.name}\n${parts.cabinAcFilter.name}\n${parts.brakeFluid.name}\n${parts.coolant.name}\n${parts.sparkPlugs.name}\n${parts.fuelFilterPetrol.name}\n${commonConsumables}`, "AMOUNT": `${parts.engineOilPetrol.price}\n${parts.oilFilter.price}\n${parts.airFilter.price}\n${parts.cabinAcFilter.price}\n${parts.brakeFluid.price}\n${parts.coolant.price}\n${parts.sparkPlugs.price}\n${parts.fuelFilterPetrol.price}\n${commonConsumablesAmountLarge}`});
+// Generate data for each model based on the provided service manual info
+vehicles.forEach(v => {
+    if (v.fuelTypes.includes('Petrol')) {
+        rawServiceData.push(...generateServiceData(v.model, 'PETROL', { hasCNG: v.fuelTypes.includes('CNG') }));
+    }
+    if (v.fuelTypes.includes('Diesel')) {
+        rawServiceData.push(...generateServiceData(v.model, 'DIESEL'));
+    }
+    if (v.fuelTypes.includes('Hybrid')) {
+        rawServiceData.push(...generateServiceData(v.model, 'HYBRID'));
+    }
+});
   
   const serviceTypeMapping: { [key: string]: string } = {
     "3rd Free Service (10,000 km)": "3rd Free Service (10,000 km)",
@@ -161,7 +214,18 @@ rawServiceData.push({ "MODEL": "Grand Vitara", "FUEL": "HYBRID", "SERVICE TYPE":
     
   const processedServiceData = rawServiceData.flatMap(item => {
     const modelName = getStandardModelName(item.MODEL);
-    const standardServiceType = serviceTypeMapping[item['SERVICE TYPE']];
+    
+    // Standardize service type string to include comma
+    let serviceType = item['SERVICE TYPE'];
+    const kmMatch = serviceType.match(/\((\d+)\s?km\)/);
+    if (kmMatch) {
+        const km = parseInt(kmMatch[1], 10);
+        if (km >= 1000) {
+            serviceType = serviceType.replace(km.toString(), km.toLocaleString('en-IN'));
+        }
+    }
+
+    const standardServiceType = serviceTypeMapping[serviceType];
   
     if (!standardServiceType) return null;
   
@@ -227,7 +291,3 @@ rawServiceData.push({ "MODEL": "Grand Vitara", "FUEL": "HYBRID", "SERVICE TYPE":
           serviceData[type] = { parts: [], labor: [] };
       }
   });
-
-    
-
-    
