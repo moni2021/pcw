@@ -5,7 +5,7 @@ import { Button } from './ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from './ui/card';
 import { Input } from './ui/input';
 import { MessageCircle, Send, X, User } from 'lucide-react';
-import { db } from '@/lib/firebase';
+import { getDb } from '@/lib/firebase';
 import { collection, addDoc, query, orderBy, onSnapshot, serverTimestamp, Timestamp } from 'firebase/firestore';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Avatar, AvatarFallback } from './ui/avatar';
@@ -24,6 +24,7 @@ export function Chat() {
   const [nickname, setNickname] = useState('');
   const [isSettingNickname, setIsSettingNickname] = useState(true);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const db = getDb();
 
   useEffect(() => {
     const storedNickname = localStorage.getItem('chatNickname');
@@ -46,7 +47,7 @@ export function Chat() {
     });
 
     return () => unsubscribe();
-  }, [isOpen, isSettingNickname]);
+  }, [isOpen, isSettingNickname, db]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -135,9 +136,9 @@ export function Chat() {
                     placeholder="Type a message..."
                     value={newMessage}
                     onChange={(e) => setNewMessage(e.target.value)}
-                    disabled={isSettingNickname}
+                    disabled={isSettingNickname || !db}
                   />
-                  <Button type="submit" size="icon" disabled={isSettingNickname}>
+                  <Button type="submit" size="icon" disabled={isSettingNickname || !db}>
                     <Send className="h-4 w-4" />
                   </Button>
                 </form>
