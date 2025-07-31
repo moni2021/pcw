@@ -25,10 +25,11 @@ if (!getApps().length) {
 const auth = getAuth(app);
 let db: Firestore | null = null;
 
-const getDb = () => {
+const getDb = (): Firestore | null => {
     if (db) {
         return db;
     }
+    // Check if we are on the client side before initializing Firestore
     if (typeof window !== 'undefined') {
         db = getFirestore(app);
         return db;
