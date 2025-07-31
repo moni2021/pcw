@@ -23,12 +23,11 @@ if (!getApps().length) {
 }
 
 const auth = getAuth(app);
-let db: Firestore;
+let db: Firestore | null = null;
 
 // Check if we are on the client side before initializing Firestore
 if (typeof window !== 'undefined') {
   db = getFirestore(app);
 }
 
-// @ts-ignore
 export { app, auth, db };

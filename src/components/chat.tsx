@@ -34,7 +34,7 @@ export function Chat() {
   }, []);
 
   useEffect(() => {
-    if (!isOpen || isSettingNickname) return;
+    if (!isOpen || isSettingNickname || !db) return;
 
     const q = query(collection(db, 'messages'), orderBy('timestamp', 'asc'));
     const unsubscribe = onSnapshot(q, (querySnapshot) => {
@@ -61,7 +61,7 @@ export function Chat() {
 
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (newMessage.trim() === '') return;
+    if (newMessage.trim() === '' || !db) return;
 
     await addDoc(collection(db, 'messages'), {
       text: newMessage,
@@ -73,9 +73,10 @@ export function Chat() {
   };
   
   const getInitials = (name: string) => {
+    if (!name) return '??';
     const names = name.split(' ');
     if (names.length > 1) {
-        return names[0][0] + names[names.length - 1][0];
+        return (names[0][0] || '') + (names[names.length - 1][0] || '');
     }
     return name.substring(0, 2);
   }
@@ -89,7 +90,7 @@ export function Chat() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 50, scale: 0.9 }}
             transition={{ duration: 0.3, ease: 'easeInOut' }}
-            className="fixed bottom-24 right-5 z-50"
+            className="fixed bottom-24 left-5 z-50"
           >
             <Card className="w-80 h-[28rem] flex flex-col shadow-2xl">
               <CardHeader className="flex flex-row items-center justify-between">
@@ -147,7 +148,7 @@ export function Chat() {
       </AnimatePresence>
       <Button
         onClick={() => setIsOpen(!isOpen)}
-        className="fixed bottom-5 right-5 z-50 rounded-full h-14 w-14 shadow-lg"
+        className="fixed bottom-5 left-5 z-50 rounded-full h-14 w-14 shadow-lg"
         size="icon"
       >
         <MessageCircle className="h-6 w-6" />
