@@ -106,11 +106,16 @@ export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
 
   return (
     <div className="print-container">
-        <CardHeader className="flex flex-row items-center justify-between print:pb-2">
-            <CardTitle>Service Estimate</CardTitle>
+        <CardHeader className="flex flex-row items-center justify-between">
+            <div className="print:hidden">
+                <CardTitle>Service Estimate</CardTitle>
+            </div>
+            <div className="hidden print:block">
+                <CardTitle>Service Estimate</CardTitle>
+            </div>
             <Button onClick={handlePrint} variant="ghost" size="icon" className="no-print" type="button">
-            <Printer className="h-5 w-5" />
-            <span className="sr-only">Print</span>
+                <Printer className="h-5 w-5" />
+                <span className="sr-only">Print</span>
             </Button>
         </CardHeader>
       <CardContent>
@@ -354,9 +359,7 @@ export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
 
 
       </CardContent>
-      <CardFooter className={cn("bg-muted/50 p-4 mt-6 rounded-b-lg flex-col items-stretch gap-2", {
-        "print:mt-2 print:p-2": true
-      })}>
+      <CardFooter className="bg-muted/50 p-4 mt-6 rounded-b-lg flex-col items-stretch gap-2 print:mt-2 print:p-2">
           <div className="w-full flex justify-between items-center text-sm text-muted-foreground no-print">
               <p>Subtotal (Parts):</p>
               <p>₹{totalPartsPrice.toFixed(2)}</p>
