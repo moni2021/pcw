@@ -153,7 +153,7 @@ export const threeMCareData: { [model: string]: { name: string; charge: number }
     { name: "GLASS CLEANING", charge: 900 },
     { name: "AC VENT CLEANING", charge: 650 },
   ],
-  "Jimny 5 Door Domestic P74": [
+  "Jimny": [
     { name: "INTERIOR CLEANING", charge: 1250 },
     { name: "BODY RUBBING & POLISHING", charge: 1250 },
     { name: "ANTIRUST/ CHASSIS PAINT", charge: 2300 },
@@ -324,6 +324,15 @@ export const threeMCareData: { [model: string]: { name: string; charge: number }
     { name: "GLASS CLEANING", charge: 800 },
     { name: "AC VENT CLEANING", charge: 650 },
   ],
+   "Ignis": [
+    { name: "INTERIOR CLEANING", charge: 1050 },
+    { name: "BODY RUBBING & POLISHING", charge: 1050 },
+    { name: "ANTIRUST/ CHASSIS PAINT", charge: 1900 },
+    { name: "PAINT PROTECTION", charge: 2900 },
+    { name: "SILENCER COATING", charge: 700 },
+    { name: "GLASS CLEANING", charge: 800 },
+    { name: "AC VENT CLEANING", charge: 650 },
+  ],
   "M 800": [
     { name: "INTERIOR CLEANING", charge: 1050 },
     { name: "BODY RUBBING & POLISHING", charge: 1050 },
@@ -369,7 +378,7 @@ export const threeMCareData: { [model: string]: { name: string; charge: number }
     { name: "GLASS CLEANING", charge: 800 },
     { name: "AC VENT CLEANING", charge: 650 },
   ],
-  "RITZ": [
+  "Ritz": [
     { name: "INTERIOR CLEANING", charge: 1050 },
     { name: "BODY RUBBING & POLISHING", charge: 1050 },
     { name: "ANTIRUST/ CHASSIS PAINT", charge: 1900 },
@@ -378,7 +387,7 @@ export const threeMCareData: { [model: string]: { name: string; charge: number }
     { name: "GLASS CLEANING", charge: 800 },
     { name: "AC VENT CLEANING", charge: 650 },
   ],
-  "S-PRESSO": [
+  "S-Presso": [
     { name: "INTERIOR CLEANING", charge: 1050 },
     { name: "BODY RUBBING & POLISHING", charge: 1050 },
     { name: "ANTIRUST/ CHASSIS PAINT", charge: 1900 },
@@ -387,7 +396,7 @@ export const threeMCareData: { [model: string]: { name: string; charge: number }
     { name: "GLASS CLEANING", charge: 800 },
     { name: "AC VENT CLEANING", charge: 650 },
   ],
-  "WAGON R": [
+  "Wagon R": [
     { name: "INTERIOR CLEANING", charge: 1050 },
     { name: "BODY RUBBING & POLISHING", charge: 1050 },
     { name: "ANTIRUST/ CHASSIS PAINT", charge: 1900 },
@@ -415,3 +424,5 @@ export const threeMCareData: { [model: string]: { name: string; charge: number }
     { name: "AC VENT CLEANING", charge: 650 },
   ]
 };
+
+    
