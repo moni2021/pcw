@@ -6,6 +6,7 @@ import { Header } from '@/components/header';
 import { Card } from '@/components/ui/card';
 import { useTheme } from '@/context/ThemeContext';
 import { cn } from '@/lib/utils';
+import { Chat } from '@/components/chat';
 
 
 export default function Home() {
@@ -33,6 +34,7 @@ export default function Home() {
           </div>
         </section>
       </main>
+      <Chat />
       <footer className="flex flex-col gap-2 sm:flex-row py-6 w-full shrink-0 items-center px-4 md:px-6 border-t">
         <p className="text-xs text-muted-foreground">
           © Maruti Suzuki Service Estimator. An unofficial tool. Prices are indicative. Made By Hiru Mani And His Team
