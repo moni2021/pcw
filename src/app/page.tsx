@@ -1,3 +1,4 @@
+
 "use client";
 
 import { VehicleServiceForm } from '@/components/vehicle-service-form';
@@ -34,7 +35,7 @@ export default function Home() {
       </main>
       <footer className="flex flex-col gap-2 sm:flex-row py-6 w-full shrink-0 items-center px-4 md:px-6 border-t">
         <p className="text-xs text-muted-foreground">
-          © Maruti Suzuki Service Estimator. An unofficial tool. Prices are indicative.
+          © Maruti Suzuki Service Estimator. An unofficial tool. Prices are indicative. Made By Hiru Mani And His Team
         </p>
       </footer>
     </div>
