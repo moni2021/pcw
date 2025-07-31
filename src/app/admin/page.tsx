@@ -1,12 +1,15 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter, CardDescription } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { serviceData } from '@/lib/data';
 import type { Service, ServiceData } from '@/lib/types';
+import { auth } from '@/lib/firebase';
+import { onAuthStateChanged, signOut, User } from 'firebase/auth';
 import { Loader2, ArrowLeft, PlusCircle, Trash2, ChevronsUpDown, Copy } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 import { updateServiceData } from '@/ai/flows/updateDataFlow';
@@ -17,15 +20,50 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 
 
 export default function AdminPage() {
+  const router = useRouter();
   const { toast } = useToast();
+  const [user, setUser] = useState<User | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [editableServiceData, setEditableServiceData] = useState<ServiceData>(() => JSON.parse(JSON.stringify(serviceData)));
   const [jsonDataString, setJsonDataString] = useState('');
   const [jsonError, setJsonError] = useState('');
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        setUser(user);
+      } else {
+        router.push('/admin/login');
+      }
+      setIsLoading(false);
+    });
+
+    return () => unsubscribe();
+  }, [router]);
   
   useEffect(() => {
     setJsonDataString(JSON.stringify(editableServiceData, null, 2));
   }, [editableServiceData]);
+
+
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      toast({
+        title: "Logged Out",
+        description: "You have been successfully logged out.",
+      });
+      router.push('/admin/login');
+    } catch (error) {
+      console.error("Logout Error:", error);
+      toast({
+        title: "Logout Failed",
+        description: "An error occurred during logout. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
   
     const handleDataChange = (serviceType: string, itemType: 'parts' | 'labor' | 'recommendedLabor' | 'optionalServices', index: number, field: 'name' | 'price' | 'charge', value: string | number) => {
         const updatedData = { ...editableServiceData };
@@ -141,6 +179,16 @@ export default function AdminPage() {
     });
   };
 
+
+  if (isLoading || !user) {
+    return (
+        <main className="flex min-h-screen flex-col items-center justify-center p-4 bg-gray-50 dark:bg-gray-900">
+            <Loader2 className="h-16 w-16 animate-spin text-primary" />
+            <p className="mt-4 text-lg">Loading Admin Panel...</p>
+        </main>
+    )
+  }
+
   return (
     <main className="flex min-h-screen flex-col items-center p-4 sm:p-6 md:p-8 bg-muted/20">
       <div className="w-full max-w-7xl mx-auto">
@@ -157,6 +205,7 @@ export default function AdminPage() {
                     <span>Go to Homepage</span>
                 </Link>
             </Button>
+            <Button onClick={handleLogout} size="sm">Logout</Button>
           </div>
         </header>
 
@@ -377,10 +426,12 @@ export default function AdminPage() {
                 <Accordion type="single" collapsible>
                     <AccordionItem value="item-1">
                         <AccordionTrigger className="px-6">
-                            <div className="flex items-center gap-2">
-                                <ChevronsUpDown className="h-4 w-4" />
-                                <h3 className="text-lg font-semibold">Bulk Data Management (JSON)</h3>
-                            </div>
+                            <CardTitle>
+                                <div className="flex items-center gap-2">
+                                    <ChevronsUpDown className="h-4 w-4" />
+                                    <h3 className="text-lg font-semibold">Bulk Data Management (JSON)</h3>
+                                </div>
+                            </CardTitle>
                         </AccordionTrigger>
                         <AccordionContent className="px-6 pt-4 space-y-4">
                             <div>
