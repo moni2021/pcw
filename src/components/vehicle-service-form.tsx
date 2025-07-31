@@ -9,7 +9,7 @@ import { Label } from '@/components/ui/label';
 import { serviceData, vehicles, serviceDataLookup } from '@/lib/data';
 import { pmsCharges } from '@/lib/pms-charges';
 import { ServiceEstimate } from './service-estimate';
-import type { ServiceEstimateData, Vehicle, Labor, Service } from '@/lib/types';
+import type { ServiceEstimateData, Vehicle, Labor, Service, Part } from '@/lib/types';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Loader2, Car, Tag, Building2 } from 'lucide-react';
 import { Separator } from './ui/separator';
@@ -106,7 +106,7 @@ export function VehicleServiceForm() {
           autoSelectedService = closestService || `Paid Service (${(vehicleAge * 10).toString()},000 km)`;
       }
       
-      if (serviceData[autoSelectedService as keyof typeof serviceData]) {
+      if (serviceData[autoSelectedService as keyof typeof serviceData] || serviceDataLookup[`${autoSelectedService}-${selectedModel.toUpperCase()}-${selectedFuelType.toUpperCase()}`]) {
         setSelectedService(autoSelectedService);
       } else {
         const firstPaidService = Object.keys(serviceData).find(s => s.startsWith('Paid'));
@@ -137,56 +137,50 @@ export function VehicleServiceForm() {
 
       const lookupKey = `${selectedService}-${selectedModel.toUpperCase()}-${selectedFuelType.toUpperCase()}`;
       let serviceInfo: Service | undefined = serviceDataLookup[lookupKey];
-
-      const pmsServiceRegex = /Paid Service \((\d+),000 km\)/;
+      
+      const pmsServiceRegex = /Paid Service \((\d{1,3}(,\d{3})*|\d+)\s?km\)/;
       const match = selectedService.match(pmsServiceRegex);
 
       let pmsCharge = 0;
       if (match) {
-        const km = parseInt(match[1], 10);
+        const km = parseInt(match[1].replace(/,/g, ''), 10);
         const pmsEntry = pmsCharges.find(p => p.model.toUpperCase() === selectedModel.toUpperCase() && p.labourDesc.includes(`${km}K`));
         if (pmsEntry) {
             pmsCharge = pmsEntry.basicAmt;
         }
       }
       
-      if (!serviceInfo) {
-        // Fallback for generic services like 1st and 2nd free service
-        const genericService = serviceData[selectedService as keyof typeof serviceData];
-        if (genericService) {
-             const labor = pmsCharge > 0 ? [{ name: 'Periodic Maintenance Service', charge: pmsCharge }] : genericService.labor;
-             const totalPartsPrice = genericService.parts.reduce((sum, part) => sum + part.price, 0);
-             const totalLaborCharge = labor.reduce((sum, job) => sum + job.charge, 0);
-             const newEstimate: ServiceEstimateData = {
-                vehicle: {
-                    model: selectedModel,
-                    fuelType: selectedFuelType,
-                    productionYear: parseInt(selectedYear, 10),
-                    brand: vehicleInfo.brand,
-                    category: vehicleInfo.category,
-                },
-                serviceType: selectedService,
-                parts: genericService.parts,
-                labor: labor,
-                recommendedLabor: [...(genericService.recommendedLabor || []), ...commonServices],
-                optionalServices: threeMCareData[selectedModel] || [],
-                totalPrice: totalPartsPrice + totalLaborCharge,
-            };
-            setEstimate(newEstimate);
-        } else {
-            setError('Service data not found for the selected vehicle model, fuel type, and service. Please check our database or contact support.');
-            setEstimate(null);
-        }
-        setIsLoading(false);
-        return;
+      let finalParts: Part[] = [];
+      let finalLabor: Labor[] = [];
+      let recommendedLabor: Labor[] = [];
+      let optionalServices: Labor[] = [];
+
+      if (serviceInfo) {
+          finalParts = serviceInfo.parts;
+          recommendedLabor = serviceInfo.recommendedLabor || [];
+          optionalServices = serviceInfo.optionalServices || [];
+          if (pmsCharge > 0) {
+              finalLabor = [{ name: 'Periodic Maintenance Service', charge: pmsCharge }];
+          } else {
+              finalLabor = serviceInfo.labor;
+          }
+      } else {
+          // Fallback for generic free services not in the lookup
+          const genericService = serviceData[selectedService as keyof typeof serviceData];
+          if (genericService) {
+              finalParts = genericService.parts;
+              finalLabor = genericService.labor;
+              recommendedLabor = genericService.recommendedLabor || [];
+              optionalServices = genericService.optionalServices || [];
+          } else {
+               setError('Service data not found for the selected vehicle model, fuel type, and service. Please check our database or contact support.');
+               setIsLoading(false);
+               return;
+          }
       }
       
-      const { parts } = serviceInfo;
-
-      const labor = pmsCharge > 0 ? [{ name: 'Periodic Maintenance Service', charge: pmsCharge }] : serviceInfo.labor;
-
-      const totalPartsPrice = parts.reduce((sum, part) => sum + part.price, 0);
-      const totalLaborCharge = labor.reduce((sum, job) => sum + job.charge, 0);
+      const totalPartsPrice = finalParts.reduce((sum, part) => sum + part.price, 0);
+      const totalLaborCharge = finalLabor.reduce((sum, job) => sum + job.charge, 0);
 
       const newEstimate: ServiceEstimateData = {
         vehicle: {
@@ -197,9 +191,9 @@ export function VehicleServiceForm() {
           category: vehicleInfo.category,
         },
         serviceType: selectedService,
-        parts,
-        labor,
-        recommendedLabor: [...(serviceInfo.recommendedLabor || []), ...commonServices],
+        parts: finalParts,
+        labor: finalLabor,
+        recommendedLabor: [...recommendedLabor, ...commonServices],
         optionalServices: threeMCareData[selectedModel] || [],
         totalPrice: totalPartsPrice + totalLaborCharge,
       };
@@ -328,3 +322,5 @@ export function VehicleServiceForm() {
     </>
   );
 }
+
+    
