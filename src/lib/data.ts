@@ -68,7 +68,7 @@ export const serviceData: ServiceData = {
       { name: 'Washer, drain plug', price: 50 },
     ],
     labor: [
-      { name: 'Standard Labor Charge', charge: 1500 },
+      { name: 'Periodic Maintenance Service', charge: 0 },
     ],
     recommendedLabor: [
         { name: 'Wheel Alignment & Balancing', charge: 800 },
@@ -86,7 +86,7 @@ export const serviceData: ServiceData = {
       { name: 'Washer, drain plug', price: 50 },
     ],
     labor: [
-        { name: 'Standard Labor Charge', charge: 1600 },
+        { name: 'Periodic Maintenance Service', charge: 0 },
     ],
     recommendedLabor: [
         { name: 'Tire Rotation', charge: 350 },
@@ -108,7 +108,7 @@ export const serviceData: ServiceData = {
       { name: 'Washer, drain plug', price: 50 },
     ],
     labor: [
-      { name: 'Standard Labor Charge', charge: 1800 },
+      { name: 'Periodic Maintenance Service', charge: 0 },
     ],
     recommendedLabor: [
       { name: 'Wheel Alignment & Balancing', charge: 800 },
@@ -126,7 +126,7 @@ export const serviceData: ServiceData = {
       { name: 'Air Filter', price: 300 },
       { name: 'Washer, drain plug', price: 50 },
     ],
-    labor: [{ name: 'Standard Labor Charge', charge: 1700 }],
+    labor: [{ name: 'Periodic Maintenance Service', charge: 0 }],
     recommendedLabor: [{ name: 'Tire Rotation', charge: 350 }],
   },
   'Paid Service (60,000 km)': {
@@ -140,7 +140,7 @@ export const serviceData: ServiceData = {
       { name: 'Transmission Fluid', price: 1100 },
       { name: 'Washer, drain plug', price: 50 },
     ],
-    labor: [{ name: 'Standard Labor Charge', charge: 2000 }],
+    labor: [{ name: 'Periodic Maintenance Service', charge: 0 }],
     recommendedLabor: [
       { name: 'Wheel Alignment & Balancing', charge: 800 },
       { name: 'AC Service', charge: 2500 },
@@ -156,7 +156,7 @@ export const serviceData: ServiceData = {
       { name: 'Air Filter', price: 300 },
       { name: 'Washer, drain plug', price: 50 },
     ],
-    labor: [{ name: 'Standard Labor Charge', charge: 1800 }],
+    labor: [{ name: 'Periodic Maintenance Service', charge: 0 }],
     recommendedLabor: [{ name: 'Tire Rotation', charge: 350 }],
   },
   'Paid Service (80,000 km)': {
@@ -173,7 +173,7 @@ export const serviceData: ServiceData = {
       { name: 'Washer, drain plug', price: 50 },
     ],
     labor: [
-      { name: 'Standard Labor Charge', charge: 2200 },
+      { name: 'Periodic Maintenance Service', charge: 0 },
       { name: 'Timing Belt Replacement Labor', charge: 1500 }
     ],
     recommendedLabor: [
@@ -193,7 +193,7 @@ export const serviceData: ServiceData = {
         { "name": "Washer, drain plug", "price": 50 }
     ],
     labor: [
-        { "name": "Standard Labor Charge", "charge": 1900 }
+        { "name": "Periodic Maintenance Service", "charge": 0 }
     ],
     recommendedLabor: [
         { "name": "Tire Rotation", "charge": 350 }
@@ -211,7 +211,7 @@ export const serviceData: ServiceData = {
         { "name": "Washer, drain plug", "price": 50 }
     ],
     labor: [
-        { "name": "Standard Labor Charge", "charge": 2500 }
+        { "name": "Periodic Maintenance Service", "charge": 0 }
     ],
     recommendedLabor: [
         { "name": "Wheel Alignment & Balancing", "charge": 800 },
@@ -235,7 +235,7 @@ export const serviceData: ServiceData = {
       { name: 'Washer, drain plug', price: 50 },
     ],
     labor: [
-      { name: 'Standard Labor Charge', charge: 2800 },
+      { name: 'Periodic Maintenance Service', charge: 0 },
     ],
     recommendedLabor: [
       { name: 'Wheel Alignment & Balancing', charge: 800 },
@@ -254,7 +254,7 @@ export const serviceData: ServiceData = {
       { name: 'Washer, drain plug', price: 50 },
     ],
     labor: [
-      { name: 'Standard Labor Charge', charge: 2600 },
+      { name: 'Periodic Maintenance Service', charge: 0 },
     ],
     recommendedLabor: [
         { name: 'Wheel Alignment & Balancing', charge: 800 }
@@ -274,7 +274,7 @@ export const serviceData: ServiceData = {
       { name: 'Washer, drain plug', price: 50 },
     ],
     labor: [
-      { name: 'Standard Labor Charge', charge: 3000 },
+      { name: 'Periodic Maintenance Service', charge: 0 },
       { name: 'Timing Belt Replacement Labor', charge: 1500 }
     ],
     recommendedLabor: [
@@ -295,7 +295,7 @@ export const serviceData: ServiceData = {
       { name: 'Washer, drain plug', price: 50 },
     ],
     labor: [
-      { name: 'Standard Labor Charge', charge: 2900 },
+      { name: 'Periodic Maintenance Service', charge: 0 },
     ],
     recommendedLabor: [
       { name: 'Wheel Alignment & Balancing', charge: 800 },
@@ -316,7 +316,7 @@ export const serviceData: ServiceData = {
       { name: 'Washer, drain plug', price: 50 },
     ],
     labor: [
-      { name: 'Standard Labor Charge', charge: 3500 },
+      { name: 'Periodic Maintenance Service', charge: 0 },
       { name: 'Clutch Replacement Labor', charge: 2500 }
     ],
     recommendedLabor: [
@@ -341,7 +341,7 @@ export const serviceData: ServiceData = {
       { name: 'Washer, drain plug', price: 50 },
     ],
     labor: [
-      { name: 'Standard Labor Charge', charge: 4000 },
+      { name: 'Periodic Maintenance Service', charge: 0 },
       { name: 'Timing Belt & Water Pump Replacement Labor', charge: 2000 }
     ],
     recommendedLabor: [
@@ -351,3 +351,5 @@ export const serviceData: ServiceData = {
     ],
   }
 };
+
+    

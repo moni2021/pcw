@@ -7,8 +7,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { serviceData, vehicles } from '@/lib/data';
+import { pmsCharges } from '@/lib/pms-charges';
 import { ServiceEstimate } from './service-estimate';
-import type { ServiceEstimateData, Vehicle } from '@/lib/types';
+import type { ServiceEstimateData, Vehicle, Labor } from '@/lib/types';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Loader2, Car, Tag, Building2 } from 'lucide-react';
 import { Separator } from './ui/separator';
@@ -105,6 +106,40 @@ export function VehicleServiceForm() {
       }
   }
 
+  const getPMSCharge = (model: string, service: string): number => {
+    const modelUpper = model.toUpperCase();
+    const serviceKm = parseInt(service.match(/\((\d{1,3}(,\d{3})*|\d+)\s?km\)/)?.[1]?.replace(/,/g, '') || '0', 10);
+
+    let pmsType = '';
+    if (service.includes('Free')) {
+        return 0;
+    }
+    
+    const serviceKmSimple = serviceKm / 1000;
+
+    const pms1pServices = [30, 50, 70, 90, 100, 110];
+    const pms2pServices = [20, 40, 60, 80];
+
+    if (pms1pServices.includes(serviceKmSimple)) {
+        pmsType = `PMS - 1P ${pms1pServices.map(k => `${k}K`).join('/')}`;
+    } else if (pms2pServices.includes(serviceKmSimple)) {
+        pmsType = `PMS - 2P ${pms2pServices.map(k => `${k}K`).join('/')}`;
+    }
+    
+    // Fallback for more complex descriptions in pms-charges
+    const chargeEntry = pmsCharges.find(c =>
+        c.model.toUpperCase() === modelUpper &&
+        c.labourDesc.includes(`${serviceKmSimple}K`)
+    );
+    
+    if (chargeEntry) {
+        return chargeEntry.basicAmt;
+    }
+
+    // A generic fallback if no specific charge is found
+    const fallbackCharge = pmsCharges.find(c => c.model.toUpperCase() === modelUpper);
+    return fallbackCharge ? fallbackCharge.basicAmt : 1500;
+  }
 
   const handleSearch = () => {
     if (!selectedModel || !selectedFuelType || !selectedYear || !selectedService) {
@@ -135,9 +170,27 @@ export function VehicleServiceForm() {
         return;
       }
       
-      const { parts, labor, recommendedLabor, optionalServices } = serviceInfo;
+      const { parts, labor: baseLabor, recommendedLabor, optionalServices } = serviceInfo;
+
+      const updatedLabor: Labor[] = [...baseLabor];
+      const pmsLaborIndex = updatedLabor.findIndex(l => l.name === 'Periodic Maintenance Service');
+      
+      if (pmsLaborIndex !== -1) {
+          const pmsCharge = getPMSCharge(selectedModel, selectedService);
+          if(pmsCharge > 0) {
+            updatedLabor[pmsLaborIndex] = { ...updatedLabor[pmsLaborIndex], charge: pmsCharge };
+          } else {
+            // If PMS charge is 0, remove it unless it's the only labor item
+            if(updatedLabor.length > 1) {
+              updatedLabor.splice(pmsLaborIndex, 1);
+            } else {
+               updatedLabor[pmsLaborIndex] = { ...updatedLabor[pmsLaborIndex], charge: 0 };
+            }
+          }
+      }
+
       const totalPartsPrice = parts.reduce((sum, part) => sum + part.price, 0);
-      const totalLaborCharge = labor.reduce((sum, job) => sum + job.charge, 0);
+      const totalLaborCharge = updatedLabor.reduce((sum, job) => sum + job.charge, 0);
 
       const newEstimate: ServiceEstimateData = {
         vehicle: {
@@ -149,7 +202,7 @@ export function VehicleServiceForm() {
         },
         serviceType: selectedService,
         parts,
-        labor,
+        labor: updatedLabor,
         recommendedLabor: recommendedLabor || [],
         optionalServices: optionalServices || [],
         totalPrice: totalPartsPrice + totalLaborCharge,
@@ -157,7 +210,7 @@ export function VehicleServiceForm() {
       
       setEstimate(newEstimate);
       setIsLoading(false);
-    }, 3500); // Increased timeout to allow animation to play
+    }, 1500);
   };
 
 
@@ -279,3 +332,5 @@ export function VehicleServiceForm() {
     </>
   );
 }
+
+    
