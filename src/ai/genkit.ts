@@ -5,15 +5,15 @@
  * It is not necessary to edit this file to use Genkit.
  * To add a flow, see `src/ai/flows/example-flow.ts`.
  */
-import {genkit} from '@genkit-ai/core';
-import {googleAI} from '@genkit-ai/googleai';
+import { ai, configureGenkit } from 'genkit';
+import { googleAI } from '@genkit-ai/googleai';
 
 // Initialize Genkit with the Google AI plugin.
 // You can specify your project and location, or have it default
 // to the project containing your service account.
 //
 // See: https://firebase.google.com/docs/genkit/plugins#google-ai
-export const ai = genkit({
+configureGenkit({
   plugins: [
     googleAI({
       // The Google AI API key is read from the GOOGLE_GENAI_API_KEY
@@ -24,4 +24,11 @@ export const ai = genkit({
       // https://firebase.google.com/docs/genkit/plugins#google-ai-api-key
     }),
   ],
+  // Log developer-friendly error messages to the console.
+  logLevel: 'debug',
+  // Perform OpenTelemetry instrumentation and enable traces.
+  enableTracingAndMetrics: true,
 });
+
+// Export the configured AI instance.
+export { ai };

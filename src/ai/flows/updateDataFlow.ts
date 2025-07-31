@@ -22,12 +22,10 @@ export async function updateServiceData(data: ServiceData): Promise<z.infer<type
 }
 
 // Define the Genkit flow
-const updateServiceDataFlow = ai.defineFlow(
-  {
-    name: 'updateServiceDataFlow',
-    inputSchema: ServiceDataSchema,
-    outputSchema: UpdateDataOutputSchema,
-  },
+const updateServiceDataFlow = ai.flow(
+  'updateServiceDataFlow',
+  ServiceDataSchema,
+  UpdateDataOutputSchema,
   async (data) => {
     try {
       // Create the string content for the data file
