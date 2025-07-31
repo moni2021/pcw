@@ -24,11 +24,29 @@ const commonServices: Labor[] = [
     { name: 'HEADLAMP FOCUSSING', charge: 400 },
 ];
 
+const serviceTypes = [
+  '1st Free Service (1,000 km)',
+  '2nd Free Service (5,000 km)',
+  '3rd Free Service (10,000 km)',
+  'Paid Service (20,000 km)',
+  'Paid Service (30,000 km)',
+  'Paid Service (40,000 km)',
+  'Paid Service (50,000 km)',
+  'Paid Service (60,000 km)',
+  'Paid Service (70,000 km)',
+  'Paid Service (80,000 km)',
+  'Paid Service (90,000 km)',
+  'Paid Service (100,000 km)',
+  'Paid Service (110,000 km)',
+  'Paid Service (120,000 km)',
+];
+
 export function VehicleServiceForm() {
   const { setTheme } = useTheme();
   const [selectedModel, setSelectedModel] = useState<string>('');
   const [selectedFuelType, setSelectedFuelType] = useState<string>('');
   const [selectedYear, setSelectedYear] = useState<string>('');
+  const [selectedServiceType, setSelectedServiceType] = useState<string>('');
   const [estimate, setEstimate] = useState<ServiceEstimateData | null>(null);
   const [error, setError] = useState<string>('');
   const [isLoading, setIsLoading] = useState(false);
@@ -50,6 +68,7 @@ export function VehicleServiceForm() {
     setSelectedModel(model);
     setSelectedFuelType('');
     setSelectedYear('');
+    setSelectedServiceType('');
     setEstimate(null);
     setError('');
     
@@ -61,18 +80,27 @@ export function VehicleServiceForm() {
   const handleFuelTypeChange = (fuelType: string) => {
     setSelectedFuelType(fuelType);
     setSelectedYear('');
+    setSelectedServiceType('');
     setEstimate(null);
     setError('');
   }
   
   const handleYearChange = (yearStr: string) => {
       setSelectedYear(yearStr);
+      setSelectedServiceType('');
       setEstimate(null);
       setError('');
   }
 
+  const handleServiceTypeChange = (serviceType: string) => {
+    setSelectedServiceType(serviceType);
+    setEstimate(null);
+    setError('');
+  }
+
+
   const handleSearch = () => {
-    if (!selectedModel || !selectedFuelType || !selectedYear) {
+    if (!selectedModel || !selectedFuelType || !selectedYear || !selectedServiceType) {
       setError('Please fill all the fields to get an estimate.');
       setEstimate(null);
       return;
@@ -99,7 +127,7 @@ export function VehicleServiceForm() {
           brand: vehicleInfo.brand,
           category: vehicleInfo.category,
         },
-        serviceType: 'Custom Service',
+        serviceType: selectedServiceType,
         parts: [],
         labor: [],
         recommendedLabor: commonServices,
@@ -182,11 +210,27 @@ export function VehicleServiceForm() {
                 </Select>
             </div>
         </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="service-type">Service Type</Label>
+          <Select onValueChange={handleServiceTypeChange} value={selectedServiceType} disabled={!selectedYear}>
+            <SelectTrigger id="service-type">
+              <SelectValue placeholder="Select Service Type" />
+            </SelectTrigger>
+            <SelectContent>
+              {serviceTypes.map(service => (
+                <SelectItem key={service} value={service}>
+                  {service}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
         
         {error && <Alert variant="destructive"><AlertDescription>{error}</AlertDescription></Alert>}
       </CardContent>
       <CardFooter>
-        <Button onClick={handleSearch} className="w-full" disabled={isLoading || !selectedYear}>
+        <Button onClick={handleSearch} className="w-full" disabled={isLoading || !selectedServiceType}>
            {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : 'Get Estimate'}
         </Button>
       </CardFooter>
