@@ -36,8 +36,8 @@ export default function Home() {
           </div>
         </section>
       </main>
-      <footer className="flex flex-col gap-2 sm:flex-row py-6 w-full shrink-0 items-center px-4 md:px-6 border-t">
-        <p className="text-xs text-muted-foreground">
+      <footer className="flex py-6 w-full shrink-0 items-center justify-center px-4 md:px-6 border-t">
+        <p className="text-xs text-muted-foreground text-center">
           © Maruti Suzuki Service Estimator. An unofficial tool. Prices are indicative. Made By Hiru Mani And His Team
         </p>
       </footer>
