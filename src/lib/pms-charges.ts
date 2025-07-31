@@ -55,6 +55,12 @@ export const pmsCharges = [
   "basicAmt": 1180
  },
  {
+  "model": "EECO CARGO",
+  "labourDesc": "PMS - 1P 30K/50K/70K/90K/100K/110K",
+  "labourCode": "ZE21L0P",
+  "basicAmt": 1180
+ },
+ {
   "model": "EECO K12N 2022",
   "labourDesc": "PMS - 1P 30K/50K/70K/90K/100K/110K",
   "labourCode": "ZE21L0P",
@@ -86,6 +92,12 @@ export const pmsCharges = [
  },
  {
   "model": "EECO",
+  "labourDesc": "PMS - 1P 20K",
+  "labourCode": "ZE61L0P",
+  "basicAmt": 1255
+ },
+ {
+  "model": "EECO CARGO",
   "labourDesc": "PMS - 1P 20K",
   "labourCode": "ZE61L0P",
   "basicAmt": 1255
@@ -296,6 +308,12 @@ export const pmsCharges = [
  },
  {
   "model": "EECO",
+  "labourDesc": "PMS - 2P 20K/40K/60K/80K",
+  "labourCode": "ZE22L0P",
+  "basicAmt": 1295
+ },
+ {
+  "model": "EECO CARGO",
   "labourDesc": "PMS - 2P 20K/40K/60K/80K",
   "labourCode": "ZE22L0P",
   "basicAmt": 1295
@@ -595,6 +613,12 @@ export const pmsCharges = [
   "basicAmt": 1320
  },
  {
+  "model": "EECO CARGO",
+  "labourDesc": "PMS 20/30/40/60/80/90",
+  "labourCode": "ZE25L0P",
+  "basicAmt": 1320
+ },
+ {
   "model": "NEW CELERIO 2021",
   "labourDesc": "PMS 20/30/40/60/80/90",
   "labourCode": "ZE25L0P",
@@ -704,6 +728,12 @@ export const pmsCharges = [
  },
  {
   "model": "EECO",
+  "labourDesc": "PMS 50/70/100",
+  "labourCode": "ZE26L0P",
+  "basicAmt": 1340
+ },
+ {
+  "model": "EECO CARGO",
   "labourDesc": "PMS 50/70/100",
   "labourCode": "ZE26L0P",
   "basicAmt": 1340
@@ -938,6 +968,12 @@ export const pmsCharges = [
  },
  {
   "model": "EECO",
+  "labourDesc": "PMS - 2P 30K",
+  "labourCode": "ZE62L0P",
+  "basicAmt": 1275
+ },
+ {
+  "model": "EECO CARGO",
   "labourDesc": "PMS - 2P 30K",
   "labourCode": "ZE62L0P",
   "basicAmt": 1275
