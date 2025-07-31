@@ -1,3 +1,4 @@
+
 /**
  * @fileoverview This file initializes and configures the Genkit AI toolkit.
  * It sets up the Google AI plugin for use throughout the application.
@@ -5,7 +6,7 @@
  * It is not necessary to edit this file to use Genkit.
  * To add a flow, see `src/ai/flows/example-flow.ts`.
  */
-import { ai, configureGenkit } from 'genkit';
+import { ai, configureGenkit } from '@genkit-ai/core';
 import { googleAI } from '@genkit-ai/googleai';
 
 // Initialize Genkit with the Google AI plugin.
