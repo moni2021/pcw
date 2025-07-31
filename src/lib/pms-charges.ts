@@ -85,10 +85,10 @@ export const pmsCharges = [
   "basicAmt": 1400
  },
  {
-  "model": "MARUTI EECO PETROL",
-  "labourDesc": "PMS - 1P 30K/50K/70K/90K/100K/110K",
-  "labourCode": "ZE21L0P",
-  "basicAmt": 1180
+  "model": "EECO",
+  "labourDesc": "PMS - 1P 20K",
+  "labourCode": "ZE61L0P",
+  "basicAmt": 1255
  },
  {
   "model": "MARUTI GRAND VITARA Smart Hybrid",
@@ -295,7 +295,7 @@ export const pmsCharges = [
   "basicAmt": 1475
  },
  {
-  "model": "MARUTI EECO PETROL",
+  "model": "EECO",
   "labourDesc": "PMS - 2P 20K/40K/60K/80K",
   "labourCode": "ZE22L0P",
   "basicAmt": 1295
@@ -589,7 +589,7 @@ export const pmsCharges = [
   "basicAmt": 1500
  },
  {
-  "model": "MARUTI EECO PETROL",
+  "model": "EECO",
   "labourDesc": "PMS 20/30/40/60/80/90",
   "labourCode": "ZE25L0P",
   "basicAmt": 1320
@@ -703,7 +703,7 @@ export const pmsCharges = [
   "basicAmt": 1520
  },
  {
-  "model": "MARUTI EECO PETROL",
+  "model": "EECO",
   "labourDesc": "PMS 50/70/100",
   "labourCode": "ZE26L0P",
   "basicAmt": 1340
@@ -835,12 +835,6 @@ export const pmsCharges = [
   "basicAmt": 1430
  },
  {
-  "model": "MARUTI EECO PETROL",
-  "labourDesc": "PMS - 1P 20K",
-  "labourCode": "ZE61L0P",
-  "basicAmt": 1255
- },
- {
   "model": "MARUTI GRAND VITARA Smart Hybrid",
   "labourDesc": "PMS - 1P 20K",
   "labourCode": "ZE61L0P",
@@ -943,7 +937,7 @@ export const pmsCharges = [
   "basicAmt": 1455
  },
  {
-  "model": "MARUTI EECO PETROL",
+  "model": "EECO",
   "labourDesc": "PMS - 2P 30K",
   "labourCode": "ZE62L0P",
   "basicAmt": 1275
