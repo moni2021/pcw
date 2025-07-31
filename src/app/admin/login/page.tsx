@@ -25,15 +25,18 @@ export default function LoginPage() {
   const [confirmationResult, setConfirmationResult] = useState<ConfirmationResult | null>(null);
   
   const otpInputs = useRef<(HTMLInputElement | null)[]>([]);
-  const recaptchaContainerRef = useRef<HTMLDivElement>(null);
   
   // This ref will hold the RecaptchaVerifier instance
   const recaptchaVerifierRef = useRef<RecaptchaVerifier | null>(null);
 
+  // This effect sets up the invisible reCAPTCHA container
   useEffect(() => {
-    // Initialize reCAPTCHA only once
-    if (!recaptchaVerifierRef.current && recaptchaContainerRef.current) {
-        recaptchaVerifierRef.current = new RecaptchaVerifier(auth, recaptchaContainerRef.current, {
+    if (!recaptchaVerifierRef.current) {
+        const recaptchaContainer = document.createElement('div');
+        recaptchaContainer.id = 'recaptcha-container';
+        document.body.appendChild(recaptchaContainer);
+
+        recaptchaVerifierRef.current = new RecaptchaVerifier(auth, recaptchaContainer, {
             'size': 'invisible',
             'callback': () => {
               // reCAPTCHA solved, allow signInWithPhoneNumber.
@@ -53,7 +56,7 @@ export default function LoginPage() {
     }
     
     if (!recaptchaVerifierRef.current) {
-        setError("reCAPTCHA not initialized. Please try again in a moment.");
+        setError("reCAPTCHA not initialized. Please refresh the page and try again.");
         return;
     }
     
@@ -70,13 +73,8 @@ export default function LoginPage() {
         })
     } catch (err: any) {
         console.error("Firebase Auth Error:", err);
-        // Reset reCAPTCHA on error
-        if (recaptchaVerifierRef.current) {
-            recaptchaVerifierRef.current.render().then((widgetId) => {
-                 // @ts-ignore
-                grecaptcha.reset(widgetId);
-            });
-        }
+        // It's often better to just inform the user and let them retry,
+        // as reCAPTCHA handles its own reset logic internally on subsequent attempts.
         setError(err.message || 'Failed to send OTP. Please try again.');
     } finally {
         setIsLoading(false);
@@ -129,7 +127,6 @@ export default function LoginPage() {
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-center p-4 bg-gray-50 dark:bg-gray-900">
-      <div id="recaptcha-container" ref={recaptchaContainerRef}></div>
       <Card className="w-full max-w-md shadow-xl">
         <CardHeader className="text-center">
           <CardTitle className="text-2xl">Admin Login</CardTitle>

@@ -65,7 +65,7 @@ export default function AdminPage() {
     }
   };
   
-    const handleDataChange = (serviceType: string, itemType: 'parts' | 'labor' | 'recommendedLabor' | 'optionalServices', index: number, field: 'name' | 'price' | 'charge', value: string) => {
+    const handleDataChange = (serviceType: string, itemType: 'parts' | 'labor' | 'recommendedLabor' | 'optionalServices', index: number, field: 'name' | 'price' | 'charge', value: string | number) => {
         const updatedData = { ...editableServiceData };
         const service = updatedData[serviceType] as Service;
         const items = service[itemType];
@@ -73,9 +73,9 @@ export default function AdminPage() {
         const item = items[index];
 
         if (field === 'name') {
-            item.name = value;
+            item.name = String(value);
         } else if ((field === 'price' && itemType === 'parts') || (field === 'charge' && (itemType === 'labor' || itemType === 'recommendedLabor' || itemType === 'optionalServices'))) {
-            (item as any)[field] = parseFloat(value) || 0;
+            (item as any)[field] = parseFloat(String(value)) || 0;
         }
         
         setEditableServiceData(updatedData);
