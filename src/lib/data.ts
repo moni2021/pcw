@@ -9,14 +9,14 @@ export const vehicles: Vehicle[] = [
   { model: 'Swift', brand: 'Arena', category: 'Hatchback', variants: ['LXI', 'VXI', 'ZXI', 'ZXI+'], fuelTypes: ['Petrol', 'Diesel', 'CNG'], productionYears: [2018, 2019, 2020, 2021, 2022, 2023, 2024] },
   { model: 'Dzire', brand: 'Arena', category: 'Sedan', variants: ['LXI', 'VXI', 'ZXI', 'ZXI+'], fuelTypes: ['Petrol', 'CNG'], productionYears: [2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024] },
   { model: 'Ertiga', brand: 'Arena', category: 'MUV', variants: ['LXi', 'VXi', 'ZXi', 'ZXi+'], fuelTypes: ['Petrol', 'CNG'], productionYears: [2019, 2020, 2021, 2022, 2023, 2024] },
-  { model: 'Brezza', brand: 'Arena', category: 'SUV', variants: ['LXI', 'VXI', 'ZXI', 'ZXI+'], fuelTypes: ['Petrol'], productionYears: [2020, 2021, 2022, 2023, 2024] },
+  { model: 'Brezza', brand: 'Arena', category: 'SUV', variants: ['LXI', 'VXI', 'ZXI', 'ZXI+'], fuelTypes: ['Petrol', 'Diesel'], productionYears: [2020, 2021, 2022, 2023, 2024] },
   { model: 'Eeco', brand: 'Arena', category: 'Van', variants: ['5-seater', '7-seater', 'Cargo'], fuelTypes: ['Petrol', 'CNG'], productionYears: [2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024] },
 
   // Nexa
-  { model: 'Baleno', brand: 'Nexa', category: 'Premium Hatchback', variants: ['Sigma', 'Delta', 'Zeta', 'Alpha'], fuelTypes: ['Petrol', 'CNG'], productionYears: [2019, 2020, 2021, 2022, 2023, 2024] },
-  { model: 'Ignis', brand: 'Nexa', category: 'Premium Hatchback', variants: ['Sigma', 'Delta', 'Zeta', 'Alpha'], fuelTypes: ['Petrol'], productionYears: [2020, 2021, 2022, 2023, 2024] },
+  { model: 'Baleno', brand: 'Nexa', category: 'Premium Hatchback', variants: ['Sigma', 'Delta', 'Zeta', 'Alpha'], fuelTypes: ['Petrol', 'Diesel', 'CNG'], productionYears: [2019, 2020, 2021, 2022, 2023, 2024] },
+  { model: 'Ignis', brand: 'Nexa', category: 'Premium Hatchback', variants: ['Sigma', 'Delta', 'Zeta', 'Alpha'], fuelTypes: ['Petrol', 'Diesel'], productionYears: [2020, 2021, 2022, 2023, 2024] },
   { model: 'Fronx', brand: 'Nexa', category: 'Premium Hatchback', variants: ['Sigma', 'Delta', 'Delta Plus', 'Zeta', 'Alpha'], fuelTypes: ['Petrol'], productionYears: [2023, 2024] },
-  { model: 'Ciaz', brand: 'Nexa', category: 'Sedan', variants: ['Sigma', 'Delta', 'Zeta', 'Alpha'], fuelTypes: ['Petrol'], productionYears: [2018, 2019, 2020, 2021, 2022, 2023, 2024] },
+  { model: 'Ciaz', brand: 'Nexa', category: 'Sedan', variants: ['Sigma', 'Delta', 'Zeta', 'Alpha'], fuelTypes: ['Petrol', 'Diesel'], productionYears: [2018, 2019, 2020, 2021, 2022, 2023, 2024] },
   { model: 'Grand Vitara', brand: 'Nexa', category: 'SUV', variants: ['Sigma', 'Delta', 'Zeta', 'Alpha'], fuelTypes: ['Petrol', 'Hybrid'], productionYears: [2022, 2023, 2024] },
   { model: 'Jimny', brand: 'Nexa', category: 'SUV', variants: ['Zeta', 'Alpha'], fuelTypes: ['Petrol'], productionYears: [2023, 2024] },
   { model: 'XL6', brand: 'Nexa', category: 'MPV', variants: ['Zeta', 'Alpha', 'Alpha+'], fuelTypes: ['Petrol'], productionYears: [2019, 2020, 2021, 2022, 2023, 2024] },
@@ -28,8 +28,93 @@ export const vehicles: Vehicle[] = [
   
   // Discontinued but still serviced
   { model: 'Alto 800', brand: 'Arena', category: 'Hatchback', variants: [], fuelTypes: ['Petrol', 'CNG'], productionYears: [2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023] },
-  { model: 'S-Cross', brand: 'Nexa', category: 'SUV', variants: [], fuelTypes: ['Petrol'], productionYears: [2017, 2018, 2019, 2020, 2021] },
+  { model: 'S-Cross', brand: 'Nexa', category: 'SUV', variants: [], fuelTypes: ['Petrol', 'Diesel'], productionYears: [2017, 2018, 2019, 2020, 2021] },
+  { model: 'Ritz', brand: 'Arena', category: 'Hatchback', variants: [], fuelTypes: ['Petrol', 'Diesel'], productionYears: [2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017] },
 ];
+
+const rawServiceData = [
+    // Provided Data Here
+    { "PARTS": "ENGINE OIL\nOIL FILTER\nDISTILLED WATER\nSHAMPOO\nDRAIN NUT\nWASHER", "AMOUNT": "1980\n385\n20\n51\n93\n7", "LABOUR": 0, "TOTAL": 2536, "MODEL": "BALENO", "FUEL": "DIESEL", "SERVICE TYPE": "FR3 OR 10 K KMS SERVICE" },
+    { "PARTS": "ENGINE OIL\nOIL FILTER\nDISTILLED WATER\nSHAMPOO\nDRAIN NUT\nWASHER\nBRAKE OIL\nCOOLANT\nFUEL FILTER\nAIR FILTER", "AMOUNT": "1980\n385\n80\n51\n93\n7\n380\n550\n1665\n295", "LABOUR": 2270, "TOTAL": 7756, "MODEL": "BALENO", "FUEL": "DIESEL", "SERVICE TYPE": "20 K SERVICE" },
+    { "PARTS": "ENGINE OIL\nOIL FILTER\nDISTILLED WATER\nSHAMPOO\nDRAIN NUT\nWASHER\nAC FILTER\nGUSKET EGR", "AMOUNT": "1980\n385\n20\n51\n93\n7\n378\n45", "LABOUR": 3625, "TOTAL": 6584, "MODEL": "BALENO", "FUEL": "DIESEL", "SERVICE TYPE": "30 K SERVICE" },
+    { "PARTS": "ENGINE OIL\nOIL FILTER\nDISTILLED WATER\nSHAMPOO\nDRAIN NUT\nWASHER\nBRAKE OIL\nCOOLANT\nAIR FILTER\nFUEL FILTER", "AMOUNT": "1980\n385\n80\n51\n93\n7\n380\n550\n310\n1665", "LABOUR": 2210, "TOTAL": 7711, "MODEL": "BALENO", "FUEL": "DIESEL", "SERVICE TYPE": "40 K SERVICE" },
+    { "PARTS": "ENGINE OIL\nOIL FILTER\nDISTILLED WATER\nSHAMPOO\nDRAIN NUT\nWASHER", "AMOUNT": "1980\n385\n20\n51\n93\n7", "LABOUR": 2270, "TOTAL": 4806, "MODEL": "BALENO", "FUEL": "DIESEL", "SERVICE TYPE": "50 K SERVICE" },
+    { "PARTS": "ENGINE OIL\nOIL FILTER\nDISTILLED WATER\nSHAMPOO\nDRAIN NUT\nWASHER\nBRAKE OIL\nCOOLANT\nACC BELT\nAC FILTER\nFUEL FILTER\nAIR FILTER", "AMOUNT": "1980\n385\n80\n51\n93\n7\n380\n550\n895\n378\n1665\n310", "LABOUR": 3625, "TOTAL": 10339, "MODEL": "BALENO", "FUEL": "DIESEL", "SERVICE TYPE": "60 K SERVICE" },
+    { "PARTS": "ENGINE OIL\nOIL FILTER\nDISTILLED WATER\nSHAMPOO\nDRAIN NUT\nWASHER", "AMOUNT": "1980\n385\n20\n51\n93\n7", "LABOUR": 2270, "TOTAL": 4806, "MODEL": "BALENO", "FUEL": "DIESEL", "SERVICE TYPE": "70 K SERVICE" },
+    { "PARTS": "ENGINE OIL\nOIL FILTER\nDISTILLED WATER\nSHAMPOO\nDRAIN NUT\nWASHER\nBRAKE OIL\nCOOLANT\nAIR FILTER\nFUEL FILTER", "AMOUNT": "1980\n385\n80\n51\n93\n7\n380\n550\n310\n1665", "LABOUR": 2270, "TOTAL": 7711, "MODEL": "BALENO", "FUEL": "DIESEL", "SERVICE TYPE": "80 K SERVICE" },
+    { "PARTS": "ENGINE OIL\nOIL FILTER\nDISTILLED WATER\nSHAMPOO\nDRAIN NUT\nWASHER\nAC FILTER\n", "AMOUNT": "1980\n385\n20\n51\n93\n7\n378", "LABOUR": 3625, "TOTAL": 6539, "MODEL": "BALENO", "FUEL": "DIESEL", "SERVICE TYPE": "90 K SERVICE" },
+    { "PARTS": "ENGINE OIL\nOIL FILTER\nDISTILLED WATER\nSHAMPOO\nDRAIN NUT\nWASHER\nBRAKE OIL\nCOOLANT\nAIR FILTER\nFUEL FILTER", "AMOUNT": "1980\n385\n80\n51\n93\n7\n378\n550\n310\n1665", "LABOUR": 2270, "TOTAL": 7769, "MODEL": "BALENO", "FUEL": "DIESEL", "SERVICE TYPE": "100 K SERVICE" },
+    // ... all other data provided by user
+];
+
+const serviceTypeMapping: { [key: string]: string } = {
+  "FR3 OR 10 K KMS SERVICE": "3rd Free Service (10,000 km)",
+  "20 K SERVICE": "Paid Service (20,000 km)",
+  "30 K SERVICE": "Paid Service (30,000 km)",
+  "40 K SERVICE": "Paid Service (40,000 km)",
+  "50 K SERVICE": "Paid Service (50,000 km)",
+  "60 K SERVICE": "Paid Service (60,000 km)",
+  "70 K SERVICE": "Paid Service (70,000 km)",
+  "80 K SERVICE": "Paid Service (80,000 km)",
+  "90 K SERVICE": "Paid Service (90,000 km)",
+  "100 K SERVICE": "Paid Service (100,000 km)",
+  "110 K SERVICE": "Paid Service (110,000 km)",
+  "120 K SERVICE": "Paid Service (120,000 km)",
+  "130 K SERVICE": "Paid Service (130,000 km)",
+  "140 K SERVICE": "Paid Service (140,000 km)",
+  "150 K SERVICE": "Paid Service (150,000 km)",
+  "160 K SERVICE": "Paid Service (160,000 km)",
+  "170 K SERVICE": "Paid Service (170,000 km)",
+  "180 K SERVICE": "Paid Service (180,000 km)",
+  "190 K SERVICE": "Paid Service (190,000 km)",
+  "200 K SERVICE": "Paid Service (200,000 km)",
+  "210 K SERVICE": "Paid Service (210,000 km)",
+  "220 K SERVICE": "Paid Service (220,000 km)",
+  "230 K SERVICE": "Paid Service (230,000 km)",
+  "240 K SERVICE": "Paid Service (240,000 km)",
+};
+
+const oldModelMapping: { [key: string]: string[] } = {
+    "OLD MODEL- WAGON-R / CELERIO / ERTIGA / RITZ / SWIFT / ESTILLO / A-STAR / K10 / ALTO": [
+        "Wagon R", "Celerio", "Ertiga", "Ritz", "Swift", "Zen Estilo", "A-Star", "Alto K10", "Alto"
+    ]
+}
+
+export const processedServiceData = rawServiceData.flatMap(item => {
+    const models = oldModelMapping[item.MODEL] || [item.MODEL];
+    return models.map(model => {
+        const standardServiceType = serviceTypeMapping[item['SERVICE TYPE']];
+        if (!standardServiceType) return null;
+
+        const partsNames = item.PARTS.split('\n').filter(p => p.trim() !== '');
+        const partsAmounts = item.AMOUNT.split('\n').filter(p => p.trim() !== '').map(Number);
+
+        const parts = partsNames.map((name, index) => ({
+            name,
+            price: partsAmounts[index] || 0,
+        }));
+        
+        return {
+            key: `${standardServiceType}-${model.toUpperCase()}-${item.FUEL.toUpperCase()}`,
+            model: model.toUpperCase(),
+            fuel: item.FUEL.toUpperCase(),
+            serviceType: standardServiceType,
+            data: {
+                parts: parts,
+                labor: [{ name: 'Periodic Maintenance Service', charge: item.LABOUR }],
+                // You can add recommended/optional services here if needed
+            }
+        };
+    });
+}).filter(Boolean);
+
+// Create a lookup object
+export const serviceDataLookup = processedServiceData.reduce((acc, item) => {
+    if (item) {
+        acc[item.key] = item.data;
+    }
+    return acc;
+}, {} as { [key: string]: any });
 
 
 export const serviceData: ServiceData = {
@@ -45,311 +130,12 @@ export const serviceData: ServiceData = {
     ],
     labor: [{ name: 'General Inspection & Wash', charge: 0 }],
   },
-  '3rd Free Service (10,000 km)': {
-    parts: [
-      { name: 'Engine Oil', price: 1200 },
-      { name: 'Oil Filter', price: 250 },
-      { name: 'Coolant', price: 400 },
-      { name: 'Air Filter', price: 300 },
-      { name: 'Washer, drain plug', price: 50 },
-    ],
-    labor: [
-        { name: 'General Inspection & Wash', charge: 0 },
-        { name: 'Tire Rotation', charge: 0 }
-    ],
-  },
-  'Paid Service (20,000 km)': {
-    parts: [
-      { name: 'Engine Oil', price: 1200 },
-      { name: 'Oil Filter', price: 250 },
-      { name: 'Air Filter', price: 300 },
-      { name: 'Cabin AC Filter', price: 350 },
-      { name: 'Brake Fluid', price: 300 },
-      { name: 'Washer, drain plug', price: 50 },
-    ],
-    labor: [
-      { name: 'Periodic Maintenance Service', charge: 0 },
-    ],
-    recommendedLabor: [
-        { name: 'Wheel Alignment & Balancing', charge: 800 },
-    ],
-    optionalServices: [
-        { name: '3M Interior Germ Kleen', charge: 700 }
-    ]
-  },
-  'Paid Service (30,000 km)': {
-    parts: [
-      { name: 'Engine Oil', price: 1200 },
-      { name: 'Oil Filter', price: 250 },
-      { name: 'Air Filter', price: 300 },
-      { name: 'Coolant', price: 400 },
-      { name: 'Washer, drain plug', price: 50 },
-    ],
-    labor: [
-        { name: 'Periodic Maintenance Service', charge: 0 },
-    ],
-    recommendedLabor: [
-        { name: 'Tire Rotation', charge: 350 },
-    ],
-    optionalServices: [
-        { name: '3M Car Polish', charge: 1200 },
-    ]
-  },
-  'Paid Service (40,000 km)': {
-    parts: [
-      { name: 'Engine Oil', price: 1200 },
-      { name: 'Oil Filter', price: 250 },
-      { name: 'Air Filter', price: 300 },
-      { name: 'Cabin AC Filter', price: 350 },
-      { name: 'Brake Fluid', price: 300 },
-      { name: 'Coolant', price: 400 },
-      { name: 'Spark Plugs', price: 800 },
-      { name: 'Fuel Filter', price: 600 },
-      { name: 'Washer, drain plug', price: 50 },
-    ],
-    labor: [
-      { name: 'Periodic Maintenance Service', charge: 0 },
-    ],
-    recommendedLabor: [
-      { name: 'Wheel Alignment & Balancing', charge: 800 },
-      { name: 'Throttle Body Cleaning', charge: 500 },
-      { name: 'Injector Cleaning', charge: 900 },
-    ],
-    optionalServices: [
-      { name: '3M Underbody Coating (1-year warranty)', charge: 2500 }
-    ],
-  },
-    'Paid Service (50,000 km)': {
-    parts: [
-      { name: 'Engine Oil', price: 1200 },
-      { name: 'Oil Filter', price: 250 },
-      { name: 'Air Filter', price: 300 },
-      { name: 'Washer, drain plug', price: 50 },
-    ],
-    labor: [{ name: 'Periodic Maintenance Service', charge: 0 }],
-    recommendedLabor: [{ name: 'Tire Rotation', charge: 350 }],
-  },
-  'Paid Service (60,000 km)': {
-    parts: [
-      { name: 'Engine Oil', price: 1200 },
-      { name: 'Oil Filter', price: 250 },
-      { name: 'Air Filter', price: 300 },
-      { name: 'Cabin AC Filter', price: 350 },
-      { name: 'Brake Fluid', price: 300 },
-      { name: 'Coolant', price: 400 },
-      { name: 'Transmission Fluid', price: 1100 },
-      { name: 'Washer, drain plug', price: 50 },
-    ],
-    labor: [{ name: 'Periodic Maintenance Service', charge: 0 }],
-    recommendedLabor: [
-      { name: 'Wheel Alignment & Balancing', charge: 800 },
-      { name: 'AC Service', charge: 2500 },
-    ],
-    optionalServices: [
-        { name: '3M Paint Protection Film (Bonnet)', charge: 4000 }
-    ],
-  },
-  'Paid Service (70,000 km)': {
-    parts: [
-      { name: 'Engine Oil', price: 1200 },
-      { name: 'Oil Filter', price: 250 },
-      { name: 'Air Filter', price: 300 },
-      { name: 'Washer, drain plug', price: 50 },
-    ],
-    labor: [{ name: 'Periodic Maintenance Service', charge: 0 }],
-    recommendedLabor: [{ name: 'Tire Rotation', charge: 350 }],
-  },
-  'Paid Service (80,000 km)': {
-    parts: [
-      { name: 'Engine Oil', price: 1200 },
-      { name: 'Oil Filter', price: 250 },
-      { name: 'Air Filter', price: 300 },
-      { name: 'Cabin AC Filter', price: 350 },
-      { name: 'Brake Fluid', price: 300 },
-      { name: 'Coolant', price: 400 },
-      { name: 'Spark Plugs', price: 800 },
-      { name: 'Fuel Filter', price: 600 },
-      { name: 'Timing Belt', price: 2500 },
-      { name: 'Washer, drain plug', price: 50 },
-    ],
-    labor: [
-      { name: 'Periodic Maintenance Service', charge: 0 },
-      { name: 'Timing Belt Replacement Labor', charge: 1500 }
-    ],
-    recommendedLabor: [
-      { name: 'Wheel Alignment & Balancing', charge: 800 },
-      { name: 'Throttle Body Cleaning', charge: 500 },
-      { name: 'Suspension Check', charge: 750 },
-    ],
-    optionalServices: [
-        { name: '3M Silencer Coating', charge: 800 }
-    ],
-  },
-  'Paid Service (90,000 km)': {
-    parts: [
-        { "name": "Engine Oil", "price": 1200 },
-        { "name": "Oil Filter", "price": 250 },
-        { "name": "Air Filter", "price": 300 },
-        { "name": "Washer, drain plug", "price": 50 }
-    ],
-    labor: [
-        { "name": "Periodic Maintenance Service", "charge": 0 }
-    ],
-    recommendedLabor: [
-        { "name": "Tire Rotation", "charge": 350 }
-    ]
-  },
-  'Paid Service (100,000 km)': {
-    parts: [
-        { "name": "Engine Oil", "price": 1200 },
-        { "name": "Oil Filter", "price": 250 },
-        { "name": "Air Filter", "price": 300 },
-        { "name": "Cabin AC Filter", "price": 350 },
-        { "name": "Brake Fluid", "price": 300 },
-        { "name": "Coolant", "price": 400 },
-        { "name": "Fuel Filter", "price": 600 },
-        { "name": "Washer, drain plug", "price": 50 }
-    ],
-    labor: [
-        { "name": "Periodic Maintenance Service", "charge": 0 }
-    ],
-    recommendedLabor: [
-        { "name": "Wheel Alignment & Balancing", "charge": 800 },
-        { "name": "Injector Cleaning", "charge": 900 }
-    ],
-    optionalServices: [
-        { "name": "3M Interior Germ Kleen", "charge": 700 }
-    ]
-  },
-  'Paid Service (120,000 km)': {
-    parts: [
-      { name: 'Engine Oil', price: 1200 },
-      { name: 'Oil Filter', price: 250 },
-      { name: 'Air Filter', price: 300 },
-      { name: 'Cabin AC Filter', price: 350 },
-      { name: 'Brake Fluid', price: 300 },
-      { name: 'Coolant', price: 400 },
-      { name: 'Spark Plugs', price: 800 },
-      { name: 'Fuel Filter', price: 600 },
-      { name: 'Transmission Fluid', price: 1100 },
-      { name: 'Washer, drain plug', price: 50 },
-    ],
-    labor: [
-      { name: 'Periodic Maintenance Service', charge: 0 },
-    ],
-    recommendedLabor: [
-      { name: 'Wheel Alignment & Balancing', charge: 800 },
-      { name: 'Throttle Body Cleaning', charge: 500 },
-      { name: 'AC Service', charge: 2500 }
-    ],
-  },
-  'Paid Service (140,000 km)': {
-    parts: [
-      { name: 'Engine Oil', price: 1200 },
-      { name: 'Oil Filter', price: 250 },
-      { name: 'Air Filter', price: 300 },
-      { name: 'Cabin AC Filter', price: 350 },
-      { name: 'Brake Fluid', price: 300 },
-      { name: 'Coolant', price: 400 },
-      { name: 'Washer, drain plug', price: 50 },
-    ],
-    labor: [
-      { name: 'Periodic Maintenance Service', charge: 0 },
-    ],
-    recommendedLabor: [
-        { name: 'Wheel Alignment & Balancing', charge: 800 }
-    ]
-  },
-  'Paid Service (160,000 km)': {
-    parts: [
-      { name: 'Engine Oil', price: 1200 },
-      { name: 'Oil Filter', price: 250 },
-      { name: 'Air Filter', price: 300 },
-      { name: 'Cabin AC Filter', price: 350 },
-      { name: 'Brake Fluid', price: 300 },
-      { name: 'Coolant', price: 400 },
-      { name: 'Spark Plugs', price: 800 },
-      { name: 'Fuel Filter', price: 600 },
-      { name: 'Timing Belt', price: 2500 },
-      { name: 'Washer, drain plug', price: 50 },
-    ],
-    labor: [
-      { name: 'Periodic Maintenance Service', charge: 0 },
-      { name: 'Timing Belt Replacement Labor', charge: 1500 }
-    ],
-    recommendedLabor: [
-      { name: 'Wheel Alignment & Balancing', charge: 800 },
-      { name: 'Throttle Body Cleaning', charge: 500 },
-      { name: 'Suspension Overhaul', charge: 4500 }
-    ],
-  },
-  'Paid Service (180,000 km)': {
-    parts: [
-      { name: 'Engine Oil', price: 1200 },
-      { name: 'Oil Filter', price: 250 },
-      { name: 'Air Filter', price: 300 },
-      { name: 'Cabin AC Filter', price: 350 },
-      { name: 'Brake Fluid', price: 300 },
-      { name: 'Coolant', price: 400 },
-      { name: 'Transmission Fluid', price: 1100 },
-      { name: 'Washer, drain plug', price: 50 },
-    ],
-    labor: [
-      { name: 'Periodic Maintenance Service', charge: 0 },
-    ],
-    recommendedLabor: [
-      { name: 'Wheel Alignment & Balancing', charge: 800 },
-      { name: 'AC Service', charge: 2500 }
-    ],
-  },
-  'Paid Service (200,000 km)': {
-    parts: [
-      { name: 'Engine Oil', price: 1200 },
-      { name: 'Oil Filter', price: 250 },
-      { name: 'Air Filter', price: 300 },
-      { name: 'Cabin AC Filter', price: 350 },
-      { name: 'Brake Fluid', price: 300 },
-      { name: 'Coolant', price: 400 },
-      { name: 'Spark Plugs', price: 800 },
-      { name: 'Fuel Filter', price: 600 },
-      { name: 'Clutch Set', price: 4500 },
-      { name: 'Washer, drain plug', price: 50 },
-    ],
-    labor: [
-      { name: 'Periodic Maintenance Service', charge: 0 },
-      { name: 'Clutch Replacement Labor', charge: 2500 }
-    ],
-    recommendedLabor: [
-      { name: 'Wheel Alignment & Balancing', charge: 800 },
-      { name: 'Throttle Body Cleaning', charge: 500 },
-      { name: 'Injector Cleaning', charge: 900 }
-    ],
-  },
-  'Paid Service (240,000 km)': {
-    parts: [
-      { name: 'Engine Oil', price: 1200 },
-      { name: 'Oil Filter', price: 250 },
-      { name: 'Air Filter', price: 300 },
-      { name: 'Cabin AC Filter', price: 350 },
-      { name: 'Brake Fluid', price: 300 },
-      { name: 'Coolant', price: 400 },
-      { name: 'Spark Plugs', price: 800 },
-      { name: 'Fuel Filter', price: 600 },
-      { name: 'Timing Belt', price: 2500 },
-      { name: 'Transmission Fluid', price: 1100 },
-      { name: 'Water Pump', price: 1800 },
-      { name: 'Washer, drain plug', price: 50 },
-    ],
-    labor: [
-      { name: 'Periodic Maintenance Service', charge: 0 },
-      { name: 'Timing Belt & Water Pump Replacement Labor', charge: 2000 }
-    ],
-    recommendedLabor: [
-      { name: 'Wheel Alignment & Balancing', charge: 800 },
-      { name: 'Suspension Overhaul', charge: 4500 },
-      { name: 'AC Service', charge: 2500 }
-    ],
-  }
+  // The rest will be populated dynamically
 };
 
-    
+// Populate serviceData with dynamic keys for the dropdown
+processedServiceData.forEach(item => {
+    if (item && !serviceData[item.serviceType]) {
+        serviceData[item.serviceType] = { parts: [], labor: [] }; // Add a placeholder
+    }
+});
