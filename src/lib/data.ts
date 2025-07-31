@@ -34,42 +34,34 @@ export const vehicles: Vehicle[] = [
 ];
 
 const rawServiceData: any[] = [
-    {"PARTS": "ENGINE OIL\nOIL FILTER\nDISTILLED WATER\nSHAMPOO", "AMOUNT": "1350\n95\n20\n54", "MODEL": "Wagon R", "FUEL": "PETROL", "SERVICE TYPE": "3rd Free Service (10,000 km)"},
-    {"PARTS": "ENGINE OIL\nOIL FILTER\nDISTILLED WATER\nSHAMPOO\nDRAIN NUT\nWASHER\nBRAKE OIL\nCOOLANT", "AMOUNT": "1350\n95\n80\n54\n80\n7\n380\n280", "MODEL": "Wagon R", "FUEL": "PETROL", "SERVICE TYPE": "Paid Service (20,000 km)"},
-    {"PARTS": "ENGINE OIL\nOIL FILTER\nDISTILLED WATER\nSHAMPOO\nDRAIN NUT\nWASHER", "AMOUNT": "1350\n95\n20\n54\n80\n7", "MODEL": "Wagon R", "FUEL": "PETROL", "SERVICE TYPE": "Paid Service (30,000 km)"},
-    {"PARTS": "ENGINE OIL\nOIL FILTER\nDISTILLED WATER\nSHAMPOO\nDRAIN NUT\nWASHER\nBRAKE OIL\nCOOLANT\nSPARK-PLUGS\nAIR FILTER\nFUEL-FILTER\nGEAR OIL", "AMOUNT": "1350\n95\n80\n54\n80\n7\n380\n280\n820\n280\n325\n1000", "MODEL": "Wagon R", "FUEL": "PETROL", "SERVICE TYPE": "Paid Service (40,000 km)"},
-    {"PARTS": "ENGINE OIL\nOIL FILTER\nDISTILLED WATER\nSHAMPOO", "AMOUNT": "1350\n95\n20\n54", "MODEL": "Celerio", "FUEL": "PETROL", "SERVICE TYPE": "3rd Free Service (10,000 km)"},
-    {"PARTS": "ENGINE OIL\nOIL FILTER\nDISTILLED WATER\nSHAMPOO\nDRAIN NUT\nWASHER\nBRAKE OIL\nCOOLANT", "AMOUNT": "1350\n95\n80\n54\n80\n7\n380\n280", "MODEL": "Celerio", "FUEL": "PETROL", "SERVICE TYPE": "Paid Service (20,000 km)"},
-    {"PARTS": "ENGINE OIL\nOIL FILTER\nDISTILLED WATER\nSHAMPOO", "AMOUNT": "2100\n450\n20\n54", "MODEL": "Swift", "FUEL": "DIESEL", "SERVICE TYPE": "3rd Free Service (10,000 km)"},
-    {"PARTS": "ENGINE OIL\nOIL FILTER\nDISTILLED WATER\nSHAMPOO\nBRAKE OIL\nCOOLANT\nAIR FILTER", "AMOUNT": "2100\n450\n80\n54\n380\n280\n480", "MODEL": "Swift", "FUEL": "DIESEL", "SERVICE TYPE": "Paid Service (20,000 km)"},
-    {"PARTS": "ENGINE OIL\nOIL FILTER\nDISTILLED WATER\nSHAMPOO", "AMOUNT": "1350\n95\n20\n54", "MODEL": "Swift", "FUEL": "PETROL", "SERVICE TYPE": "3rd Free Service (10,000 km)"},
-    {"PARTS": "ENGINE OIL\nOIL FILTER\nDISTILLED WATER\nSHAMPOO\nDRAIN NUT\nWASHER\nBRAKE OIL\nCOOLANT", "AMOUNT": "1350\n95\n80\n54\n80\n7\n380\n280", "MODEL": "Swift", "FUEL": "PETROL", "SERVICE TYPE": "Paid Service (20,000 km)"},
-    {"PARTS": "ENGINE OIL\nOIL FILTER\nDISTILLED WATER\nSHAMPOO", "AMOUNT": "1350\n95\n20\n54", "MODEL": "Baleno", "FUEL": "PETROL", "SERVICE TYPE": "3rd Free Service (10,000 km)"},
-    {"PARTS": "ENGINE OIL\nOIL FILTER\nDISTILLED WATER\nSHAMPOO\nDRAIN NUT\nWASHER\nBRAKE OIL\nCOOLANT", "AMOUNT": "1350\n95\n80\n54\n80\n7\n380\n280", "MODEL": "Baleno", "FUEL": "PETROL", "SERVICE TYPE": "Paid Service (20,000 km)"},
-    {"PARTS": "ENGINE OIL\nOIL FILTER\nDISTILLED WATER\nSHAMPOO", "AMOUNT": "2100\n450\n20\n54", "MODEL": "Brezza", "FUEL": "DIESEL", "SERVICE TYPE": "3rd Free Service (10,000 km)"},
-    {"PARTS": "ENGINE OIL\nOIL FILTER\nDISTILLED WATER\nSHAMPOO\nBRAKE OIL\nCOOLANT\nAIR FILTER", "AMOUNT": "2100\n450\n80\n54\n380\n280\n480", "MODEL": "Brezza", "FUEL": "DIESEL", "SERVICE TYPE": "Paid Service (20,000 km)"},
-    {"PARTS": "ENGINE OIL\nOIL FILTER\nDISTILLED WATER\nSHAMPOO", "AMOUNT": "1350\n95\n20\n54", "MODEL": "Brezza", "FUEL": "PETROL", "SERVICE TYPE": "3rd Free Service (10,000 km)"},
-    {"PARTS": "ENGINE OIL\nOIL FILTER\nDISTILLED WATER\nSHAMPOO\nDRAIN NUT\nWASHER\nBRAKE OIL\nCOOLANT", "AMOUNT": "1350\n95\n80\n54\n80\n7\n380\n280", "MODEL": "Brezza", "FUEL": "PETROL", "SERVICE TYPE": "Paid Service (20,000 km)"},
-    {"PARTS": "ENGINE OIL\nOIL FILTER\nDISTILLED WATER\nSHAMPOO\nDRAIN NUT\nWASHER", "AMOUNT": "1807\n95\n20\n54\n80\n7", "MODEL": "Eeco", "FUEL": "PETROL", "SERVICE TYPE": "3rd Free Service (10,000 km)"},
-    {"PARTS": "ENGINE OIL\nOIL FILTER\nDISTILLED WATER\nSHAMPOO\nDRAIN NUT\nWASHER\nCOOLANT\nBRAKE FLUID", "AMOUNT": "1807\n95\n80\n54\n80\n7\n280\n380", "MODEL": "Eeco", "FUEL": "PETROL", "SERVICE TYPE": "Paid Service (20,000 km)"},
-    {"PARTS": "ENGINE OIL\nOIL FILTER\nDISTILLED WATER\nSHAMPOO\nDRAIN NUT\nWASHER", "AMOUNT": "1807\n95\n20\n54\n80\n7", "MODEL": "Eeco", "FUEL": "PETROL", "SERVICE TYPE": "Paid Service (30,000 km)"},
-    {"PARTS": "ENGINE OIL\nOIL FILTER\nDISTILLED WATER\nSHAMPOO\nDRAIN NUT\nWASHER\nCOOLANT\nBRAKE FLUID\nSPARK-PLUGS\nAIR FILTER\nFUEL-FILTER", "AMOUNT": "1807\n95\n80\n54\n80\n7\n280\n380\n820\n280\n325", "MODEL": "Eeco", "FUEL": "PETROL", "SERVICE TYPE": "Paid Service (40,000 km)"},
-    {"PARTS": "ENGINE OIL\nOIL FILTER\nDISTILLED WATER\nSHAMPOO\nDRAIN NUT\nWASHER", "AMOUNT": "1807\n95\n20\n54\n80\n7", "MODEL": "Eeco", "FUEL": "PETROL", "SERVICE TYPE": "Paid Service (50,000 km)"},
-    {"PARTS": "ENGINE OIL\nOIL FILTER\nDISTILLED WATER\nSHAMPOO\nDRAIN NUT\nWASHER\nCOOLANT\nBRAKE FLUID", "AMOUNT": "1807\n95\n80\n54\n80\n7\n280\n380", "MODEL": "Eeco", "FUEL": "PETROL", "SERVICE TYPE": "Paid Service (60,000 km)"},
-    {"PARTS": "ENGINE OIL\nOIL FILTER\nDISTILLED WATER\nSHAMPOO\nDRAIN NUT\nWASHER", "AMOUNT": "1807\n95\n20\n54\n80\n7", "MODEL": "Eeco", "FUEL": "PETROL", "SERVICE TYPE": "Paid Service (70,000 km)"},
-    {"PARTS": "ENGINE OIL\nOIL FILTER\nDISTILLED WATER\nSHAMPOO\nDRAIN NUT\nWASHER\nCOOLANT\nBRAKE FLUID\nSPARK-PLUGS\nAIR FILTER\nFUEL-FILTER\nACC BELT", "AMOUNT": "1807\n95\n80\n54\n80\n7\n280\n380\n820\n280\n325\n310", "MODEL": "Eeco", "FUEL": "PETROL", "SERVICE TYPE": "Paid Service (80,000 km)"},
-    {"PARTS": "ENGINE OIL\nOIL FILTER\nDISTILLED WATER\nSHAMPOO\nDRAIN NUT\nWASHER", "AMOUNT": "1807\n95\n20\n54\n80\n7", "MODEL": "Eeco", "FUEL": "PETROL", "SERVICE TYPE": "Paid Service (90,000 km)"},
-    {"PARTS": "ENGINE OIL\nOIL FILTER\nDISTILLED WATER\nSHAMPOO\nDRAIN NUT\nWASHER\nCOOLANT\nBRAKE FLUID\nSPARK-PLUGS", "AMOUNT": "1807\n95\n80\n54\n80\n7\n280\n380\n820", "MODEL": "Eeco", "FUEL": "PETROL", "SERVICE TYPE": "Paid Service (100,000 km)"},
-    {"PARTS": "ENGINE OIL\nOIL FILTER\nDISTILLED WATER\nSHAMPOO\nDRAIN NUT\nWASHER", "AMOUNT": "1807\n95\n20\n54\n80\n7", "MODEL": "Eeco Cargo", "FUEL": "PETROL", "SERVICE TYPE": "3rd Free Service (10,000 km)"},
-    {"PARTS": "ENGINE OIL\nOIL FILTER\nDISTILLED WATER\nSHAMPOO\nDRAIN NUT\nWASHER\nCOOLANT\nBRAKE FLUID", "AMOUNT": "1807\n95\n80\n54\n80\n7\n280\n380", "MODEL": "Eeco Cargo", "FUEL": "PETROL", "SERVICE TYPE": "Paid Service (20,000 km)"},
-    {"PARTS": "ENGINE OIL\nOIL FILTER\nDISTILLED WATER\nSHAMPOO\nDRAIN NUT\nWASHER", "AMOUNT": "1807\n95\n20\n54\n80\n7", "MODEL": "Eeco Cargo", "FUEL": "PETROL", "SERVICE TYPE": "Paid Service (30,000 km)"},
-    {"PARTS": "ENGINE OIL\nOIL FILTER\nDISTILLED WATER\nSHAMPOO\nDRAIN NUT\nWASHER\nCOOLANT\nBRAKE FLUID\nSPARK-PLUGS\nAIR FILTER\nFUEL-FILTER", "AMOUNT": "1807\n95\n80\n54\n80\n7\n280\n380\n820\n280\n325", "MODEL": "Eeco Cargo", "FUEL": "PETROL", "SERVICE TYPE": "Paid Service (40,000 km)"},
-    {"PARTS": "ENGINE OIL\nOIL FILTER\nDISTILLED WATER\nSHAMPOO\nDRAIN NUT\nWASHER", "AMOUNT": "1807\n95\n20\n54\n80\n7", "MODEL": "Eeco Cargo", "FUEL": "PETROL", "SERVICE TYPE": "Paid Service (50,000 km)"},
-    {"PARTS": "ENGINE OIL\nOIL FILTER\nDISTILLED WATER\nSHAMPOO\nDRAIN NUT\nWASHER\nCOOLANT\nBRAKE FLUID", "AMOUNT": "1807\n95\n80\n54\n80\n7\n280\n380", "MODEL": "Eeco Cargo", "FUEL": "PETROL", "SERVICE TYPE": "Paid Service (60,000 km)"},
-    {"PARTS": "ENGINE OIL\nOIL FILTER\nDISTILLED WATER\nSHAMPOO\nDRAIN NUT\nWASHER", "AMOUNT": "1807\n95\n20\n54\n80\n7", "MODEL": "Eeco Cargo", "FUEL": "PETROL", "SERVICE TYPE": "Paid Service (70,000 km)"},
-    {"PARTS": "ENGINE OIL\nOIL FILTER\nDISTILLED WATER\nSHAMPOO\nDRAIN NUT\nWASHER\nCOOLANT\nBRAKE FLUID\nSPARK-PLUGS\nAIR FILTER\nFUEL-FILTER\nACC BELT", "AMOUNT": "1807\n95\n80\n54\n80\n7\n280\n380\n820\n280\n325\n310", "MODEL": "Eeco Cargo", "FUEL": "PETROL", "SERVICE TYPE": "Paid Service (80,000 km)"},
-    {"PARTS": "ENGINE OIL\nOIL FILTER\nDISTILLED WATER\nSHAMPOO\nDRAIN NUT\nWASHER", "AMOUNT": "1807\n95\n20\n54\n80\n7", "MODEL": "Eeco Cargo", "FUEL": "PETROL", "SERVICE TYPE": "Paid Service (90,000 km)"},
-    {"PARTS": "ENGINE OIL\nOIL FILTER\nDISTILLED WATER\nSHAMPOO\nDRAIN NUT\nWASHER\nCOOLANT\nBRAKE FLUID\nSPARK-PLUGS", "AMOUNT": "1807\n95\n80\n54\n80\n7\n280\n380\n820", "MODEL": "Eeco Cargo", "FUEL": "PETROL", "SERVICE TYPE": "Paid Service (100,000 km)"}
+    {"MODEL": "Eeco", "FUEL": "PETROL", "SERVICE TYPE": "3rd Free Service (10,000 km)", "PARTS": "ENGINE OIL\nOIL FILTER\nDISTILLED WATER\nSHAMPOO\nDRAIN NUT\nWASHER", "AMOUNT": "1807\n95\n20\n54\n80\n7"},
+    {"MODEL": "Eeco", "FUEL": "PETROL", "SERVICE TYPE": "Paid Service (20,000 km)", "PARTS": "ENGINE OIL\nOIL FILTER\nDISTILLED WATER\nSHAMPOO\nDRAIN NUT\nWASHER\nCOOLANT\nBRAKE FLUID", "AMOUNT": "1807\n95\n80\n54\n80\n7\n280\n380"},
+    {"MODEL": "Eeco", "FUEL": "PETROL", "SERVICE TYPE": "Paid Service (30,000 km)", "PARTS": "ENGINE OIL\nOIL FILTER\nDISTILLED WATER\nSHAMPOO\nDRAIN NUT\nWASHER", "AMOUNT": "1807\n95\n20\n54\n80\n7"},
+    {"MODEL": "Eeco", "FUEL": "PETROL", "SERVICE TYPE": "Paid Service (40,000 km)", "PARTS": "ENGINE OIL\nOIL FILTER\nDISTILLED WATER\nSHAMPOO\nDRAIN NUT\nWASHER\nCOOLANT\nBRAKE FLUID\nSPARK-PLUGS\nAIR FILTER\nFUEL-FILTER", "AMOUNT": "1807\n95\n80\n54\n80\n7\n280\n380\n820\n280\n325"},
+    {"MODEL": "Eeco", "FUEL": "PETROL", "SERVICE TYPE": "Paid Service (50,000 km)", "PARTS": "ENGINE OIL\nOIL FILTER\nDISTILLED WATER\nSHAMPOO\nDRAIN NUT\nWASHER", "AMOUNT": "1807\n95\n20\n54\n80\n7"},
+    {"MODEL": "Eeco", "FUEL": "PETROL", "SERVICE TYPE": "Paid Service (60,000 km)", "PARTS": "ENGINE OIL\nOIL FILTER\nDISTILLED WATER\nSHAMPOO\nDRAIN NUT\nWASHER\nCOOLANT\nBRAKE FLUID", "AMOUNT": "1807\n95\n80\n54\n80\n7\n280\n380"},
+    {"MODEL": "Eeco", "FUEL": "PETROL", "SERVICE TYPE": "Paid Service (70,000 km)", "PARTS": "ENGINE OIL\nOIL FILTER\nDISTILLED WATER\nSHAMPOO\nDRAIN NUT\nWASHER", "AMOUNT": "1807\n95\n20\n54\n80\n7"},
+    {"MODEL": "Eeco", "FUEL": "PETROL", "SERVICE TYPE": "Paid Service (80,000 km)", "PARTS": "ENGINE OIL\nOIL FILTER\nDISTILLED WATER\nSHAMPOO\nDRAIN NUT\nWASHER\nCOOLANT\nBRAKE FLUID\nSPARK-PLUGS\nAIR FILTER\nFUEL-FILTER\nACC BELT", "AMOUNT": "1807\n95\n80\n54\n80\n7\n280\n380\n820\n280\n325\n310"},
+    {"MODEL": "Eeco", "FUEL": "PETROL", "SERVICE TYPE": "Paid Service (90,000 km)", "PARTS": "ENGINE OIL\nOIL FILTER\nDISTILLED WATER\nSHAMPOO\nDRAIN NUT\nWASHER", "AMOUNT": "1807\n95\n20\n54\n80\n7"},
+    {"MODEL": "Eeco", "FUEL": "PETROL", "SERVICE TYPE": "Paid Service (100,000 km)", "PARTS": "ENGINE OIL\nOIL FILTER\nDISTILLED WATER\nSHAMPOO\nDRAIN NUT\nWASHER\nCOOLANT\nBRAKE FLUID\nSPARK-PLUGS", "AMOUNT": "1807\n95\n80\n54\n80\n7\n280\n380\n820"},
+    {"MODEL": "Wagon R", "FUEL": "PETROL", "SERVICE TYPE": "3rd Free Service (10,000 km)", "PARTS": "ENGINE OIL\nOIL FILTER\nDISTILLED WATER\nSHAMPOO", "AMOUNT": "1350\n95\n20\n54"},
+    {"MODEL": "Wagon R", "FUEL": "PETROL", "SERVICE TYPE": "Paid Service (20,000 km)", "PARTS": "ENGINE OIL\nOIL FILTER\nDISTILLED WATER\nSHAMPOO\nDRAIN NUT\nWASHER\nBRAKE OIL\nCOOLANT", "AMOUNT": "1350\n95\n80\n54\n80\n7\n380\n280"},
+    {"MODEL": "Wagon R", "FUEL": "PETROL", "SERVICE TYPE": "Paid Service (30,000 km)", "PARTS": "ENGINE OIL\nOIL FILTER\nDISTILLED WATER\nSHAMPOO\nDRAIN NUT\nWASHER", "AMOUNT": "1350\n95\n20\n54\n80\n7"},
+    {"MODEL": "Wagon R", "FUEL": "PETROL", "SERVICE TYPE": "Paid Service (40,000 km)", "PARTS": "ENGINE OIL\nOIL FILTER\nDISTILLED WATER\nSHAMPOO\nDRAIN NUT\nWASHER\nBRAKE OIL\nCOOLANT\nSPARK-PLUGS\nAIR FILTER\nFUEL-FILTER\nGEAR OIL", "AMOUNT": "1350\n95\n80\n54\n80\n7\n380\n280\n820\n280\n325\n1000"},
+    {"MODEL": "Celerio", "FUEL": "PETROL", "SERVICE TYPE": "3rd Free Service (10,000 km)", "PARTS": "ENGINE OIL\nOIL FILTER\nDISTILLED WATER\nSHAMPOO", "AMOUNT": "1350\n95\n20\n54"},
+    {"MODEL": "Celerio", "FUEL": "PETROL", "SERVICE TYPE": "Paid Service (20,000 km)", "PARTS": "ENGINE OIL\nOIL FILTER\nDISTILLED WATER\nSHAMPOO\nDRAIN NUT\nWASHER\nBRAKE OIL\nCOOLANT", "AMOUNT": "1350\n95\n80\n54\n80\n7\n380\n280"},
+    {"MODEL": "Swift", "FUEL": "DIESEL", "SERVICE TYPE": "3rd Free Service (10,000 km)", "PARTS": "ENGINE OIL\nOIL FILTER\nDISTILLED WATER\nSHAMPOO", "AMOUNT": "2100\n450\n20\n54"},
+    {"MODEL": "Swift", "FUEL": "DIESEL", "SERVICE TYPE": "Paid Service (20,000 km)", "PARTS": "ENGINE OIL\nOIL FILTER\nDISTILLED WATER\nSHAMPOO\nBRAKE OIL\nCOOLANT\nAIR FILTER", "AMOUNT": "2100\n450\n80\n54\n380\n280\n480"},
+    {"MODEL": "Swift", "FUEL": "PETROL", "SERVICE TYPE": "3rd Free Service (10,000 km)", "PARTS": "ENGINE OIL\nOIL FILTER\nDISTILLED WATER\nSHAMPOO", "AMOUNT": "1350\n95\n20\n54"},
+    {"MODEL": "Swift", "FUEL": "PETROL", "SERVICE TYPE": "Paid Service (20,000 km)", "PARTS": "ENGINE OIL\nOIL FILTER\nDISTILLED WATER\nSHAMPOO\nDRAIN NUT\nWASHER\nBRAKE OIL\nCOOLANT", "AMOUNT": "1350\n95\n80\n54\n80\n7\n380\n280"},
+    {"MODEL": "Baleno", "FUEL": "PETROL", "SERVICE TYPE": "3rd Free Service (10,000 km)", "PARTS": "ENGINE OIL\nOIL FILTER\nDISTILLED WATER\nSHAMPOO", "AMOUNT": "1350\n95\n20\n54"},
+    {"MODEL": "Baleno", "FUEL": "PETROL", "SERVICE TYPE": "Paid Service (20,000 km)", "PARTS": "ENGINE OIL\nOIL FILTER\nDISTILLED WATER\nSHAMPOO\nDRAIN NUT\nWASHER\nBRAKE OIL\nCOOLANT", "AMOUNT": "1350\n95\n80\n54\n80\n7\n380\n280"},
+    {"MODEL": "Brezza", "FUEL": "DIESEL", "SERVICE TYPE": "3rd Free Service (10,000 km)", "PARTS": "ENGINE OIL\nOIL FILTER\nDISTILLED WATER\nSHAMPOO", "AMOUNT": "2100\n450\n20\n54"},
+    {"MODEL": "Brezza", "FUEL": "DIESEL", "SERVICE TYPE": "Paid Service (20,000 km)", "PARTS": "ENGINE OIL\nOIL FILTER\nDISTILLED WATER\nSHAMPOO\nBRAKE OIL\nCOOLANT\nAIR FILTER", "AMOUNT": "2100\n450\n80\n54\n380\n280\n480"},
+    {"MODEL": "Brezza", "FUEL": "PETROL", "SERVICE TYPE": "3rd Free Service (10,000 km)", "PARTS": "ENGINE OIL\nOIL FILTER\nDISTILLED WATER\nSHAMPOO", "AMOUNT": "1350\n95\n20\n54"},
+    {"MODEL": "Brezza", "FUEL": "PETROL", "SERVICE TYPE": "Paid Service (20,000 km)", "PARTS": "ENGINE OIL\nOIL FILTER\nDISTILLED WATER\nSHAMPOO\nDRAIN NUT\nWASHER\nBRAKE OIL\nCOOLANT", "AMOUNT": "1350\n95\n80\n54\n80\n7\n380\n280"},
+    {"MODEL": "Alto K10", "FUEL": "PETROL", "SERVICE TYPE": "3rd Free Service (10,000 km)", "PARTS": "ENGINE OIL\nOIL FILTER\nDISTILLED WATER\nSHAMPOO", "AMOUNT": "1350\n95\n20\n54"},
+    {"MODEL": "Alto K10", "FUEL": "PETROL", "SERVICE TYPE": "Paid Service (20,000 km)", "PARTS": "ENGINE OIL\nOIL FILTER\nDISTILLED WATER\nSHAMPOO\nDRAIN NUT\nWASHER\nBRAKE OIL\nCOOLANT", "AMOUNT": "1350\n95\n80\n54\n80\n7\n380\n280"}
   ];
   
   const serviceTypeMapping: { [key: string]: string } = {
@@ -109,9 +101,38 @@ const rawServiceData: any[] = [
     "Paid Service (100,000 km)": "Paid Service (100,000 km)",
   };
   
+  const modelNameMapping: { [key: string]: string } = {
+    'Eeco': 'Eeco',
+    'Eeco Cargo': 'Eeco Cargo',
+    'Wagon R': 'Wagon R',
+    'WAGON-R NEW': 'Wagon R',
+    'Celerio': 'Celerio',
+    'Swift': 'Swift',
+    'SWIFT NEW / DZIRE NEW PETROL': 'Swift', // Assuming this is primarily Swift
+    'EPIC NEW SWIFT': 'Swift',
+    'Baleno': 'Baleno',
+    'NEW BALENO': 'Baleno',
+    'Brezza': 'Brezza',
+    'VITARA BREZZA 1.3D': 'Brezza',
+    'VITARA BREZZA K15B BS-VI': 'Brezza',
+    'Alto K10': 'Alto K10',
+    'ALTO K10': 'Alto K10',
+  };
+
+  const getStandardModelName = (name: string): string => {
+      const upperName = name.toUpperCase();
+      for (const key in modelNameMapping) {
+          if (upperName.includes(key.toUpperCase())) {
+              return (modelNameMapping as any)[key];
+          }
+      }
+      const vehicle = vehicles.find(v => v.model.toUpperCase() === upperName);
+      return vehicle ? vehicle.model : name;
+  };
+  
   
   const processedServiceData = rawServiceData.flatMap(item => {
-    const modelName = item.MODEL.replace(/\(OLD\)|\(SMART HYBRID\)|\(SMART HYBIRD\)|PETROL|DIESEL/gi, '').trim();
+    const modelName = getStandardModelName(item.MODEL);
     const standardServiceType = serviceTypeMapping[item['SERVICE TYPE']];
   
     if (!standardServiceType) return null;
@@ -132,6 +153,18 @@ const rawServiceData: any[] = [
     }));
   
     const key = `${standardServiceType}-${modelName.toUpperCase()}-${item.FUEL.toUpperCase()}`;
+    
+    let modelToUse = modelName;
+    // Special handling for Eeco and Eeco Cargo
+    if (modelName === 'Eeco') {
+        const keyCargo = `${standardServiceType}-EECO CARGO-${item.FUEL.toUpperCase()}`;
+        return [
+            { key: key, data: { parts: parts, labor: [] } as Service },
+            { key: keyCargo, data: { parts: parts, labor: [] } as Service }
+        ];
+    }
+
+
     return {
       key: key,
       data: {
@@ -139,12 +172,15 @@ const rawServiceData: any[] = [
         labor: [],
       } as Service
     };
-  }).filter((item): item is NonNullable<typeof item> => item !== null);
+  }).flat().filter((item): item is NonNullable<typeof item> => item !== null);
   
   
   export const serviceDataLookup = processedServiceData.reduce((acc, item) => {
       if (item) {
-          acc[item.key] = item.data;
+          if (!acc[item.key]) {
+             acc[item.key] = { parts: [], labor: [] };
+          }
+          acc[item.key].parts.push(...item.data.parts);
       }
       return acc;
   }, {} as { [key: string]: Service });
@@ -169,4 +205,3 @@ const rawServiceData: any[] = [
   });
   
     
-
