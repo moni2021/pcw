@@ -10,7 +10,6 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@firebase/auth": "^1.7.0",
     "@genkit-ai/ai": "0.5.2",
     "@genkit-ai/core": "0.5.2",
     "@genkit-ai/googleai": "0.5.2",
@@ -27,7 +26,6 @@
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
     "cmdk": "^1.0.0",
-    "firebase": "^10.12.2",
     "framer-motion": "^11.2.12",
     "genkit": "0.5.2",
     "lucide-react": "^0.395.0",
