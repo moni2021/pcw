@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Separator } from '@/components/ui/separator';
-import { Percent, PlusCircle, Sparkles, Wrench, Package, Hammer, MinusCircle } from 'lucide-react';
+import { Percent, PlusCircle, Sparkles, Wrench, Package, Hammer, MinusCircle, ChevronDown, ChevronUp } from 'lucide-react';
 import type { ServiceEstimateData, Labor, Part } from '@/lib/types';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
@@ -32,6 +32,8 @@ export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
   const [selectedOptional, setSelectedOptional] = useState<Labor[]>([]);
   const [customLabor, setCustomLabor] = useState<Labor[]>([]);
   const [finalTotal, setFinalTotal] = useState(0);
+  const [showRecommended, setShowRecommended] = useState(false);
+  const [showOptional, setShowOptional] = useState(false);
 
   const pmsLaborCharge = useMemo(() => labor.reduce((sum, job) => sum + job.charge, 0), [labor]);
   const partsTotal = useMemo(() => parts.reduce((sum, part) => sum + part.price, 0), [parts]);
@@ -256,51 +258,65 @@ export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
             
           {recommendedLabor && recommendedLabor.length > 0 && (
              <div className="space-y-4 rounded-lg border border-dashed p-4">
-                <h3 className="text-lg font-semibold mb-2 flex items-center gap-2 text-primary"> <PlusCircle className="h-5 w-5"/> Recommended Services</h3>
-                <p className="text-sm text-muted-foreground">Select any additional services you would like to include.</p>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    {recommendedLabor.map((job, index) => (
-                        <div key={index} className="flex items-center space-x-3 rounded-md bg-muted/30 p-3">
-                             <Checkbox 
-                                id={`rec-${index}`} 
-                                onCheckedChange={() => handleOptionalChange(job, 'recommended')}
-                                checked={!!selectedRecommended.find(item => item.name === job.name)}
-                            />
-                            <label
-                                htmlFor={`rec-${index}`}
-                                className="flex-1 text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                            >
-                                {job.name}
-                            </label>
-                            <p className="text-sm font-semibold">₹{job.charge.toFixed(2)}</p>
-                        </div>
-                    ))}
-                </div>
+                <Button variant="link" onClick={() => setShowRecommended(!showRecommended)} className="p-0 h-auto text-lg font-semibold mb-2 flex items-center gap-2 text-primary">
+                    <PlusCircle className="h-5 w-5"/> Recommended Services
+                    {showRecommended ? <ChevronUp className="h-5 w-5" /> : <ChevronDown className="h-5 w-5" />}
+                </Button>
+                {showRecommended && (
+                  <div className="animate-accordion-down">
+                    <p className="text-sm text-muted-foreground mb-4">Select any additional services you would like to include.</p>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        {recommendedLabor.map((job, index) => (
+                            <div key={index} className="flex items-center space-x-3 rounded-md bg-muted/30 p-3">
+                                <Checkbox 
+                                    id={`rec-${index}`} 
+                                    onCheckedChange={() => handleOptionalChange(job, 'recommended')}
+                                    checked={!!selectedRecommended.find(item => item.name === job.name)}
+                                />
+                                <label
+                                    htmlFor={`rec-${index}`}
+                                    className="flex-1 text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                                >
+                                    {job.name}
+                                </label>
+                                <p className="text-sm font-semibold">₹{job.charge.toFixed(2)}</p>
+                            </div>
+                        ))}
+                    </div>
+                  </div>
+                )}
             </div>
           )}
 
           {optionalServices && optionalServices.length > 0 && (
              <div className="space-y-4 rounded-lg border border-dashed p-4 border-primary/50 bg-primary/5">
-                <h3 className="text-lg font-semibold mb-2 flex items-center gap-2 text-primary"> <Sparkles className="h-5 w-5"/> 3M Optional Services</h3>
-                <p className="text-sm text-muted-foreground">Select any premium 3M services to add.</p>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    {optionalServices.map((job, index) => (
-                        <div key={index} className="flex items-center space-x-3 rounded-md bg-muted/30 p-3">
-                             <Checkbox 
-                                id={`opt-${index}`} 
-                                onCheckedChange={() => handleOptionalChange(job, 'optional')}
-                                checked={!!selectedOptional.find(item => item.name === job.name)}
-                            />
-                            <label
-                                htmlFor={`opt-${index}`}
-                                className="flex-1 text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                            >
-                                {job.name}
-                            </label>
-                            <p className="text-sm font-semibold">₹{job.charge.toFixed(2)}</p>
-                        </div>
-                    ))}
-                </div>
+                <Button variant="link" onClick={() => setShowOptional(!showOptional)} className="p-0 h-auto text-lg font-semibold mb-2 flex items-center gap-2 text-primary">
+                    <Sparkles className="h-5 w-5"/> 3M Optional Services
+                    {showOptional ? <ChevronUp className="h-5 w-5" /> : <ChevronDown className="h-5 w-5" />}
+                </Button>
+                {showOptional && (
+                  <div className="animate-accordion-down">
+                    <p className="text-sm text-muted-foreground mb-4">Select any premium 3M services to add.</p>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        {optionalServices.map((job, index) => (
+                            <div key={index} className="flex items-center space-x-3 rounded-md bg-muted/30 p-3">
+                                <Checkbox 
+                                    id={`opt-${index}`} 
+                                    onCheckedChange={() => handleOptionalChange(job, 'optional')}
+                                    checked={!!selectedOptional.find(item => item.name === job.name)}
+                                />
+                                <label
+                                    htmlFor={`opt-${index}`}
+                                    className="flex-1 text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                                >
+                                    {job.name}
+                                </label>
+                                <p className="text-sm font-semibold">₹{job.charge.toFixed(2)}</p>
+                            </div>
+                        ))}
+                    </div>
+                  </div>
+                )}
             </div>
           )}
 
