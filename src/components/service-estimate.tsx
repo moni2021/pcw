@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Separator } from '@/components/ui/separator';
-import { Percent, PlusCircle, Sparkles, Wrench, Package, Hammer, MinusCircle, ChevronDown, ChevronUp } from 'lucide-react';
+import { Percent, PlusCircle, Sparkles, Wrench, Package, Hammer, MinusCircle, ChevronDown, ChevronUp, Printer } from 'lucide-react';
 import type { ServiceEstimateData, Labor, Part } from '@/lib/types';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
@@ -207,7 +207,7 @@ export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
               </div>
           )}
 
-
+        <div className="no-print">
           {availableCustomLabor.length > 0 && (
             <div className="space-y-4 rounded-lg border border-dashed p-4">
               <h3 className="text-lg font-semibold mb-2 flex items-center gap-2 text-primary"><Wrench className="h-5 w-5"/> Custom Labor</h3>
@@ -319,10 +319,10 @@ export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
                 )}
             </div>
           )}
-
+        </div>
         </div>
         
-        <div className="mt-6 flex flex-col items-end space-y-4">
+        <div className="mt-6 flex flex-col items-end space-y-4 no-print">
            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4">
               <Label className="mt-2 sm:mt-0">Discount on Labor</Label>
                <RadioGroup defaultValue="percentage" value={discountType} onValueChange={(value) => setDiscountType(value as 'percentage' | 'rupees')} className="flex items-center">
@@ -373,6 +373,12 @@ export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
         <div className="w-full flex justify-between items-center">
             <p className="text-xl font-bold">Total Estimate:</p>
             <p className="text-xl font-bold">₹{finalTotal.toFixed(2)}</p>
+        </div>
+        <div className="w-full mt-4 no-print">
+            <Button onClick={() => window.print()} className="w-full">
+                <Printer className="mr-2 h-4 w-4" />
+                Print Estimate
+            </Button>
         </div>
       </CardFooter>
     </div>

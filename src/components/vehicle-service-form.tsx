@@ -155,97 +155,99 @@ export function VehicleServiceForm() {
 
   return (
     <>
-      <CardHeader>
-        <CardTitle>Create an Estimate</CardTitle>
-        <CardDescription>Select your vehicle to see available optional services.</CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-6">
-        <div className="space-y-2">
-            <Label htmlFor="vehicle-model">Vehicle Model</Label>
-             <Select onValueChange={handleModelChange} value={selectedModel}>
-                <SelectTrigger id="vehicle-model">
-                    <SelectValue placeholder="Select Model" />
-                </SelectTrigger>
-                <SelectContent>
-                    {vehicles.map(vehicle => (
-                        <SelectItem key={vehicle.model} value={vehicle.model}>
-                            {vehicle.model}
-                        </SelectItem>
-                    ))}
-                </SelectContent>
+      <div className="no-print">
+        <CardHeader>
+          <CardTitle>Create an Estimate</CardTitle>
+          <CardDescription>Select your vehicle to see available optional services.</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          <div className="space-y-2">
+              <Label htmlFor="vehicle-model">Vehicle Model</Label>
+               <Select onValueChange={handleModelChange} value={selectedModel}>
+                  <SelectTrigger id="vehicle-model">
+                      <SelectValue placeholder="Select Model" />
+                  </SelectTrigger>
+                  <SelectContent>
+                      {vehicles.map(vehicle => (
+                          <SelectItem key={vehicle.model} value={vehicle.model}>
+                              {vehicle.model}
+                          </SelectItem>
+                      ))}
+                  </SelectContent>
+              </Select>
+          </div>
+
+          {currentVehicle && (
+               <div className="flex flex-wrap gap-2 items-center">
+                   <Badge variant="outline">
+                      <Building2 className="mr-1 h-3 w-3" />
+                      {currentVehicle.brand}
+                  </Badge>
+                  <Badge variant="outline">
+                      <Tag className="mr-1 h-3 w-3" />
+                      {currentVehicle.category}
+                  </Badge>
+               </div>
+          )}
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                  <Label htmlFor="fuel-type">Fuel Type</Label>
+                  <Select onValueChange={handleFuelTypeChange} value={selectedFuelType} disabled={!currentVehicle || currentVehicle.fuelTypes.length <= 1}>
+                      <SelectTrigger id="fuel-type">
+                          <SelectValue placeholder="Select Fuel Type" />
+                      </SelectTrigger>
+                      <SelectContent>
+                          {currentVehicle?.fuelTypes.map(fuel => (
+                              <SelectItem key={fuel} value={fuel}>
+                                  {fuel}
+                              </SelectItem>
+                          ))}
+                      </SelectContent>
+                  </Select>
+              </div>
+              
+               <div className="space-y-2">
+                  <Label htmlFor="production-year">Production Year</Label>
+                  <Select onValueChange={handleYearChange} value={selectedYear} disabled={!selectedFuelType}>
+                      <SelectTrigger id="production-year">
+                          <SelectValue placeholder="Select Year" />
+                      </SelectTrigger>
+                      <SelectContent>
+                          {currentVehicle?.productionYears.slice().reverse().map(year => (
+                              <SelectItem key={year} value={String(year)}>
+                                  {year}
+                              </SelectItem>
+                          ))}
+                      </SelectContent>
+                  </Select>
+              </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="service-type">Service Type</Label>
+            <Select onValueChange={handleServiceTypeChange} value={selectedServiceType} disabled={!selectedYear}>
+              <SelectTrigger id="service-type">
+                <SelectValue placeholder="Select Service Type" />
+              </SelectTrigger>
+              <SelectContent>
+                {serviceTypes.map(service => (
+                  <SelectItem key={service} value={service}>
+                    {service}
+                  </SelectItem>
+                ))}
+              </SelectContent>
             </Select>
-        </div>
-
-        {currentVehicle && (
-             <div className="flex flex-wrap gap-2 items-center">
-                 <Badge variant="outline">
-                    <Building2 className="mr-1 h-3 w-3" />
-                    {currentVehicle.brand}
-                </Badge>
-                <Badge variant="outline">
-                    <Tag className="mr-1 h-3 w-3" />
-                    {currentVehicle.category}
-                </Badge>
-             </div>
-        )}
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="space-y-2">
-                <Label htmlFor="fuel-type">Fuel Type</Label>
-                <Select onValueChange={handleFuelTypeChange} value={selectedFuelType} disabled={!currentVehicle || currentVehicle.fuelTypes.length <= 1}>
-                    <SelectTrigger id="fuel-type">
-                        <SelectValue placeholder="Select Fuel Type" />
-                    </SelectTrigger>
-                    <SelectContent>
-                        {currentVehicle?.fuelTypes.map(fuel => (
-                            <SelectItem key={fuel} value={fuel}>
-                                {fuel}
-                            </SelectItem>
-                        ))}
-                    </SelectContent>
-                </Select>
-            </div>
-            
-             <div className="space-y-2">
-                <Label htmlFor="production-year">Production Year</Label>
-                <Select onValueChange={handleYearChange} value={selectedYear} disabled={!selectedFuelType}>
-                    <SelectTrigger id="production-year">
-                        <SelectValue placeholder="Select Year" />
-                    </SelectTrigger>
-                    <SelectContent>
-                        {currentVehicle?.productionYears.slice().reverse().map(year => (
-                            <SelectItem key={year} value={String(year)}>
-                                {year}
-                            </SelectItem>
-                        ))}
-                    </SelectContent>
-                </Select>
-            </div>
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="service-type">Service Type</Label>
-          <Select onValueChange={handleServiceTypeChange} value={selectedServiceType} disabled={!selectedYear}>
-            <SelectTrigger id="service-type">
-              <SelectValue placeholder="Select Service Type" />
-            </SelectTrigger>
-            <SelectContent>
-              {serviceTypes.map(service => (
-                <SelectItem key={service} value={service}>
-                  {service}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-        
-        {error && <Alert variant="destructive"><AlertDescription>{error}</AlertDescription></Alert>}
-      </CardContent>
-      <CardFooter>
-        <Button onClick={handleSearch} className="w-full" disabled={isLoading || !selectedServiceType}>
-           {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : 'Get Estimate'}
-        </Button>
-      </CardFooter>
+          </div>
+          
+          {error && <Alert variant="destructive"><AlertDescription>{error}</AlertDescription></Alert>}
+        </CardContent>
+        <CardFooter>
+          <Button onClick={handleSearch} className="w-full" disabled={isLoading || !selectedServiceType}>
+             {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : 'Get Estimate'}
+          </Button>
+        </CardFooter>
+      </div>
 
       {isLoading && (
          <div className="relative p-6 overflow-x-hidden">
