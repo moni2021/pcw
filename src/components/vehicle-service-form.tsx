@@ -6,15 +6,16 @@ import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
-import { vehicles } from '@/lib/data';
+import { vehicles, serviceDataLookup } from '@/lib/data';
 import { ServiceEstimate } from './service-estimate';
-import type { ServiceEstimateData, Vehicle, Labor } from '@/lib/types';
+import type { ServiceEstimateData, Vehicle, Labor, Part } from '@/lib/types';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Loader2, Car, Tag, Building2 } from 'lucide-react';
 import { Separator } from './ui/separator';
 import { Badge } from '@/components/ui/badge';
 import { useTheme } from '@/context/ThemeContext';
 import { threeMCareData } from '@/lib/3m-care-data';
+import { pmsCharges } from '@/lib/pms-charges';
 
 const commonServices: Labor[] = [
     { name: 'NITROGEN GAS FILLING', charge: 200 },
@@ -119,6 +120,17 @@ export function VehicleServiceForm() {
            return;
        }
 
+      const serviceLookupKey = `${selectedModel} ${selectedFuelType} ${selectedServiceType}`;
+      const serviceDetails = serviceDataLookup[serviceLookupKey];
+      
+      let pmsLabor: Labor[] = [];
+      if (selectedServiceType.startsWith('Paid Service')) {
+          const pmsCharge = pmsCharges.find(p => p.model === selectedModel && p.labourDesc === selectedServiceType);
+          if (pmsCharge) {
+              pmsLabor.push({ name: 'Periodic Maintenance Service', charge: pmsCharge.basicAmt });
+          }
+      }
+
       const newEstimate: ServiceEstimateData = {
         vehicle: {
           model: selectedModel,
@@ -128,8 +140,8 @@ export function VehicleServiceForm() {
           category: vehicleInfo.category,
         },
         serviceType: selectedServiceType,
-        parts: [],
-        labor: [],
+        parts: serviceDetails?.parts || [],
+        labor: pmsLabor,
         recommendedLabor: commonServices,
         optionalServices: threeMCareData[selectedModel] || [],
         totalPrice: 0,
@@ -258,3 +270,5 @@ export function VehicleServiceForm() {
     </>
   );
 }
+
+    

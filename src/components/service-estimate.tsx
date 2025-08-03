@@ -6,8 +6,8 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Separator } from '@/components/ui/separator';
-import { Percent, PlusCircle, Sparkles, Wrench } from 'lucide-react';
-import type { ServiceEstimateData, Labor } from '@/lib/types';
+import { Percent, PlusCircle, Sparkles, Wrench, Package, Hammer } from 'lucide-react';
+import type { ServiceEstimateData, Labor, Part } from '@/lib/types';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Input } from '@/components/ui/input';
@@ -22,7 +22,7 @@ interface ServiceEstimateProps {
 }
 
 export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
-  const { vehicle, serviceType, recommendedLabor, optionalServices } = estimate;
+  const { vehicle, serviceType, parts, labor, recommendedLabor, optionalServices } = estimate;
   const GST_RATE = 0.18;
 
   const [discountType, setDiscountType] = useState<'percentage' | 'rupees'>('percentage');
@@ -31,7 +31,9 @@ export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
   const [selectedOptional, setSelectedOptional] = useState<Labor[]>([]);
   const [customLabor, setCustomLabor] = useState<Labor[]>([]);
   const [finalTotal, setFinalTotal] = useState(0);
-  
+
+  const pmsLaborCharge = useMemo(() => labor.reduce((sum, job) => sum + job.charge, 0), [labor]);
+  const partsTotal = useMemo(() => parts.reduce((sum, part) => sum + part.price, 0), [parts]);
   const recommendedLaborCharge = useMemo(() => selectedRecommended.reduce((sum, job) => sum + job.charge, 0), [selectedRecommended]);
   const optionalServiceCharge = useMemo(() => selectedOptional.reduce((sum, job) => sum + job.charge, 0), [selectedOptional]);
   const customLaborCharge = useMemo(() => customLabor.reduce((sum, job) => sum + job.charge, 0), [customLabor]);
@@ -40,15 +42,15 @@ export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
     return customLaborData.filter(item => item.model === vehicle.model);
   }, [vehicle.model]);
   
-  const totalLaborCharge = useMemo(() => recommendedLaborCharge + optionalServiceCharge + customLaborCharge, [recommendedLaborCharge, optionalServiceCharge, customLaborCharge]);
+  const totalLaborCharge = useMemo(() => pmsLaborCharge + recommendedLaborCharge + optionalServiceCharge + customLaborCharge, [pmsLaborCharge, recommendedLaborCharge, optionalServiceCharge, customLaborCharge]);
   const gstOnLabor = useMemo(() => totalLaborCharge * GST_RATE, [totalLaborCharge]);
+  const gstOnParts = useMemo(() => partsTotal * GST_RATE, [partsTotal]);
 
   useEffect(() => {
     let laborDiscount = 0;
     const numericDiscountValue = Number(discountValue) || 0;
 
-    // Discount is only applied to base labor + recommended, not premium optional services
-    const discountableLabor = recommendedLaborCharge + customLaborCharge;
+    const discountableLabor = pmsLaborCharge + recommendedLaborCharge + customLaborCharge;
 
     if (discountType === 'percentage') {
       laborDiscount = discountableLabor * (numericDiscountValue / 100);
@@ -58,13 +60,12 @@ export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
     
     laborDiscount = Math.min(laborDiscount, discountableLabor);
 
-    const newTotal = totalLaborCharge + gstOnLabor - laborDiscount;
+    const newTotal = totalLaborCharge + gstOnLabor + partsTotal + gstOnParts - laborDiscount;
     setFinalTotal(newTotal);
 
-  }, [discountValue, discountType, totalLaborCharge, gstOnLabor, recommendedLaborCharge, customLaborCharge]);
+  }, [discountValue, discountType, totalLaborCharge, gstOnLabor, partsTotal, gstOnParts, pmsLaborCharge, recommendedLaborCharge, customLaborCharge]);
   
   useEffect(() => {
-    // Reset state when a new estimate is received
     setDiscountValue(0);
     setDiscountType('percentage');
     setSelectedRecommended([]);
@@ -129,17 +130,64 @@ export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
         <Separator className="my-4" />
 
         <div className="space-y-4">
+
+           {parts.length > 0 && (
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold mb-2 flex items-center gap-2"><Package className="h-5 w-5"/> Scheduled Service Parts</h3>
+                <div className="overflow-x-auto">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Part Description</TableHead>
+                          <TableHead className="text-right">Price (₹)</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {parts.map((part, index) => (
+                          <TableRow key={`part-${index}`}>
+                            <TableCell className="font-medium">{part.name}</TableCell>
+                            <TableCell className="text-right">{part.price.toFixed(2)}</TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                </div>
+              </div>
+          )}
+
+           {labor.length > 0 && (
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold mb-2 flex items-center gap-2"><Hammer className="h-5 w-5"/> Scheduled Service Labor</h3>
+                <div className="overflow-x-auto">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Labor Description</TableHead>
+                          <TableHead className="text-right">Charge (₹)</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {labor.map((job, index) => (
+                          <TableRow key={`labor-${index}`}>
+                            <TableCell className="font-medium">{job.name}</TableCell>
+                            <TableCell className="text-right">{job.charge.toFixed(2)}</TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                </div>
+              </div>
+          )}
+          
           {[...customLabor, ...selectedRecommended, ...selectedOptional].length > 0 && (
               <div>
-                <h3 className="text-lg font-semibold mb-2">Additional Services</h3>
+                <h3 className="text-lg font-semibold mb-2 mt-4">Additional Services</h3>
                 <div className="overflow-x-auto">
                     <Table>
                       <TableHeader>
                         <TableRow>
                           <TableHead>Service Description</TableHead>
                           <TableHead className="text-right">Charge (₹)</TableHead>
-                          <TableHead className="text-right">GST (18%)</TableHead>
-                          <TableHead className="text-right">Total (₹)</TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
@@ -147,8 +195,6 @@ export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
                           <TableRow key={`additional-${index}`}>
                             <TableCell className="font-medium">{job.name}</TableCell>
                             <TableCell className="text-right">{job.charge.toFixed(2)}</TableCell>
-                            <TableCell className="text-right">{(job.charge * GST_RATE).toFixed(2)}</TableCell>
-                            <TableCell className="text-right font-semibold">{(job.charge * (1 + GST_RATE)).toFixed(2)}</TableCell>
                           </TableRow>
                         ))}
                       </TableBody>
@@ -223,11 +269,8 @@ export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
                                 className="flex-1 text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                             >
                                 {job.name}
-                                <span className="block text-xs text-muted-foreground">
-                                    (₹{job.charge.toFixed(2)} + ₹{(job.charge * GST_RATE).toFixed(2)} GST)
-                                </span>
                             </label>
-                            <p className="text-sm font-semibold">₹{(job.charge * (1 + GST_RATE)).toFixed(2)}</p>
+                            <p className="text-sm font-semibold">₹{job.charge.toFixed(2)}</p>
                         </div>
                     ))}
                 </div>
@@ -251,11 +294,8 @@ export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
                                 className="flex-1 text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                             >
                                 {job.name}
-                                <span className="block text-xs text-muted-foreground">
-                                    (₹{job.charge.toFixed(2)} + ₹{(job.charge * GST_RATE).toFixed(2)} GST)
-                                </span>
                             </label>
-                            <p className="text-sm font-semibold">₹{(job.charge * (1 + GST_RATE)).toFixed(2)}</p>
+                            <p className="text-sm font-semibold">₹{job.charge.toFixed(2)}</p>
                         </div>
                     ))}
                 </div>
@@ -293,9 +333,17 @@ export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
         </div>
       </CardContent>
       <CardFooter className="bg-muted/50 p-4 mt-6 rounded-b-lg flex-col items-stretch gap-2">
+          <div className="w-full flex justify-between items-center text-sm text-muted-foreground">
+              <p>Subtotal (Parts):</p>
+              <p>₹{partsTotal.toFixed(2)}</p>
+          </div>
            <div className="w-full flex justify-between items-center text-sm text-muted-foreground">
-              <p>Subtotal (Additional Labor):</p>
+              <p>Subtotal (Labor):</p>
               <p>₹{totalLaborCharge.toFixed(2)}</p>
+          </div>
+          <div className="w-full flex justify-between items-center text-sm text-muted-foreground">
+              <p>Total GST on Parts (18%):</p>
+              <p>₹{gstOnParts.toFixed(2)}</p>
           </div>
           <div className="w-full flex justify-between items-center text-sm text-muted-foreground">
               <p>Total GST on Labor (18%):</p>
@@ -310,3 +358,5 @@ export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
     </div>
   );
 }
+
+    

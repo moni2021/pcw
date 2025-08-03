@@ -33,6 +33,183 @@ export const vehicles: Vehicle[] = [
   { model: 'Ritz', brand: 'Arena', category: 'Hatchback', variants: [], fuelTypes: ['Petrol', 'Diesel'], productionYears: [2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017] },
 ];
 
-export const serviceDataLookup: { [key: string]: Service } = {};
+const engineOil = { name: "Engine Oil", price: 1200 };
+const oilFilter = { name: "Oil Filter", price: 80 };
+const drainPlugGasket = { name: "Drain Plug Gasket", price: 20 };
+const coolant = { name: "Coolant", price: 400 };
+const brakeFluid = { name: "Brake Fluid", price: 350 };
+const airFilter = { name: "Air Filter", price: 250 };
+const fuelFilter = { name: "Fuel Filter", price: 300 };
+const sparkPlugs = { name: "Spark Plugs", price: 600 };
+const acFilter = { name: "A/C Filter", price: 350 };
+const transmissionFluid = { name: "Transmission Fluid", price: 800 };
+const superLongLifeCoolant = { name: "Super Long Life Coolant", price: 1500 };
+const hybridTransaxleFluid = { name: "Hybrid Transaxle Fluid", price: 2500 };
+const transferCaseOil = { name: "Transfer Case Oil", price: 1200 };
+const differentialOil = { name: "Differential Oil", price: 1000 };
+const dieselFilter = { name: "Diesel Filter", price: 1200 };
+
+const parts_10k_std = [engineOil, oilFilter, drainPlugGasket, coolant, brakeFluid];
+const parts_20k_std = [engineOil, oilFilter, drainPlugGasket, airFilter, acFilter, brakeFluid];
+const parts_30k_std = [engineOil, oilFilter, drainPlugGasket, coolant, brakeFluid];
+const parts_40k_std = [engineOil, oilFilter, drainPlugGasket, airFilter, acFilter, fuelFilter, sparkPlugs, brakeFluid];
+const parts_50k_std = [engineOil, oilFilter, drainPlugGasket, coolant, brakeFluid];
+const parts_60k_std = [engineOil, oilFilter, drainPlugGasket, airFilter, acFilter, brakeFluid, transmissionFluid];
+const parts_70k_std = [engineOil, oilFilter, drainPlugGasket, coolant, brakeFluid];
+const parts_80k_std = [engineOil, oilFilter, drainPlugGasket, airFilter, acFilter, fuelFilter, sparkPlugs, brakeFluid];
+const parts_90k_std = [engineOil, oilFilter, drainPlugGasket, coolant, brakeFluid];
+const parts_100k_std = [engineOil, oilFilter, drainPlugGasket, airFilter, acFilter, brakeFluid];
+const parts_110k_std = [engineOil, oilFilter, drainPlugGasket, coolant, brakeFluid];
+const parts_120k_std = [engineOil, oilFilter, drainPlugGasket, airFilter, acFilter, fuelFilter, sparkPlugs, brakeFluid, transmissionFluid];
+
+// Diesel Specific
+const parts_10k_diesel = [engineOil, oilFilter, drainPlugGasket, coolant, brakeFluid];
+const parts_20k_diesel = [engineOil, oilFilter, drainPlugGasket, airFilter, acFilter, brakeFluid, dieselFilter];
+const parts_30k_diesel = [engineOil, oilFilter, drainPlugGasket, coolant, brakeFluid];
+const parts_40k_diesel = [engineOil, oilFilter, drainPlugGasket, airFilter, acFilter, brakeFluid, dieselFilter];
+const parts_60k_diesel = [engineOil, oilFilter, drainPlugGasket, airFilter, acFilter, brakeFluid, transmissionFluid, dieselFilter];
+const parts_80k_diesel = [engineOil, oilFilter, drainPlugGasket, airFilter, acFilter, brakeFluid, dieselFilter];
+const parts_100k_diesel = [engineOil, oilFilter, drainPlugGasket, airFilter, acFilter, brakeFluid, dieselFilter];
+const parts_120k_diesel = [engineOil, oilFilter, drainPlugGasket, airFilter, acFilter, brakeFluid, transmissionFluid, dieselFilter];
+
+
+const freeService = { parts: [], labor: [] };
+
+function generateServiceData() {
+    const serviceData: ServiceData = {};
+    const modelGroups: { [key: string]: string[] } = {
+        "standard": ["Alto 800", "Alto K10", "S-Presso", "Celerio", "Wagon R", "Swift", "Dzire", "Ignis", "Baleno", "Ritz", "Eeco", "Eeco Cargo", "Super Carry"],
+        "long_life_coolant": ["Brezza", "Ertiga", "Ciaz", "S-Cross", "XL6", "Fronx"],
+        "grand_vitara_hybrid": ["Grand Vitara"], // Petrol (Smart Hybrid) is different from Strong Hybrid
+        "jimny": ["Jimny"],
+        "invicto": ["Invicto"],
+    };
+
+    const allModels = vehicles.map(v => v.model);
+
+    allModels.forEach(model => {
+        const fuelTypes = vehicles.find(v => v.model === model)?.fuelTypes || [];
+        fuelTypes.forEach(fuelType => {
+            let group = "standard";
+            if (modelGroups.long_life_coolant.includes(model)) group = "long_life_coolant";
+            if (model === "Grand Vitara" && fuelType === "Hybrid") group = "grand_vitara_hybrid";
+            if (model === "Jimny") group = "jimny";
+            if (model === "Invicto") group = "invicto";
+            if (fuelType === "Diesel") group = "diesel";
+            if (fuelType === "CNG") group = "cng"; // Can have specific CNG logic later
+
+            const keyPrefix = `${model} ${fuelType}`;
+
+            serviceData[`${keyPrefix} 1st Free Service (1,000 km)`] = freeService;
+            serviceData[`${keyPrefix} 2nd Free Service (5,000 km)`] = freeService;
+            serviceData[`${keyPrefix} 3rd Free Service (10,000 km)`] = { parts: [engineOil, oilFilter, drainPlugGasket], labor: [] };
+
+            let services: { [key: string]: Service } = {};
+
+            switch (group) {
+                case "diesel":
+                     services = {
+                        "20,000": { parts: parts_20k_diesel },
+                        "30,000": { parts: parts_30k_diesel },
+                        "40,000": { parts: parts_40k_diesel },
+                        "50,000": { parts: parts_50k_std }, // same as std
+                        "60,000": { parts: parts_60k_diesel },
+                        "70,000": { parts: parts_70k_std },
+                        "80,000": { parts: parts_80k_diesel },
+                        "90,000": { parts: parts_90k_std },
+                        "100,000":{ parts: parts_100k_diesel },
+                        "110,000":{ parts: parts_110k_std },
+                        "120,000":{ parts: parts_120k_diesel },
+                    };
+                    break;
+                case "long_life_coolant":
+                    services = {
+                        "20,000": { parts: [engineOil, oilFilter, drainPlugGasket, airFilter, acFilter, brakeFluid] },
+                        "30,000": { parts: [engineOil, oilFilter, drainPlugGasket, brakeFluid] }, // No coolant
+                        "40,000": { parts: [engineOil, oilFilter, drainPlugGasket, airFilter, acFilter, fuelFilter, sparkPlugs, brakeFluid] },
+                        "50,000": { parts: [engineOil, oilFilter, drainPlugGasket, brakeFluid] },
+                        "60,000": { parts: [engineOil, oilFilter, drainPlugGasket, airFilter, acFilter, brakeFluid, transmissionFluid] },
+                        "70,000": { parts: [engineOil, oilFilter, drainPlugGasket, brakeFluid] },
+                        "80,000": { parts: [engineOil, oilFilter, drainPlugGasket, airFilter, acFilter, fuelFilter, sparkPlugs, brakeFluid] },
+                        "90,000": { parts: [engineOil, oilFilter, drainPlugGasket, brakeFluid] },
+                        "100,000": { parts: [engineOil, oilFilter, drainPlugGasket, airFilter, acFilter, superLongLifeCoolant, brakeFluid] }, // SLLC replace
+                        "110,000": { parts: [engineOil, oilFilter, drainPlugGasket, brakeFluid] },
+                        "120,000": { parts: [engineOil, oilFilter, drainPlugGasket, airFilter, acFilter, fuelFilter, sparkPlugs, brakeFluid, transmissionFluid] },
+                    };
+                    break;
+                case "grand_vitara_hybrid": // Strong Hybrid
+                     services = {
+                        "20,000": { parts: [engineOil, oilFilter, drainPlugGasket, airFilter, acFilter, brakeFluid] },
+                        "30,000": { parts: [engineOil, oilFilter, drainPlugGasket, brakeFluid] },
+                        "40,000": { parts: [engineOil, oilFilter, drainPlugGasket, airFilter, acFilter, sparkPlugs, brakeFluid] }, // No fuel filter
+                        "50,000": { parts: [engineOil, oilFilter, drainPlugGasket, brakeFluid] },
+                        "60,000": { parts: [engineOil, oilFilter, drainPlugGasket, airFilter, acFilter, brakeFluid] }, // No transmission fluid
+                        "70,000": { parts: [engineOil, oilFilter, drainPlugGasket, brakeFluid] },
+                        "80,000": { parts: [engineOil, oilFilter, drainPlugGasket, airFilter, acFilter, sparkPlugs, brakeFluid, hybridTransaxleFluid] },
+                        "90,000": { parts: [engineOil, oilFilter, drainPlugGasket, brakeFluid] },
+                        "100,000": { parts: [engineOil, oilFilter, drainPlugGasket, airFilter, acFilter, superLongLifeCoolant, brakeFluid] },
+                        "110,000": { parts: [engineOil, oilFilter, drainPlugGasket, brakeFluid] },
+                        "120,000": { parts: [engineOil, oilFilter, drainPlugGasket, airFilter, acFilter, sparkPlugs, brakeFluid] },
+                    };
+                    break;
+                case "jimny":
+                    services = {
+                        "20,000": { parts: [engineOil, oilFilter, drainPlugGasket, airFilter, acFilter, brakeFluid] },
+                        "30,000": { parts: [engineOil, oilFilter, drainPlugGasket, coolant, brakeFluid, transferCaseOil, differentialOil] },
+                        "40,000": { parts: [engineOil, oilFilter, drainPlugGasket, airFilter, acFilter, fuelFilter, sparkPlugs, brakeFluid] },
+                        "50,000": { parts: [engineOil, oilFilter, drainPlugGasket, coolant, brakeFluid] },
+                        "60,000": { parts: [engineOil, oilFilter, drainPlugGasket, airFilter, acFilter, brakeFluid, transmissionFluid, transferCaseOil, differentialOil] },
+                        "70,000": { parts: [engineOil, oilFilter, drainPlugGasket, coolant, brakeFluid] },
+                        "80,000": { parts: [engineOil, oilFilter, drainPlugGasket, airFilter, acFilter, fuelFilter, sparkPlugs, brakeFluid] },
+                        "90,000": { parts: [engineOil, oilFilter, drainPlugGasket, coolant, brakeFluid, transferCaseOil, differentialOil] },
+                        "100,000": { parts: [engineOil, oilFilter, drainPlugGasket, airFilter, acFilter, brakeFluid] },
+                        "110,000": { parts: [engineOil, oilFilter, drainPlugGasket, coolant, brakeFluid] },
+                        "120,000": { parts: [engineOil, oilFilter, drainPlugGasket, airFilter, acFilter, fuelFilter, sparkPlugs, brakeFluid, transmissionFluid, transferCaseOil, differentialOil] },
+                    };
+                    break;
+                case "invicto":
+                     services = {
+                        "20,000": { parts: [engineOil, oilFilter, drainPlugGasket, airFilter, acFilter, brakeFluid] },
+                        "30,000": { parts: [engineOil, oilFilter, drainPlugGasket, brakeFluid] }, // Uses SLLC
+                        "40,000": { parts: [engineOil, oilFilter, drainPlugGasket, airFilter, acFilter, sparkPlugs, brakeFluid] },
+                        "50,000": { parts: [engineOil, oilFilter, drainPlugGasket, brakeFluid] },
+                        "60,000": { parts: [engineOil, oilFilter, drainPlugGasket, airFilter, acFilter, brakeFluid] },
+                        "70,000": { parts: [engineOil, oilFilter, drainPlugGasket, brakeFluid] },
+                        "80,000": { parts: [engineOil, oilFilter, drainPlugGasket, airFilter, acFilter, sparkPlugs, brakeFluid] },
+                        "90,000": { parts: [engineOil, oilFilter, drainPlugGasket, brakeFluid] },
+                        "100,000": { parts: [engineOil, oilFilter, drainPlugGasket, airFilter, acFilter, superLongLifeCoolant, brakeFluid] },
+                        "110,000": { parts: [engineOil, oilFilter, drainPlugGasket, brakeFluid] },
+                        "120,000": { parts: [engineOil, oilFilter, drainPlugGasket, airFilter, acFilter, sparkPlugs, brakeFluid] },
+                    };
+                    break;
+                default: // standard
+                    services = {
+                        "20,000": { parts: parts_20k_std },
+                        "30,000": { parts: parts_30k_std },
+                        "40,000": { parts: parts_40k_std },
+                        "50,000": { parts: parts_50k_std },
+                        "60,000": { parts: parts_60k_std },
+                        "70,000": { parts: parts_70k_std },
+                        "80,000": { parts: parts_80k_std },
+                        "90,000": { parts: parts_90k_std },
+                        "100,000": { parts: parts_100k_std },
+                        "110,000": { parts: parts_110k_std },
+                        "120,000": { parts: parts_120k_std },
+                    };
+                    break;
+            }
+
+            for (const [km, service] of Object.entries(services)) {
+                serviceData[`${keyPrefix} Paid Service (${km} km)`] = service;
+            }
+        });
+    });
+
+    return serviceData;
+}
+
+export const serviceDataLookup: { [key: string]: Service } = generateServiceData();
 
 export const serviceData: ServiceData = {};
+
+    
