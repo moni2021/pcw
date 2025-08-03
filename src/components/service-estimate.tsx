@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Separator } from '@/components/ui/separator';
-import { Percent, PlusCircle, Sparkles, Wrench, Package, Hammer } from 'lucide-react';
+import { Percent, PlusCircle, Sparkles, Wrench, Package, Hammer, MinusCircle } from 'lucide-react';
 import type { ServiceEstimateData, Labor, Part } from '@/lib/types';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
@@ -27,6 +27,7 @@ export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
 
   const [discountType, setDiscountType] = useState<'percentage' | 'rupees'>('percentage');
   const [discountValue, setDiscountValue] = useState<number>(0);
+  const [calculatedDiscount, setCalculatedDiscount] = useState<number>(0);
   const [selectedRecommended, setSelectedRecommended] = useState<Labor[]>([]);
   const [selectedOptional, setSelectedOptional] = useState<Labor[]>([]);
   const [customLabor, setCustomLabor] = useState<Labor[]>([]);
@@ -43,7 +44,7 @@ export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
   }, [vehicle.model]);
   
   const totalLaborCharge = useMemo(() => pmsLaborCharge + recommendedLaborCharge + optionalServiceCharge + customLaborCharge, [pmsLaborCharge, recommendedLaborCharge, optionalServiceCharge, customLaborCharge]);
-  const gstOnLabor = useMemo(() => totalLaborCharge * GST_RATE, [totalLaborCharge]);
+  const gstOnLabor = useMemo(() => (totalLaborCharge - optionalServiceCharge) * GST_RATE, [totalLaborCharge, optionalServiceCharge]);
   
 
   useEffect(() => {
@@ -59,11 +60,12 @@ export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
     }
     
     laborDiscount = Math.min(laborDiscount, discountableLabor);
+    setCalculatedDiscount(laborDiscount);
 
     const newTotal = totalLaborCharge + gstOnLabor + partsTotal - laborDiscount;
     setFinalTotal(newTotal);
 
-  }, [discountValue, discountType, totalLaborCharge, gstOnLabor, partsTotal, pmsLaborCharge, recommendedLaborCharge, customLaborCharge]);
+  }, [discountValue, discountType, totalLaborCharge, gstOnLabor, partsTotal, pmsLaborCharge, recommendedLaborCharge, customLaborCharge, optionalServiceCharge]);
   
   useEffect(() => {
     setDiscountValue(0);
@@ -239,7 +241,7 @@ export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
                                 <TableCell className="text-right">{job.charge.toFixed(2)}</TableCell>
                                 <TableCell className="text-right">
                                   <Button variant="ghost" size="icon" onClick={() => handleCustomLaborRemove(job.name)}>
-                                    <PlusCircle className="h-4 w-4 rotate-45 text-destructive"/>
+                                    <MinusCircle className="h-4 w-4 text-destructive"/>
                                   </Button>
                                 </TableCell>
                               </TableRow>
@@ -342,9 +344,15 @@ export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
               <p>₹{totalLaborCharge.toFixed(2)}</p>
           </div>
           <div className="w-full flex justify-between items-center text-sm text-muted-foreground">
-              <p>Total GST on Labor (18%):</p>
+              <p>GST on Labor (18%):</p>
               <p>₹{gstOnLabor.toFixed(2)}</p>
           </div>
+          {calculatedDiscount > 0 && (
+             <div className="w-full flex justify-between items-center text-sm text-green-600">
+                <p>Discount on Labor:</p>
+                <p>- ₹{calculatedDiscount.toFixed(2)}</p>
+            </div>
+          )}
         <Separator className="my-1"/>
         <div className="w-full flex justify-between items-center">
             <p className="text-xl font-bold">Total Estimate:</p>
