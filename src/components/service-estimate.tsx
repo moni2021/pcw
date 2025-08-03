@@ -44,7 +44,7 @@ export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
   
   const totalLaborCharge = useMemo(() => pmsLaborCharge + recommendedLaborCharge + optionalServiceCharge + customLaborCharge, [pmsLaborCharge, recommendedLaborCharge, optionalServiceCharge, customLaborCharge]);
   const gstOnLabor = useMemo(() => totalLaborCharge * GST_RATE, [totalLaborCharge]);
-  const gstOnParts = useMemo(() => partsTotal * GST_RATE, [partsTotal]);
+  
 
   useEffect(() => {
     let laborDiscount = 0;
@@ -60,10 +60,10 @@ export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
     
     laborDiscount = Math.min(laborDiscount, discountableLabor);
 
-    const newTotal = totalLaborCharge + gstOnLabor + partsTotal + gstOnParts - laborDiscount;
+    const newTotal = totalLaborCharge + gstOnLabor + partsTotal - laborDiscount;
     setFinalTotal(newTotal);
 
-  }, [discountValue, discountType, totalLaborCharge, gstOnLabor, partsTotal, gstOnParts, pmsLaborCharge, recommendedLaborCharge, customLaborCharge]);
+  }, [discountValue, discountType, totalLaborCharge, gstOnLabor, partsTotal, pmsLaborCharge, recommendedLaborCharge, customLaborCharge]);
   
   useEffect(() => {
     setDiscountValue(0);
@@ -342,10 +342,6 @@ export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
               <p>₹{totalLaborCharge.toFixed(2)}</p>
           </div>
           <div className="w-full flex justify-between items-center text-sm text-muted-foreground">
-              <p>Total GST on Parts (18%):</p>
-              <p>₹{gstOnParts.toFixed(2)}</p>
-          </div>
-          <div className="w-full flex justify-between items-center text-sm text-muted-foreground">
               <p>Total GST on Labor (18%):</p>
               <p>₹{gstOnLabor.toFixed(2)}</p>
           </div>
@@ -358,5 +354,3 @@ export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
     </div>
   );
 }
-
-    
