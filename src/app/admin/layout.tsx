@@ -31,6 +31,7 @@ import { useRouter } from 'next/navigation';
 import { signOut } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
 import { useToast } from '@/hooks/use-toast';
+import { ADMIN_UIDS } from '@/lib/admins';
 
 
 export default function AdminLayout({
@@ -44,10 +45,23 @@ export default function AdminLayout({
   const { toast } = useToast();
 
   React.useEffect(() => {
-    if (!loading && !user) {
+    if (loading) return; 
+
+    if (!user) {
       router.replace('/');
+      return;
     }
-  }, [user, loading, router]);
+
+    if (!ADMIN_UIDS.includes(user.uid)) {
+        toast({
+            variant: 'destructive',
+            title: 'Unauthorized',
+            description: 'You do not have permission to access this page.',
+        });
+        router.replace('/estimator');
+    }
+
+  }, [user, loading, router, toast]);
 
   const handleSignOut = async () => {
     try {
@@ -59,7 +73,7 @@ export default function AdminLayout({
     }
   };
 
-  if (loading || !user) {
+  if (loading || !user || !ADMIN_UIDS.includes(user.uid)) {
     return null;
   }
 
