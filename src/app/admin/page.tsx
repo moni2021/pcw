@@ -1,4 +1,5 @@
 
+
 import {
   Accordion,
   AccordionContent,
@@ -25,7 +26,8 @@ import { vehicles } from "@/lib/data"
 import { Textarea } from "@/components/ui/textarea"
 import { Button } from "@/components/ui/button"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import { FileCode, Upload } from "lucide-react"
+import { FileCode, Upload, Users, ExternalLink } from "lucide-react"
+import Link from "next/link"
 
 const partsFormatExample = `
 [
@@ -50,18 +52,49 @@ const customLaborFormatExample = `
 
 
 export default function AdminDashboard() {
+  const firebaseConsoleUrl = `https://console.firebase.google.com/project/maruti-service-estimator/authentication/users`;
+
   return (
     <div className="space-y-6">
         <Card>
           <CardHeader>
             <CardTitle>Admin Dashboard</CardTitle>
             <CardDescription>
-              Manage vehicle data, service schedules, and pricing information.
+              Manage vehicle data, service schedules, and user access.
             </CardDescription>
           </CardHeader>
         </Card>
 
         <Accordion type="single" collapsible className="w-full">
+          <AccordionItem value="item-5">
+            <AccordionTrigger>
+              <h3 className="text-lg font-medium">User Management</h3>
+            </AccordionTrigger>
+            <AccordionContent>
+                <Card className="border-0 shadow-none">
+                  <CardHeader>
+                    <CardDescription>
+                      Create, delete, and manage user accounts for the application.
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <Alert>
+                        <Users className="h-4 w-4" />
+                        <AlertTitle>Manage Users in Firebase</AlertTitle>
+                        <AlertDescription>
+                            <p>For security, all user management is handled directly in the Firebase Console. From there, you can add new users, reset passwords, or remove accounts.</p>
+                             <Button asChild className="mt-4">
+                                <Link href={firebaseConsoleUrl} target="_blank">
+                                    Go to Firebase Console <ExternalLink className="ml-2 h-4 w-4" />
+                                </Link>
+                            </Button>
+                        </AlertDescription>
+                    </Alert>
+                  </CardContent>
+                </Card>
+            </AccordionContent>
+          </AccordionItem>
+
           <AccordionItem value="item-1">
             <AccordionTrigger>
               <h3 className="text-lg font-medium">Vehicle Management</h3>
