@@ -4,6 +4,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
 import { ThemeProvider } from "@/context/ThemeContext";
+import { AuthProvider } from "@/context/AuthContext";
 
 
 const inter = Inter({ subsets: ["latin"] });
@@ -21,28 +22,30 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark">
       <ThemeProvider>
-        <body className={`${inter.className} antialiased`}>
-          {children}
-          <Toaster />
-          {/* Disable react-devtools in production */}
-          <script
-            dangerouslySetInnerHTML={{
-              __html: `
-            if (typeof window.__REACT_DEVTOOLS_GLOBAL_HOOK__ === 'object') {
-              Object.defineProperty(window, '__REACT_DEVTOOLS_GLOBAL_HOOK__', {
-                value: {
-                  inject: function() {},
-                  onCommitFiberRoot: function() {},
-                  onCommitFiberUnmount: function() {},
-                  supportsFiber: true,
-                },
-                configurable: false
-              });
-            }
-          `,
-            }}
-          />
-        </body>
+        <AuthProvider>
+          <body className={`${inter.className} antialiased`}>
+            {children}
+            <Toaster />
+            {/* Disable react-devtools in production */}
+            <script
+              dangerouslySetInnerHTML={{
+                __html: `
+              if (typeof window.__REACT_DEVTOOLS_GLOBAL_HOOK__ === 'object') {
+                Object.defineProperty(window, '__REACT_DEVTOOLS_GLOBAL_HOOK__', {
+                  value: {
+                    inject: function() {},
+                    onCommitFiberRoot: function() {},
+                    onCommitFiberUnmount: function() {},
+                    supportsFiber: true,
+                  },
+                  configurable: false
+                });
+              }
+            `,
+              }}
+            />
+          </body>
+        </AuthProvider>
       </ThemeProvider>
     </html>
   );

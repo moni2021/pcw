@@ -8,6 +8,7 @@ import {
   Home,
   PanelLeft,
   Settings,
+  LogOut,
 } from 'lucide-react';
 
 import {
@@ -25,6 +26,11 @@ import {
 import { Button } from '@/components/ui/button';
 import { useTheme } from '@/context/ThemeContext';
 import { cn } from '@/lib/utils';
+import { useAuth } from '@/context/AuthContext';
+import { useRouter } from 'next/navigation';
+import { signOut } from 'firebase/auth';
+import { auth } from '@/lib/firebase';
+import { useToast } from '@/hooks/use-toast';
 
 
 export default function AdminLayout({
@@ -33,13 +39,37 @@ export default function AdminLayout({
   children: React.ReactNode;
 }) {
   const { theme } = useTheme();
+  const { user, loading } = useAuth();
+  const router = useRouter();
+  const { toast } = useToast();
+
+  React.useEffect(() => {
+    if (!loading && !user) {
+      router.replace('/');
+    }
+  }, [user, loading, router]);
+
+  const handleSignOut = async () => {
+    try {
+      await signOut(auth);
+      toast({ title: 'Signed Out', description: 'You have been successfully signed out.' });
+      router.push('/');
+    } catch (error) {
+      toast({ variant: 'destructive', title: 'Error', description: 'Failed to sign out.' });
+    }
+  };
+
+  if (loading || !user) {
+    return null;
+  }
+
   return (
     <div className={cn("flex min-h-screen w-full flex-col bg-background transition-colors duration-500", theme)}>
       <SidebarProvider>
         <Sidebar>
           <SidebarHeader>
              <Button variant="ghost" size="icon" asChild>
-                <Link href="/">
+                <Link href="/estimator">
                   <Bot />
                 </Link>
               </Button>
@@ -61,7 +91,9 @@ export default function AdminLayout({
             </SidebarMenu>
           </SidebarContent>
           <SidebarFooter>
-            <p className="text-xs text-muted-foreground p-2 text-center group-data-[collapsible=icon]:hidden">© Maruti Service</p>
+             <Button variant="ghost" size="icon" onClick={handleSignOut}>
+                <LogOut />
+              </Button>
           </SidebarFooter>
         </Sidebar>
         <SidebarInset>
@@ -71,7 +103,7 @@ export default function AdminLayout({
                     <h1 className="text-lg font-semibold">Admin Panel</h1>
                 </div>
                  <Button asChild size="sm">
-                    <Link href="/">Back to Site</Link>
+                    <Link href="/estimator">Back to Estimator</Link>
                 </Button>
             </header>
             <main className="flex flex-1 flex-col gap-4 p-4 lg:gap-6 lg:p-6">

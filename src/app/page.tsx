@@ -1,54 +1,96 @@
 
 "use client";
 
-import { VehicleServiceForm } from '@/components/vehicle-service-form';
-import { Header } from '@/components/header';
-import { Card } from '@/components/ui/card';
-import { useTheme } from '@/context/ThemeContext';
-import { cn } from '@/lib/utils';
-import Link from 'next/link';
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { Bot, Car } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Settings } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/context/AuthContext';
+import { signInWithEmailAndPassword } from 'firebase/auth';
+import { auth } from '@/lib/firebase';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
+export default function LoginPage() {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
+  const { toast } = useToast();
+  const router = useRouter();
+  const { user } = useAuth();
 
-export default function Home() {
-  const { theme } = useTheme();
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
+      toast({ title: "Login Successful", description: "Redirecting to the estimator..." });
+      router.push('/estimator');
+    } catch (error: any) {
+      toast({
+        variant: 'destructive',
+        title: 'Login Failed',
+        description: error.message,
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (user) {
+    router.replace('/estimator');
+    return null;
+  }
 
   return (
-    <div className={cn("flex min-h-screen w-full flex-col bg-background transition-colors duration-500", theme)}>
-      <Header className="no-print" />
-      <main className="flex-1">
-        <section className="w-full py-8 sm:py-12 md:py-24 lg:py-32">
-          <div className="container px-4 md:px-6">
-            <div className="flex flex-col items-center justify-center space-y-4 text-center no-print">
-              <div className="space-y-2">
-                <h1 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">Service Estimator</h1>
-                <p className="mx-auto max-w-[700px] text-muted-foreground md:text-xl">
-                  Get instant, accurate service estimates for your Maruti Suzuki vehicle. Our advanced system provides transparent pricing for all your maintenance needs.
-                </p>
-              </div>
-            </div>
-            <div className="mx-auto w-full max-w-2xl pt-10">
-                <Card className="bg-card/50 backdrop-blur-sm">
-                  <VehicleServiceForm />
-                </Card>
-            </div>
+    <div className="flex min-h-screen items-center justify-center bg-background p-4">
+      <Card className="w-full max-w-md">
+        <CardHeader className="text-center">
+          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 text-primary">
+            <Car className="h-8 w-8" />
           </div>
-        </section>
-      </main>
-      <footer className="flex py-6 w-full shrink-0 items-center justify-center px-4 md:px-6 border-t no-print">
-        <p className="text-xs text-muted-foreground text-center">
-          © Maruti Suzuki Service Estimator. An unofficial tool. Prices are indicative. Made By Hiru Mani And His Team
-        </p>
-      </footer>
-      <div className="fixed bottom-4 right-4 z-50 no-print">
-        <Button asChild size="icon" variant="secondary" className="rounded-full shadow-lg">
-          <Link href="/admin">
-            <Settings className="h-5 w-5" />
-            <span className="sr-only">Go to Admin</span>
-          </Link>
-        </Button>
-      </div>
+          <CardTitle>Service Estimator</CardTitle>
+          <CardDescription>Please sign in to continue</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleLogin} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="email">Email</Label>
+              <Input
+                id="email"
+                type="email"
+                placeholder="m@example.com"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="password">Password</Label>
+              <Input
+                id="password"
+                type="password"
+                required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+            </div>
+            <Button type="submit" className="w-full" disabled={loading}>
+              {loading ? 'Signing In...' : 'Sign In'}
+            </Button>
+          </form>
+           <Alert className="mt-4">
+              <Bot className="h-4 w-4" />
+              <AlertTitle>Admin Access</AlertTitle>
+              <AlertDescription>
+                To create users, please go to your Firebase Console, navigate to the Authentication section, and add users there.
+              </AlertDescription>
+          </Alert>
+        </CardContent>
+      </Card>
     </div>
   );
 }
