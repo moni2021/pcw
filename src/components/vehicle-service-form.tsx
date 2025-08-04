@@ -87,10 +87,38 @@ export function VehicleServiceForm() {
   }
   
   const handleYearChange = (yearStr: string) => {
+      const year = parseInt(yearStr, 10);
       setSelectedYear(yearStr);
-      setSelectedServiceType('');
       setEstimate(null);
       setError('');
+
+      const currentYear = new Date().getFullYear();
+      const vehicleAge = currentYear - year;
+      
+      let suggestedService = '';
+
+      if (vehicleAge <= 0) { // Current year or future
+          suggestedService = '1st Free Service (1,000 km)';
+      } else if (vehicleAge === 1) {
+          suggestedService = '3rd Free Service (10,000 km)';
+      } else {
+          const estimatedKm = vehicleAge * 10000;
+          // Find the closest paid service
+          const paidServices = serviceTypes.filter(s => s.startsWith('Paid Service'));
+          let closestService = paidServices[0];
+          let smallestDiff = Infinity;
+
+          paidServices.forEach(service => {
+              const serviceKm = parseInt(service.match(/\(([\d,]+)\s*km\)/)?.[1].replace(/,/g, '') || '0', 10);
+              const diff = Math.abs(estimatedKm - serviceKm);
+              if (diff < smallestDiff) {
+                  smallestDiff = diff;
+                  closestService = service;
+              }
+          });
+          suggestedService = closestService;
+      }
+      setSelectedServiceType(suggestedService);
   }
 
   const handleServiceTypeChange = (serviceType: string) => {
