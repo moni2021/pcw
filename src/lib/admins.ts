@@ -3,5 +3,5 @@
 // Authentication > Users, and you will see the UID listed for each user.
 
 export const ADMIN_UIDS = [
-  'REPLACE_WITH_YOUR_ADMIN_UID', // TODO: Replace with the actual UID of your admin user
+  '9SbZEDLSHSQ5pnNz3sm3ZauLZHg1', // TODO: Replace with the actual UID of your admin user
 ];
