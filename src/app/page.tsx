@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Bot, Car } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -22,6 +22,12 @@ export default function LoginPage() {
   const router = useRouter();
   const { user } = useAuth();
 
+  useEffect(() => {
+    if (user) {
+      router.replace('/estimator');
+    }
+  }, [user, router]);
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -41,8 +47,7 @@ export default function LoginPage() {
   };
 
   if (user) {
-    router.replace('/estimator');
-    return null;
+    return null; // or a loading spinner, while redirecting
   }
 
   return (
@@ -88,7 +93,7 @@ export default function LoginPage() {
               <AlertDescription>
                 To create users, please go to your Firebase Console, navigate to the Authentication section, and add users there.
               </AlertDescription>
-          </Alert>
+            </Alert>
         </CardContent>
       </Card>
     </div>
