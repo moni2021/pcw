@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
@@ -15,10 +16,13 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
   const [theme, setTheme] = useState<Theme>('default');
 
   useEffect(() => {
-    // Remove all theme classes
+    // Ensure the dark class is always present
+    document.documentElement.classList.add('dark');
+    
+    // Remove specific theme classes before adding the new one
     document.documentElement.classList.remove('theme-arena', 'theme-nexa');
     
-    // Add the current theme class
+    // Add the current theme class if it's not the default
     if (theme !== 'default') {
       document.documentElement.classList.add(`theme-${theme}`);
     }
