@@ -179,7 +179,7 @@ export default function AdminDashboard() {
                   Please upload a JSON file.
                 </p>
               </div>
-              <Button>
+              <Button disabled>
                 <FileUp className="mr-2 h-4 w-4" />
                 Upload and Process
               </Button>
