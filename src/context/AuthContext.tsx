@@ -6,6 +6,8 @@ import { onAuthStateChanged, User } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
 import { Loader2 } from 'lucide-react';
 import { Inter } from "next/font/google";
+import { useToast } from '@/hooks/use-toast';
+
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -23,15 +25,33 @@ const AuthContext = createContext<AuthContextType>({
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const { toast } = useToast();
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setUser(user);
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        // Manually trigger token refresh to get latest user properties
+        const tokenResult = await user.getIdTokenResult(true);
+        // In our flow, disabled users have emailVerified set to false.
+        if (tokenResult.claims.disabled) {
+            toast({
+                variant: 'destructive',
+                title: 'Account Disabled',
+                description: 'Your account is currently disabled or pending approval.',
+            });
+           await auth.signOut();
+           setUser(null);
+        } else {
+             setUser(user);
+        }
+      } else {
+        setUser(null);
+      }
       setLoading(false);
     });
 
     return () => unsubscribe();
-  }, []);
+  }, [toast]);
 
   if (loading) {
       return (

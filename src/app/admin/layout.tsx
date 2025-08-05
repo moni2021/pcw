@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import * as React from 'react';
@@ -9,6 +10,7 @@ import {
   PanelLeft,
   Settings,
   LogOut,
+  Users,
 } from 'lucide-react';
 
 import {
@@ -94,6 +96,12 @@ export default function AdminLayout({
                 <SidebarMenuButton href="/admin" isActive>
                   <Home />
                   Dashboard
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+               <SidebarMenuItem>
+                <SidebarMenuButton href="/admin">
+                  <Users />
+                  User Management
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>

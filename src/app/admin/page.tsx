@@ -1,5 +1,7 @@
 
+'use client';
 
+import React, { useState, useEffect } from 'react';
 import {
   Accordion,
   AccordionContent,
@@ -26,8 +28,12 @@ import { vehicles } from "@/lib/data"
 import { Textarea } from "@/components/ui/textarea"
 import { Button } from "@/components/ui/button"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import { FileCode, Upload, Users, ExternalLink } from "lucide-react"
+import { FileCode, Upload, Users, ExternalLink, ShieldCheck, ShieldOff, Loader2 } from "lucide-react"
 import Link from "next/link"
+import { listAllUsers, toggleUserStatus, UserRecord } from '@/ai/flows/user-management';
+import { useToast } from '@/hooks/use-toast';
+import { Switch } from '@/components/ui/switch';
+
 
 const partsFormatExample = `
 [
@@ -52,7 +58,43 @@ const customLaborFormatExample = `
 
 
 export default function AdminDashboard() {
-  const firebaseConsoleUrl = `https://console.firebase.google.com/project/maruti-service-estimator/authentication/users`;
+  const [users, setUsers] = useState<UserRecord[]>([]);
+  const [loadingUsers, setLoadingUsers] = useState(true);
+  const [updatingUids, setUpdatingUids] = useState<string[]>([]);
+  const { toast } = useToast();
+
+  const fetchUsers = async () => {
+    setLoadingUsers(true);
+    try {
+      const result = await listAllUsers();
+      if (result.error) throw new Error(result.error);
+      setUsers(result.users || []);
+    } catch (error: any) {
+      toast({ variant: 'destructive', title: 'Error fetching users', description: error.message });
+    } finally {
+      setLoadingUsers(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchUsers();
+  }, []);
+
+  const handleToggleUser = async (uid: string, currentStatus: boolean) => {
+    setUpdatingUids(prev => [...prev, uid]);
+    try {
+      const result = await toggleUserStatus({ uid, disabled: !currentStatus });
+       if (result.error) throw new Error(result.error);
+       toast({ title: 'Success', description: `User status updated successfully.` });
+       // Refresh the list
+       fetchUsers();
+    } catch (error: any) {
+        toast({ variant: 'destructive', title: 'Error updating user', description: error.message });
+    } finally {
+        setUpdatingUids(prev => prev.filter(id => id !== uid));
+    }
+  };
+
 
   return (
     <div className="space-y-6">
@@ -65,7 +107,7 @@ export default function AdminDashboard() {
           </CardHeader>
         </Card>
 
-        <Accordion type="single" collapsible className="w-full">
+        <Accordion type="single" collapsible className="w-full" defaultValue="item-5">
           <AccordionItem value="item-5">
             <AccordionTrigger>
               <h3 className="text-lg font-medium">User Management</h3>
@@ -74,22 +116,57 @@ export default function AdminDashboard() {
                 <Card className="border-0 shadow-none">
                   <CardHeader>
                     <CardDescription>
-                      Create, delete, and manage user accounts for the application.
+                      Enable or disable user accounts. New users are disabled by default and require activation.
                     </CardDescription>
+                     <Button onClick={fetchUsers} disabled={loadingUsers} size="sm" className="w-fit">
+                        {loadingUsers ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                        Refresh Users
+                    </Button>
                   </CardHeader>
                   <CardContent>
-                    <Alert>
-                        <Users className="h-4 w-4" />
-                        <AlertTitle>Manage Users in Firebase</AlertTitle>
-                        <AlertDescription>
-                            <p>For security, all user management is handled directly in the Firebase Console. From there, you can add new users, reset passwords, or remove accounts.</p>
-                             <Button asChild className="mt-4">
-                                <Link href={firebaseConsoleUrl} target="_blank">
-                                    Go to Firebase Console <ExternalLink className="ml-2 h-4 w-4" />
-                                </Link>
-                            </Button>
-                        </AlertDescription>
-                    </Alert>
+                    {loadingUsers ? (
+                         <div className="flex justify-center items-center h-24">
+                            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                         </div>
+                    ) : (
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Email</TableHead>
+                          <TableHead>Created On</TableHead>
+                          <TableHead>Status</TableHead>
+                          <TableHead className="text-right">Action</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {users.map((user) => (
+                          <TableRow key={user.uid}>
+                            <TableCell className="font-medium">{user.email}</TableCell>
+                            <TableCell>{new Date(user.creationTime).toLocaleDateString()}</TableCell>
+                            <TableCell>
+                               <Badge variant={!user.disabled ? 'default' : 'destructive'} className="gap-1 pl-1.5 pr-2.5">
+                                 {!user.disabled ? <ShieldCheck className="h-3.5 w-3.5"/> : <ShieldOff className="h-3.5 w-3.5"/>}
+                                 {!user.disabled ? 'Enabled' : 'Disabled'}
+                               </Badge>
+                            </TableCell>
+                            <TableCell className="text-right">
+                                <div className="flex items-center justify-end gap-2">
+                                    <span>Disable</span>
+                                    <Switch
+                                        checked={!user.disabled}
+                                        onCheckedChange={() => handleToggleUser(user.uid, !user.disabled)}
+                                        disabled={updatingUids.includes(user.uid)}
+                                        aria-label="Toggle user status"
+                                    />
+                                    <span>Enable</span>
+                                    {updatingUids.includes(user.uid) && <Loader2 className="h-4 w-4 animate-spin" />}
+                                </div>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                    )}
                   </CardContent>
                 </Card>
             </AccordionContent>

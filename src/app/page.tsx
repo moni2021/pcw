@@ -10,9 +10,10 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/context/AuthContext';
-import { signInWithEmailAndPassword } from 'firebase/auth';
+import { signInWithEmailAndPassword, sendPasswordResetEmail } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import Link from 'next/link';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -32,19 +33,58 @@ export default function LoginPage() {
     e.preventDefault();
     setLoading(true);
     try {
-      await signInWithEmailAndPassword(auth, email, password);
-      toast({ title: "Login Successful", description: "Redirecting to the estimator..." });
-      router.push('/estimator');
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      // The user object from onAuthStateChanged will be used for redirection
+      
+      // Check if the user is disabled. The onAuthStateChanged listener in AuthContext handles this,
+      // but we can pre-emptively check to avoid a redirect flicker.
+      if (auth.currentUser && auth.currentUser.emailVerified === false) {
+           await auth.signOut();
+           toast({
+            variant: 'destructive',
+            title: 'Account Pending Approval',
+            description: 'Your account has been created but needs to be activated by an admin.',
+          });
+      } else {
+        toast({ title: "Login Successful", description: "Redirecting to the estimator..." });
+        router.push('/estimator');
+      }
+
     } catch (error: any) {
-      toast({
+       toast({
         variant: 'destructive',
         title: 'Login Failed',
-        description: error.message,
+        description: 'Please check your email and password, or your account may be pending approval.',
       });
     } finally {
       setLoading(false);
     }
   };
+  
+  const handleForgotPassword = async () => {
+    if (!email) {
+      toast({
+        variant: 'destructive',
+        title: 'Email Required',
+        description: 'Please enter your email address to reset your password.',
+      });
+      return;
+    }
+    try {
+      await sendPasswordResetEmail(auth, email);
+      toast({
+        title: 'Password Reset Email Sent',
+        description: 'Check your inbox for instructions to reset your password.',
+      });
+    } catch (error: any) {
+      toast({
+        variant: 'destructive',
+        title: 'Error',
+        description: error.message,
+      });
+    }
+  };
+
 
   if (user) {
     return null; // or a loading spinner, while redirecting
@@ -74,7 +114,12 @@ export default function LoginPage() {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="password">Password</Label>
+                   <Button variant="link" type="button" onClick={handleForgotPassword} className="px-0 text-xs h-auto">
+                        Forgot Password?
+                    </Button>
+                </div>
               <Input
                 id="password"
                 type="password"
@@ -86,14 +131,13 @@ export default function LoginPage() {
             <Button type="submit" className="w-full" disabled={loading}>
               {loading ? 'Signing In...' : 'Sign In'}
             </Button>
+             <div className="text-center text-sm">
+                Don't have an account?{' '}
+                <Link href="/signup" className="underline">
+                    Create one
+                </Link>
+            </div>
           </form>
-           <Alert className="mt-4">
-              <Bot className="h-4 w-4" />
-              <AlertTitle>Admin Access</AlertTitle>
-              <AlertDescription>
-                To create users, please go to your Firebase Console, navigate to the Authentication section, and add users there.
-              </AlertDescription>
-            </Alert>
         </CardContent>
       </Card>
     </div>

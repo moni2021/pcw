@@ -1,3 +1,4 @@
+
 import type {NextConfig} from 'next';
 
 const nextConfig: NextConfig = {
@@ -10,6 +11,14 @@ const nextConfig: NextConfig = {
   },
   devIndicators: {
     buildActivity: false,
+  },
+  experimental: {
+    serverActions: {
+      allowedOrigins: [
+        '*.firebaseapp.com',
+        '*.web.app',
+      ],
+    },
   },
 };
 
