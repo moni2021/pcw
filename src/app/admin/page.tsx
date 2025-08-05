@@ -8,7 +8,11 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Wrench, Package, Car, Upload } from 'lucide-react';
+import { Wrench, Package, Car, Upload, FileUp } from 'lucide-react';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
 
 export default function AdminDashboard() {
   return (
@@ -79,8 +83,32 @@ export default function AdminDashboard() {
                 Bulk upload data from a CSV or Excel file.
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-2">
-               <p className="text-sm text-muted-foreground">Data upload interface will be here.</p>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="dataType">Data Type</Label>
+                <Select>
+                  <SelectTrigger id="dataType">
+                    <SelectValue placeholder="Select data type to upload" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="labour">Custom Labour</SelectItem>
+                    <SelectItem value="parts">Parts and Price</SelectItem>
+                    <SelectItem value="pms">PMS Labour Price</SelectItem>
+                    <SelectItem value="3m">3M Care Products</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="fileUpload">Upload File</Label>
+                <Input id="fileUpload" type="file" />
+                 <p className="text-sm text-muted-foreground">
+                  Please upload a CSV or Excel file.
+                </p>
+              </div>
+              <Button>
+                <FileUp className="mr-2 h-4 w-4" />
+                Upload and Process
+              </Button>
             </CardContent>
           </Card>
         </TabsContent>
