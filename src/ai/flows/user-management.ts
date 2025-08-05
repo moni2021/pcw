@@ -75,15 +75,15 @@ export type ToggleUserStatusOutput = z.infer<typeof ToggleUserStatusOutputSchema
 // Exported wrapper functions that call the flows
 
 export async function createUser(input: CreateUserInput): Promise<CreateUserOutput> {
-  return createUserFlow.run(input);
+  return createUserFlow(input);
 }
 
 export async function listAllUsers(): Promise<ListUsersOutput> {
-    return listUsersFlow.run(undefined);
+    return listUsersFlow();
 }
 
 export async function toggleUserStatus(input: ToggleUserStatusInput): Promise<ToggleUserStatusOutput> {
-    return toggleUserStatusFlow.run(input);
+    return toggleUserStatusFlow(input);
 }
 
 
