@@ -13,6 +13,12 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Badge } from '@/components/ui/badge';
+import { vehicles } from '@/lib/data';
+import { customLaborData } from '@/lib/custom-labor-data';
+import { allParts } from '@/lib/parts-data';
 
 export default function AdminDashboard() {
   return (
@@ -41,11 +47,30 @@ export default function AdminDashboard() {
             <CardHeader>
               <CardTitle>Manage Labour Charges</CardTitle>
               <CardDescription>
-                Add, edit, or remove labour charges for different services.
+                View custom labour charges for different services and models. Editing is currently disabled.
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-2">
-              <p className="text-sm text-muted-foreground">Labour management interface will be here.</p>
+              <ScrollArea className="h-[60vh]">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Labour Name</TableHead>
+                      <TableHead>Model</TableHead>
+                      <TableHead className="text-right">Charge (₹)</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {customLaborData.map((labor, index) => (
+                      <TableRow key={index}>
+                        <TableCell className="font-medium">{labor.name}</TableCell>
+                        <TableCell>{labor.model}</TableCell>
+                        <TableCell className="text-right">{labor.charge.toFixed(2)}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </ScrollArea>
             </CardContent>
           </Card>
         </TabsContent>
@@ -54,11 +79,28 @@ export default function AdminDashboard() {
             <CardHeader>
               <CardTitle>Manage Parts and Pricing</CardTitle>
               <CardDescription>
-                Update parts information and their prices.
+                View all available parts and their prices. Editing is currently disabled.
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-2">
-               <p className="text-sm text-muted-foreground">Parts and pricing management interface will be here.</p>
+              <ScrollArea className="h-[60vh]">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Part Name</TableHead>
+                      <TableHead className="text-right">Price (₹)</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {allParts.map((part, index) => (
+                      <TableRow key={index}>
+                        <TableCell className="font-medium">{part.name}</TableCell>
+                        <TableCell className="text-right">{part.price.toFixed(2)}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </ScrollArea>
             </CardContent>
           </Card>
         </TabsContent>
@@ -67,11 +109,40 @@ export default function AdminDashboard() {
             <CardHeader>
               <CardTitle>Manage Vehicle Models</CardTitle>
               <CardDescription>
-                Add new vehicle models and manage existing ones.
+                View all vehicle models and their details. Editing is currently disabled.
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-2">
-               <p className="text-sm text-muted-foreground">Vehicle model management interface will be here.</p>
+              <ScrollArea className="h-[60vh]">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Model</TableHead>
+                      <TableHead>Brand</TableHead>
+                      <TableHead>Category</TableHead>
+                      <TableHead>Fuel Types</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {vehicles.map((vehicle) => (
+                      <TableRow key={vehicle.model}>
+                        <TableCell className="font-medium">{vehicle.model}</TableCell>
+                        <TableCell>
+                          <Badge variant={vehicle.brand === 'Nexa' ? 'default' : 'secondary'}>
+                            {vehicle.brand}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>{vehicle.category}</TableCell>
+                        <TableCell>
+                            <div className="flex flex-wrap gap-1">
+                                {vehicle.fuelTypes.map(fuel => <Badge key={fuel} variant="outline">{fuel}</Badge>)}
+                            </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </ScrollArea>
             </CardContent>
           </Card>
         </TabsContent>

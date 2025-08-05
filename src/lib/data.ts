@@ -1,5 +1,6 @@
 
 import { Vehicle, ServiceData, Service } from './types';
+import { allParts } from './parts-data';
 
 export const vehicles: Vehicle[] = [
   // Arena
@@ -33,21 +34,23 @@ export const vehicles: Vehicle[] = [
   { model: 'Ritz', brand: 'Arena', category: 'Hatchback', variants: [], fuelTypes: ['Petrol', 'Diesel'], productionYears: [2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017] },
 ];
 
-const engineOil = { name: "Engine Oil", price: 1200 };
-const oilFilter = { name: "Oil Filter", price: 80 };
-const drainPlugGasket = { name: "Drain Plug Gasket", price: 20 };
-const coolant = { name: "Coolant", price: 400 };
-const brakeFluid = { name: "Brake Fluid", price: 350 };
-const airFilter = { name: "Air Filter", price: 250 };
-const fuelFilter = { name: "Fuel Filter", price: 300 };
-const sparkPlugs = { name: "Spark Plugs", price: 600 };
-const acFilter = { name: "A/C Filter", price: 350 };
-const transmissionFluid = { name: "Transmission Fluid", price: 800 };
-const superLongLifeCoolant = { name: "Super Long Life Coolant", price: 1500 };
-const hybridTransaxleFluid = { name: "Hybrid Transaxle Fluid", price: 2500 };
-const transferCaseOil = { name: "Transfer Case Oil", price: 1200 };
-const differentialOil = { name: "Differential Oil", price: 1000 };
-const dieselFilter = { name: "Diesel Filter", price: 1200 };
+const getPart = (name: string) => allParts.find(p => p.name === name)!;
+
+const engineOil = getPart("Engine Oil");
+const oilFilter = getPart("Oil Filter");
+const drainPlugGasket = getPart("Drain Plug Gasket");
+const coolant = getPart("Coolant");
+const brakeFluid = getPart("Brake Fluid");
+const airFilter = getPart("Air Filter");
+const fuelFilter = getPart("Fuel Filter");
+const sparkPlugs = getPart("Spark Plugs");
+const acFilter = getPart("A/C Filter");
+const transmissionFluid = getPart("Transmission Fluid");
+const superLongLifeCoolant = getPart("Super Long Life Coolant");
+const hybridTransaxleFluid = getPart("Hybrid Transaxle Fluid");
+const transferCaseOil = getPart("Transfer Case Oil");
+const differentialOil = getPart("Differential Oil");
+const dieselFilter = getPart("Diesel Filter");
 
 const parts_10k_std = [engineOil, oilFilter, drainPlugGasket, coolant, brakeFluid];
 const parts_20k_std = [engineOil, oilFilter, drainPlugGasket, airFilter, acFilter, brakeFluid];
