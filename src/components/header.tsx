@@ -1,6 +1,7 @@
 import Link from "next/link"
-import { Bot } from "lucide-react"
+import { Bot, Settings } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { Button } from "./ui/button";
 
 interface HeaderProps {
     className?: string;
@@ -13,6 +14,13 @@ export function Header({ className }: HeaderProps) {
         <Bot className="h-6 w-6 text-primary" />
         <span className="sr-only">Service Estimator</span>
       </Link>
+      <div className="ml-auto flex items-center gap-4">
+        <Button asChild variant="ghost" size="icon">
+          <Link href="/admin">
+            <Settings />
+          </Link>
+        </Button>
+      </div>
     </header>
   )
 }
