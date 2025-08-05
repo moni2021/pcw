@@ -80,7 +80,7 @@ export default function AdminDashboard() {
             <CardHeader>
               <CardTitle>Upload Data</CardTitle>
               <CardDescription>
-                Bulk upload data from a CSV or Excel file.
+                Bulk upload data from a JSON file.
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -94,15 +94,15 @@ export default function AdminDashboard() {
                     <SelectItem value="labour">Custom Labour</SelectItem>
                     <SelectItem value="parts">Parts and Price</SelectItem>
                     <SelectItem value="pms">PMS Labour Price</SelectItem>
-                    <SelectItem value="3m">3M Care Products</SelectItem>
+                    <SelectItem value="models">Vehicle Models</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
               <div className="space-y-2">
                 <Label htmlFor="fileUpload">Upload File</Label>
-                <Input id="fileUpload" type="file" />
+                <Input id="fileUpload" type="file" accept="application/json" />
                  <p className="text-sm text-muted-foreground">
-                  Please upload a CSV or Excel file.
+                  Please upload a JSON file.
                 </p>
               </div>
               <Button>
