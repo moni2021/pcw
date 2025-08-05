@@ -7,23 +7,29 @@
  * - listAllUsers - Lists all users from Firebase Auth.
  * - toggleUserStatus - Enables or disables a user account.
  */
-import { ai, genkit } from '@genkit-ai/core';
+import { ai } from '@/ai/genkit';
 import { z } from 'zod';
 import { getAuth } from 'firebase-admin/auth';
 import { initializeApp, getApps, App } from 'firebase-admin/app';
 import { credential } from 'firebase-admin';
 
 // Initialize Firebase Admin SDK
-const serviceAccount = process.env.FIREBASE_SERVICE_ACCOUNT;
 let adminApp: App;
 
 if (!getApps().length) {
-  if (!serviceAccount) {
-    throw new Error('FIREBASE_SERVICE_ACCOUNT environment variable is not set.');
-  }
-  adminApp = initializeApp({
-    credential: credential.cert(JSON.parse(serviceAccount)),
-  });
+    const serviceAccount = {
+        projectId: process.env.FIREBASE_PROJECT_ID,
+        privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
+        clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+    };
+
+    if (!serviceAccount.projectId || !serviceAccount.privateKey || !serviceAccount.clientEmail) {
+        throw new Error('Firebase Admin SDK environment variables are not set. Please check your .env file.');
+    }
+
+    adminApp = initializeApp({
+        credential: credential.cert(serviceAccount),
+    });
 } else {
   adminApp = getApps()[0];
 }
