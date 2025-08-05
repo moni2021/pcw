@@ -3,14 +3,12 @@
 
 import { VehicleServiceForm } from '@/components/vehicle-service-form';
 import { Card } from '@/components/ui/card';
-import { useTheme } from '@/context/ThemeContext';
 import { cn } from '@/lib/utils';
 
 export default function EstimatorPage() {
-  const { theme } = useTheme();
 
   return (
-    <div className={cn("flex min-h-screen w-full flex-col bg-background transition-colors duration-500", theme)}>
+    <div className={cn("flex min-h-screen w-full flex-col bg-background transition-colors duration-500")}>
       <main className="flex-1">
         <section className="w-full py-8 sm:py-12 md:py-24 lg:py-32">
           <div className="container px-4 md:px-6">

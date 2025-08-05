@@ -26,7 +26,6 @@ import {
   SidebarFooter,
 } from '@/components/ui/sidebar';
 import { Button } from '@/components/ui/button';
-import { useTheme } from '@/context/ThemeContext';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/navigation';
@@ -41,7 +40,6 @@ export default function AdminLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const { theme } = useTheme();
   const { user, loading } = useAuth();
   const router = useRouter();
   const { toast } = useToast();
@@ -80,7 +78,7 @@ export default function AdminLayout({
   }
 
   return (
-    <div className={cn("flex min-h-screen w-full flex-col bg-background transition-colors duration-500", theme)}>
+    <div className={cn("flex min-h-screen w-full flex-col bg-background transition-colors duration-500")}>
       <SidebarProvider>
         <Sidebar>
           <SidebarHeader>
