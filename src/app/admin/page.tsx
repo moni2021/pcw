@@ -37,6 +37,9 @@ export default function AdminDashboard() {
 
   const [isPartsDialogOpen, setIsPartsDialogOpen] = useState(false);
   const [currentPart, setCurrentPart] = useState<Part | null>(null);
+  const [isLaborDialogOpen, setIsLaborDialogOpen] = useState(false);
+  const [currentLabor, setCurrentLabor] = useState<CustomLabor | null>(null);
+
 
   const [selectedDataType, setSelectedDataType] = useState<string>('');
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -77,6 +80,11 @@ export default function AdminDashboard() {
         setAllParts(allParts.map(p => p.name === currentPart.name ? updatedPart : p));
         toast({ title: "Part Updated", description: `Successfully updated "${updatedPart.name}".` });
     } else {
+        // Check for duplicate name before adding
+        if (allParts.some(p => p.name === updatedPart.name)) {
+             toast({ variant: "destructive", title: "Error", description: `Part with name "${updatedPart.name}" already exists.` });
+             return;
+        }
         setAllParts([...allParts, updatedPart]);
         toast({ title: "Part Added", description: `Successfully added "${updatedPart.name}".` });
     }
@@ -84,6 +92,63 @@ export default function AdminDashboard() {
     setIsPartsDialogOpen(false);
     setCurrentPart(null);
   }
+
+  const handleAddLabor = () => {
+    setCurrentLabor({ name: '', model: '', charge: 0 });
+    setIsLaborDialogOpen(true);
+  };
+
+  const handleEditLabor = (labor: CustomLabor) => {
+    setCurrentLabor(labor);
+    setIsLaborDialogOpen(true);
+  };
+
+  const handleDeleteLabor = (laborName: string, laborModel: string) => {
+    setCustomLabor(customLabor.filter(l => !(l.name === laborName && l.model === laborModel)));
+    toast({
+        title: "Labour Charge Deleted",
+        description: `Successfully deleted "${laborName}" for ${laborModel}.`,
+    });
+  };
+
+  const handleSaveLabor = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (!currentLabor) return;
+
+    const formData = new FormData(e.currentTarget);
+    const updatedLabor: CustomLabor = {
+        name: formData.get('name') as string,
+        model: formData.get('model') as string,
+        charge: Number(formData.get('charge'))
+    };
+    
+    // An item is being edited if its original name and model exist in the list
+    const isEditing = customLabor.some(l => l.name === currentLabor.name && l.model === currentLabor.model && currentLabor.name !== '');
+
+    if (isEditing) {
+        setCustomLabor(customLabor.map(l => (l.name === currentLabor.name && l.model === currentLabor.model) ? updatedLabor : l));
+        toast({ title: "Labour Updated", description: `Successfully updated "${updatedLabor.name}".` });
+    } else {
+        // Check for duplicate composite key (name + model)
+        if (customLabor.some(l => l.name === updatedLabor.name && l.model === updatedLabor.model)) {
+            toast({ variant: "destructive", title: "Error", description: `Labour charge for "${updatedLabor.name}" on ${updatedLabor.model} already exists.` });
+            return;
+        }
+        setCustomLabor([...customLabor, updatedLabor]);
+        toast({ title: "Labour Added", description: `Successfully added "${updatedLabor.name}".` });
+    }
+
+    setIsLaborDialogOpen(false);
+    setCurrentLabor(null);
+  };
+  
+  const handleDeleteVehicle = (model: string) => {
+    setVehicles(vehicles.filter(v => v.model !== model));
+    toast({
+        title: "Vehicle Deleted",
+        description: `Successfully deleted model "${model}".`,
+    });
+  };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
@@ -143,7 +208,7 @@ export default function AdminDashboard() {
     reader.onerror = () => {
          toast({
             variant: "destructive",
-            title: "File Read Error",
+            title: "File ReadError",
             description: "Could not read the selected file.",
         });
     }
@@ -181,12 +246,53 @@ export default function AdminDashboard() {
         </TabsList>
         <TabsContent value="labour">
           <Card>
-            <CardHeader>
-              <CardTitle>Manage Labour Charges</CardTitle>
-              <CardDescription>
-                View and manage custom labour charges for different services and models.
-              </CardDescription>
-            </CardHeader>
+            <Dialog open={isLaborDialogOpen} onOpenChange={setIsLaborDialogOpen}>
+                <CardHeader>
+                    <CardTitle>Manage Labour Charges</CardTitle>
+                    <CardDescription>
+                        Add, edit, or remove custom labour charges.
+                    </CardDescription>
+                    <div className="flex justify-end">
+                        <Button onClick={handleAddLabor}>
+                            <PlusCircle /> Add New Labour
+                        </Button>
+                    </div>
+                </CardHeader>
+                <DialogContent>
+                    <form onSubmit={handleSaveLabor}>
+                        <DialogHeader>
+                            <DialogTitle>{currentLabor?.name && currentLabor.name !== '' ? 'Edit Labour' : 'Add New Labour'}</DialogTitle>
+                            <DialogDescription>
+                                Fill in the details for the labour charge. The combination of name and model must be unique.
+                            </DialogDescription>
+                        </DialogHeader>
+                        <div className="grid gap-4 py-4">
+                            <div className="grid grid-cols-4 items-center gap-4">
+                                <Label htmlFor="name" className="text-right">Name</Label>
+                                <Input id="name" name="name" defaultValue={currentLabor?.name} className="col-span-3" required />
+                            </div>
+                             <div className="grid grid-cols-4 items-center gap-4">
+                                <Label htmlFor="model" className="text-right">Model</Label>
+                                <Select name="model" defaultValue={currentLabor?.model} required>
+                                    <SelectTrigger id="model" className="col-span-3">
+                                        <SelectValue placeholder="Select vehicle model" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {vehicles.map(v => <SelectItem key={v.model} value={v.model}>{v.model}</SelectItem>)}
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                            <div className="grid grid-cols-4 items-center gap-4">
+                                <Label htmlFor="charge" className="text-right">Charge (₹)</Label>
+                                <Input id="charge" name="charge" type="number" defaultValue={currentLabor?.charge} className="col-span-3" required />
+                            </div>
+                        </div>
+                        <DialogFooter>
+                            <Button type="submit">Save changes</Button>
+                        </DialogFooter>
+                    </form>
+                </DialogContent>
+            </Dialog>
             <CardContent className="space-y-2">
               <ScrollArea className="h-[60vh]">
                 <Table>
@@ -195,6 +301,7 @@ export default function AdminDashboard() {
                       <TableHead>Labour Name</TableHead>
                       <TableHead>Model</TableHead>
                       <TableHead className="text-right">Charge (₹)</TableHead>
+                      <TableHead className="text-right">Actions</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -203,6 +310,14 @@ export default function AdminDashboard() {
                         <TableCell className="font-medium">{labor.name}</TableCell>
                         <TableCell>{labor.model}</TableCell>
                         <TableCell className="text-right">{labor.charge.toFixed(2)}</TableCell>
+                         <TableCell className="text-right">
+                          <Button variant="ghost" size="icon" onClick={() => handleEditLabor(labor)}>
+                            <Pencil className="h-4 w-4" />
+                          </Button>
+                          <Button variant="ghost" size="icon" onClick={() => handleDeleteLabor(labor.name, labor.model)}>
+                            <Trash2 className="h-4 w-4 text-destructive" />
+                          </Button>
+                        </TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
@@ -285,7 +400,7 @@ export default function AdminDashboard() {
             <CardHeader>
               <CardTitle>Manage Vehicle Models</CardTitle>
               <CardDescription>
-                View all vehicle models and their details. Editing is currently disabled.
+                View and manage vehicle models.
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-2">
@@ -297,6 +412,7 @@ export default function AdminDashboard() {
                       <TableHead>Brand</TableHead>
                       <TableHead>Category</TableHead>
                       <TableHead>Fuel Types</TableHead>
+                      <TableHead className="text-right">Actions</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -313,6 +429,14 @@ export default function AdminDashboard() {
                             <div className="flex flex-wrap gap-1">
                                 {vehicle.fuelTypes.map(fuel => <Badge key={fuel} variant="outline">{fuel}</Badge>)}
                             </div>
+                        </TableCell>
+                        <TableCell className="text-right">
+                           <Button variant="ghost" size="icon" disabled>
+                                <Pencil className="h-4 w-4" />
+                           </Button>
+                           <Button variant="ghost" size="icon" onClick={() => handleDeleteVehicle(vehicle.model)}>
+                                <Trash2 className="h-4 w-4 text-destructive" />
+                           </Button>
                         </TableCell>
                       </TableRow>
                     ))}
@@ -408,3 +532,5 @@ export default function AdminDashboard() {
     </div>
   );
 }
+
+    
