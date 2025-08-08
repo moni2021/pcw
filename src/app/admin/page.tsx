@@ -11,7 +11,7 @@ import {
   CardFooter
 } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Wrench, Package, Car, Upload, FileUp, PlusCircle, Trash2, Pencil, Bot, Loader2, Copy } from 'lucide-react';
+import { Wrench, Package, Car, Upload, FileUp, PlusCircle, Trash2, Pencil } from 'lucide-react';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
@@ -26,9 +26,6 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import type { Part, CustomLabor, Vehicle } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
 import { pmsCharges as initialPmsCharges } from '@/lib/pms-charges';
-import { Textarea } from '@/components/ui/textarea';
-import { convertToJson } from '@/ai/flows/json-converter-flow';
-import type { ConvertToJsonInput } from '@/ai/flows/json-converter-flow';
 
 
 export default function AdminDashboard() {
@@ -48,12 +45,6 @@ export default function AdminDashboard() {
   const [selectedDataType, setSelectedDataType] = useState<string>('');
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const { toast } = useToast();
-
-  // State for JSON Converter
-  const [rawText, setRawText] = useState('');
-  const [jsonOutput, setJsonOutput] = useState('');
-  const [targetJsonFormat, setTargetJsonFormat] = useState<ConvertToJsonInput['jsonFormat'] | ''>('');
-  const [isConverting, setIsConverting] = useState(false);
 
 
   const handleAddPart = () => {
@@ -269,52 +260,11 @@ export default function AdminDashboard() {
     reader.readAsText(selectedFile);
   };
 
-  const handleConvert = async () => {
-    if (!rawText || !targetJsonFormat) {
-        toast({
-            variant: "destructive",
-            title: "Conversion Failed",
-            description: "Please provide raw text and select a target format.",
-        });
-        return;
-    }
-    setIsConverting(true);
-    setJsonOutput('');
-    try {
-        const result = await convertToJson({ rawText, jsonFormat: targetJsonFormat });
-        // Attempt to pretty-print the JSON
-        try {
-            const parsed = JSON.parse(result.jsonString);
-            setJsonOutput(JSON.stringify(parsed, null, 2));
-        } catch {
-            // If parsing fails, just show the raw string from AI
-            setJsonOutput(result.jsonString);
-        }
-    } catch (error) {
-         toast({
-            variant: "destructive",
-            title: "AI Conversion Failed",
-            description: "An error occurred while communicating with the AI. Please try again.",
-        });
-    } finally {
-        setIsConverting(false);
-    }
-  };
-
-  const handleCopyJson = () => {
-      if (!jsonOutput) {
-          toast({ variant: "destructive", title: "Nothing to Copy", description: "Generate JSON before copying." });
-          return;
-      }
-      navigator.clipboard.writeText(jsonOutput);
-      toast({ title: "Copied!", description: "JSON output copied to clipboard." });
-  };
-
 
   return (
     <div className="flex-1">
       <Tabs defaultValue="parts" className="w-full">
-        <TabsList className="grid w-full grid-cols-5">
+        <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="labour">
             <Wrench className="mr-2 h-4 w-4" />
             Labour
@@ -330,10 +280,6 @@ export default function AdminDashboard() {
           <TabsTrigger value="upload">
             <Upload className="mr-2 h-4 w-4" />
             Upload Data
-          </TabsTrigger>
-           <TabsTrigger value="converter">
-            <Bot className="mr-2 h-4 w-4" />
-            JSON Converter
           </TabsTrigger>
         </TabsList>
         <TabsContent value="labour">
@@ -631,58 +577,9 @@ export default function AdminDashboard() {
             </CardContent>
           </Card>
         </TabsContent>
-         <TabsContent value="converter">
-          <Card>
-            <CardHeader>
-              <CardTitle>AI-Powered JSON Converter</CardTitle>
-              <CardDescription>
-                Paste raw text (like from Excel or a text file) and convert it to a valid JSON format for uploading.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                        <Label htmlFor="rawText">Raw Text Input</Label>
-                        <Textarea id="rawText" placeholder="Paste your comma-separated, tab-separated, or unstructured text here..." rows={10} value={rawText} onChange={(e) => setRawText(e.target.value)} />
-                    </div>
-                    <div className="space-y-2 relative">
-                        <Label htmlFor="jsonOutput">Generated JSON Output</Label>
-                        <Textarea id="jsonOutput" readOnly placeholder="AI-generated JSON will appear here..." rows={10} className="bg-muted" value={jsonOutput} />
-                         {isConverting && (
-                            <div className="absolute inset-0 flex items-center justify-center bg-background/80">
-                                <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                            </div>
-                        )}
-                    </div>
-                </div>
-                <div className="space-y-2">
-                    <Label htmlFor="jsonDataType">Target JSON Format</Label>
-                    <Select onValueChange={(value) => setTargetJsonFormat(value as any)} value={targetJsonFormat}>
-                      <SelectTrigger id="jsonDataType">
-                        <SelectValue placeholder="Select target data format" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="parts">Parts and Price</SelectItem>
-                        <SelectItem value="labour">Custom Labour</SelectItem>
-                        <SelectItem value="pms">PMS Labour Price</SelectItem>
-                        <SelectItem value="models">Vehicle Models</SelectItem>
-                      </SelectContent>
-                    </Select>
-                </div>
-                <div className="flex gap-2">
-                    <Button onClick={handleConvert} disabled={isConverting || !rawText || !targetJsonFormat}>
-                        {isConverting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Bot className="mr-2 h-4 w-4" />}
-                        Convert with AI
-                    </Button>
-                    <Button variant="outline" onClick={handleCopyJson}>
-                        <Copy className="mr-2 h-4 w-4" />
-                        Copy JSON
-                    </Button>
-                </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
       </Tabs>
     </div>
   );
 }
+
+    
