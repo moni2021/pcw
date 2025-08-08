@@ -48,26 +48,31 @@ export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
   const totalLaborCharge = useMemo(() => pmsLaborCharge + recommendedLaborCharge + optionalServiceCharge + customLaborCharge, [pmsLaborCharge, recommendedLaborCharge, optionalServiceCharge, customLaborCharge]);
   const gstOnLabor = useMemo(() => (totalLaborCharge - optionalServiceCharge) * GST_RATE, [totalLaborCharge, optionalServiceCharge]);
   
+  const discountableLaborCharge = useMemo(() => {
+    const pms = pmsLaborCharge;
+    const specificRecommended = selectedRecommended
+      .filter(job => job.name === 'NITROGEN GAS FILLING' || job.name === 'WHEEL ALIGNMENT (4 HEAD)')
+      .reduce((sum, job) => sum + job.charge, 0);
+    return pms + specificRecommended;
+  }, [pmsLaborCharge, selectedRecommended]);
 
   useEffect(() => {
     let laborDiscount = 0;
     const numericDiscountValue = Number(discountValue) || 0;
 
-    const discountableLabor = pmsLaborCharge + recommendedLaborCharge + customLaborCharge;
-
     if (discountType === 'percentage') {
-      laborDiscount = discountableLabor * (numericDiscountValue / 100);
+      laborDiscount = discountableLaborCharge * (numericDiscountValue / 100);
     } else {
       laborDiscount = numericDiscountValue;
     }
     
-    laborDiscount = Math.min(laborDiscount, discountableLabor);
+    laborDiscount = Math.min(laborDiscount, discountableLaborCharge);
     setCalculatedDiscount(laborDiscount);
 
     const newTotal = totalLaborCharge + gstOnLabor + partsTotal - laborDiscount;
     setFinalTotal(newTotal);
 
-  }, [discountValue, discountType, totalLaborCharge, gstOnLabor, partsTotal, pmsLaborCharge, recommendedLaborCharge, customLaborCharge, optionalServiceCharge]);
+  }, [discountValue, discountType, totalLaborCharge, gstOnLabor, partsTotal, discountableLaborCharge]);
   
   useEffect(() => {
     setDiscountValue(0);
