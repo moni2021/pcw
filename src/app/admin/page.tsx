@@ -11,7 +11,7 @@ import {
   CardFooter
 } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Wrench, Package, Car, Upload, FileUp, PlusCircle, Trash2, Pencil } from 'lucide-react';
+import { Wrench, Package, Car, Upload, FileUp, PlusCircle, Trash2, Pencil, Bot } from 'lucide-react';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
@@ -26,6 +26,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import type { Part, CustomLabor, Vehicle } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
 import { pmsCharges as initialPmsCharges } from '@/lib/pms-charges';
+import { Textarea } from '@/components/ui/textarea';
 
 
 export default function AdminDashboard() {
@@ -156,7 +157,7 @@ export default function AdminDashboard() {
         Hiru Is Working on Admin page it will be Active soon
       </div>
       <Tabs defaultValue="parts" className="w-full">
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="labour">
             <Wrench className="mr-2 h-4 w-4" />
             Labour
@@ -172,6 +173,10 @@ export default function AdminDashboard() {
           <TabsTrigger value="upload">
             <Upload className="mr-2 h-4 w-4" />
             Upload Data
+          </TabsTrigger>
+           <TabsTrigger value="converter">
+            <Bot className="mr-2 h-4 w-4" />
+            JSON Converter
           </TabsTrigger>
         </TabsList>
         <TabsContent value="labour">
@@ -351,6 +356,51 @@ export default function AdminDashboard() {
                 <FileUp className="mr-2 h-4 w-4" />
                 Upload and Process
               </Button>
+            </CardContent>
+          </Card>
+        </TabsContent>
+         <TabsContent value="converter">
+          <Card>
+            <CardHeader>
+              <CardTitle>AI-Powered JSON Converter</CardTitle>
+              <CardDescription>
+                Paste raw text (like from Excel or a text file) and convert it to a valid JSON format for uploading.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                        <Label htmlFor="rawText">Raw Text Input</Label>
+                        <Textarea id="rawText" placeholder="Paste your comma-separated, tab-separated, or unstructured text here..." rows={10} />
+                    </div>
+                    <div className="space-y-2">
+                        <Label htmlFor="jsonOutput">Generated JSON Output</Label>
+                        <Textarea id="jsonOutput" readOnly placeholder="AI-generated JSON will appear here..." rows={10} className="bg-muted" />
+                    </div>
+                </div>
+                <div className="space-y-2">
+                    <Label htmlFor="jsonDataType">Target JSON Format</Label>
+                    <Select>
+                      <SelectTrigger id="jsonDataType">
+                        <SelectValue placeholder="Select target data format" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="labour">Custom Labour</SelectItem>
+                        <SelectItem value="parts">Parts and Price</SelectItem>
+                        <SelectItem value="pms">PMS Labour Price</SelectItem>
+                        <SelectItem value="models">Vehicle Models</SelectItem>
+                      </SelectContent>
+                    </Select>
+                </div>
+                <div className="flex gap-2">
+                    <Button>
+                        <Bot className="mr-2 h-4 w-4" />
+                        Convert with AI
+                    </Button>
+                    <Button variant="outline">
+                        Copy JSON
+                    </Button>
+                </div>
             </CardContent>
           </Card>
         </TabsContent>
