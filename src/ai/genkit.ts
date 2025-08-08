@@ -6,7 +6,7 @@
  * It is not necessary to edit this file to use Genkit.
  * To add a flow, see `src/ai/flows/example-flow.ts`.
  */
-import { ai, configureGenkit } from '@genkit-ai/core';
+import { configureGenkit } from '@genkit-ai/core';
 import { googleAI } from '@genkit-ai/googleai';
 
 // Initialize Genkit with the Google AI plugin.
@@ -30,6 +30,3 @@ configureGenkit({
   // Perform OpenTelemetry instrumentation and enable traces.
   enableTracingAndMetrics: true,
 });
-
-// Export the configured AI instance.
-export { ai };

@@ -8,9 +8,10 @@
  * - ConvertToJsonOutput - The return type for the convertToJson function.
  */
 
-import { ai } from '../genkit';
+import { ai } from '@genkit-ai/core';
 import { z } from 'zod';
 import { PartSchema, CustomLaborSchema, VehicleSchema } from '@/lib/types';
+import '@/ai/genkit'; // Ensure Genkit is configured
 
 // Schema for PMS charges, as it's not exported from types.ts
 const PmsChargeSchema = z.object({
