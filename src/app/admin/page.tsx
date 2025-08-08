@@ -19,17 +19,28 @@ import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
-import { vehicles } from '@/lib/data';
-import { customLaborData } from '@/lib/custom-labor-data';
+import { vehicles as initialVehicles } from '@/lib/data';
+import { customLaborData as initialCustomLaborData } from '@/lib/custom-labor-data';
 import { allParts as initialAllParts } from '@/lib/parts-data';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import type { Part } from '@/lib/types';
+import type { Part, CustomLabor, Vehicle } from '@/lib/types';
+import { useToast } from '@/hooks/use-toast';
+import { pmsCharges as initialPmsCharges } from '@/lib/pms-charges';
 
 
 export default function AdminDashboard() {
   const [allParts, setAllParts] = useState<Part[]>(initialAllParts);
+  const [customLabor, setCustomLabor] = useState<CustomLabor[]>(initialCustomLaborData);
+  const [vehicles, setVehicles] = useState<Vehicle[]>(initialVehicles);
+  const [pmsCharges, setPmsCharges] = useState(initialPmsCharges);
+
   const [isPartsDialogOpen, setIsPartsDialogOpen] = useState(false);
   const [currentPart, setCurrentPart] = useState<Part | null>(null);
+
+  const [selectedDataType, setSelectedDataType] = useState<string>('');
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const { toast } = useToast();
+
 
   const handleAddPart = () => {
     setCurrentPart({ name: '', price: 0 });
@@ -43,6 +54,10 @@ export default function AdminDashboard() {
   
   const handleDeletePart = (partName: string) => {
     setAllParts(allParts.filter(p => p.name !== partName));
+     toast({
+        title: "Part Deleted",
+        description: `Successfully deleted "${partName}".`,
+    });
   };
 
   const handleSavePart = (e: React.FormEvent<HTMLFormElement>) => {
@@ -59,13 +74,81 @@ export default function AdminDashboard() {
 
     if (isEditing) {
         setAllParts(allParts.map(p => p.name === currentPart.name ? updatedPart : p));
+        toast({ title: "Part Updated", description: `Successfully updated "${updatedPart.name}".` });
     } else {
         setAllParts([...allParts, updatedPart]);
+        toast({ title: "Part Added", description: `Successfully added "${updatedPart.name}".` });
     }
 
     setIsPartsDialogOpen(false);
     setCurrentPart(null);
   }
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+        setSelectedFile(e.target.files[0]);
+    }
+  };
+
+  const handleUpload = () => {
+    if (!selectedFile || !selectedDataType) {
+        toast({
+            variant: "destructive",
+            title: "Upload Failed",
+            description: "Please select a data type and a file.",
+        });
+        return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        try {
+            const content = e.target?.result;
+            if (typeof content !== 'string') {
+                throw new Error("Failed to read file content.");
+            }
+            const data = JSON.parse(content);
+            
+            switch(selectedDataType) {
+                case 'labour':
+                    setCustomLabor(data);
+                    break;
+                case 'parts':
+                    setAllParts(data);
+                    break;
+                case 'pms':
+                    setPmsCharges(data);
+                    break;
+                case 'models':
+                    setVehicles(data);
+                    break;
+                default:
+                    throw new Error("Invalid data type selected.");
+            }
+
+            toast({
+                title: "Upload Successful",
+                description: `Successfully uploaded and updated ${selectedDataType} data.`,
+            });
+
+        } catch (error) {
+             toast({
+                variant: "destructive",
+                title: "Upload Failed",
+                description: error instanceof Error ? error.message : "An unknown error occurred during file processing.",
+            });
+        }
+    };
+    reader.onerror = () => {
+         toast({
+            variant: "destructive",
+            title: "File Read Error",
+            description: "Could not read the selected file.",
+        });
+    }
+    reader.readAsText(selectedFile);
+  };
+
 
   return (
     <div className="flex-1 relative">
@@ -110,7 +193,7 @@ export default function AdminDashboard() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {customLaborData.map((labor, index) => (
+                    {customLabor.map((labor, index) => (
                       <TableRow key={index}>
                         <TableCell className="font-medium">{labor.name}</TableCell>
                         <TableCell>{labor.model}</TableCell>
@@ -245,7 +328,7 @@ export default function AdminDashboard() {
             <CardContent className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="dataType">Data Type</Label>
-                <Select>
+                <Select onValueChange={setSelectedDataType} value={selectedDataType}>
                   <SelectTrigger id="dataType">
                     <SelectValue placeholder="Select data type to upload" />
                   </SelectTrigger>
@@ -259,12 +342,12 @@ export default function AdminDashboard() {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="fileUpload">Upload File</Label>
-                <Input id="fileUpload" type="file" accept="application/json" />
+                <Input id="fileUpload" type="file" accept="application/json" onChange={handleFileChange} />
                  <p className="text-sm text-muted-foreground">
                   Please upload a JSON file.
                 </p>
               </div>
-              <Button disabled>
+              <Button onClick={handleUpload} disabled={!selectedDataType || !selectedFile}>
                 <FileUp className="mr-2 h-4 w-4" />
                 Upload and Process
               </Button>
