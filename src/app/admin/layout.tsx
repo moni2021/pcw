@@ -44,13 +44,13 @@ export default function AdminLayout({
           <SidebarContent>
             <SidebarMenu>
               <SidebarMenuItem>
-                <SidebarMenuButton href="/admin" isActive>
+                <SidebarMenuButton href="/admin">
                   <Home />
                   Dashboard
                 </SidebarMenuButton>
               </SidebarMenuItem>
                <SidebarMenuItem>
-                <SidebarMenuButton href="/admin">
+                <SidebarMenuButton href="/admin/users">
                   <Users />
                   User Management
                 </SidebarMenuButton>
