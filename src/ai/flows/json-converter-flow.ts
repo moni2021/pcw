@@ -8,7 +8,7 @@
  * - ConvertToJsonOutput - The return type for the convertToJson function.
  */
 
-import { ai } from '@/ai/genkit';
+import { ai } from '@/ai';
 import { z } from 'zod';
 import { PartSchema, CustomLaborSchema, VehicleSchema } from '@/lib/types';
 

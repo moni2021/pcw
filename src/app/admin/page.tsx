@@ -312,10 +312,7 @@ export default function AdminDashboard() {
 
 
   return (
-    <div className="flex-1 relative">
-      <div className="absolute inset-0 flex items-center justify-center text-6xl font-bold text-muted-foreground/20 -rotate-45 select-none pointer-events-none z-10 text-center p-8">
-        Hiru Is Working on Admin page it will be Active soon
-      </div>
+    <div className="flex-1">
       <Tabs defaultValue="parts" className="w-full">
         <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="labour">

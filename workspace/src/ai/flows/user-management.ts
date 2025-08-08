@@ -1,152 +1,61 @@
-
-'use server';
-/**
- * @fileOverview User management flows for creating and managing users in Firebase Auth.
- *
- * - createUser - Creates a new user, disabled by default.
- * - listAllUsers - Lists all users from Firebase Auth.
- * - toggleUserStatus - Enables or disables a user account.
- */
-import { ai, genkit } from '@genkit-ai/core';
-import { z } from 'zod';
-import { getAuth } from 'firebase-admin/auth';
-import { initializeApp, getApps, App } from 'firebase-admin/app';
-import { credential } from 'firebase-admin';
-
-// Initialize Firebase Admin SDK
-let adminApp: App;
-
-if (!getApps().length) {
-    const serviceAccount = {
-        projectId: process.env.FIREBASE_PROJECT_ID,
-        privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
-        clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-    };
-
-    if (!serviceAccount.projectId || !serviceAccount.privateKey || !serviceAccount.clientEmail) {
-        throw new Error('Firebase Admin SDK environment variables are not set.');
-    }
-
-    adminApp = initializeApp({
-        credential: credential.cert(serviceAccount),
-    });
-} else {
-  adminApp = getApps()[0];
-}
-
-
-// Schema for creating a user
-const CreateUserInputSchema = z.object({
-  email: z.string().email(),
-  password: z.string().min(6),
-});
-export type CreateUserInput = z.infer<typeof CreateUserInputSchema>;
-
-const CreateUserOutputSchema = z.object({
-  uid: z.string().optional(),
-  error: z.string().optional(),
-});
-export type CreateUserOutput = z.infer<typeof CreateUserOutputSchema>;
-
-// Schema for user list
-const UserRecordSchema = z.object({
-  uid: z.string(),
-  email: z.string().optional(),
-  displayName: z.string().optional(),
-  disabled: z.boolean(),
-  creationTime: z.string(),
-});
-export type UserRecord = z.infer<typeof UserRecordSchema>;
-
-const ListUsersOutputSchema = z.object({
-    users: z.array(UserRecordSchema).optional(),
-    error: z.string().optional(),
-});
-export type ListUsersOutput = z.infer<typeof ListUsersOutputSchema>;
-
-// Schema for toggling user status
-const ToggleUserStatusInputSchema = z.object({
-    uid: z.string(),
-    disabled: z.boolean(),
-});
-export type ToggleUserStatusInput = z.infer<typeof ToggleUserStatusInputSchema>;
-
-const ToggleUserStatusOutputSchema = z.object({
-    uid: z.string().optional(),
-    error: z.string().optional(),
-});
-export type ToggleUserStatusOutput = z.infer<typeof ToggleUserStatusOutputSchema>;
-
-
-// Exported wrapper functions that call the flows
-
-export async function createUser(input: CreateUserInput): Promise<CreateUserOutput> {
-  return createUserFlow(input);
-}
-
-export async function listAllUsers(): Promise<ListUsersOutput> {
-    return listUsersFlow();
-}
-
-export async function toggleUserStatus(input: ToggleUserStatusInput): Promise<ToggleUserStatusOutput> {
-    return toggleUserStatusFlow(input);
-}
-
-
-// Genkit Flows
-
-const createUserFlow = ai.defineFlow(
-  {
-    name: 'createUserFlow',
-    inputSchema: CreateUserInputSchema,
-    outputSchema: CreateUserOutputSchema,
+{
+  "name": "nextn",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --turbopack -p 9002",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "typecheck": "tsc --noEmit"
   },
-  async ({ email, password }) => {
-    try {
-      const userRecord = await getAuth(adminApp).createUser({
-        email,
-        password,
-        disabled: true, // User is disabled by default
-      });
-      return { uid: userRecord.uid };
-    } catch (error: any) {
-      return { error: error.message };
-    }
-  }
-);
-
-
-const listUsersFlow = ai.defineFlow(
-  {
-    name: 'listUsersFlow',
-    outputSchema: ListUsersOutputSchema,
+  "dependencies": {
+    "@genkit-ai/ai": "0.5.2",
+    "@genkit-ai/core": "0.5.2",
+    "@genkit-ai/googleai": "0.5.2",
+    "@radix-ui/react-accordion": "^1.2.0",
+    "@radix-ui/react-alert-dialog": "^1.1.1",
+    "@radix-ui/react-avatar": "^1.1.0",
+    "@radix-ui/react-checkbox": "^1.1.1",
+    "@radix-ui/react-collapsible": "^1.1.0",
+    "@radix-ui/react-dialog": "^1.1.1",
+    "@radix-ui/react-dropdown-menu": "^2.1.1",
+    "@radix-ui/react-label": "^2.1.0",
+    "@radix-ui/react-menubar": "^1.1.1",
+    "@radix-ui/react-popover": "^1.1.1",
+    "@radix-ui/react-progress": "^1.1.0",
+    "@radix-ui/react-radio-group": "^1.2.0",
+    "@radix-ui/react-scroll-area": "^1.1.0",
+    "@radix-ui/react-select": "^2.1.1",
+    "@radix-ui/react-separator": "^1.1.0",
+    "@radix-ui/react-slider": "^1.2.0",
+    "@radix-ui/react-slot": "^1.1.0",
+    "@radix-ui/react-switch": "^1.1.0",
+    "@radix-ui/react-tabs": "^1.1.0",
+    "@radix-ui/react-toast": "^1.2.1",
+    "@radix-ui/react-tooltip": "^1.1.2",
+    "class-variance-authority": "^0.7.0",
+    "clsx": "^2.1.1",
+    "cmdk": "^1.0.0",
+    "firebase": "^10.12.2",
+    "firebase-admin": "^12.1.0",
+    "framer-motion": "^11.2.12",
+    "genkit": "0.5.2",
+    "lucide-react": "^0.395.0",
+    "next": "15.3.3",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-hook-form": "^7.52.0",
+    "tailwind-merge": "^2.3.0",
+    "tailwindcss-animate": "^1.0.7",
+    "zod": "^3.23.8"
   },
-  async () => {
-    try {
-        const listUsersResult = await getAuth(adminApp).listUsers();
-        const users = listUsersResult.users.map(user => ({
-            uid: user.uid,
-            email: user.email,
-            displayName: user.displayName,
-            disabled: user.disabled,
-            creationTime: user.metadata.creationTime,
-        }));
-        return { users };
-    } catch (error: any) {
-        return { error: error.message };
-    }
+  "devDependencies": {
+    "@types/node": "^20",
+    "@types/react": "^18",
+    "@types/react-dom": "^18",
+    "postcss": "^8",
+    "tailwindcss": "^3.4.1",
+    "typescript": "^5"
   }
-);
-
-const toggleUserStatusFlow = ai.defineFlow({
-    name: 'toggleUserStatusFlow',
-    inputSchema: ToggleUserStatusInputSchema,
-    outputSchema: ToggleUserStatusOutputSchema,
-}, async ({ uid, disabled }) => {
-    try {
-        await getAuth(adminApp).updateUser(uid, { disabled });
-        return { uid };
-    } catch (error: any) {
-        return { error: error.message };
-    }
-});
+}
