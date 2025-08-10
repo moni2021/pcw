@@ -188,6 +188,24 @@ export default function AdminDashboard() {
 
   return (
     <div className="flex-1 space-y-6">
+        {/* User Management Card */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2"><Users /> User Management</CardTitle>
+            <CardDescription>Manage user accounts and permissions.</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex justify-between items-center p-4 border rounded-lg bg-muted/50">
+              <p className="text-sm text-muted-foreground">User management is not yet enabled. This feature will be available after Firebase Authentication is configured.</p>
+              <Button asChild>
+                <Link href="/admin/users">
+                  <UserPlus /> Go to User Management
+                </Link>
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+
         {/* Parts Management Card */}
         <Card>
             <Dialog open={isPartsDialogOpen} onOpenChange={setIsPartsDialogOpen}>
@@ -438,24 +456,6 @@ export default function AdminDashboard() {
                 </Table>
               </ScrollArea>
             </CardContent>
-        </Card>
-        
-        {/* User Management Card */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2"><Users /> User Management</CardTitle>
-            <CardDescription>Manage user accounts and permissions.</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex justify-between items-center p-4 border rounded-lg bg-muted/50">
-              <p className="text-sm text-muted-foreground">User management is not yet enabled. This feature will be available after Firebase Authentication is configured.</p>
-              <Button asChild>
-                <Link href="/admin/users">
-                  <UserPlus /> Go to User Management
-                </Link>
-              </Button>
-            </div>
-          </CardContent>
         </Card>
     </div>
   );
