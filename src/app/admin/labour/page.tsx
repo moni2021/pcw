@@ -1,0 +1,159 @@
+
+"use client";
+
+import React, { useState } from 'react';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Wrench, PlusCircle, Trash2, Pencil } from 'lucide-react';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { vehicles as initialVehicles } from '@/lib/data';
+import { customLaborData as initialCustomLaborData } from '@/lib/custom-labor-data';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import type { CustomLabor, Vehicle } from '@/lib/types';
+import { useToast } from '@/hooks/use-toast';
+
+export default function LabourManagementPage() {
+  const [customLabor, setCustomLabor] = useState<CustomLabor[]>(initialCustomLaborData);
+  const [vehicles] = useState<Vehicle[]>(initialVehicles);
+  const [isLaborDialogOpen, setIsLaborDialogOpen] = useState(false);
+  const [currentLabor, setCurrentLabor] = useState<CustomLabor | null>(null);
+  const { toast } = useToast();
+
+  const handleAddLabor = () => {
+    setCurrentLabor({ name: '', model: '', charge: 0 });
+    setIsLaborDialogOpen(true);
+  };
+
+  const handleEditLabor = (labor: CustomLabor) => {
+    setCurrentLabor(labor);
+    setIsLaborDialogOpen(true);
+  };
+
+  const handleDeleteLabor = (laborName: string, laborModel: string) => {
+    setCustomLabor(customLabor.filter(l => !(l.name === laborName && l.model === laborModel)));
+    toast({
+        title: "Labour Charge Deleted",
+        description: `Successfully deleted "${laborName}" for ${laborModel}.`,
+    });
+  };
+
+  const handleSaveLabor = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (!currentLabor) return;
+
+    const formData = new FormData(e.currentTarget);
+    const updatedLabor: CustomLabor = {
+        name: formData.get('name') as string,
+        model: formData.get('model') as string,
+        charge: Number(formData.get('charge'))
+    };
+
+    const isEditing = customLabor.some(l => l.name === currentLabor.name && l.model === currentLabor.model && currentLabor.name !== '');
+
+    if (isEditing) {
+        setCustomLabor(customLabor.map(l => (l.name === currentLabor.name && l.model === currentLabor.model) ? updatedLabor : l));
+        toast({ title: "Labour Updated", description: `Successfully updated "${updatedLabor.name}".` });
+    } else {
+        if (customLabor.some(l => l.name === updatedLabor.name && l.model === updatedLabor.model)) {
+            toast({ variant: "destructive", title: "Error", description: `Labour charge for "${updatedLabor.name}" on ${updatedLabor.model} already exists.` });
+            return;
+        }
+        setCustomLabor([...customLabor, updatedLabor]);
+        toast({ title: "Labour Added", description: `Successfully added "${updatedLabor.name}".` });
+    }
+
+    setIsLaborDialogOpen(false);
+    setCurrentLabor(null);
+  };
+
+  return (
+    <Card>
+        <Dialog open={isLaborDialogOpen} onOpenChange={setIsLaborDialogOpen}>
+            <CardHeader className="flex flex-row items-center justify-between">
+                <div className="space-y-1">
+                    <CardTitle className="flex items-center gap-2"><Wrench /> Manage Labour Charges</CardTitle>
+                    <CardDescription>Add, edit, or remove custom labour charges.</CardDescription>
+                </div>
+                <Button onClick={handleAddLabor}>
+                    <PlusCircle /> Add New Labour
+                </Button>
+            </CardHeader>
+            <DialogContent>
+                <form onSubmit={handleSaveLabor}>
+                    <DialogHeader>
+                        <DialogTitle>{currentLabor?.name && currentLabor.name !== '' ? 'Edit Labour' : 'Add New Labour'}</DialogTitle>
+                        <DialogDescription>
+                            Fill in the details for the labour charge. The combination of name and model must be unique.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <div className="grid gap-4 py-4">
+                        <div className="grid grid-cols-4 items-center gap-4">
+                            <Label htmlFor="name" className="text-right">Name</Label>
+                            <Input id="name" name="name" defaultValue={currentLabor?.name} className="col-span-3" required />
+                        </div>
+                            <div className="grid grid-cols-4 items-center gap-4">
+                            <Label htmlFor="model" className="text-right">Model</Label>
+                            <Select name="model" defaultValue={currentLabor?.model} required>
+                                <SelectTrigger id="model" className="col-span-3">
+                                    <SelectValue placeholder="Select vehicle model" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {vehicles.map(v => <SelectItem key={v.model} value={v.model}>{v.model}</SelectItem>)}
+                                </SelectContent>
+                            </Select>
+                        </div>
+                        <div className="grid grid-cols-4 items-center gap-4">
+                            <Label htmlFor="charge" className="text-right">Charge (₹)</Label>
+                            <Input id="charge" name="charge" type="number" defaultValue={currentLabor?.charge} className="col-span-3" required />
+                        </div>
+                    </div>
+                    <DialogFooter>
+                        <Button type="submit">Save changes</Button>
+                    </DialogFooter>
+                </form>
+            </DialogContent>
+        </Dialog>
+        <CardContent>
+            <ScrollArea className="h-[70vh]">
+            <Table>
+                <TableHeader>
+                <TableRow>
+                    <TableHead>Labour Name</TableHead>
+                    <TableHead>Model</TableHead>
+                    <TableHead className="text-right">Charge (₹)</TableHead>
+                    <TableHead className="text-right">Actions</TableHead>
+                </TableRow>
+                </TableHeader>
+                <TableBody>
+                {customLabor.map((labor, index) => (
+                    <TableRow key={index}>
+                    <TableCell className="font-medium">{labor.name}</TableCell>
+                    <TableCell>{labor.model}</TableCell>
+                    <TableCell className="text-right">{labor.charge.toFixed(2)}</TableCell>
+                        <TableCell className="text-right">
+                        <Button variant="ghost" size="icon" onClick={() => handleEditLabor(labor)}>
+                        <Pencil className="h-4 w-4" />
+                        </Button>
+                        <Button variant="ghost" size="icon" onClick={() => handleDeleteLabor(labor.name, labor.model)}>
+                        <Trash2 className="h-4 w-4 text-destructive" />
+                        </Button>
+                    </TableCell>
+                    </TableRow>
+                ))}
+                </TableBody>
+            </Table>
+            </ScrollArea>
+        </CardContent>
+    </Card>
+  );
+}

@@ -9,6 +9,9 @@ import {
   PanelLeft,
   Settings,
   Users,
+  Wrench,
+  Package,
+  Car,
 } from 'lucide-react';
 
 import {
@@ -24,12 +27,15 @@ import {
 } from '@/components/ui/sidebar';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { usePathname } from 'next/navigation';
 
 export default function AdminLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const pathname = usePathname();
+
   return (
     <div className={cn("flex min-h-screen w-full flex-col bg-background transition-colors duration-500")}>
       <SidebarProvider>
@@ -44,15 +50,33 @@ export default function AdminLayout({
           <SidebarContent>
             <SidebarMenu>
               <SidebarMenuItem>
-                <SidebarMenuButton href="/admin">
+                <SidebarMenuButton href="/admin" isActive={pathname === '/admin'}>
                   <Home />
                   Dashboard
                 </SidebarMenuButton>
               </SidebarMenuItem>
                <SidebarMenuItem>
-                <SidebarMenuButton href="/admin/users">
+                <SidebarMenuButton href="/admin/users" isActive={pathname === '/admin/users'}>
                   <Users />
                   User Management
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+               <SidebarMenuItem>
+                <SidebarMenuButton href="/admin/parts" isActive={pathname === '/admin/parts'}>
+                  <Package />
+                  Parts Management
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+               <SidebarMenuItem>
+                <SidebarMenuButton href="/admin/labour" isActive={pathname === '/admin/labour'}>
+                  <Wrench />
+                  Labour Management
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+               <SidebarMenuItem>
+                <SidebarMenuButton href="/admin/vehicles" isActive={pathname === '/admin/vehicles'}>
+                  <Car />
+                  Vehicle Management
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
