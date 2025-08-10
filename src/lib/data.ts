@@ -203,6 +203,12 @@ function generateServiceData() {
             }
 
             for (const [km, service] of Object.entries(services)) {
+                // Ensure oil filter is always present if engine oil is
+                if (service.parts?.some(p => p.name.toLowerCase().includes('oil')) && !service.parts.includes(oilFilter)) {
+                    // Find index of first oil and insert filter after it
+                    const oilIndex = service.parts.findIndex(p => p.name.toLowerCase().includes('oil'));
+                    service.parts.splice(oilIndex + 1, 0, oilFilter);
+                }
                 serviceData[`${keyPrefix} Paid Service (${km} km)`] = service;
             }
         });
@@ -214,5 +220,7 @@ function generateServiceData() {
 export const serviceDataLookup: { [key: string]: Service } = generateServiceData();
 
 export const serviceData: ServiceData = {};
+
+    
 
     
