@@ -30,10 +30,12 @@ export default function EstimatorPage() {
           </div>
         </section>
       </main>
-      <footer className="flex py-6 w-full shrink-0 items-center justify-center px-4 md:px-6 border-t no-print">
-        <p className="text-xs text-muted-foreground text-center">
-          © Maruti Suzuki Service Estimator. An unofficial tool. Prices are indicative. Made By Hiru Mani And His Team
-        </p>
+      <footer className="flex py-6 w-full shrink-0 items-center justify-center px-4 md:px-6 border-t no-print overflow-hidden">
+        <div className="relative w-full">
+            <p className="absolute whitespace-nowrap text-xs text-muted-foreground animate-marquee">
+              © Maruti Suzuki Service Estimator. An unofficial tool for all call center and SMRE team. Made By Hiru Mani And His Team
+            </p>
+        </div>
       </footer>
     </div>
   );
