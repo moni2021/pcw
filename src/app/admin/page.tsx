@@ -9,7 +9,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Wrench, Package, Car, PlusCircle, Trash2, Pencil } from 'lucide-react';
+import { Wrench, Package, Car, PlusCircle, Trash2, Pencil, Users, UserPlus } from 'lucide-react';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
@@ -23,6 +23,7 @@ import { allParts as initialAllParts } from '@/lib/parts-data';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import type { Part, CustomLabor, Vehicle } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
+import Link from 'next/link';
 
 export default function AdminDashboard() {
   const [allParts, setAllParts] = useState<Part[]>(initialAllParts);
@@ -437,6 +438,24 @@ export default function AdminDashboard() {
                 </Table>
               </ScrollArea>
             </CardContent>
+        </Card>
+        
+        {/* User Management Card */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2"><Users /> User Management</CardTitle>
+            <CardDescription>Manage user accounts and permissions.</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex justify-between items-center p-4 border rounded-lg bg-muted/50">
+              <p className="text-sm text-muted-foreground">User management is not yet enabled. This feature will be available after Firebase Authentication is configured.</p>
+              <Button asChild>
+                <Link href="/admin/users">
+                  <UserPlus /> Go to User Management
+                </Link>
+              </Button>
+            </div>
+          </CardContent>
         </Card>
     </div>
   );
