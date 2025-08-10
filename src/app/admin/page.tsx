@@ -8,10 +8,8 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-  CardFooter
 } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Wrench, Package, Car, Upload, FileUp, PlusCircle, Trash2, Pencil, Bot } from 'lucide-react';
+import { Wrench, Package, Car, PlusCircle, Trash2, Pencil } from 'lucide-react';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
@@ -25,18 +23,11 @@ import { allParts as initialAllParts } from '@/lib/parts-data';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import type { Part, CustomLabor, Vehicle } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
-import { pmsCharges as initialPmsCharges } from '@/lib/pms-charges';
-import { Textarea } from '@/components/ui/textarea';
-import { convertToJson, ConvertToJsonInput } from '@/ai/flows/json-converter-flow';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Loader2 } from 'lucide-react';
-
 
 export default function AdminDashboard() {
   const [allParts, setAllParts] = useState<Part[]>(initialAllParts);
   const [customLabor, setCustomLabor] = useState<CustomLabor[]>(initialCustomLaborData);
   const [vehicles, setVehicles] = useState<Vehicle[]>(initialVehicles);
-  const [pmsCharges, setPmsCharges] = useState(initialPmsCharges);
 
   const [isPartsDialogOpen, setIsPartsDialogOpen] = useState(false);
   const [currentPart, setCurrentPart] = useState<Part | null>(null);
@@ -45,17 +36,7 @@ export default function AdminDashboard() {
   const [isVehicleDialogOpen, setIsVehicleDialogOpen] = useState(false);
   const [currentVehicle, setCurrentVehicle] = useState<Partial<Vehicle> | null>(null);
 
-  const [selectedDataType, setSelectedDataType] = useState<string>('');
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const { toast } = useToast();
-
-  // State for AI Converter
-  const [rawText, setRawText] = useState('');
-  const [jsonFormat, setJsonFormat] = useState<ConvertToJsonInput['jsonFormat']>('parts');
-  const [generatedJson, setGeneratedJson] = useState('');
-  const [isConverting, setIsConverting] = useState(false);
-  const [conversionError, setConversionError] = useState('');
-
 
   const handleAddPart = () => {
     setCurrentPart({ name: '', price: 0 });
@@ -66,7 +47,7 @@ export default function AdminDashboard() {
     setCurrentPart(part);
     setIsPartsDialogOpen(true);
   };
-  
+
   const handleDeletePart = (partName: string) => {
     setAllParts(allParts.filter(p => p.name !== partName));
      toast({
@@ -91,7 +72,6 @@ export default function AdminDashboard() {
         setAllParts(allParts.map(p => p.name === currentPart.name ? updatedPart : p));
         toast({ title: "Part Updated", description: `Successfully updated "${updatedPart.name}".` });
     } else {
-        // Check for duplicate name before adding
         if (allParts.some(p => p.name === updatedPart.name)) {
              toast({ variant: "destructive", title: "Error", description: `Part with name "${updatedPart.name}" already exists.` });
              return;
@@ -132,7 +112,7 @@ export default function AdminDashboard() {
         model: formData.get('model') as string,
         charge: Number(formData.get('charge'))
     };
-    
+
     const isEditing = customLabor.some(l => l.name === currentLabor.name && l.model === currentLabor.model && currentLabor.name !== '');
 
     if (isEditing) {
@@ -150,17 +130,17 @@ export default function AdminDashboard() {
     setIsLaborDialogOpen(false);
     setCurrentLabor(null);
   };
-  
-    const handleAddVehicle = () => {
-        setCurrentVehicle({ model: '', brand: 'Arena', category: '', fuelTypes: [], productionYears: [] });
-        setIsVehicleDialogOpen(true);
-    };
 
-    const handleEditVehicle = (vehicle: Vehicle) => {
-        setCurrentVehicle(vehicle);
-        setIsVehicleDialogOpen(true);
-    };
-  
+  const handleAddVehicle = () => {
+    setCurrentVehicle({ model: '', brand: 'Arena', category: '', fuelTypes: [], productionYears: [] });
+    setIsVehicleDialogOpen(true);
+  };
+
+  const handleEditVehicle = (vehicle: Vehicle) => {
+    setCurrentVehicle(vehicle);
+    setIsVehicleDialogOpen(true);
+  };
+
   const handleDeleteVehicle = (model: string) => {
     setVehicles(vehicles.filter(v => v.model !== model));
     toast({
@@ -185,9 +165,9 @@ export default function AdminDashboard() {
         fuelTypes: fuelTypesString.split(',').map(s => s.trim()).filter(Boolean),
         productionYears: productionYearsString.split(',').map(s => parseInt(s.trim())).filter(s => !isNaN(s)),
     };
-    
+
     const isEditing = vehicles.some(v => v.model === currentVehicle.model && currentVehicle.model !== '');
-    
+
     if (isEditing) {
         setVehicles(vehicles.map(v => v.model === currentVehicle.model ? updatedVehicle : v));
         toast({ title: "Vehicle Updated", description: `Successfully updated "${updatedVehicle.model}".` });
@@ -205,149 +185,86 @@ export default function AdminDashboard() {
   };
 
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files) {
-        setSelectedFile(e.target.files[0]);
-    }
-  };
-
-  const handleUpload = () => {
-    if (!selectedFile || !selectedDataType) {
-        toast({
-            variant: "destructive",
-            title: "Upload Failed",
-            description: "Please select a data type and a file.",
-        });
-        return;
-    }
-
-    const reader = new FileReader();
-    reader.onload = (e) => {
-        try {
-            const content = e.target?.result;
-            if (typeof content !== 'string') {
-                throw new Error("Failed to read file content.");
-            }
-            const data = JSON.parse(content);
-            
-            switch(selectedDataType) {
-                case 'labour':
-                    setCustomLabor(data);
-                    break;
-                case 'parts':
-                    setAllParts(data);
-                    break;
-                case 'pms':
-                    setPmsCharges(data);
-                    break;
-                case 'models':
-                    setVehicles(data);
-                    break;
-                default:
-                    throw new Error("Invalid data type selected.");
-            }
-
-            toast({
-                title: "Upload Successful",
-                description: `Successfully uploaded and updated ${selectedDataType} data.`,
-            });
-
-        } catch (error) {
-             toast({
-                variant: "destructive",
-                title: "Upload Failed",
-                description: error instanceof Error ? error.message : "An unknown error occurred during file processing.",
-            });
-        }
-    };
-    reader.onerror = () => {
-         toast({
-            variant: "destructive",
-            title: "File ReadError",
-            description: "Could not read the selected file.",
-        });
-    }
-    reader.readAsText(selectedFile);
-  };
-  
-    const handleConvert = async () => {
-        if (!rawText) {
-            setConversionError("Raw text input cannot be empty.");
-            return;
-        }
-        setIsConverting(true);
-        setGeneratedJson('');
-        setConversionError('');
-        try {
-            const result = await convertToJson({ rawText, jsonFormat });
-            // Attempt to format the JSON for better readability
-            try {
-                const parsedJson = JSON.parse(result.jsonString);
-                setGeneratedJson(JSON.stringify(parsedJson, null, 2));
-            } catch {
-                // If parsing fails, just show the raw string from AI
-                setGeneratedJson(result.jsonString);
-            }
-        } catch (error) {
-            const errorMessage = error instanceof Error ? error.message : "An unknown error occurred.";
-            setConversionError(`Failed to convert: ${errorMessage}`);
-            toast({
-                variant: "destructive",
-                title: "AI Conversion Failed",
-                description: errorMessage,
-            });
-        } finally {
-            setIsConverting(false);
-        }
-    };
-
-    const handleCopyJson = () => {
-        navigator.clipboard.writeText(generatedJson);
-        toast({
-            title: "Copied to Clipboard",
-            description: "The generated JSON has been copied.",
-        });
-    };
-
-
   return (
-    <div className="flex-1">
-      <Tabs defaultValue="parts" className="w-full">
-        <TabsList className="grid w-full grid-cols-5">
-          <TabsTrigger value="labour">
-            <Wrench className="mr-2 h-4 w-4" />
-            Labour
-          </TabsTrigger>
-          <TabsTrigger value="parts">
-            <Package className="mr-2 h-4 w-4" />
-            Parts
-          </TabsTrigger>
-          <TabsTrigger value="models">
-            <Car className="mr-2 h-4 w-4" />
-            Models
-          </TabsTrigger>
-          <TabsTrigger value="converter">
-            <Bot className="mr-2 h-4 w-4" />
-            AI Converter
-          </TabsTrigger>
-          <TabsTrigger value="upload">
-            <Upload className="mr-2 h-4 w-4" />
-            Upload
-          </TabsTrigger>
-        </TabsList>
-        <TabsContent value="labour">
-          <Card>
-            <Dialog open={isLaborDialogOpen} onOpenChange={setIsLaborDialogOpen}>
-                <CardHeader>
-                    <CardTitle>Manage Labour Charges</CardTitle>
-                    <CardDescription>
-                        Add, edit, or remove custom labour charges.
-                    </CardDescription>
-                    <div className="flex justify-end">
-                        <Button onClick={handleAddLabor}>
-                            <PlusCircle /> Add New Labour
-                        </Button>
+    <div className="flex-1 space-y-6">
+        {/* Parts Management Card */}
+        <Card>
+            <Dialog open={isPartsDialogOpen} onOpenChange={setIsPartsDialogOpen}>
+            <CardHeader className="flex flex-row items-center justify-between">
+                <div className="space-y-1">
+                    <CardTitle className="flex items-center gap-2"><Package /> Manage Parts and Pricing</CardTitle>
+                    <CardDescription>Add, edit, or remove parts from the central price list.</CardDescription>
+                </div>
+                <Button onClick={handleAddPart}>
+                    <PlusCircle /> Add New Part
+                </Button>
+            </CardHeader>
+            <DialogContent>
+                <form onSubmit={handleSavePart}>
+                    <DialogHeader>
+                    <DialogTitle>{currentPart?.name && currentPart.name !== '' ? 'Edit Part' : 'Add New Part'}</DialogTitle>
+                    <DialogDescription>
+                        Fill in the details for the part. Part names must be unique.
+                    </DialogDescription>
+                    </DialogHeader>
+                    <div className="grid gap-4 py-4">
+                        <div className="grid grid-cols-4 items-center gap-4">
+                            <Label htmlFor="name" className="text-right">Name</Label>
+                            <Input id="name" name="name" defaultValue={currentPart?.name} className="col-span-3" required />
+                        </div>
+                        <div className="grid grid-cols-4 items-center gap-4">
+                            <Label htmlFor="price" className="text-right">Price (₹)</Label>
+                            <Input id="price" name="price" type="number" defaultValue={currentPart?.price} className="col-span-3" required />
+                        </div>
                     </div>
+                    <DialogFooter>
+                        <Button type="submit">Save changes</Button>
+                    </DialogFooter>
+                </form>
+            </DialogContent>
+            </Dialog>
+            <CardContent>
+            <ScrollArea className="h-[40vh]">
+                <Table>
+                    <TableHeader>
+                    <TableRow>
+                        <TableHead>Part Name</TableHead>
+                        <TableHead className="text-right">Price (₹)</TableHead>
+                        <TableHead className="text-right">Actions</TableHead>
+                    </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                    {allParts.map((part) => (
+                        <TableRow key={part.name}>
+                        <TableCell className="font-medium">{part.name}</TableCell>
+                        <TableCell className="text-right">{part.price.toFixed(2)}</TableCell>
+                        <TableCell className="text-right">
+                            <Button variant="ghost" size="icon" onClick={() => handleEditPart(part)}>
+                            <Pencil className="h-4 w-4" />
+                            </Button>
+                            <Button variant="ghost" size="icon" onClick={() => handleDeletePart(part.name)}>
+                            <Trash2 className="h-4 w-4 text-destructive" />
+                            </Button>
+                        </TableCell>
+                        </TableRow>
+                    ))}
+                    </TableBody>
+                </Table>
+            </ScrollArea>
+            </CardContent>
+        </Card>
+
+        {/* Labour Management Card */}
+        <Card>
+            <Dialog open={isLaborDialogOpen} onOpenChange={setIsLaborDialogOpen}>
+                <CardHeader className="flex flex-row items-center justify-between">
+                    <div className="space-y-1">
+                        <CardTitle className="flex items-center gap-2"><Wrench /> Manage Labour Charges</CardTitle>
+                        <CardDescription>Add, edit, or remove custom labour charges.</CardDescription>
+                    </div>
+                    <Button onClick={handleAddLabor}>
+                        <PlusCircle /> Add New Labour
+                    </Button>
                 </CardHeader>
                 <DialogContent>
                     <form onSubmit={handleSaveLabor}>
@@ -362,7 +279,7 @@ export default function AdminDashboard() {
                                 <Label htmlFor="name" className="text-right">Name</Label>
                                 <Input id="name" name="name" defaultValue={currentLabor?.name} className="col-span-3" required />
                             </div>
-                             <div className="grid grid-cols-4 items-center gap-4">
+                                <div className="grid grid-cols-4 items-center gap-4">
                                 <Label htmlFor="model" className="text-right">Model</Label>
                                 <Select name="model" defaultValue={currentLabor?.model} required>
                                     <SelectTrigger id="model" className="col-span-3">
@@ -384,8 +301,8 @@ export default function AdminDashboard() {
                     </form>
                 </DialogContent>
             </Dialog>
-            <CardContent className="space-y-2">
-              <ScrollArea className="h-[60vh]">
+            <CardContent>
+              <ScrollArea className="h-[40vh]">
                 <Table>
                   <TableHeader>
                     <TableRow>
@@ -415,90 +332,19 @@ export default function AdminDashboard() {
                 </Table>
               </ScrollArea>
             </CardContent>
-          </Card>
-        </TabsContent>
-        <TabsContent value="parts">
-          <Card>
-             <Dialog open={isPartsDialogOpen} onOpenChange={setIsPartsDialogOpen}>
-                <CardHeader>
-                    <CardTitle>Manage Parts and Pricing</CardTitle>
-                    <CardDescription>
-                        Add, edit, or remove parts from the central price list.
-                    </CardDescription>
-                    <div className="flex justify-end">
-                        <Button onClick={handleAddPart}>
-                            <PlusCircle /> Add New Part
-                        </Button>
-                    </div>
-                </CardHeader>
-                <DialogContent>
-                    <form onSubmit={handleSavePart}>
-                        <DialogHeader>
-                        <DialogTitle>{currentPart?.name && currentPart.name !== '' ? 'Edit Part' : 'Add New Part'}</DialogTitle>
-                        <DialogDescription>
-                            Fill in the details for the part. Part names must be unique.
-                        </DialogDescription>
-                        </DialogHeader>
-                        <div className="grid gap-4 py-4">
-                            <div className="grid grid-cols-4 items-center gap-4">
-                                <Label htmlFor="name" className="text-right">Name</Label>
-                                <Input id="name" name="name" defaultValue={currentPart?.name} className="col-span-3" required />
-                            </div>
-                            <div className="grid grid-cols-4 items-center gap-4">
-                                <Label htmlFor="price" className="text-right">Price (₹)</Label>
-                                <Input id="price" name="price" type="number" defaultValue={currentPart?.price} className="col-span-3" required />
-                            </div>
-                        </div>
-                        <DialogFooter>
-                            <Button type="submit">Save changes</Button>
-                        </DialogFooter>
-                    </form>
-                </DialogContent>
-            </Dialog>
-            <CardContent className="space-y-2">
-              <ScrollArea className="h-[60vh]">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Part Name</TableHead>
-                      <TableHead className="text-right">Price (₹)</TableHead>
-                      <TableHead className="text-right">Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {allParts.map((part) => (
-                      <TableRow key={part.name}>
-                        <TableCell className="font-medium">{part.name}</TableCell>
-                        <TableCell className="text-right">{part.price.toFixed(2)}</TableCell>
-                        <TableCell className="text-right">
-                          <Button variant="ghost" size="icon" onClick={() => handleEditPart(part)}>
-                            <Pencil className="h-4 w-4" />
-                          </Button>
-                          <Button variant="ghost" size="icon" onClick={() => handleDeletePart(part.name)}>
-                            <Trash2 className="h-4 w-4 text-destructive" />
-                          </Button>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </ScrollArea>
-            </CardContent>
-          </Card>
-        </TabsContent>
-        <TabsContent value="models">
-          <Card>
+        </Card>
+
+        {/* Vehicle Models Management Card */}
+        <Card>
             <Dialog open={isVehicleDialogOpen} onOpenChange={setIsVehicleDialogOpen}>
-                <CardHeader>
-                <CardTitle>Manage Vehicle Models</CardTitle>
-                <CardDescription>
-                    Add, edit, or remove vehicle models.
-                </CardDescription>
-                 <div className="flex justify-end">
-                        <Button onClick={handleAddVehicle}>
-                            <PlusCircle /> Add New Vehicle
-                        </Button>
+                <CardHeader className="flex flex-row items-center justify-between">
+                    <div className="space-y-1">
+                        <CardTitle className="flex items-center gap-2"><Car /> Manage Vehicle Models</CardTitle>
+                        <CardDescription>Add, edit, or remove vehicle models.</CardDescription>
                     </div>
+                    <Button onClick={handleAddVehicle}>
+                        <PlusCircle /> Add New Vehicle
+                    </Button>
                 </CardHeader>
                 <DialogContent className="sm:max-w-[425px]">
                      <form onSubmit={handleSaveVehicle}>
@@ -546,8 +392,8 @@ export default function AdminDashboard() {
                 </DialogContent>
             </Dialog>
 
-            <CardContent className="space-y-2 pt-6">
-              <ScrollArea className="h-[60vh]">
+            <CardContent>
+              <ScrollArea className="h-[40vh]">
                 <Table>
                   <TableHeader>
                     <TableRow>
@@ -591,108 +437,7 @@ export default function AdminDashboard() {
                 </Table>
               </ScrollArea>
             </CardContent>
-          </Card>
-        </TabsContent>
-        <TabsContent value="converter">
-            <Card>
-                <CardHeader>
-                    <CardTitle>AI-Powered Data Converter</CardTitle>
-                    <CardDescription>
-                        Paste raw text (like from an Excel sheet) and let AI convert it into the correct JSON format for uploading.
-                    </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                            <Label htmlFor="rawText">Raw Text Input</Label>
-                            <Textarea 
-                                id="rawText"
-                                placeholder="Paste your comma-separated, tab-separated, or unstructured text here."
-                                value={rawText}
-                                onChange={(e) => setRawText(e.target.value)}
-                                className="h-48"
-                            />
-                        </div>
-                         <div className="space-y-2">
-                             <Label htmlFor="generatedJson">Generated JSON</Label>
-                             <div className="relative">
-                                 <Textarea 
-                                    id="generatedJson"
-                                    value={isConverting ? "Converting, please wait..." : generatedJson}
-                                    readOnly
-                                    className="h-48"
-                                />
-                                 {isConverting && <Loader2 className="absolute top-1/2 left-1/2 -mt-3 -ml-3 h-6 w-6 animate-spin" />}
-                             </div>
-                        </div>
-                    </div>
-                     <div className="space-y-2">
-                        <Label htmlFor="jsonFormat">Target JSON Format</Label>
-                        <Select onValueChange={(v) => setJsonFormat(v as any)} value={jsonFormat}>
-                            <SelectTrigger id="jsonFormat">
-                                <SelectValue placeholder="Select target format" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="parts">Parts and Price</SelectItem>
-                                <SelectItem value="labour">Custom Labour</SelectItem>
-                                <SelectItem value="pms">PMS Labour Price</SelectItem>
-                                <SelectItem value="models">Vehicle Models</SelectItem>
-                            </SelectContent>
-                        </Select>
-                    </div>
-                     {conversionError && <Alert variant="destructive"><AlertDescription>{conversionError}</AlertDescription></Alert>}
-                </CardContent>
-                <CardFooter className="flex justify-between">
-                     <Button onClick={handleConvert} disabled={isConverting || !rawText}>
-                        <Bot className="mr-2 h-4 w-4" />
-                        {isConverting ? "Converting..." : "Convert with AI"}
-                    </Button>
-                    <Button onClick={handleCopyJson} variant="outline" disabled={!generatedJson || isConverting}>
-                        Copy JSON
-                    </Button>
-                </CardFooter>
-            </Card>
-        </TabsContent>
-        <TabsContent value="upload">
-          <Card>
-            <CardHeader>
-              <CardTitle>Upload Data</CardTitle>
-              <CardDescription>
-                Bulk upload data from a JSON file.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="dataType">Data Type</Label>
-                <Select onValueChange={setSelectedDataType} value={selectedDataType}>
-                  <SelectTrigger id="dataType">
-                    <SelectValue placeholder="Select data type to upload" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="labour">Custom Labour</SelectItem>
-                    <SelectItem value="parts">Parts and Price</SelectItem>
-                    <SelectItem value="pms">PMS Labour Price</SelectItem>
-                    <SelectItem value="models">Vehicle Models</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="fileUpload">Upload File</Label>
-                <Input id="fileUpload" type="file" accept="application/json" onChange={handleFileChange} />
-                 <p className="text-sm text-muted-foreground">
-                  Please upload a JSON file.
-                </p>
-              </div>
-              <Button onClick={handleUpload} disabled={!selectedDataType || !selectedFile}>
-                <FileUp className="mr-2 h-4 w-4" />
-                Upload and Process
-              </Button>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
+        </Card>
     </div>
   );
 }
-
-    
