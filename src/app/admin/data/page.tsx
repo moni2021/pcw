@@ -4,20 +4,23 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
-import { Download, Database, KeyRound, Save, UploadCloud, ShieldCheck, Loader2, Upload } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Download, Database, KeyRound, Save, UploadCloud, ShieldCheck, Loader2, Upload, FileJson } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { syncToFirebase, uploadAndSyncToFirebase } from './actions';
+import { syncToFirebase, uploadAndSyncToFirebase, downloadSampleJson } from './actions';
+import { Separator } from '@/components/ui/separator';
 
-// Import all data sources
+// Import all data sources for the "Master" sync
 import { vehicles } from '@/lib/data';
 import { allParts } from '@/lib/parts-data';
 import { customLaborData } from '@/lib/custom-labor-data';
 import { pmsCharges } from '@/lib/pms-charges';
 import { threeMCareData } from '@/lib/3m-care-data';
-import { Separator } from '@/components/ui/separator';
+
+type DataType = 'vehicles' | 'parts' | 'customLabor' | 'pmsCharges';
 
 export default function DataManagementPage() {
     const { toast } = useToast();
@@ -25,8 +28,8 @@ export default function DataManagementPage() {
     const [password, setPassword] = useState('');
     const [isPasswordDialogOpen, setIsPasswordDialogOpen] = useState(true);
     const [isSyncing, setIsSyncing] = useState(false);
-    const [isUploading, setIsUploading] = useState(false);
-    const [selectedFile, setSelectedFile] = useState<File | null>(null);
+    const [isUploading, setIsUploading] = useState<{ [key in DataType]?: boolean }>({});
+    const [selectedFile, setSelectedFile] = useState<{ [key in DataType]?: File | null }>({});
 
     useEffect(() => {
         setIsAuthenticated(false);
@@ -60,7 +63,7 @@ export default function DataManagementPage() {
         threeMCareData,
     };
 
-    const handleDownload = () => {
+    const handleMasterDownload = () => {
         try {
             const jsonString = JSON.stringify(allData, null, 2);
             const blob = new Blob([jsonString], { type: 'application/json' });
@@ -68,7 +71,7 @@ export default function DataManagementPage() {
 
             const link = document.createElement('a');
             link.href = url;
-            link.download = 'maruti_service_data.json';
+            link.download = 'maruti_service_master_data.json';
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
@@ -76,7 +79,7 @@ export default function DataManagementPage() {
 
             toast({
                 title: 'Download Started',
-                description: 'Your data file is being downloaded.',
+                description: 'Your master data file is being downloaded.',
             });
         } catch (error) {
             console.error("Failed to prepare data for download:", error);
@@ -87,6 +90,28 @@ export default function DataManagementPage() {
             });
         }
     };
+    
+    const handleSampleDownload = async (dataType: DataType) => {
+        try {
+            const jsonString = await downloadSampleJson(dataType);
+            const blob = new Blob([jsonString], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `${dataType}_sample.json`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+        } catch (error) {
+             toast({
+                variant: "destructive",
+                title: 'Sample Download Failed',
+                description: 'Could not download the sample file.',
+            });
+        }
+    }
+
 
     const handleSync = async () => {
         setIsSyncing(true);
@@ -95,7 +120,7 @@ export default function DataManagementPage() {
             if (result.success) {
                 toast({
                     title: 'Sync Successful',
-                    description: 'All data has been successfully synced to Firebase.',
+                    description: 'All local data has been successfully synced to Firebase.',
                 });
             } else {
                 throw new Error(result.error || 'An unknown error occurred.');
@@ -112,8 +137,9 @@ export default function DataManagementPage() {
         }
     };
 
-     const handleFileUpload = async () => {
-        if (!selectedFile) {
+     const handleFileUpload = async (dataType: DataType) => {
+        const file = selectedFile[dataType];
+        if (!file) {
             toast({
                 variant: 'destructive',
                 title: 'No File Selected',
@@ -122,20 +148,20 @@ export default function DataManagementPage() {
             return;
         }
 
-        setIsUploading(true);
+        setIsUploading(prev => ({...prev, [dataType]: true}));
         const reader = new FileReader();
         reader.onload = async (e) => {
             const text = e.target?.result as string;
             try {
-                const result = await uploadAndSyncToFirebase(text);
+                const result = await uploadAndSyncToFirebase(text, dataType);
                 if (result.success) {
                     toast({
                         title: 'Upload & Sync Successful',
-                        description: 'Your JSON file has been successfully synced to Firebase.',
+                        description: `Your ${dataType} JSON file has been successfully synced to Firebase.`,
                     });
-                     setSelectedFile(null); // Clear the file input
+                     setSelectedFile(prev => ({...prev, [dataType]: null})); 
                 } else {
-                    throw new Error(result.error || 'An unknown error occurred during upload.');
+                    throw new Error(result.error || `An unknown error occurred during ${dataType} upload.`);
                 }
             } catch (error: any) {
                  toast({
@@ -144,7 +170,7 @@ export default function DataManagementPage() {
                     description: error.message,
                 });
             } finally {
-                setIsUploading(false);
+                setIsUploading(prev => ({...prev, [dataType]: false}));
             }
         };
         reader.onerror = () => {
@@ -153,9 +179,9 @@ export default function DataManagementPage() {
                 title: 'File Read Error',
                 description: 'Could not read the selected file.',
             });
-            setIsUploading(false);
+            setIsUploading(prev => ({...prev, [dataType]: false}));
         }
-        reader.readAsText(selectedFile);
+        reader.readAsText(file);
     };
 
     if (!isAuthenticated) {
@@ -197,13 +223,48 @@ export default function DataManagementPage() {
             </Dialog>
         );
     }
+    
+    const renderUploadTab = (dataType: DataType, title: string, description: string) => (
+        <Card>
+            <CardHeader>
+                <CardTitle className="flex items-center gap-2"><FileJson /> {title}</CardTitle>
+                <CardDescription>{description}</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+                 <div className="space-y-2">
+                    <Label htmlFor={`${dataType}-file-input`}>Upload JSON File</Label>
+                    <Input
+                        id={`${dataType}-file-input`}
+                        type="file"
+                        accept=".json"
+                        onChange={(e) => setSelectedFile(prev => ({...prev, [dataType]: e.target.files?.[0] || null}))}
+                        className="max-w-xs"
+                    />
+                 </div>
+                  <div className="flex flex-col sm:flex-row gap-2">
+                     <Button onClick={() => handleFileUpload(dataType)} disabled={isUploading[dataType] || !selectedFile[dataType]}>
+                        {isUploading[dataType] ? (
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        ) : (
+                            <UploadCloud className="mr-2 h-4 w-4" />
+                        )}
+                        Upload & Sync
+                    </Button>
+                    <Button onClick={() => handleSampleDownload(dataType)} variant="outline">
+                        <Download className="mr-2 h-4 w-4" />
+                        Download Sample
+                    </Button>
+                  </div>
+            </CardContent>
+        </Card>
+    );
 
     return (
         <div className="space-y-6">
             <Card>
                 <CardHeader>
                     <CardTitle className="flex items-center gap-2">
-                        <Database /> Local Data Management
+                        <Database /> Master Data Management
                     </CardTitle>
                     <CardDescription>
                        Download the application's current local data or push it to Firebase. This is useful for backups or initializing the database.
@@ -211,9 +272,9 @@ export default function DataManagementPage() {
                 </CardHeader>
                 <CardContent>
                     <div className="flex gap-2">
-                        <Button onClick={handleDownload}>
+                        <Button onClick={handleMasterDownload}>
                             <Download className="mr-2 h-4 w-4" />
-                            Download Data
+                            Download All Data
                         </Button>
                          <Button onClick={handleSync} disabled={isSyncing} variant="secondary">
                             {isSyncing ? (
@@ -232,48 +293,33 @@ export default function DataManagementPage() {
              <Card>
                 <CardHeader>
                     <CardTitle className="flex items-center gap-2">
-                        <Upload /> Upload & Sync from File
+                        <Upload /> Structured Data Upload
                     </CardTitle>
                     <CardDescription>
-                       Upload a master JSON file to overwrite the data in Firebase. This is the primary way to update live data.
+                       Upload a JSON file for a specific data type to update it in Firebase. Use the sample files to ensure correct formatting.
                     </CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <div className="flex flex-col sm:flex-row gap-4">
-                        <Input
-                            type="file"
-                            accept=".json"
-                            onChange={(e) => setSelectedFile(e.target.files?.[0] || null)}
-                            className="max-w-xs"
-                        />
-                         <Button onClick={handleFileUpload} disabled={isUploading || !selectedFile}>
-                            {isUploading ? (
-                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                            ) : (
-                                <UploadCloud className="mr-2 h-4 w-4" />
-                            )}
-                            Upload & Sync
-                        </Button>
-                    </div>
-                </CardContent>
-            </Card>
-
-            <Card>
-                <CardHeader>
-                    <CardTitle>Firebase Configuration</CardTitle>
-                    <CardDescription>
-                       To enable database sync, ensure your hosting environment has the service account key configured correctly.
-                    </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                    <div className="space-y-2">
-                        <Label htmlFor="projectId">Project ID</Label>
-                        <Input id="projectId" placeholder="your-project-id" disabled value={process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || "maruti-service-estimator"} />
-                    </div>
-                     <div className="space-y-2">
-                        <Label>Data Path</Label>
-                        <Input id="data-path" disabled value="config/app_data" />
-                    </div>
+                    <Tabs defaultValue="vehicles">
+                        <TabsList className="grid w-full grid-cols-2 md:grid-cols-4">
+                            <TabsTrigger value="vehicles">Vehicle Models</TabsTrigger>
+                            <TabsTrigger value="parts">Parts</TabsTrigger>
+                            <TabsTrigger value="customLabor">Custom Labour</TabsTrigger>
+                            <TabsTrigger value="pmsCharges">PMS Charges</TabsTrigger>
+                        </TabsList>
+                        <TabsContent value="vehicles" className="pt-4">
+                           {renderUploadTab('vehicles', 'Vehicle Models Data', 'Upload a JSON file containing the list of all vehicle models and their properties.')}
+                        </TabsContent>
+                         <TabsContent value="parts" className="pt-4">
+                           {renderUploadTab('parts', 'Parts Data', 'Upload a JSON file with the master list of all parts and their prices.')}
+                        </TabsContent>
+                         <TabsContent value="customLabor" className="pt-4">
+                            {renderUploadTab('customLabor', 'Custom Labour Data', 'Upload a JSON file with all custom labour charges specific to vehicle models.')}
+                        </TabsContent>
+                          <TabsContent value="pmsCharges" className="pt-4">
+                           {renderUploadTab('pmsCharges', 'PMS Charges Data', 'Upload a JSON file defining the periodic maintenance service (PMS) labour charges.')}
+                        </TabsContent>
+                    </Tabs>
                 </CardContent>
             </Card>
         </div>

@@ -22,7 +22,7 @@ const PmsChargeSchema = z.object({
 
 const ConvertToJsonInputSchema = z.object({
   rawText: z.string().describe('The raw, unstructured text to be converted. This could be from a CSV, Excel, or just plain text.'),
-  jsonFormat: z.enum(['parts', 'labour', 'pms', 'models']).describe('The target JSON format.'),
+  jsonFormat: z.enum(['parts', 'customLabor', 'pmsCharges', 'vehicles']).describe('The target JSON format.'),
 });
 export type ConvertToJsonInput = z.infer<typeof ConvertToJsonInputSchema>;
 
@@ -52,15 +52,15 @@ const converterFlow = ai.defineFlow(
         formatDescription = 'An array of Part objects. Each object must have a `name` (string) and `price` (number).';
         exampleObject = { name: 'Sample Part', price: 100 };
         break;
-      case 'labour':
+      case 'customLabor':
         formatDescription = 'An array of CustomLabor objects. Each object must have a `name` (string), `model` (string), and `charge` (number).';
         exampleObject = { name: 'Sample Labor', model: 'Some Model', charge: 500 };
         break;
-      case 'pms':
+      case 'pmsCharges':
         formatDescription = 'An array of PmsCharge objects. Each object must have a `model` (string), `labourDesc` (string), `labourCode` (string), and `basicAmt` (number).';
         exampleObject = { model: 'Some Model', labourDesc: 'Paid Service (20,000 km)', labourCode: 'L4020050', basicAmt: 1500 };
         break;
-      case 'models':
+      case 'vehicles':
         formatDescription = 'An array of Vehicle objects. Each object must have a `model` (string), `brand` ("Arena", "Nexa", or "Commercial"), `category` (string), `fuelTypes` (array of strings), and `productionYears` (array of numbers). `variants` can be an empty array.';
         exampleObject = { model: 'Sample Model', brand: 'Arena', category: 'Hatchback', variants: [], fuelTypes: ['Petrol'], productionYears: [2024] };
         break;
