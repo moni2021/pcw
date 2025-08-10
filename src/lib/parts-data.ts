@@ -17,4 +17,11 @@ export const allParts: Part[] = [
   { name: "Transfer Case Oil", price: 1200 },
   { name: "Differential Oil", price: 1000 },
   { name: "Diesel Filter", price: 1200 },
+  { name: "ECSTAR PREMIUM 0W20-SHELL", price: 1200 },
+  { name: "MGGO(75W90)-SHELL", price: 1200 },
+  { name: "SYNTHETIC OIL (0W40)-IOCL", price: 1200 },
+  { name: "ECSTAR PETROL 0W16 - SHELL", price: 1200 },
+  { name: "ECSTAR PETROL 0W20 - IOCL", price: 1200 },
+  { name: "ECSTAR DIESEL 5W30-IOCL", price: 1200 },
 ];
+
