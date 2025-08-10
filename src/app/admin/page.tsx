@@ -11,7 +11,7 @@ import {
   CardFooter
 } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Wrench, Package, Car, Upload, FileUp, PlusCircle, Trash2, Pencil } from 'lucide-react';
+import { Wrench, Package, Car, Upload, FileUp, PlusCircle, Trash2, Pencil, Bot } from 'lucide-react';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
@@ -26,6 +26,10 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import type { Part, CustomLabor, Vehicle } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
 import { pmsCharges as initialPmsCharges } from '@/lib/pms-charges';
+import { Textarea } from '@/components/ui/textarea';
+import { convertToJson, ConvertToJsonInput } from '@/ai/flows/json-converter-flow';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Loader2 } from 'lucide-react';
 
 
 export default function AdminDashboard() {
@@ -41,10 +45,16 @@ export default function AdminDashboard() {
   const [isVehicleDialogOpen, setIsVehicleDialogOpen] = useState(false);
   const [currentVehicle, setCurrentVehicle] = useState<Partial<Vehicle> | null>(null);
 
-
   const [selectedDataType, setSelectedDataType] = useState<string>('');
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const { toast } = useToast();
+
+  // State for AI Converter
+  const [rawText, setRawText] = useState('');
+  const [jsonFormat, setJsonFormat] = useState<ConvertToJsonInput['jsonFormat']>('parts');
+  const [generatedJson, setGeneratedJson] = useState('');
+  const [isConverting, setIsConverting] = useState(false);
+  const [conversionError, setConversionError] = useState('');
 
 
   const handleAddPart = () => {
@@ -259,27 +269,70 @@ export default function AdminDashboard() {
     }
     reader.readAsText(selectedFile);
   };
+  
+    const handleConvert = async () => {
+        if (!rawText) {
+            setConversionError("Raw text input cannot be empty.");
+            return;
+        }
+        setIsConverting(true);
+        setGeneratedJson('');
+        setConversionError('');
+        try {
+            const result = await convertToJson({ rawText, jsonFormat });
+            // Attempt to format the JSON for better readability
+            try {
+                const parsedJson = JSON.parse(result.jsonString);
+                setGeneratedJson(JSON.stringify(parsedJson, null, 2));
+            } catch {
+                // If parsing fails, just show the raw string from AI
+                setGeneratedJson(result.jsonString);
+            }
+        } catch (error) {
+            const errorMessage = error instanceof Error ? error.message : "An unknown error occurred.";
+            setConversionError(`Failed to convert: ${errorMessage}`);
+            toast({
+                variant: "destructive",
+                title: "AI Conversion Failed",
+                description: errorMessage,
+            });
+        } finally {
+            setIsConverting(false);
+        }
+    };
+
+    const handleCopyJson = () => {
+        navigator.clipboard.writeText(generatedJson);
+        toast({
+            title: "Copied to Clipboard",
+            description: "The generated JSON has been copied.",
+        });
+    };
 
 
   return (
     <div className="flex-1">
       <Tabs defaultValue="parts" className="w-full">
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="labour">
             <Wrench className="mr-2 h-4 w-4" />
             Labour
           </TabsTrigger>
           <TabsTrigger value="parts">
             <Package className="mr-2 h-4 w-4" />
-            Parts and Price
+            Parts
           </TabsTrigger>
           <TabsTrigger value="models">
             <Car className="mr-2 h-4 w-4" />
-            Vehicle Models
+            Models
+          </TabsTrigger>
+          <TabsTrigger value="converter">
+            <Bot className="mr-2 h-4 w-4" />
+            AI Converter
           </TabsTrigger>
           <TabsTrigger value="upload">
             <Upload className="mr-2 h-4 w-4" />
-            Upload Data
+            Upload
           </TabsTrigger>
         </TabsList>
         <TabsContent value="labour">
@@ -539,6 +592,66 @@ export default function AdminDashboard() {
               </ScrollArea>
             </CardContent>
           </Card>
+        </TabsContent>
+        <TabsContent value="converter">
+            <Card>
+                <CardHeader>
+                    <CardTitle>AI-Powered Data Converter</CardTitle>
+                    <CardDescription>
+                        Paste raw text (like from an Excel sheet) and let AI convert it into the correct JSON format for uploading.
+                    </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                            <Label htmlFor="rawText">Raw Text Input</Label>
+                            <Textarea 
+                                id="rawText"
+                                placeholder="Paste your comma-separated, tab-separated, or unstructured text here."
+                                value={rawText}
+                                onChange={(e) => setRawText(e.target.value)}
+                                className="h-48"
+                            />
+                        </div>
+                         <div className="space-y-2">
+                             <Label htmlFor="generatedJson">Generated JSON</Label>
+                             <div className="relative">
+                                 <Textarea 
+                                    id="generatedJson"
+                                    value={isConverting ? "Converting, please wait..." : generatedJson}
+                                    readOnly
+                                    className="h-48"
+                                />
+                                 {isConverting && <Loader2 className="absolute top-1/2 left-1/2 -mt-3 -ml-3 h-6 w-6 animate-spin" />}
+                             </div>
+                        </div>
+                    </div>
+                     <div className="space-y-2">
+                        <Label htmlFor="jsonFormat">Target JSON Format</Label>
+                        <Select onValueChange={(v) => setJsonFormat(v as any)} value={jsonFormat}>
+                            <SelectTrigger id="jsonFormat">
+                                <SelectValue placeholder="Select target format" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="parts">Parts and Price</SelectItem>
+                                <SelectItem value="labour">Custom Labour</SelectItem>
+                                <SelectItem value="pms">PMS Labour Price</SelectItem>
+                                <SelectItem value="models">Vehicle Models</SelectItem>
+                            </SelectContent>
+                        </Select>
+                    </div>
+                     {conversionError && <Alert variant="destructive"><AlertDescription>{conversionError}</AlertDescription></Alert>}
+                </CardContent>
+                <CardFooter className="flex justify-between">
+                     <Button onClick={handleConvert} disabled={isConverting || !rawText}>
+                        <Bot className="mr-2 h-4 w-4" />
+                        {isConverting ? "Converting..." : "Convert with AI"}
+                    </Button>
+                    <Button onClick={handleCopyJson} variant="outline" disabled={!generatedJson || isConverting}>
+                        Copy JSON
+                    </Button>
+                </CardFooter>
+            </Card>
         </TabsContent>
         <TabsContent value="upload">
           <Card>
