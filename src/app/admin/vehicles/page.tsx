@@ -9,7 +9,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Car, PlusCircle, Trash2, Pencil } from 'lucide-react';
+import { Car, PlusCircle, Trash2, Pencil, Search } from 'lucide-react';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
@@ -26,6 +26,7 @@ export default function VehicleManagementPage() {
   const [vehicles, setVehicles] = useState<Vehicle[]>(initialVehicles);
   const [isVehicleDialogOpen, setIsVehicleDialogOpen] = useState(false);
   const [currentVehicle, setCurrentVehicle] = useState<Partial<Vehicle> | null>(null);
+  const [searchTerm, setSearchTerm] = useState('');
   const { toast } = useToast();
 
   const handleAddVehicle = () => {
@@ -80,18 +81,35 @@ export default function VehicleManagementPage() {
     setIsVehicleDialogOpen(false);
     setCurrentVehicle(null);
   };
+  
+  const filteredVehicles = vehicles.filter(vehicle =>
+    vehicle.model.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
 
   return (
     <Card>
         <Dialog open={isVehicleDialogOpen} onOpenChange={setIsVehicleDialogOpen}>
-            <CardHeader className="flex flex-row items-center justify-between">
+            <CardHeader className="flex flex-row items-start sm:items-center justify-between gap-2">
                 <div className="space-y-1">
                     <CardTitle className="flex items-center gap-2"><Car /> Manage Vehicle Models</CardTitle>
                     <CardDescription>Add, edit, or remove vehicle models.</CardDescription>
                 </div>
-                <Button onClick={handleAddVehicle}>
-                    <PlusCircle /> Add New Vehicle
-                </Button>
+                 <div className="flex-1 flex justify-center sm:justify-end gap-2">
+                    <div className="relative w-full max-w-xs">
+                        <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                        <Input
+                            type="search"
+                            placeholder="Search by model name..."
+                            className="pl-8"
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                        />
+                    </div>
+                     <Button onClick={handleAddVehicle} className="shrink-0">
+                        <PlusCircle /> Add New
+                    </Button>
+                </div>
             </CardHeader>
             <DialogContent className="sm:max-w-[425px]">
                     <form onSubmit={handleSaveVehicle}>
@@ -153,7 +171,7 @@ export default function VehicleManagementPage() {
                 </TableRow>
                 </TableHeader>
                 <TableBody>
-                {vehicles.map((vehicle) => (
+                {filteredVehicles.map((vehicle) => (
                     <TableRow key={vehicle.model}>
                     <TableCell className="font-medium">{vehicle.model}</TableCell>
                     <TableCell>

@@ -9,7 +9,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Wrench, PlusCircle, Trash2, Pencil } from 'lucide-react';
+import { Wrench, PlusCircle, Trash2, Pencil, Search } from 'lucide-react';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
@@ -27,6 +27,7 @@ export default function LabourManagementPage() {
   const [vehicles] = useState<Vehicle[]>(initialVehicles);
   const [isLaborDialogOpen, setIsLaborDialogOpen] = useState(false);
   const [currentLabor, setCurrentLabor] = useState<CustomLabor | null>(null);
+  const [searchTerm, setSearchTerm] = useState('');
   const { toast } = useToast();
 
   const handleAddLabor = () => {
@@ -75,18 +76,35 @@ export default function LabourManagementPage() {
     setIsLaborDialogOpen(false);
     setCurrentLabor(null);
   };
+  
+  const filteredLabor = customLabor.filter(labor => 
+    labor.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    labor.model.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   return (
     <Card>
         <Dialog open={isLaborDialogOpen} onOpenChange={setIsLaborDialogOpen}>
-            <CardHeader className="flex flex-row items-center justify-between">
+            <CardHeader className="flex flex-row items-start sm:items-center justify-between gap-2">
                 <div className="space-y-1">
                     <CardTitle className="flex items-center gap-2"><Wrench /> Manage Labour Charges</CardTitle>
                     <CardDescription>Add, edit, or remove custom labour charges.</CardDescription>
                 </div>
-                <Button onClick={handleAddLabor}>
-                    <PlusCircle /> Add New Labour
-                </Button>
+                 <div className="flex-1 flex justify-center sm:justify-end gap-2">
+                    <div className="relative w-full max-w-xs">
+                        <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                        <Input
+                            type="search"
+                            placeholder="Search by name or model..."
+                            className="pl-8"
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                        />
+                    </div>
+                     <Button onClick={handleAddLabor} className="shrink-0">
+                        <PlusCircle /> Add New
+                    </Button>
+                 </div>
             </CardHeader>
             <DialogContent>
                 <form onSubmit={handleSaveLabor}>
@@ -135,7 +153,7 @@ export default function LabourManagementPage() {
                 </TableRow>
                 </TableHeader>
                 <TableBody>
-                {customLabor.map((labor, index) => (
+                {filteredLabor.map((labor, index) => (
                     <TableRow key={index}>
                     <TableCell className="font-medium">{labor.name}</TableCell>
                     <TableCell>{labor.model}</TableCell>

@@ -9,7 +9,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Package, PlusCircle, Trash2, Pencil } from 'lucide-react';
+import { Package, PlusCircle, Trash2, Pencil, Search } from 'lucide-react';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -24,6 +24,7 @@ export default function PartsManagementPage() {
   const [allParts, setAllParts] = useState<Part[]>(initialAllParts);
   const [isPartsDialogOpen, setIsPartsDialogOpen] = useState(false);
   const [currentPart, setCurrentPart] = useState<Part | null>(null);
+  const [searchTerm, setSearchTerm] = useState('');
   const { toast } = useToast();
 
   const handleAddPart = () => {
@@ -72,17 +73,33 @@ export default function PartsManagementPage() {
     setCurrentPart(null);
   }
 
+  const filteredParts = allParts.filter(part => 
+    part.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   return (
     <Card>
         <Dialog open={isPartsDialogOpen} onOpenChange={setIsPartsDialogOpen}>
-        <CardHeader className="flex flex-row items-center justify-between">
+        <CardHeader className="flex flex-row items-start sm:items-center justify-between gap-2">
             <div className="space-y-1">
                 <CardTitle className="flex items-center gap-2"><Package /> Manage Parts and Pricing</CardTitle>
                 <CardDescription>Add, edit, or remove parts from the central price list.</CardDescription>
             </div>
-            <Button onClick={handleAddPart}>
-                <PlusCircle /> Add New Part
-            </Button>
+             <div className="flex-1 flex justify-center sm:justify-end gap-2">
+                <div className="relative w-full max-w-xs">
+                    <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                    <Input
+                        type="search"
+                        placeholder="Search by part name..."
+                        className="pl-8"
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                    />
+                </div>
+                <Button onClick={handleAddPart} className="shrink-0">
+                    <PlusCircle /> Add New
+                </Button>
+            </div>
         </CardHeader>
         <DialogContent>
             <form onSubmit={handleSavePart}>
@@ -119,7 +136,7 @@ export default function PartsManagementPage() {
                 </TableRow>
                 </TableHeader>
                 <TableBody>
-                {allParts.map((part) => (
+                {filteredParts.map((part) => (
                     <TableRow key={part.name}>
                     <TableCell className="font-medium">{part.name}</TableCell>
                     <TableCell className="text-right">{part.price.toFixed(2)}</TableCell>
