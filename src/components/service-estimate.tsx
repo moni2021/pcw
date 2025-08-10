@@ -22,9 +22,19 @@ interface ServiceEstimateProps {
   estimate: ServiceEstimateData;
 }
 
-const allEngineOils = allParts.filter(part => part.name.toLowerCase().includes('oil') || part.name.toLowerCase().includes('ecstar') || part.name.toLowerCase().includes('mggo'));
-const petrolEngineOils = allEngineOils.filter(part => !part.name.toLowerCase().includes('diesel'));
-const dieselEngineOil = allEngineOils.find(part => part.name.toLowerCase().includes('diesel'));
+const allEngineOilsFromImage = [
+    "ECSTAR PREMIUM 0W20-SHELL",
+    "MGGO(75W90)-SHELL",
+    "SYNTHETIC OIL (0W40)-IOCL",
+    "ECSTAR PETROL 0W16 - SHELL",
+    "ECSTAR PETROL 0W20 - IOCL",
+    "ECSTAR DIESEL 5W30-IOCL",
+];
+
+const allEngineOilParts = allParts.filter(part => allEngineOilsFromImage.includes(part.name));
+const petrolEngineOils = allEngineOilParts.filter(part => !part.name.includes('DIESEL'));
+const dieselEngineOil = allEngineOilParts.find(part => part.name.includes('DIESEL'));
+
 
 export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
   const { vehicle, serviceType, parts: initialParts, labor, recommendedLabor, optionalServices } = estimate;
@@ -42,18 +52,19 @@ export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
   const [showOptional, setShowOptional] = useState(false);
   
   useEffect(() => {
+    // A part with "oil" in the name might be included by default
+    const hasEngineOilPlaceholder = initialParts.some(p => p.name.toLowerCase().includes('oil'));
     let partsWithCorrectEngineOil = [...initialParts];
-    const hasEngineOil = initialParts.some(p => allEngineOils.some(eo => eo.name === p.name));
-    
-    if (hasEngineOil) {
-       // Remove all potential engine oil parts first
-       partsWithCorrectEngineOil = partsWithCorrectEngineOil.filter(p => !allEngineOils.some(eo => eo.name === p.name));
+
+    if (hasEngineOilPlaceholder) {
+       // Remove all potential engine oil parts first, including the default placeholder
+       partsWithCorrectEngineOil = partsWithCorrectEngineOil.filter(p => !p.name.toLowerCase().includes('oil'));
       
       if (vehicle.fuelType === 'Diesel' && dieselEngineOil) {
         partsWithCorrectEngineOil.push(dieselEngineOil);
       } else {
-        // Add the default petrol oil if it's not a diesel vehicle
-        const defaultPetrolOil = petrolEngineOils.find(p => p.name === "DEFAULT ENGINE OIL") || petrolEngineOils[0];
+        // Add a default petrol oil if it's not a diesel vehicle
+        const defaultPetrolOil = petrolEngineOils[0];
         if(defaultPetrolOil) {
             partsWithCorrectEngineOil.push(defaultPetrolOil);
         }
@@ -137,7 +148,7 @@ export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
       if (!newOilPart) return;
 
       setCurrentParts(prevParts => {
-          const otherParts = prevParts.filter(p => !allEngineOils.some(eo => eo.name === p.name));
+          const otherParts = prevParts.filter(p => !allEngineOilParts.some(eo => eo.name === p.name));
           return [...otherParts, newOilPart];
       });
   };
@@ -188,7 +199,7 @@ export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
                       </TableHeader>
                       <TableBody>
                         {currentParts.map((part, index) => {
-                          const isEngineOil = allEngineOils.some(eo => eo.name === part.name);
+                           const isEngineOil = allEngineOilParts.some(eo => eo.name === part.name);
                           
                           if (isEngineOil) {
                             if (vehicle.fuelType === 'Diesel') {
@@ -458,3 +469,5 @@ export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
     </div>
   );
 }
+
+    
