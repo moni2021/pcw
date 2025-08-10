@@ -2,7 +2,7 @@
 import type { Part } from './types';
 
 export const allParts: Part[] = [
-  { name: "Engine Oil", price: 1200 },
+  { name: "DEFAULT ENGINE OIL", price: 1200 },
   { name: "Oil Filter", price: 80 },
   { name: "Drain Plug Gasket", price: 20 },
   { name: "Coolant", price: 400 },
@@ -25,3 +25,4 @@ export const allParts: Part[] = [
   { name: "ECSTAR DIESEL 5W30-IOCL", price: 1200 },
 ];
 
+    

@@ -36,7 +36,7 @@ export const vehicles: Vehicle[] = [
 
 const getPart = (name: string) => allParts.find(p => p.name === name)!;
 
-const engineOil = getPart("Engine Oil");
+const engineOil = getPart("DEFAULT ENGINE OIL");
 const oilFilter = getPart("Oil Filter");
 const drainPlugGasket = getPart("Drain Plug Gasket");
 const coolant = getPart("Coolant");

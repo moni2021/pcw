@@ -15,16 +15,20 @@ import { Checkbox } from './ui/checkbox';
 import { Badge } from '@/components/ui/badge';
 import { customLaborData } from '@/lib/custom-labor-data';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { allParts } from '@/lib/parts-data';
 
 
 interface ServiceEstimateProps {
   estimate: ServiceEstimateData;
 }
 
+const engineOilParts = allParts.filter(part => part.name.toLowerCase().includes('oil') || part.name.toLowerCase().includes('ecstar') || part.name.toLowerCase().includes('mggo'));
+
 export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
-  const { vehicle, serviceType, parts, labor, recommendedLabor, optionalServices } = estimate;
+  const { vehicle, serviceType, parts: initialParts, labor, recommendedLabor, optionalServices } = estimate;
   const GST_RATE = 0.18;
 
+  const [currentParts, setCurrentParts] = useState<Part[]>(initialParts);
   const [discountType, setDiscountType] = useState<'percentage' | 'rupees'>('percentage');
   const [discountValue, setDiscountValue] = useState<number>(0);
   const [calculatedDiscount, setCalculatedDiscount] = useState<number>(0);
@@ -36,7 +40,7 @@ export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
   const [showOptional, setShowOptional] = useState(false);
 
   const pmsLaborCharge = useMemo(() => labor.reduce((sum, job) => sum + job.charge, 0), [labor]);
-  const partsTotal = useMemo(() => parts.reduce((sum, part) => sum + part.price, 0), [parts]);
+  const partsTotal = useMemo(() => currentParts.reduce((sum, part) => sum + part.price, 0), [currentParts]);
   const recommendedLaborCharge = useMemo(() => selectedRecommended.reduce((sum, job) => sum + job.charge, 0), [selectedRecommended]);
   const optionalServiceCharge = useMemo(() => selectedOptional.reduce((sum, job) => sum + job.charge, 0), [selectedOptional]);
   const customLaborCharge = useMemo(() => customLabor.reduce((sum, job) => sum + job.charge, 0), [customLabor]);
@@ -75,12 +79,13 @@ export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
   }, [discountValue, discountType, totalLaborCharge, gstOnLabor, partsTotal, discountableLaborCharge]);
   
   useEffect(() => {
+    setCurrentParts(initialParts);
     setDiscountValue(0);
     setDiscountType('percentage');
     setSelectedRecommended([]);
     setSelectedOptional([]);
     setCustomLabor([]);
-  }, [estimate]);
+  }, [estimate, initialParts]);
 
 
   const handleOptionalChange = (job: Labor, type: 'recommended' | 'optional') => {
@@ -105,7 +110,16 @@ export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
    const handleCustomLaborRemove = (laborName: string) => {
     setCustomLabor(prev => prev.filter(job => job.name !== laborName));
   };
+  
+  const handleEngineOilChange = (newOilName: string) => {
+      const newOilPart = engineOilParts.find(p => p.name === newOilName);
+      if (!newOilPart) return;
 
+      setCurrentParts(prevParts => {
+          const otherParts = prevParts.filter(p => !engineOilParts.some(eo => eo.name === p.name));
+          return [...otherParts, newOilPart];
+      });
+  };
 
   return (
     <div>
@@ -140,7 +154,7 @@ export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
 
         <div className="space-y-4">
 
-           {parts.length > 0 && (
+           {currentParts.length > 0 && (
               <div className="space-y-4">
                 <h3 className="text-lg font-semibold mb-2 flex items-center gap-2"><Package className="h-5 w-5"/> Scheduled Service Parts</h3>
                 <div className="overflow-x-auto">
@@ -152,12 +166,32 @@ export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
                         </TableRow>
                       </TableHeader>
                       <TableBody>
-                        {parts.map((part, index) => (
-                          <TableRow key={`part-${index}`}>
-                            <TableCell className="font-medium">{part.name}</TableCell>
-                            <TableCell className="text-right">{part.price.toFixed(2)}</TableCell>
-                          </TableRow>
-                        ))}
+                        {currentParts.map((part, index) => {
+                          const isEngineOil = engineOilParts.some(eo => eo.name === part.name);
+                          return (
+                            <TableRow key={`part-${index}`}>
+                                <TableCell className="font-medium">
+                                {isEngineOil ? (
+                                    <Select value={part.name} onValueChange={handleEngineOilChange}>
+                                        <SelectTrigger className="w-full sm:w-[300px]">
+                                            <SelectValue placeholder="Select Engine Oil" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            {engineOilParts.map(oil => (
+                                                <SelectItem key={oil.name} value={oil.name}>
+                                                    {oil.name}
+                                                </SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                ) : (
+                                    part.name
+                                )}
+                                </TableCell>
+                                <TableCell className="text-right">{part.price.toFixed(2)}</TableCell>
+                            </TableRow>
+                          )
+                        })}
                       </TableBody>
                     </Table>
                 </div>
@@ -389,3 +423,5 @@ export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
     </div>
   );
 }
+
+    
