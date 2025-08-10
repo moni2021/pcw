@@ -29,6 +29,7 @@ const allEngineOilsFromImage = [
     "ECSTAR PETROL 0W16 - SHELL",
     "ECSTAR PETROL 0W20 - IOCL",
     "ECSTAR DIESEL 5W30-IOCL",
+    "DEFAULT ENGINE OIL"
 ];
 
 const allEngineOilParts = allParts.filter(part => allEngineOilsFromImage.includes(part.name));
@@ -52,23 +53,22 @@ export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
   const [showOptional, setShowOptional] = useState(false);
   
   useEffect(() => {
-    // A part with "oil" in the name might be included by default
-    const hasEngineOilPlaceholder = initialParts.some(p => p.name.toLowerCase().includes('oil'));
+    const hasEngineOilPlaceholder = initialParts.some(p => allEngineOilParts.some(eo => eo.name === p.name));
     let partsWithCorrectEngineOil = [...initialParts];
 
     if (hasEngineOilPlaceholder) {
-       // Remove all potential engine oil parts first, including the default placeholder
-       partsWithCorrectEngineOil = partsWithCorrectEngineOil.filter(p => !p.name.toLowerCase().includes('oil'));
-      
-      if (vehicle.fuelType === 'Diesel' && dieselEngineOil) {
-        partsWithCorrectEngineOil.push(dieselEngineOil);
-      } else {
-        // Add a default petrol oil if it's not a diesel vehicle
-        const defaultPetrolOil = petrolEngineOils[0];
-        if(defaultPetrolOil) {
-            partsWithCorrectEngineOil.push(defaultPetrolOil);
+        // Filter out ALL engine oils to start fresh
+        const nonEngineOilParts = initialParts.filter(p => !allEngineOilParts.some(eo => eo.name === p.name));
+        
+        if (vehicle.fuelType === 'Diesel' && dieselEngineOil) {
+            partsWithCorrectEngineOil = [...nonEngineOilParts, dieselEngineOil];
+        } else {
+            // Add a default petrol oil if it's not a diesel vehicle
+            const defaultPetrolOil = petrolEngineOils[0];
+            if(defaultPetrolOil) {
+                partsWithCorrectEngineOil = [...nonEngineOilParts, defaultPetrolOil];
+            }
         }
-      }
     }
     
     setCurrentParts(partsWithCorrectEngineOil);
@@ -469,5 +469,7 @@ export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
     </div>
   );
 }
+
+    
 
     
