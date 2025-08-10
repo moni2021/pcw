@@ -8,13 +8,14 @@
  */
 import { configureGenkit } from '@genkit-ai/core';
 import { googleAI } from '@genkit-ai/googleai';
+import { genkit } from 'genkit';
 
 // Initialize Genkit with the Google AI plugin.
 // You can specify your project and location, or have it default
 // to the project containing your service account.
 //
 // See: https://firebase.google.com/docs/genkit/plugins#google-ai
-configureGenkit({
+export const ai = genkit({
   plugins: [
     googleAI({
       // The Google AI API key is read from the GOOGLE_GENAI_API_KEY
