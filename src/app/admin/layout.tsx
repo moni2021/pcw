@@ -12,6 +12,7 @@ import {
   Wrench,
   Package,
   Car,
+  Database,
 } from 'lucide-react';
 
 import {
@@ -86,6 +87,14 @@ export default function AdminLayout({
                     <SidebarMenuButton isActive={pathname === '/admin/vehicles'}>
                       <Car />
                       Vehicle Management
+                    </SidebarMenuButton>
+                </Link>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <Link href="/admin/data" passHref>
+                    <SidebarMenuButton isActive={pathname === '/admin/data'}>
+                      <Database />
+                      Data Management
                     </SidebarMenuButton>
                 </Link>
               </SidebarMenuItem>
