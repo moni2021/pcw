@@ -22,7 +22,9 @@ interface ServiceEstimateProps {
   estimate: ServiceEstimateData;
 }
 
-const engineOilParts = allParts.filter(part => part.name.toLowerCase().includes('oil') || part.name.toLowerCase().includes('ecstar') || part.name.toLowerCase().includes('mggo'));
+const allEngineOils = allParts.filter(part => part.name.toLowerCase().includes('oil') || part.name.toLowerCase().includes('ecstar') || part.name.toLowerCase().includes('mggo'));
+const petrolEngineOils = allEngineOils.filter(part => !part.name.toLowerCase().includes('diesel'));
+const dieselEngineOil = allEngineOils.find(part => part.name.toLowerCase().includes('diesel'));
 
 export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
   const { vehicle, serviceType, parts: initialParts, labor, recommendedLabor, optionalServices } = estimate;
@@ -38,6 +40,34 @@ export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
   const [finalTotal, setFinalTotal] = useState(0);
   const [showRecommended, setShowRecommended] = useState(false);
   const [showOptional, setShowOptional] = useState(false);
+  
+  useEffect(() => {
+    let partsWithCorrectEngineOil = [...initialParts];
+    const hasEngineOil = initialParts.some(p => allEngineOils.some(eo => eo.name === p.name));
+    
+    if (hasEngineOil) {
+       // Remove all potential engine oil parts first
+       partsWithCorrectEngineOil = partsWithCorrectEngineOil.filter(p => !allEngineOils.some(eo => eo.name === p.name));
+      
+      if (vehicle.fuelType === 'Diesel' && dieselEngineOil) {
+        partsWithCorrectEngineOil.push(dieselEngineOil);
+      } else {
+        // Add the default petrol oil if it's not a diesel vehicle
+        const defaultPetrolOil = petrolEngineOils.find(p => p.name === "DEFAULT ENGINE OIL") || petrolEngineOils[0];
+        if(defaultPetrolOil) {
+            partsWithCorrectEngineOil.push(defaultPetrolOil);
+        }
+      }
+    }
+    
+    setCurrentParts(partsWithCorrectEngineOil);
+    setDiscountValue(0);
+    setDiscountType('percentage');
+    setSelectedRecommended([]);
+    setSelectedOptional([]);
+    setCustomLabor([]);
+  }, [estimate, initialParts, vehicle.fuelType]);
+
 
   const pmsLaborCharge = useMemo(() => labor.reduce((sum, job) => sum + job.charge, 0), [labor]);
   const partsTotal = useMemo(() => currentParts.reduce((sum, part) => sum + part.price, 0), [currentParts]);
@@ -77,15 +107,6 @@ export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
     setFinalTotal(newTotal);
 
   }, [discountValue, discountType, totalLaborCharge, gstOnLabor, partsTotal, discountableLaborCharge]);
-  
-  useEffect(() => {
-    setCurrentParts(initialParts);
-    setDiscountValue(0);
-    setDiscountType('percentage');
-    setSelectedRecommended([]);
-    setSelectedOptional([]);
-    setCustomLabor([]);
-  }, [estimate, initialParts]);
 
 
   const handleOptionalChange = (job: Labor, type: 'recommended' | 'optional') => {
@@ -112,11 +133,11 @@ export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
   };
   
   const handleEngineOilChange = (newOilName: string) => {
-      const newOilPart = engineOilParts.find(p => p.name === newOilName);
+      const newOilPart = petrolEngineOils.find(p => p.name === newOilName);
       if (!newOilPart) return;
 
       setCurrentParts(prevParts => {
-          const otherParts = prevParts.filter(p => !engineOilParts.some(eo => eo.name === p.name));
+          const otherParts = prevParts.filter(p => !allEngineOils.some(eo => eo.name === p.name));
           return [...otherParts, newOilPart];
       });
   };
@@ -167,27 +188,41 @@ export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
                       </TableHeader>
                       <TableBody>
                         {currentParts.map((part, index) => {
-                          const isEngineOil = engineOilParts.some(eo => eo.name === part.name);
-                          return (
-                            <TableRow key={`part-${index}`}>
+                          const isEngineOil = allEngineOils.some(eo => eo.name === part.name);
+                          
+                          if (isEngineOil) {
+                            if (vehicle.fuelType === 'Diesel') {
+                               return (
+                                <TableRow key={`part-${index}`}>
+                                    <TableCell className="font-medium">{part.name}</TableCell>
+                                    <TableCell className="text-right">{part.price.toFixed(2)}</TableCell>
+                                </TableRow>
+                               )
+                            }
+                            return (
+                               <TableRow key={`part-${index}`}>
                                 <TableCell className="font-medium">
-                                {isEngineOil ? (
                                     <Select value={part.name} onValueChange={handleEngineOilChange}>
                                         <SelectTrigger className="w-full sm:w-[300px]">
                                             <SelectValue placeholder="Select Engine Oil" />
                                         </SelectTrigger>
                                         <SelectContent>
-                                            {engineOilParts.map(oil => (
+                                            {petrolEngineOils.map(oil => (
                                                 <SelectItem key={oil.name} value={oil.name}>
                                                     {oil.name}
                                                 </SelectItem>
                                             ))}
                                         </SelectContent>
                                     </Select>
-                                ) : (
-                                    part.name
-                                )}
                                 </TableCell>
+                                <TableCell className="text-right">{part.price.toFixed(2)}</TableCell>
+                            </TableRow>
+                            )
+                          }
+                          
+                          return (
+                            <TableRow key={`part-${index}`}>
+                                <TableCell className="font-medium">{part.name}</TableCell>
                                 <TableCell className="text-right">{part.price.toFixed(2)}</TableCell>
                             </TableRow>
                           )
@@ -423,5 +458,3 @@ export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
     </div>
   );
 }
-
-    
