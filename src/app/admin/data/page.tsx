@@ -4,12 +4,12 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
-import { Download, Database, KeyRound, Save, UploadCloud, ShieldCheck, Loader2 } from 'lucide-react';
+import { Download, Database, KeyRound, Save, UploadCloud, ShieldCheck, Loader2, Upload } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { syncToFirebase } from './actions';
+import { syncToFirebase, uploadAndSyncToFirebase } from './actions';
 
 // Import all data sources
 import { vehicles } from '@/lib/data';
@@ -17,6 +17,7 @@ import { allParts } from '@/lib/parts-data';
 import { customLaborData } from '@/lib/custom-labor-data';
 import { pmsCharges } from '@/lib/pms-charges';
 import { threeMCareData } from '@/lib/3m-care-data';
+import { Separator } from '@/components/ui/separator';
 
 export default function DataManagementPage() {
     const { toast } = useToast();
@@ -24,15 +25,17 @@ export default function DataManagementPage() {
     const [password, setPassword] = useState('');
     const [isPasswordDialogOpen, setIsPasswordDialogOpen] = useState(true);
     const [isSyncing, setIsSyncing] = useState(false);
+    const [isUploading, setIsUploading] = useState(false);
+    const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
     useEffect(() => {
-        // On component mount, we assume the user is not authenticated.
         setIsAuthenticated(false);
         setIsPasswordDialogOpen(true);
     }, []);
 
     const handlePasswordSubmit = (e: React.FormEvent) => {
         e.preventDefault();
+        // This is a simple client-side check. For real security, use proper authentication.
         if (password === 'Hirudaloi') {
             setIsAuthenticated(true);
             setIsPasswordDialogOpen(false);
@@ -109,6 +112,52 @@ export default function DataManagementPage() {
         }
     };
 
+     const handleFileUpload = async () => {
+        if (!selectedFile) {
+            toast({
+                variant: 'destructive',
+                title: 'No File Selected',
+                description: 'Please select a JSON file to upload.',
+            });
+            return;
+        }
+
+        setIsUploading(true);
+        const reader = new FileReader();
+        reader.onload = async (e) => {
+            const text = e.target?.result as string;
+            try {
+                const result = await uploadAndSyncToFirebase(text);
+                if (result.success) {
+                    toast({
+                        title: 'Upload & Sync Successful',
+                        description: 'Your JSON file has been successfully synced to Firebase.',
+                    });
+                     setSelectedFile(null); // Clear the file input
+                } else {
+                    throw new Error(result.error || 'An unknown error occurred during upload.');
+                }
+            } catch (error: any) {
+                 toast({
+                    variant: 'destructive',
+                    title: 'Upload Failed',
+                    description: error.message,
+                });
+            } finally {
+                setIsUploading(false);
+            }
+        };
+        reader.onerror = () => {
+             toast({
+                variant: 'destructive',
+                title: 'File Read Error',
+                description: 'Could not read the selected file.',
+            });
+            setIsUploading(false);
+        }
+        reader.readAsText(selectedFile);
+    };
+
     if (!isAuthenticated) {
         return (
             <Dialog open={isPasswordDialogOpen} onOpenChange={setIsPasswordDialogOpen}>
@@ -154,31 +203,57 @@ export default function DataManagementPage() {
             <Card>
                 <CardHeader>
                     <CardTitle className="flex items-center gap-2">
-                        <Database /> Data Export & Sync
+                        <Database /> Local Data Management
                     </CardTitle>
                     <CardDescription>
-                        Export all application data as a single JSON file or sync it directly with your Firebase Firestore database.
+                       Download the application's current local data or push it to Firebase. This is useful for backups or initializing the database.
                     </CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <div className="flex flex-col items-start gap-4">
-                        <p className="text-sm text-muted-foreground">
-                            Download the complete dataset or sync it to Firestore. The data will be stored in a collection named `config` under a document named `app_data`.
-                        </p>
-                        <div className="flex gap-2">
-                            <Button onClick={handleDownload}>
-                                <Download className="mr-2 h-4 w-4" />
-                                Download All Data
-                            </Button>
-                             <Button onClick={handleSync} disabled={isSyncing} variant="secondary">
-                                {isSyncing ? (
-                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                ) : (
-                                    <UploadCloud className="mr-2 h-4 w-4" />
-                                )}
-                                Sync to Firebase
-                            </Button>
-                        </div>
+                    <div className="flex gap-2">
+                        <Button onClick={handleDownload}>
+                            <Download className="mr-2 h-4 w-4" />
+                            Download Data
+                        </Button>
+                         <Button onClick={handleSync} disabled={isSyncing} variant="secondary">
+                            {isSyncing ? (
+                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                            ) : (
+                                <UploadCloud className="mr-2 h-4 w-4" />
+                            )}
+                            Sync Local to Firebase
+                        </Button>
+                    </div>
+                </CardContent>
+            </Card>
+
+            <Separator />
+
+             <Card>
+                <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                        <Upload /> Upload & Sync from File
+                    </CardTitle>
+                    <CardDescription>
+                       Upload a master JSON file to overwrite the data in Firebase. This is the primary way to update live data.
+                    </CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <div className="flex flex-col sm:flex-row gap-4">
+                        <Input
+                            type="file"
+                            accept=".json"
+                            onChange={(e) => setSelectedFile(e.target.files?.[0] || null)}
+                            className="max-w-xs"
+                        />
+                         <Button onClick={handleFileUpload} disabled={isUploading || !selectedFile}>
+                            {isUploading ? (
+                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                            ) : (
+                                <UploadCloud className="mr-2 h-4 w-4" />
+                            )}
+                            Upload & Sync
+                        </Button>
                     </div>
                 </CardContent>
             </Card>
@@ -187,13 +262,13 @@ export default function DataManagementPage() {
                 <CardHeader>
                     <CardTitle>Firebase Configuration</CardTitle>
                     <CardDescription>
-                       The application is configured to use Firebase. To enable database sync, ensure your hosting environment has the `GOOGLE_APPLICATION_CREDENTIALS` variable set with your service account key.
+                       To enable database sync, ensure your hosting environment has the service account key configured correctly.
                     </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                     <div className="space-y-2">
-                        <Label htmlFor="apiKey">Project ID</Label>
-                        <Input id="projectId" placeholder="your-project-id" disabled value="maruti-service-estimator" />
+                        <Label htmlFor="projectId">Project ID</Label>
+                        <Input id="projectId" placeholder="your-project-id" disabled value={process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || "maruti-service-estimator"} />
                     </div>
                      <div className="space-y-2">
                         <Label>Data Path</Label>
