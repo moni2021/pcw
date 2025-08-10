@@ -16,14 +16,14 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { vehicles as initialVehicles } from '@/lib/data';
 import { customLaborData as initialCustomLaborData } from '@/lib/custom-labor-data';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import type { CustomLabor, Vehicle } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
+import { vehicles as initialVehicles } from '@/lib/data';
 
 export default function LabourManagementPage() {
-  const [customLabor, setCustomLabor] = useState<CustomLabor[]>(initialCustomLaborData);
+  const [customLabor] = useState<CustomLabor[]>(initialCustomLaborData);
   const [vehicles] = useState<Vehicle[]>(initialVehicles);
   const [isLaborDialogOpen, setIsLaborDialogOpen] = useState(false);
   const [currentLabor, setCurrentLabor] = useState<CustomLabor | null>(null);
@@ -31,50 +31,36 @@ export default function LabourManagementPage() {
   const { toast } = useToast();
 
   const handleAddLabor = () => {
-    setCurrentLabor({ name: '', model: '', charge: 0 });
-    setIsLaborDialogOpen(true);
+     toast({
+      variant: 'destructive',
+      title: 'Feature Under Development',
+      description: 'This function will be activated after as per management permission.',
+    });
   };
 
   const handleEditLabor = (labor: CustomLabor) => {
-    setCurrentLabor(labor);
-    setIsLaborDialogOpen(true);
+    toast({
+      variant: 'destructive',
+      title: 'Feature Under Development',
+      description: 'This function will be activated after as per management permission.',
+    });
   };
 
   const handleDeleteLabor = (laborName: string, laborModel: string) => {
-    setCustomLabor(customLabor.filter(l => !(l.name === laborName && l.model === laborModel)));
     toast({
-        title: "Labour Charge Deleted",
-        description: `Successfully deleted "${laborName}" for ${laborModel}.`,
+      variant: 'destructive',
+      title: 'Feature Under Development',
+      description: 'This function will be activated after as per management permission.',
     });
   };
 
   const handleSaveLabor = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!currentLabor) return;
-
-    const formData = new FormData(e.currentTarget);
-    const updatedLabor: CustomLabor = {
-        name: formData.get('name') as string,
-        model: formData.get('model') as string,
-        charge: Number(formData.get('charge'))
-    };
-
-    const isEditing = customLabor.some(l => l.name === currentLabor.name && l.model === currentLabor.model && currentLabor.name !== '');
-
-    if (isEditing) {
-        setCustomLabor(customLabor.map(l => (l.name === currentLabor.name && l.model === currentLabor.model) ? updatedLabor : l));
-        toast({ title: "Labour Updated", description: `Successfully updated "${updatedLabor.name}".` });
-    } else {
-        if (customLabor.some(l => l.name === updatedLabor.name && l.model === updatedLabor.model)) {
-            toast({ variant: "destructive", title: "Error", description: `Labour charge for "${updatedLabor.name}" on ${updatedLabor.model} already exists.` });
-            return;
-        }
-        setCustomLabor([...customLabor, updatedLabor]);
-        toast({ title: "Labour Added", description: `Successfully added "${updatedLabor.name}".` });
-    }
-
-    setIsLaborDialogOpen(false);
-    setCurrentLabor(null);
+    toast({
+      variant: 'destructive',
+      title: 'Feature Under Development',
+      description: 'This function will be activated after as per management permission.',
+    });
   };
   
   const filteredLabor = customLabor.filter(labor => 
@@ -101,7 +87,7 @@ export default function LabourManagementPage() {
                             onChange={(e) => setSearchTerm(e.target.value)}
                         />
                     </div>
-                     <Button onClick={handleAddLabor} className="shrink-0">
+                     <Button onClick={handleAddLabor} className="shrink-0" disabled>
                         <PlusCircle /> Add New
                     </Button>
                  </div>
@@ -136,40 +122,46 @@ export default function LabourManagementPage() {
                         </div>
                     </div>
                     <DialogFooter>
-                        <Button type="submit">Save changes</Button>
+                        <Button type="submit" disabled>Save changes</Button>
                     </DialogFooter>
                 </form>
             </DialogContent>
         </Dialog>
         <CardContent>
-            <ScrollArea className="h-[70vh]">
-            <Table>
-                <TableHeader>
-                <TableRow>
-                    <TableHead>Labour Name</TableHead>
-                    <TableHead>Model</TableHead>
-                    <TableHead className="text-right">Charge (₹)</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
-                </TableRow>
-                </TableHeader>
-                <TableBody>
-                {filteredLabor.map((labor, index) => (
-                    <TableRow key={index}>
-                    <TableCell className="font-medium">{labor.name}</TableCell>
-                    <TableCell>{labor.model}</TableCell>
-                    <TableCell className="text-right">{labor.charge.toFixed(2)}</TableCell>
-                        <TableCell className="text-right">
-                        <Button variant="ghost" size="icon" onClick={() => handleEditLabor(labor)}>
-                        <Pencil className="h-4 w-4" />
-                        </Button>
-                        <Button variant="ghost" size="icon" onClick={() => handleDeleteLabor(labor.name, labor.model)}>
-                        <Trash2 className="h-4 w-4 text-destructive" />
-                        </Button>
-                    </TableCell>
-                    </TableRow>
-                ))}
-                </TableBody>
-            </Table>
+            <ScrollArea className="h-[70vh] relative">
+              <Table>
+                  <TableHeader>
+                  <TableRow>
+                      <TableHead>Labour Name</TableHead>
+                      <TableHead>Model</TableHead>
+                      <TableHead className="text-right">Charge (₹)</TableHead>
+                      <TableHead className="text-right">Actions</TableHead>
+                  </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                  {filteredLabor.map((labor, index) => (
+                      <TableRow key={index}>
+                      <TableCell className="font-medium">{labor.name}</TableCell>
+                      <TableCell>{labor.model}</TableCell>
+                      <TableCell className="text-right">{labor.charge.toFixed(2)}</TableCell>
+                          <TableCell className="text-right">
+                          <Button variant="ghost" size="icon" onClick={() => handleEditLabor(labor)} disabled>
+                          <Pencil className="h-4 w-4" />
+                          </Button>
+                          <Button variant="ghost" size="icon" onClick={() => handleDeleteLabor(labor.name, labor.model)} disabled>
+                          <Trash2 className="h-4 w-4 text-destructive" />
+                          </Button>
+                      </TableCell>
+                      </TableRow>
+                  ))}
+                  </TableBody>
+              </Table>
+              <div className="absolute inset-0 bg-background/80 backdrop-blur-sm flex items-center justify-center">
+                  <div className="text-center p-4 rounded-lg bg-background border shadow-sm">
+                      <p className="font-semibold">Feature Coming Soon</p>
+                      <p className="text-sm text-muted-foreground">This function will be activated after as per management permission.</p>
+                  </div>
+              </div>
             </ScrollArea>
         </CardContent>
     </Card>

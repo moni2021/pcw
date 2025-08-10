@@ -23,63 +23,43 @@ import type { Vehicle } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
 
 export default function VehicleManagementPage() {
-  const [vehicles, setVehicles] = useState<Vehicle[]>(initialVehicles);
+  const [vehicles] = useState<Vehicle[]>(initialVehicles);
   const [isVehicleDialogOpen, setIsVehicleDialogOpen] = useState(false);
   const [currentVehicle, setCurrentVehicle] = useState<Partial<Vehicle> | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const { toast } = useToast();
 
   const handleAddVehicle = () => {
-    setCurrentVehicle({ model: '', brand: 'Arena', category: '', fuelTypes: [], productionYears: [] });
-    setIsVehicleDialogOpen(true);
+    toast({
+      variant: 'destructive',
+      title: 'Feature Under Development',
+      description: 'This function will be activated after as per management permission.',
+    });
   };
 
   const handleEditVehicle = (vehicle: Vehicle) => {
-    setCurrentVehicle(vehicle);
-    setIsVehicleDialogOpen(true);
+    toast({
+      variant: 'destructive',
+      title: 'Feature Under Development',
+      description: 'This function will be activated after as per management permission.',
+    });
   };
 
   const handleDeleteVehicle = (model: string) => {
-    setVehicles(vehicles.filter(v => v.model !== model));
     toast({
-        title: "Vehicle Deleted",
-        description: `Successfully deleted model "${model}".`,
+      variant: 'destructive',
+      title: 'Feature Under Development',
+      description: 'This function will be activated after as per management permission.',
     });
   };
 
   const handleSaveVehicle = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!currentVehicle) return;
-
-    const formData = new FormData(e.currentTarget);
-    const fuelTypesString = formData.get('fuelTypes') as string;
-    const productionYearsString = formData.get('productionYears') as string;
-
-    const updatedVehicle: Vehicle = {
-        model: formData.get('model') as string,
-        brand: formData.get('brand') as 'Arena' | 'Nexa' | 'Commercial',
-        category: formData.get('category') as string,
-        variants: currentVehicle.variants || [],
-        fuelTypes: fuelTypesString.split(',').map(s => s.trim()).filter(Boolean),
-        productionYears: productionYearsString.split(',').map(s => parseInt(s.trim())).filter(s => !isNaN(s)),
-    };
-
-    const isEditing = vehicles.some(v => v.model === currentVehicle.model && currentVehicle.model !== '');
-
-    if (isEditing) {
-        setVehicles(vehicles.map(v => v.model === currentVehicle.model ? updatedVehicle : v));
-        toast({ title: "Vehicle Updated", description: `Successfully updated "${updatedVehicle.model}".` });
-    } else {
-        if (vehicles.some(v => v.model === updatedVehicle.model)) {
-            toast({ variant: "destructive", title: "Error", description: `Vehicle with model name "${updatedVehicle.model}" already exists.` });
-            return;
-        }
-        setVehicles([...vehicles, updatedVehicle]);
-        toast({ title: "Vehicle Added", description: `Successfully added "${updatedVehicle.model}".` });
-    }
-
-    setIsVehicleDialogOpen(false);
-    setCurrentVehicle(null);
+    toast({
+      variant: 'destructive',
+      title: 'Feature Under Development',
+      description: 'This function will be activated after as per management permission.',
+    });
   };
   
   const filteredVehicles = vehicles.filter(vehicle =>
@@ -106,7 +86,7 @@ export default function VehicleManagementPage() {
                             onChange={(e) => setSearchTerm(e.target.value)}
                         />
                     </div>
-                     <Button onClick={handleAddVehicle} className="shrink-0">
+                     <Button onClick={handleAddVehicle} className="shrink-0" disabled>
                         <PlusCircle /> Add New
                     </Button>
                 </div>
@@ -151,14 +131,14 @@ export default function VehicleManagementPage() {
                         </div>
                     </div>
                     <DialogFooter>
-                        <Button type="submit">Save changes</Button>
+                        <Button type="submit" disabled>Save changes</Button>
                     </DialogFooter>
                 </form>
             </DialogContent>
         </Dialog>
 
         <CardContent>
-            <ScrollArea className="h-[70vh]">
+            <ScrollArea className="h-[70vh] relative">
             <Table>
                 <TableHeader>
                 <TableRow>
@@ -189,10 +169,10 @@ export default function VehicleManagementPage() {
                         {vehicle.productionYears.join(', ')}
                     </TableCell>
                     <TableCell className="text-right">
-                        <Button variant="ghost" size="icon" onClick={() => handleEditVehicle(vehicle)}>
+                        <Button variant="ghost" size="icon" onClick={() => handleEditVehicle(vehicle)} disabled>
                             <Pencil className="h-4 w-4" />
                         </Button>
-                        <Button variant="ghost" size="icon" onClick={() => handleDeleteVehicle(vehicle.model)}>
+                        <Button variant="ghost" size="icon" onClick={() => handleDeleteVehicle(vehicle.model)} disabled>
                             <Trash2 className="h-4 w-4 text-destructive" />
                         </Button>
                     </TableCell>
@@ -200,6 +180,12 @@ export default function VehicleManagementPage() {
                 ))}
                 </TableBody>
             </Table>
+             <div className="absolute inset-0 bg-background/80 backdrop-blur-sm flex items-center justify-center">
+                <div className="text-center p-4 rounded-lg bg-background border shadow-sm">
+                    <p className="font-semibold">Feature Coming Soon</p>
+                    <p className="text-sm text-muted-foreground">This function will be activated after as per management permission.</p>
+                </div>
+            </div>
             </ScrollArea>
         </CardContent>
     </Card>

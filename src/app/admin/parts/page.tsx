@@ -21,56 +21,43 @@ import type { Part } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
 
 export default function PartsManagementPage() {
-  const [allParts, setAllParts] = useState<Part[]>(initialAllParts);
+  const [allParts] = useState<Part[]>(initialAllParts);
   const [isPartsDialogOpen, setIsPartsDialogOpen] = useState(false);
   const [currentPart, setCurrentPart] = useState<Part | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const { toast } = useToast();
 
   const handleAddPart = () => {
-    setCurrentPart({ name: '', price: 0 });
-    setIsPartsDialogOpen(true);
+     toast({
+      variant: 'destructive',
+      title: 'Feature Under Development',
+      description: 'This function will be activated after as per management permission.',
+    });
   };
 
   const handleEditPart = (part: Part) => {
-    setCurrentPart(part);
-    setIsPartsDialogOpen(true);
+    toast({
+      variant: 'destructive',
+      title: 'Feature Under Development',
+      description: 'This function will be activated after as per management permission.',
+    });
   };
 
   const handleDeletePart = (partName: string) => {
-    setAllParts(allParts.filter(p => p.name !== partName));
      toast({
-        title: "Part Deleted",
-        description: `Successfully deleted "${partName}".`,
+      variant: 'destructive',
+      title: 'Feature Under Development',
+      description: 'This function will be activated after as per management permission.',
     });
   };
 
   const handleSavePart = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!currentPart) return;
-
-    const formData = new FormData(e.currentTarget);
-    const updatedPart: Part = {
-        name: formData.get('name') as string,
-        price: Number(formData.get('price'))
-    };
-
-    const isEditing = allParts.some(p => p.name === currentPart.name && currentPart.name !== '');
-
-    if (isEditing) {
-        setAllParts(allParts.map(p => p.name === currentPart.name ? updatedPart : p));
-        toast({ title: "Part Updated", description: `Successfully updated "${updatedPart.name}".` });
-    } else {
-        if (allParts.some(p => p.name === updatedPart.name)) {
-             toast({ variant: "destructive", title: "Error", description: `Part with name "${updatedPart.name}" already exists.` });
-             return;
-        }
-        setAllParts([...allParts, updatedPart]);
-        toast({ title: "Part Added", description: `Successfully added "${updatedPart.name}".` });
-    }
-
-    setIsPartsDialogOpen(false);
-    setCurrentPart(null);
+    toast({
+      variant: 'destructive',
+      title: 'Feature Under Development',
+      description: 'This function will be activated after as per management permission.',
+    });
   }
 
   const filteredParts = allParts.filter(part => 
@@ -96,7 +83,7 @@ export default function PartsManagementPage() {
                         onChange={(e) => setSearchTerm(e.target.value)}
                     />
                 </div>
-                <Button onClick={handleAddPart} className="shrink-0">
+                <Button onClick={handleAddPart} className="shrink-0" disabled>
                     <PlusCircle /> Add New
                 </Button>
             </div>
@@ -120,13 +107,13 @@ export default function PartsManagementPage() {
                     </div>
                 </div>
                 <DialogFooter>
-                    <Button type="submit">Save changes</Button>
+                    <Button type="submit" disabled>Save changes</Button>
                 </DialogFooter>
             </form>
         </DialogContent>
         </Dialog>
         <CardContent>
-        <ScrollArea className="h-[70vh]">
+        <ScrollArea className="h-[70vh] relative">
             <Table>
                 <TableHeader>
                 <TableRow>
@@ -141,10 +128,10 @@ export default function PartsManagementPage() {
                     <TableCell className="font-medium">{part.name}</TableCell>
                     <TableCell className="text-right">{part.price.toFixed(2)}</TableCell>
                     <TableCell className="text-right">
-                        <Button variant="ghost" size="icon" onClick={() => handleEditPart(part)}>
+                        <Button variant="ghost" size="icon" onClick={() => handleEditPart(part)} disabled>
                         <Pencil className="h-4 w-4" />
                         </Button>
-                        <Button variant="ghost" size="icon" onClick={() => handleDeletePart(part.name)}>
+                        <Button variant="ghost" size="icon" onClick={() => handleDeletePart(part.name)} disabled>
                         <Trash2 className="h-4 w-4 text-destructive" />
                         </Button>
                     </TableCell>
@@ -152,6 +139,12 @@ export default function PartsManagementPage() {
                 ))}
                 </TableBody>
             </Table>
+            <div className="absolute inset-0 bg-background/80 backdrop-blur-sm flex items-center justify-center">
+                <div className="text-center p-4 rounded-lg bg-background border shadow-sm">
+                    <p className="font-semibold">Feature Coming Soon</p>
+                    <p className="text-sm text-muted-foreground">This function will be activated after as per management permission.</p>
+                </div>
+            </div>
         </ScrollArea>
         </CardContent>
     </Card>
