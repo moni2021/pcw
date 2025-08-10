@@ -131,7 +131,11 @@ export async function downloadSampleJson(dataType: DataType): Promise<string> {
             sampleObject = [{ model: 'Sample Model', labourDesc: 'Paid Service (20,000 km)', labourCode: 'L4020050', basicAmt: 1500 }];
             break;
         default:
-            throw new Error('Invalid data type for sample download.');
+            // This is a safety net, but based on the UI, dataType should always be valid.
+            // The `exhaustive-deps` check helps ensure all cases are handled.
+            // For a non-ts context, you could throw an error.
+            const exhaustiveCheck: never = dataType;
+            throw new Error(`Unhandled data type: ${exhaustiveCheck}`);
     }
     return JSON.stringify(sampleObject, null, 2);
 }
