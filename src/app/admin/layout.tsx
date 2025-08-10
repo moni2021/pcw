@@ -50,34 +50,44 @@ export default function AdminLayout({
           <SidebarContent>
             <SidebarMenu>
               <SidebarMenuItem>
-                <SidebarMenuButton href="/admin" isActive={pathname === '/admin'}>
-                  <Home />
-                  Dashboard
-                </SidebarMenuButton>
+                <Link href="/admin" passHref>
+                    <SidebarMenuButton isActive={pathname === '/admin'}>
+                      <Home />
+                      Dashboard
+                    </SidebarMenuButton>
+                </Link>
               </SidebarMenuItem>
                <SidebarMenuItem>
-                <SidebarMenuButton href="/admin/users" isActive={pathname === '/admin/users'}>
-                  <Users />
-                  User Management
-                </SidebarMenuButton>
+                <Link href="/admin/users" passHref>
+                    <SidebarMenuButton isActive={pathname === '/admin/users'}>
+                      <Users />
+                      User Management
+                    </SidebarMenuButton>
+                </Link>
               </SidebarMenuItem>
                <SidebarMenuItem>
-                <SidebarMenuButton href="/admin/parts" isActive={pathname === '/admin/parts'}>
-                  <Package />
-                  Parts Management
-                </SidebarMenuButton>
+                <Link href="/admin/parts" passHref>
+                    <SidebarMenuButton isActive={pathname === '/admin/parts'}>
+                      <Package />
+                      Parts Management
+                    </SidebarMenuButton>
+                </Link>
               </SidebarMenuItem>
                <SidebarMenuItem>
-                <SidebarMenuButton href="/admin/labour" isActive={pathname === '/admin/labour'}>
-                  <Wrench />
-                  Labour Management
-                </SidebarMenuButton>
+                 <Link href="/admin/labour" passHref>
+                    <SidebarMenuButton isActive={pathname === '/admin/labour'}>
+                      <Wrench />
+                      Labour Management
+                    </SidebarMenuButton>
+                </Link>
               </SidebarMenuItem>
                <SidebarMenuItem>
-                <SidebarMenuButton href="/admin/vehicles" isActive={pathname === '/admin/vehicles'}>
-                  <Car />
-                  Vehicle Management
-                </SidebarMenuButton>
+                <Link href="/admin/vehicles" passHref>
+                    <SidebarMenuButton isActive={pathname === '/admin/vehicles'}>
+                      <Car />
+                      Vehicle Management
+                    </SidebarMenuButton>
+                </Link>
               </SidebarMenuItem>
               <SidebarMenuItem>
                 <SidebarMenuButton href="#">
