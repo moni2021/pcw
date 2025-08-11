@@ -4,12 +4,12 @@
  * @fileOverview A secure flow for uploading and setting the Firebase Service Account Key.
  *
  * - uploadServiceAccountKey - A flow that takes the JSON content of a service account key
- *   and is intended to set it as a secure environment variable.
+ *   and is intended to set it as a new secret.
  */
 
-import { ai } from '@/ai';
+import { ai } from '@/ai/genkit';
 import { z } from 'zod';
-import { defineSecret } from 'genkit';
+import { defineSecret } from '@genkit-ai/core';
 
 // Define the secret where the service account key will be stored.
 // In a real environment, this would be managed by a secrets manager.
@@ -72,5 +72,3 @@ const serviceAccountUploaderFlow = ai.defineFlow(
     }
   }
 );
-
-    
