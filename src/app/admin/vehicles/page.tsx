@@ -86,7 +86,7 @@ export default function VehicleManagementPage() {
                             onChange={(e) => setSearchTerm(e.target.value)}
                         />
                     </div>
-                     <Button onClick={handleAddVehicle} className="shrink-0" disabled>
+                     <Button onClick={handleAddVehicle} className="shrink-0">
                         <PlusCircle /> Add New
                     </Button>
                 </div>
@@ -131,7 +131,7 @@ export default function VehicleManagementPage() {
                         </div>
                     </div>
                     <DialogFooter>
-                        <Button type="submit" disabled>Save changes</Button>
+                        <Button type="submit">Save changes</Button>
                     </DialogFooter>
                 </form>
             </DialogContent>
@@ -169,10 +169,10 @@ export default function VehicleManagementPage() {
                         {vehicle.productionYears.join(', ')}
                     </TableCell>
                     <TableCell className="text-right">
-                        <Button variant="ghost" size="icon" onClick={() => handleEditVehicle(vehicle)} disabled>
+                        <Button variant="ghost" size="icon" onClick={() => handleEditVehicle(vehicle)}>
                             <Pencil className="h-4 w-4" />
                         </Button>
-                        <Button variant="ghost" size="icon" onClick={() => handleDeleteVehicle(vehicle.model)} disabled>
+                        <Button variant="ghost" size="icon" onClick={() => handleDeleteVehicle(vehicle.model)}>
                             <Trash2 className="h-4 w-4 text-destructive" />
                         </Button>
                     </TableCell>
@@ -180,12 +180,6 @@ export default function VehicleManagementPage() {
                 ))}
                 </TableBody>
             </Table>
-             <div className="absolute inset-0 bg-background/80 backdrop-blur-sm flex items-center justify-center">
-                <div className="text-center p-4 rounded-lg bg-background border shadow-sm">
-                    <p className="font-semibold">Feature Coming Soon</p>
-                    <p className="text-sm text-muted-foreground">This function will be activated after as per management permission.</p>
-                </div>
-            </div>
             </ScrollArea>
         </CardContent>
     </Card>
