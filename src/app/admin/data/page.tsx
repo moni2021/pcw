@@ -5,13 +5,16 @@ import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Download, Database, KeyRound, Save, UploadCloud, ShieldCheck, Loader2, Upload, FileJson } from 'lucide-react';
+import { Download, Database, KeyRound, Save, UploadCloud, ShieldCheck, Loader2, Upload, FileJson, AlertCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { syncToFirebase, uploadAndSyncToFirebase, downloadSampleJson } from './actions';
 import { Separator } from '@/components/ui/separator';
+import { Alert, AlertTitle, AlertDescription as AlertDescriptionComponent } from '@/components/ui/alert';
+import { uploadServiceAccountKey } from '@/ai/flows/secure-key-uploader';
+
 
 // Import all data sources for the "Master" sync
 import { vehicles } from '@/lib/data';
@@ -20,7 +23,7 @@ import { customLaborData } from '@/lib/custom-labor-data';
 import { pmsCharges } from '@/lib/pms-charges';
 import { threeMCareData } from '@/lib/3m-care-data';
 
-type DataType = 'vehicles' | 'parts' | 'customLabor' | 'pmsCharges';
+type DataType = 'vehicles' | 'parts' | 'customLabor' | 'pmsCharges' | 'threeMCareData';
 
 export default function DataManagementPage() {
     const { toast } = useToast();
@@ -30,6 +33,8 @@ export default function DataManagementPage() {
     const [isSyncing, setIsSyncing] = useState(false);
     const [isUploading, setIsUploading] = useState<{ [key in DataType]?: boolean }>({});
     const [selectedFile, setSelectedFile] = useState<{ [key in DataType]?: File | null }>({});
+    const [isUploadingKey, setIsUploadingKey] = useState(false);
+    const [serviceAccountFile, setServiceAccountFile] = useState<File | null>(null);
 
     useEffect(() => {
         setIsAuthenticated(false);
@@ -184,6 +189,43 @@ export default function DataManagementPage() {
         reader.readAsText(file);
     };
 
+    const handleServiceAccountUpload = async () => {
+        if (!serviceAccountFile) {
+            toast({
+                variant: 'destructive',
+                title: 'No File Selected',
+                description: 'Please select your service account JSON file.',
+            });
+            return;
+        }
+        setIsUploadingKey(true);
+        const reader = new FileReader();
+        reader.onload = async (e) => {
+            const content = e.target?.result as string;
+            try {
+                const result = await uploadServiceAccountKey({ jsonContent: content });
+                if (result.success) {
+                    toast({
+                        title: 'Service Account Key Uploaded',
+                        description: 'Configuration updated. You can now sync your data.',
+                    });
+                    setServiceAccountFile(null);
+                } else {
+                    throw new Error(result.error || 'An unknown error occurred.');
+                }
+            } catch (error: any) {
+                toast({
+                    variant: 'destructive',
+                    title: 'Upload Failed',
+                    description: error.message,
+                });
+            } finally {
+                setIsUploadingKey(false);
+            }
+        };
+        reader.readAsText(serviceAccountFile);
+    };
+
     if (!isAuthenticated) {
         return (
             <Dialog open={isPasswordDialogOpen} onOpenChange={setIsPasswordDialogOpen}>
@@ -261,6 +303,39 @@ export default function DataManagementPage() {
 
     return (
         <div className="space-y-6">
+            <Card className="border-destructive">
+                <CardHeader>
+                    <CardTitle className="flex items-center gap-2 text-destructive">
+                        <AlertCircle /> Action Required: Firebase Setup
+                    </CardTitle>
+                    <CardDescription>
+                        To enable live data synchronization with Firebase, you must first upload your project's service account key.
+                    </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                   <AlertDescriptionComponent>
+                        Download the key from your Firebase project settings (Service Accounts tab), then upload it here. This is a one-time setup step.
+                   </AlertDescriptionComponent>
+                   <div className="space-y-2">
+                       <Label htmlFor="service-account-file">Service Account JSON File</Label>
+                        <Input 
+                           id="service-account-file"
+                           type="file"
+                           accept=".json"
+                           onChange={(e) => setServiceAccountFile(e.target.files?.[0] || null)}
+                        />
+                   </div>
+                    <Button onClick={handleServiceAccountUpload} disabled={isUploadingKey || !serviceAccountFile}>
+                        {isUploadingKey ? (
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        ) : (
+                            <UploadCloud className="mr-2 h-4 w-4" />
+                        )}
+                        Upload & Configure Key
+                    </Button>
+                </CardContent>
+            </Card>
+
             <Card>
                 <CardHeader>
                     <CardTitle className="flex items-center gap-2">
@@ -325,3 +400,5 @@ export default function DataManagementPage() {
         </div>
     );
 }
+
+    
