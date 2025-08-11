@@ -86,7 +86,7 @@ export default function VehicleManagementPage() {
                             onChange={(e) => setSearchTerm(e.target.value)}
                         />
                     </div>
-                     <Button onClick={handleAddVehicle} className="shrink-0">
+                     <Button onClick={handleAddVehicle} className="shrink-0" disabled>
                         <PlusCircle /> Add New
                     </Button>
                 </div>
@@ -131,7 +131,7 @@ export default function VehicleManagementPage() {
                         </div>
                     </div>
                     <DialogFooter>
-                        <Button type="submit">Save changes</Button>
+                        <Button type="submit" disabled>Save changes</Button>
                     </DialogFooter>
                 </form>
             </DialogContent>
@@ -169,10 +169,10 @@ export default function VehicleManagementPage() {
                         {vehicle.productionYears.join(', ')}
                     </TableCell>
                     <TableCell className="text-right">
-                        <Button variant="ghost" size="icon" onClick={() => handleEditVehicle(vehicle)}>
+                        <Button variant="ghost" size="icon" onClick={() => handleEditVehicle(vehicle)} disabled>
                             <Pencil className="h-4 w-4" />
                         </Button>
-                        <Button variant="ghost" size="icon" onClick={() => handleDeleteVehicle(vehicle.model)}>
+                        <Button variant="ghost" size="icon" onClick={() => handleDeleteVehicle(vehicle.model)} disabled>
                             <Trash2 className="h-4 w-4 text-destructive" />
                         </Button>
                     </TableCell>
