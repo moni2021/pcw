@@ -5,7 +5,6 @@ import { VehicleServiceForm } from '@/components/vehicle-service-form';
 import { Card } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 import { Header } from '@/components/header';
-import { UpcomingEvents } from '@/components/upcoming-events';
 
 export default function EstimatorPage() {
 
@@ -24,15 +23,10 @@ export default function EstimatorPage() {
               </div>
             </div>
             
-            <div className="mx-auto grid w-full max-w-6xl grid-cols-1 items-start gap-8 pt-10 lg:grid-cols-3 lg:gap-12">
-              <div className="lg:col-span-1 no-print">
-                <UpcomingEvents />
-              </div>
-              <div className="lg:col-span-2">
+            <div className="mx-auto w-full max-w-4xl pt-10">
                 <Card className="bg-card/50 backdrop-blur-sm">
                   <VehicleServiceForm />
                 </Card>
-              </div>
             </div>
 
           </div>
