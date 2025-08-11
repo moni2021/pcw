@@ -6,9 +6,8 @@
  * It is not necessary to edit this file to use Genkit.
  * To add a flow, see `src/ai/flows/example-flow.ts`.
  */
-import { configureGenkit } from '@genkit-ai/core';
+import { configureGenkit, genkit } from '@genkit-ai/core';
 import { googleAI } from '@genkit-ai/googleai';
-import { genkit } from 'genkit';
 
 // Initialize Genkit with the Google AI plugin.
 // You can specify your project and location, or have it default
