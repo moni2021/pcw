@@ -23,14 +23,18 @@ export default function EstimatorPage() {
                 </p>
               </div>
             </div>
-            <div className="mx-auto w-full max-w-2xl pt-10">
+            
+            <div className="mx-auto grid w-full max-w-6xl grid-cols-1 items-start gap-8 pt-10 lg:grid-cols-3 lg:gap-12">
+              <div className="lg:col-span-1 no-print">
+                <UpcomingEvents />
+              </div>
+              <div className="lg:col-span-2">
                 <Card className="bg-card/50 backdrop-blur-sm">
                   <VehicleServiceForm />
                 </Card>
+              </div>
             </div>
-            <div className="mx-auto w-full max-w-2xl pt-10 no-print">
-              <UpcomingEvents />
-            </div>
+
           </div>
         </section>
       </main>
