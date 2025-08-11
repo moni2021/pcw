@@ -7,24 +7,30 @@ import { z } from 'zod';
 import { VehicleSchema, PartSchema, CustomLaborSchema } from '@/lib/types';
 
 
-const serviceAccount = process.env.SERVICE_ACCOUNT_KEY
-  ? JSON.parse(process.env.SERVICE_ACCOUNT_KEY)
-  : null;
+const getDb = () => {
+    const serviceAccount = process.env.SERVICE_ACCOUNT_KEY
+      ? JSON.parse(process.env.SERVICE_ACCOUNT_KEY)
+      : null;
 
-if (!getApps().length) {
-    try {
+    if (!getApps().length) {
         if (serviceAccount) {
-            initializeApp({
-                credential: cert(serviceAccount),
-                databaseURL: `https://${process.env.GCLOUD_PROJECT}.firebaseio.com`
-            });
+            try {
+                initializeApp({
+                    credential: cert(serviceAccount),
+                    databaseURL: `https://${process.env.GCLOUD_PROJECT}.firebaseio.com`
+                });
+            } catch (error: any) {
+                console.error('Firebase Admin SDK initialization error:', error.message);
+                // We might want to throw here or handle it differently depending on desired behavior
+            }
+        } else {
+            console.warn("Firebase Admin SDK not initialized. SERVICE_ACCOUNT_KEY is missing.");
         }
-    } catch (error: any) {
-        console.error('Firebase Admin SDK initialization error:', error.message);
     }
-}
+    // Only return getFirestore() if an app has been initialized
+    return getApps().length > 0 ? getFirestore() : null;
+};
 
-const db = getFirestore();
 
 const PmsChargeSchema = z.object({
   model: z.string(),
@@ -50,7 +56,8 @@ type DataType = keyof typeof dataSchemas;
  * @returns A promise that resolves with a success or error status.
  */
 async function writeDataToFirebase(data: any, merge: boolean = false): Promise<{ success: boolean, error?: string }> {
-     if (!serviceAccount) {
+     const db = getDb();
+     if (!db) {
         const errorMessage = "Service account key is not configured. Cannot sync with Firebase.";
         console.error(errorMessage);
         return { success: false, error: errorMessage };
