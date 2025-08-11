@@ -31,7 +31,7 @@ export function UpcomingEvents() {
       .sort((a, b) => a.daysLeft - b.daysLeft); // Sort by the nearest event first
 
     setUpcomingEvents(processedEvents);
-  }, []);
+  }, [eventsData]);
 
   if (upcomingEvents.length === 0) {
     return null; // Don't render the component if there are no upcoming events
