@@ -112,12 +112,6 @@ export default function UserManagementPage() {
                 ))}
               </TableBody>
             </Table>
-            <div className="absolute inset-0 bg-background/80 backdrop-blur-sm flex items-center justify-center">
-                <div className="text-center p-4 rounded-lg bg-background border shadow-sm">
-                    <p className="font-semibold">Feature Coming Soon</p>
-                    <p className="text-sm text-muted-foreground">This function will be activated after as per manegment permission</p>
-                </div>
-            </div>
           </div>
         </CardContent>
       </Card>
