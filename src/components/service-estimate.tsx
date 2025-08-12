@@ -38,7 +38,7 @@ const dieselEngineOil = allEngineOilParts.find(part => part.name.includes('DIESE
 
 
 export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
-  const { vehicle, serviceType, parts: initialParts, labor, recommendedLabor, optionalServices } = estimate;
+  const { vehicle, serviceType, parts: initialParts, labor, recommendedLabor, optionalServices, workshopId } = estimate;
   const GST_RATE = 0.18;
 
   const [currentParts, setCurrentParts] = useState<Part[]>(initialParts);
@@ -87,8 +87,8 @@ export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
   const customLaborCharge = useMemo(() => customLabor.reduce((sum, job) => sum + job.charge, 0), [customLabor]);
 
   const availableCustomLabor = useMemo(() => {
-    return customLaborData.filter(item => item.model === vehicle.model);
-  }, [vehicle.model]);
+    return customLaborData.filter(item => item.model === vehicle.model && item.workshopId === workshopId);
+  }, [vehicle.model, workshopId]);
   
   const totalLaborCharge = useMemo(() => pmsLaborCharge + recommendedLaborCharge + optionalServiceCharge + customLaborCharge, [pmsLaborCharge, recommendedLaborCharge, optionalServiceCharge, customLaborCharge]);
   const gstOnLabor = useMemo(() => (totalLaborCharge - optionalServiceCharge) * GST_RATE, [totalLaborCharge, optionalServiceCharge]);
@@ -469,7 +469,3 @@ export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
     </div>
   );
 }
-
-    
-
-    

@@ -5,7 +5,7 @@ import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Download, Database, KeyRound, Save, UploadCloud, ShieldCheck, Loader2, Upload, FileJson, AlertCircle } from 'lucide-react';
+import { Download, Database, KeyRound, Save, UploadCloud, ShieldCheck, Loader2, Upload, FileJson, AlertCircle, Building } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
@@ -17,13 +17,14 @@ import { uploadServiceAccountKey } from '@/ai/flows/secure-key-uploader';
 
 
 // Import all data sources for the "Master" sync
+import { workshops } from '@/lib/workshops-data';
 import { vehicles } from '@/lib/data';
 import { allParts } from '@/lib/parts-data';
 import { customLaborData } from '@/lib/custom-labor-data';
 import { pmsCharges } from '@/lib/pms-charges';
 import { threeMCareData } from '@/lib/3m-care-data';
 
-type DataType = 'vehicles' | 'parts' | 'customLabor' | 'pmsCharges' | 'threeMCareData';
+type DataType = 'vehicles' | 'parts' | 'customLabor' | 'pmsCharges' | 'threeMCareData' | 'workshops';
 
 export default function DataManagementPage() {
     const { toast } = useToast();
@@ -61,6 +62,7 @@ export default function DataManagementPage() {
     };
 
     const allData = {
+        workshops,
         vehicles,
         parts: allParts,
         customLabor: customLaborData,
@@ -266,10 +268,10 @@ export default function DataManagementPage() {
         );
     }
     
-    const renderUploadTab = (dataType: DataType, title: string, description: string) => (
+    const renderUploadTab = (dataType: DataType, title: string, description: string, icon: React.ReactNode) => (
         <Card>
             <CardHeader>
-                <CardTitle className="flex items-center gap-2"><FileJson /> {title}</CardTitle>
+                <CardTitle className="flex items-center gap-2">{icon} {title}</CardTitle>
                 <CardDescription>{description}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -375,24 +377,28 @@ export default function DataManagementPage() {
                     </CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <Tabs defaultValue="vehicles">
-                        <TabsList className="grid w-full grid-cols-2 md:grid-cols-4">
-                            <TabsTrigger value="vehicles">Vehicle Models</TabsTrigger>
+                    <Tabs defaultValue="workshops">
+                        <TabsList className="grid w-full grid-cols-2 md:grid-cols-5">
+                            <TabsTrigger value="workshops">Workshops</TabsTrigger>
+                            <TabsTrigger value="vehicles">Vehicles</TabsTrigger>
                             <TabsTrigger value="parts">Parts</TabsTrigger>
                             <TabsTrigger value="customLabor">Custom Labour</TabsTrigger>
                             <TabsTrigger value="pmsCharges">PMS Charges</TabsTrigger>
                         </TabsList>
+                        <TabsContent value="workshops" className="pt-4">
+                           {renderUploadTab('workshops', 'Workshops Data', 'Upload a JSON file with the list of all workshops.', <Building />)}
+                        </TabsContent>
                         <TabsContent value="vehicles" className="pt-4">
-                           {renderUploadTab('vehicles', 'Vehicle Models Data', 'Upload a JSON file containing the list of all vehicle models and their properties.')}
+                           {renderUploadTab('vehicles', 'Vehicle Models Data', 'Upload a JSON file containing the list of all vehicle models and their properties.', <FileJson />)}
                         </TabsContent>
                          <TabsContent value="parts" className="pt-4">
-                           {renderUploadTab('parts', 'Parts Data', 'Upload a JSON file with the master list of all parts and their prices.')}
+                           {renderUploadTab('parts', 'Parts Data', 'Upload a JSON file with the master list of all parts and their prices.', <FileJson />)}
                         </TabsContent>
                          <TabsContent value="customLabor" className="pt-4">
-                            {renderUploadTab('customLabor', 'Custom Labour Data', 'Upload a JSON file with all custom labour charges specific to vehicle models.')}
+                            {renderUploadTab('customLabor', 'Custom Labour Data', 'Upload a JSON file with all custom labour charges specific to vehicle models and workshops.', <FileJson />)}
                         </TabsContent>
                           <TabsContent value="pmsCharges" className="pt-4">
-                           {renderUploadTab('pmsCharges', 'PMS Charges Data', 'Upload a JSON file defining the periodic maintenance service (PMS) labour charges.')}
+                           {renderUploadTab('pmsCharges', 'PMS Charges Data', 'Upload a JSON file defining the periodic maintenance service (PMS) labour charges per workshop.', <FileJson />)}
                         </TabsContent>
                     </Tabs>
                 </CardContent>
@@ -400,5 +406,3 @@ export default function DataManagementPage() {
         </div>
     );
 }
-
-    

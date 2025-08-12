@@ -1,4 +1,11 @@
+
 import { z } from 'zod';
+
+export const WorkshopSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+});
+export type Workshop = z.infer<typeof WorkshopSchema>;
 
 export const VehicleSchema = z.object({
   model: z.string(),
@@ -25,11 +32,21 @@ export const LaborSchema = z.object({
 export type Labor = z.infer<typeof LaborSchema>;
 
 export const CustomLaborSchema = z.object({
+    workshopId: z.string(),
     name: z.string(),
     model: z.string(),
     charge: z.number(),
 });
 export type CustomLabor = z.infer<typeof CustomLaborSchema>;
+
+export const PmsChargeSchema = z.object({
+  workshopId: z.string(),
+  model: z.string(),
+  labourDesc: z.string(),
+  labourCode: z.string(),
+  basicAmt: z.number(),
+});
+export type PmsCharge = z.infer<typeof PmsChargeSchema>;
 
 
 export const ServiceSchema = z.object({
@@ -45,6 +62,7 @@ export const ServiceDataSchema = z.record(ServiceSchema);
 export type ServiceData = z.infer<typeof ServiceDataSchema>;
 
 export const ServiceEstimateDataSchema = z.object({
+    workshopId: z.string(),
     vehicle: z.object({
         model: z.string(),
         fuelType: z.string(),

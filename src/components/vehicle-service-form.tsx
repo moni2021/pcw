@@ -8,22 +8,23 @@ import { CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from 
 import { Label } from '@/components/ui/label';
 import { vehicles, serviceDataLookup } from '@/lib/data';
 import { ServiceEstimate } from './service-estimate';
-import type { ServiceEstimateData, Vehicle, Labor, Part } from '@/lib/types';
+import type { ServiceEstimateData } from '@/lib/types';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Loader2, Car, Tag, Building2 } from 'lucide-react';
+import { Loader2, Car, Tag, Building, Building2 } from 'lucide-react';
 import { Separator } from './ui/separator';
 import { Badge } from '@/components/ui/badge';
 import { useTheme } from '@/context/ThemeContext';
 import { threeMCareData } from '@/lib/3m-care-data';
 import { pmsCharges } from '@/lib/pms-charges';
+import { workshops } from '@/lib/workshops-data';
 
-const commonServices: Labor[] = [
+const commonServices = [
     { name: 'NITROGEN GAS FILLING', charge: 200 },
     { name: 'WHEEL ALIGNMENT (4 HEAD)', charge: 400 },
     { name: 'ENGINE ROOM PAINTING', charge: 400 },
     { name: 'STRUT GREASING', charge: 1650 },
     { name: 'HEADLAMP FOCUSSING', charge: 400 },
-];
+].map(l => ({ ...l, workshopId: 'default' })); // Ensure common services have a default workshopId
 
 const serviceTypes = [
   '1st Free Service (1,000 km)',
@@ -44,6 +45,7 @@ const serviceTypes = [
 
 export function VehicleServiceForm() {
   const { setTheme } = useTheme();
+  const [selectedWorkshop, setSelectedWorkshop] = useState<string>('');
   const [selectedModel, setSelectedModel] = useState<string>('');
   const [selectedFuelType, setSelectedFuelType] = useState<string>('');
   const [selectedYear, setSelectedYear] = useState<string>('');
@@ -51,6 +53,13 @@ export function VehicleServiceForm() {
   const [estimate, setEstimate] = useState<ServiceEstimateData | null>(null);
   const [error, setError] = useState<string>('');
   const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    // If there's only one workshop, auto-select it.
+    if (workshops.length === 1) {
+      setSelectedWorkshop(workshops[0].id);
+    }
+  }, []);
 
   const currentVehicle = useMemo(() => {
     return vehicles.find(v => v.model === selectedModel);
@@ -63,7 +72,21 @@ export function VehicleServiceForm() {
       setTheme('default');
     }
   }, [currentVehicle, setTheme]);
+  
+  const resetSelections = () => {
+    setSelectedModel('');
+    setSelectedFuelType('');
+    setSelectedYear('');
+    setSelectedServiceType('');
+    setEstimate(null);
+    setError('');
+  }
 
+  const handleWorkshopChange = (workshopId: string) => {
+    setSelectedWorkshop(workshopId);
+    resetSelections();
+  };
+  
   const handleModelChange = (model: string) => {
     const vehicle = vehicles.find(v => v.model === model);
     setSelectedModel(model);
@@ -129,7 +152,7 @@ export function VehicleServiceForm() {
 
 
   const handleSearch = () => {
-    if (!selectedModel || !selectedFuelType || !selectedYear || !selectedServiceType) {
+    if (!selectedWorkshop || !selectedModel || !selectedFuelType || !selectedYear || !selectedServiceType) {
       setError('Please fill all the fields to get an estimate.');
       setEstimate(null);
       return;
@@ -151,15 +174,16 @@ export function VehicleServiceForm() {
       const serviceLookupKey = `${selectedModel} ${selectedFuelType} ${selectedServiceType}`;
       const serviceDetails = serviceDataLookup[serviceLookupKey];
       
-      let pmsLabor: Labor[] = [];
+      let pmsLabor = [];
       if (selectedServiceType.startsWith('Paid Service')) {
-          const pmsCharge = pmsCharges.find(p => p.model === selectedModel && p.labourDesc === selectedServiceType);
+          const pmsCharge = pmsCharges.find(p => p.model === selectedModel && p.labourDesc === selectedServiceType && p.workshopId === selectedWorkshop);
           if (pmsCharge) {
               pmsLabor.push({ name: 'Periodic Maintenance Service', charge: pmsCharge.basicAmt });
           }
       }
 
       const newEstimate: ServiceEstimateData = {
+        workshopId: selectedWorkshop,
         vehicle: {
           model: selectedModel,
           fuelType: selectedFuelType,
@@ -189,9 +213,27 @@ export function VehicleServiceForm() {
           <CardDescription>Select your vehicle to see available optional services.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
+          {workshops.length > 0 && (
+            <div className="space-y-2">
+              <Label htmlFor="workshop">Workshop</Label>
+              <Select onValueChange={handleWorkshopChange} value={selectedWorkshop} >
+                <SelectTrigger id="workshop">
+                  <SelectValue placeholder="Select Workshop" />
+                </SelectTrigger>
+                <SelectContent>
+                  {workshops.map(workshop => (
+                    <SelectItem key={workshop.id} value={workshop.id}>
+                      {workshop.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+
           <div className="space-y-2">
               <Label htmlFor="vehicle-model">Vehicle Model</Label>
-               <Select onValueChange={handleModelChange} value={selectedModel}>
+               <Select onValueChange={handleModelChange} value={selectedModel} disabled={!selectedWorkshop}>
                   <SelectTrigger id="vehicle-model">
                       <SelectValue placeholder="Select Model" />
                   </SelectTrigger>
@@ -300,5 +342,3 @@ export function VehicleServiceForm() {
     </>
   );
 }
-
-    

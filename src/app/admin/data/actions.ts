@@ -4,7 +4,7 @@
 import { initializeApp, getApps, cert } from 'firebase-admin/app';
 import { getFirestore } from 'firebase-admin/firestore';
 import { z } from 'zod';
-import { VehicleSchema, PartSchema, CustomLaborSchema } from '@/lib/types';
+import { VehicleSchema, PartSchema, CustomLaborSchema, WorkshopSchema, PmsChargeSchema } from '@/lib/types';
 
 
 const getDb = () => {
@@ -32,18 +32,12 @@ const getDb = () => {
 };
 
 
-const PmsChargeSchema = z.object({
-  model: z.string(),
-  labourDesc: z.string(),
-  labourCode: z.string(),
-  basicAmt: z.number(),
-});
-
 const dataSchemas = {
   vehicles: z.array(VehicleSchema),
   parts: z.array(PartSchema),
   customLabor: z.array(CustomLaborSchema),
   pmsCharges: z.array(PmsChargeSchema),
+  workshops: z.array(WorkshopSchema),
 };
 
 type DataType = keyof typeof dataSchemas;
@@ -132,10 +126,13 @@ export async function downloadSampleJson(dataType: DataType): Promise<string> {
             sampleObject = [{ name: 'Sample Part', price: 100.00 }];
             break;
         case 'customLabor':
-            sampleObject = [{ name: 'Sample Labor', model: 'Sample Model', charge: 500.00 }];
+            sampleObject = [{ workshopId: 'default', name: 'Sample Labor', model: 'Sample Model', charge: 500.00 }];
             break;
         case 'pmsCharges':
-            sampleObject = [{ model: 'Sample Model', labourDesc: 'Paid Service (20,000 km)', labourCode: 'L4020050', basicAmt: 1500 }];
+            sampleObject = [{ workshopId: 'default', model: 'Sample Model', labourDesc: 'Paid Service (20,000 km)', labourCode: 'L4020050', basicAmt: 1500 }];
+            break;
+        case 'workshops':
+            sampleObject = [{ id: 'workshop-1', name: 'Main Workshop' }];
             break;
         default:
             // This is a safety net, but based on the UI, dataType should always be valid.

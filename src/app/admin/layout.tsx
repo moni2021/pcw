@@ -13,6 +13,7 @@ import {
   Package,
   Car,
   Database,
+  Building,
 } from 'lucide-react';
 
 import {
@@ -59,10 +60,10 @@ export default function AdminLayout({
                 </Link>
               </SidebarMenuItem>
                <SidebarMenuItem>
-                <Link href="/admin/users" passHref>
-                    <SidebarMenuButton isActive={pathname === '/admin/users'}>
-                      <Users />
-                      User Management
+                <Link href="/admin/workshops" passHref>
+                    <SidebarMenuButton isActive={pathname === '/admin/workshops'}>
+                      <Building />
+                      Workshop Management
                     </SidebarMenuButton>
                 </Link>
               </SidebarMenuItem>
@@ -95,6 +96,14 @@ export default function AdminLayout({
                     <SidebarMenuButton isActive={pathname === '/admin/data'}>
                       <Database />
                       Data Management
+                    </SidebarMenuButton>
+                </Link>
+              </SidebarMenuItem>
+                 <SidebarMenuItem>
+                <Link href="/admin/users" passHref>
+                    <SidebarMenuButton isActive={pathname === '/admin/users'}>
+                      <Users />
+                      User Management
                     </SidebarMenuButton>
                 </Link>
               </SidebarMenuItem>
