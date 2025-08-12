@@ -20,25 +20,69 @@ import {
 import { useToast } from '@/hooks/use-toast';
 
 // Mock user data
-const mockUsers = [
+const initialUsers = [
   { id: 'usr_1', email: 'admin@example.com', isAdmin: true, status: 'Active' },
   { id: 'usr_2', email: 'editor@example.com', isAdmin: false, status: 'Active' },
   { id: 'usr_3', email: 'viewer@example.com', isAdmin: false, status: 'Inactive' },
 ];
 
-
 export default function UserManagementPage() {
-  const [users, setUsers] = useState(mockUsers);
-  const [isNewUserDialogOpen, setIsNewUserDialogOpen] = useState(false);
+  const [users, setUsers] = useState(initialUsers);
+  const [isUserDialogOpen, setIsUserDialogOpen] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [currentUser, setCurrentUser] = useState<typeof initialUsers[0] | null>(null);
   const { toast } = useToast();
 
-  const handleAction = () => {
+  const handleAddNewUser = () => {
+    setIsEditing(false);
+    setCurrentUser({ id: `usr_${Date.now()}`, email: '', isAdmin: false, status: 'Active' });
+    setIsUserDialogOpen(true);
+  };
+
+  const handleEditUser = (user: typeof initialUsers[0]) => {
+    setIsEditing(true);
+    setCurrentUser({ ...user });
+    setIsUserDialogOpen(true);
+  };
+
+  const handleDeleteUser = (userId: string) => {
+    setUsers(prevUsers => prevUsers.filter(user => user.id !== userId));
     toast({
-      variant: 'destructive',
-      title: 'Feature Under Development',
-      description: 'User management will be enabled in a future update.',
+      title: 'User Deleted',
+      description: 'The user has been removed (local state).',
     });
-  }
+  };
+
+  const handleSaveUser = () => {
+    if (!currentUser || !currentUser.email) {
+      toast({ variant: 'destructive', title: 'Error', description: 'Email is required.' });
+      return;
+    }
+
+    if (isEditing) {
+      setUsers(prevUsers => prevUsers.map(user => (user.id === currentUser.id ? currentUser : user)));
+      toast({ title: 'User Updated' });
+    } else {
+      if (users.some(user => user.email === currentUser.email)) {
+        toast({ variant: 'destructive', title: 'Error', description: 'A user with this email already exists.' });
+        return;
+      }
+      setUsers(prevUsers => [...prevUsers, currentUser]);
+      toast({ title: 'User Added' });
+    }
+
+    setIsUserDialogOpen(false);
+    setCurrentUser(null);
+  };
+  
+  const handleDialogInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setCurrentUser(prev => prev ? {...prev, [name]: value} : null);
+  };
+  
+  const handleDialogSwitchChange = (checked: boolean) => {
+    setCurrentUser(prev => prev ? {...prev, isAdmin: checked} : null);
+  };
 
   return (
     <div className="space-y-6">
@@ -48,34 +92,9 @@ export default function UserManagementPage() {
             <CardTitle>Users</CardTitle>
             <CardDescription>Manage all user accounts in the system.</CardDescription>
           </div>
-          <Dialog open={isNewUserDialogOpen} onOpenChange={setIsNewUserDialogOpen}>
-            <DialogTrigger asChild>
-              <Button onClick={handleAction}>
-                <UserPlus className="mr-2 h-4 w-4" /> Add New User
-              </Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Add a New User</DialogTitle>
-                <DialogDescription>
-                  Enter the details for the new user. An invitation will be sent to their email.
-                </DialogDescription>
-              </DialogHeader>
-              <div className="grid gap-4 py-4">
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="email" className="text-right">Email</Label>
-                  <Input id="email" name="email" type="email" placeholder="user@example.com" className="col-span-3" />
-                </div>
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="is-admin" className="text-right">Admin Privileges</Label>
-                  <Switch id="is-admin" name="isAdmin" />
-                </div>
-              </div>
-              <DialogFooter>
-                <Button type="submit" onClick={handleAction}>Create User</Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
+          <Button onClick={handleAddNewUser}>
+            <UserPlus className="mr-2 h-4 w-4" /> Add New User
+          </Button>
         </CardHeader>
         <CardContent>
           <div className="border rounded-lg relative">
@@ -105,14 +124,14 @@ export default function UserManagementPage() {
                     <TableCell className="text-right">
                        <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" className="h-8 w-8 p-0" onClick={handleAction}>
+                          <Button variant="ghost" className="h-8 w-8 p-0">
                             <span className="sr-only">Open menu</span>
                             <MoreHorizontal className="h-4 w-4" />
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                          <DropdownMenuItem onClick={handleAction}><Pencil className="mr-2 h-4 w-4" /> Edit</DropdownMenuItem>
-                          <DropdownMenuItem className="text-destructive" onClick={handleAction}>
+                          <DropdownMenuItem onClick={() => handleEditUser(user)}><Pencil className="mr-2 h-4 w-4" /> Edit</DropdownMenuItem>
+                          <DropdownMenuItem className="text-destructive" onClick={() => handleDeleteUser(user.id)}>
                             <Trash2 className="mr-2 h-4 w-4" /> Delete
                           </DropdownMenuItem>
                         </DropdownMenuContent>
@@ -125,6 +144,30 @@ export default function UserManagementPage() {
           </div>
         </CardContent>
       </Card>
+
+      <Dialog open={isUserDialogOpen} onOpenChange={setIsUserDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{isEditing ? 'Edit User' : 'Add a New User'}</DialogTitle>
+            <DialogDescription>
+              {isEditing ? 'Update the user\'s details.' : 'Enter the details for the new user. An invitation will be sent to their email.'}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="email" className="text-right">Email</Label>
+              <Input id="email" name="email" type="email" placeholder="user@example.com" className="col-span-3" value={currentUser?.email || ''} onChange={handleDialogInputChange} disabled={isEditing} />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="is-admin" className="text-right">Admin Privileges</Label>
+              <Switch id="is-admin" name="isAdmin" checked={currentUser?.isAdmin || false} onCheckedChange={handleDialogSwitchChange}/>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button type="submit" onClick={handleSaveUser}>Save Changes</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
