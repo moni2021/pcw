@@ -24,7 +24,7 @@ import { customLaborData } from '@/lib/custom-labor-data';
 import { pmsCharges } from '@/lib/pms-charges';
 import { threeMCareData } from '@/lib/3m-care-data';
 
-type DataType = 'vehicles' | 'parts' | 'customLabor' | 'pmsCharges' | 'threeMCareData' | 'workshops';
+type DataType = 'workshops' | 'vehicles' | 'parts' | 'customLabor' | 'pmsCharges';
 
 export default function DataManagementPage() {
     const { toast } = useToast();

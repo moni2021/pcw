@@ -17,6 +17,7 @@ import { useTheme } from '@/context/ThemeContext';
 import { threeMCareData } from '@/lib/3m-care-data';
 import { pmsCharges } from '@/lib/pms-charges';
 import { workshops } from '@/lib/workshops-data';
+import { customLaborData } from '@/lib/custom-labor-data';
 
 const commonServices = [
     { name: 'NITROGEN GAS FILLING', charge: 200 },
@@ -24,7 +25,7 @@ const commonServices = [
     { name: 'ENGINE ROOM PAINTING', charge: 400 },
     { name: 'STRUT GREASING', charge: 1650 },
     { name: 'HEADLAMP FOCUSSING', charge: 400 },
-].map(l => ({ ...l, workshopId: 'default' })); // Ensure common services have a default workshopId
+].map(l => ({ ...l, workshopId: 'default' })); // These are common and don't need workshop-specific pricing for now
 
 const serviceTypes = [
   '1st Free Service (1,000 km)',
@@ -179,6 +180,8 @@ export function VehicleServiceForm() {
           const pmsCharge = pmsCharges.find(p => p.model === selectedModel && p.labourDesc === selectedServiceType && p.workshopId === selectedWorkshop);
           if (pmsCharge) {
               pmsLabor.push({ name: 'Periodic Maintenance Service', charge: pmsCharge.basicAmt });
+          } else {
+              console.warn(`No PMS charge found for ${selectedModel} at workshop ${selectedWorkshop} for service ${selectedServiceType}`);
           }
       }
 
@@ -196,7 +199,7 @@ export function VehicleServiceForm() {
         labor: pmsLabor,
         recommendedLabor: commonServices,
         optionalServices: threeMCareData[selectedModel] || [],
-        totalPrice: 0,
+        totalPrice: 0, // This will be calculated in the ServiceEstimate component
       };
       
       setEstimate(newEstimate);
@@ -210,10 +213,10 @@ export function VehicleServiceForm() {
       <div className="no-print">
         <CardHeader>
           <CardTitle>Create an Estimate</CardTitle>
-          <CardDescription>Select your vehicle to see available optional services.</CardDescription>
+          <CardDescription>Select your vehicle and service type to get an estimate.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
-          {workshops.length > 0 && (
+          {workshops.length > 1 && (
             <div className="space-y-2">
               <Label htmlFor="workshop">Workshop</Label>
               <Select onValueChange={handleWorkshopChange} value={selectedWorkshop} >

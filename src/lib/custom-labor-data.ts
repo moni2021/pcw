@@ -1,8 +1,10 @@
 
 import type { CustomLabor } from './types';
 
+// Prices for the 'default' workshop.
+// You can add more entries with different workshopId values for other workshops.
 export const customLaborData: CustomLabor[] = [
-  // Default Workshop Prices
+  // --- Default Workshop Prices ---
   { workshopId: 'default', name: 'BATTERY GROUND CABLE', model: 'Ertiga', charge: 312.7 },
   { workshopId: 'default', name: 'BATTERY GROUND CABLE', model: 'Celerio', charge: 274.03 },
   { workshopId: 'default', name: 'BATTERY GROUND CABLE', model: 'Wagon R', charge: 278.88 },

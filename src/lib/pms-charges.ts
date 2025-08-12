@@ -1,8 +1,9 @@
 
 import { PmsCharge } from './types';
 
+// Prices for 'default' workshop
 export const pmsCharges: PmsCharge[] = [
-    // Workshop: default
+    // --- Default Workshop Prices ---
     { workshopId: 'default', model: 'Alto 800', labourDesc: 'Paid Service (20,000 km)', labourCode: 'L4020050', basicAmt: 1450 },
     { workshopId: 'default', model: 'Alto 800', labourDesc: 'Paid Service (30,000 km)', labourCode: 'L4030050', basicAmt: 1450 },
     { workshopId: 'default', model: 'Alto 800', labourDesc: 'Paid Service (40,000 km)', labourCode: 'L4040050', basicAmt: 1850 },

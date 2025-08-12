@@ -51,7 +51,7 @@ export type PmsCharge = z.infer<typeof PmsChargeSchema>;
 
 export const ServiceSchema = z.object({
   parts: z.array(PartSchema),
-  labor: z.array(LaborSchema),
+  labor: z.array(LaborSchema), // This will now be dynamically populated
   recommendedLabor: z.array(LaborSchema).optional(),
   optionalServices: z.array(LaborSchema).optional(),
 });
