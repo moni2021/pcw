@@ -24,36 +24,61 @@ export default function PartsManagementPage() {
   const [allParts, setAllParts] = useState<Part[]>(initialAllParts);
   const [isPartsDialogOpen, setIsPartsDialogOpen] = useState(false);
   const [currentPart, setCurrentPart] = useState<Partial<Part> | null>(null);
+  const [isEditing, setIsEditing] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const { toast } = useToast();
 
   const handleAddPart = () => {
+    setIsEditing(false);
     setCurrentPart({});
     setIsPartsDialogOpen(true);
   };
 
   const handleEditPart = (part: Part) => {
-    setCurrentPart(part);
+    setIsEditing(true);
+    setCurrentPart({ ...part });
     setIsPartsDialogOpen(true);
   };
 
   const handleDeletePart = (partName: string) => {
-     toast({
-      variant: 'destructive',
-      title: 'Feature Under Development',
-      description: 'This function will be activated after as per management permission.',
+    setAllParts(prev => prev.filter(p => p.name !== partName));
+    toast({
+      title: 'Part Deleted',
+      description: 'The part has been removed from the list (local state).',
     });
   };
 
   const handleSavePart = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    toast({
-      variant: 'destructive',
-      title: 'Feature Under Development',
-      description: 'This function will be activated after as per management permission.',
-    });
+    if (!currentPart || !currentPart.name || !currentPart.price) {
+        toast({ variant: 'destructive', title: 'Error', description: 'Please fill all fields.' });
+        return;
+    }
+
+    const newPart: Part = {
+        name: currentPart.name,
+        price: Number(currentPart.price)
+    };
+
+    if (isEditing) {
+        setAllParts(prev => prev.map(p => p.name === newPart.name ? newPart : p));
+        toast({ title: 'Success', description: 'Part updated.' });
+    } else {
+        if (allParts.some(p => p.name.toLowerCase() === newPart.name.toLowerCase())) {
+            toast({ variant: 'destructive', title: 'Error', description: 'A part with this name already exists.' });
+            return;
+        }
+        setAllParts(prev => [...prev, newPart]);
+        toast({ title: 'Success', description: 'New part added.' });
+    }
+
     setIsPartsDialogOpen(false);
     setCurrentPart(null);
+  };
+
+  const handleDialogInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setCurrentPart(prev => ({...prev, [name]: value}));
   }
 
   const filteredParts = allParts.filter(part => 
@@ -62,7 +87,6 @@ export default function PartsManagementPage() {
 
   return (
     <Card>
-        <Dialog open={isPartsDialogOpen} onOpenChange={setIsPartsDialogOpen}>
         <CardHeader className="flex flex-row items-start sm:items-center justify-between gap-2">
             <div className="space-y-1">
                 <CardTitle className="flex items-center gap-2"><Package /> Manage Parts and Pricing</CardTitle>
@@ -84,30 +108,6 @@ export default function PartsManagementPage() {
                 </Button>
             </div>
         </CardHeader>
-        <DialogContent>
-            <form onSubmit={handleSavePart}>
-                <DialogHeader>
-                <DialogTitle>{currentPart?.name ? 'Edit Part' : 'Add New Part'}</DialogTitle>
-                <DialogDescription>
-                    Fill in the details for the part. Part names must be unique.
-                </DialogDescription>
-                </DialogHeader>
-                <div className="grid gap-4 py-4">
-                    <div className="grid grid-cols-4 items-center gap-4">
-                        <Label htmlFor="name" className="text-right">Name</Label>
-                        <Input id="name" name="name" defaultValue={currentPart?.name} className="col-span-3" required />
-                    </div>
-                    <div className="grid grid-cols-4 items-center gap-4">
-                        <Label htmlFor="price" className="text-right">Price (₹)</Label>
-                        <Input id="price" name="price" type="number" defaultValue={currentPart?.price} className="col-span-3" required />
-                    </div>
-                </div>
-                <DialogFooter>
-                    <Button type="submit">Save changes</Button>
-                </DialogFooter>
-            </form>
-        </DialogContent>
-        </Dialog>
         <CardContent>
         <ScrollArea className="h-[70vh] relative">
             <Table>
@@ -137,6 +137,31 @@ export default function PartsManagementPage() {
             </Table>
         </ScrollArea>
         </CardContent>
+        <Dialog open={isPartsDialogOpen} onOpenChange={setIsPartsDialogOpen}>
+          <DialogContent>
+              <form onSubmit={handleSavePart}>
+                  <DialogHeader>
+                  <DialogTitle>{isEditing ? 'Edit Part' : 'Add New Part'}</DialogTitle>
+                  <DialogDescription>
+                      Fill in the details for the part. Part names must be unique.
+                  </DialogDescription>
+                  </DialogHeader>
+                  <div className="grid gap-4 py-4">
+                      <div className="grid grid-cols-4 items-center gap-4">
+                          <Label htmlFor="name" className="text-right">Name</Label>
+                          <Input id="name" name="name" value={currentPart?.name || ''} onChange={handleDialogInputChange} className="col-span-3" required disabled={isEditing}/>
+                      </div>
+                      <div className="grid grid-cols-4 items-center gap-4">
+                          <Label htmlFor="price" className="text-right">Price (₹)</Label>
+                          <Input id="price" name="price" type="number" value={currentPart?.price || ''} onChange={handleDialogInputChange} className="col-span-3" required />
+                      </div>
+                  </div>
+                  <DialogFooter>
+                      <Button type="submit">Save changes</Button>
+                  </DialogFooter>
+              </form>
+          </DialogContent>
+        </Dialog>
     </Card>
   );
 }

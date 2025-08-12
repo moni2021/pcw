@@ -200,16 +200,9 @@ export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
                       <TableBody>
                         {currentParts.map((part, index) => {
                            const isEngineOil = allEngineOilParts.some(eo => eo.name === part.name);
-                          
-                          if (isEngineOil) {
-                            if (vehicle.fuelType === 'Diesel') {
-                               return (
-                                <TableRow key={`part-${index}`}>
-                                    <TableCell className="font-medium">{part.name}</TableCell>
-                                    <TableCell className="text-right">{part.price.toFixed(2)}</TableCell>
-                                </TableRow>
-                               )
-                            }
+                           const isDiesel = vehicle.fuelType === 'Diesel';
+
+                           if (isEngineOil && !isDiesel) {
                             return (
                                <TableRow key={`part-${index}`}>
                                 <TableCell className="font-medium">

@@ -8,11 +8,10 @@ import { VehicleSchema, PartSchema, CustomLaborSchema, WorkshopSchema, PmsCharge
 
 
 const getDb = () => {
-    const serviceAccount = process.env.SERVICE_ACCOUNT_KEY
-      ? JSON.parse(process.env.SERVICE_ACCOUNT_KEY)
-      : null;
-
     if (!getApps().length) {
+        const serviceAccount = process.env.SERVICE_ACCOUNT_KEY
+          ? JSON.parse(process.env.SERVICE_ACCOUNT_KEY)
+          : null;
         if (serviceAccount) {
             try {
                 initializeApp({
@@ -21,7 +20,6 @@ const getDb = () => {
                 });
             } catch (error: any) {
                 console.error('Firebase Admin SDK initialization error:', error.message);
-                // We might want to throw here or handle it differently depending on desired behavior
             }
         } else {
             console.warn("Firebase Admin SDK not initialized. SERVICE_ACCOUNT_KEY is missing.");

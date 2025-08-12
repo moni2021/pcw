@@ -26,37 +26,78 @@ export default function VehicleManagementPage() {
   const [vehicles, setVehicles] = useState<Vehicle[]>(initialVehicles);
   const [isVehicleDialogOpen, setIsVehicleDialogOpen] = useState(false);
   const [currentVehicle, setCurrentVehicle] = useState<Partial<Vehicle> | null>(null);
+  const [isEditing, setIsEditing] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const { toast } = useToast();
 
   const handleAddVehicle = () => {
+    setIsEditing(false);
     setCurrentVehicle({});
     setIsVehicleDialogOpen(true);
   };
 
   const handleEditVehicle = (vehicle: Vehicle) => {
-    setCurrentVehicle(vehicle);
+    setIsEditing(true);
+    setCurrentVehicle({ ...vehicle });
     setIsVehicleDialogOpen(true);
   };
 
   const handleDeleteVehicle = (model: string) => {
+    setVehicles(prev => prev.filter(v => v.model !== model));
     toast({
-      variant: 'destructive',
-      title: 'Feature Under Development',
-      description: 'This function will be activated after as per management permission.',
+      title: 'Vehicle Deleted',
+      description: 'The vehicle has been removed from the list (local state).',
     });
   };
 
   const handleSaveVehicle = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    toast({
-      variant: 'destructive',
-      title: 'Feature Under Development',
-      description: 'This function will be activated after as per management permission.',
-    });
+    if (!currentVehicle || !currentVehicle.model || !currentVehicle.brand || !currentVehicle.category || !currentVehicle.fuelTypes || !currentVehicle.productionYears) {
+        toast({ variant: 'destructive', title: 'Error', description: 'Please fill all fields.' });
+        return;
+    }
+    
+    // Convert comma-separated strings to arrays
+    const fuelTypesArray = typeof currentVehicle.fuelTypes === 'string' 
+        ? (currentVehicle.fuelTypes as string).split(',').map(s => s.trim()) 
+        : currentVehicle.fuelTypes;
+    const productionYearsArray = typeof currentVehicle.productionYears === 'string'
+        ? (currentVehicle.productionYears as string).split(',').map(s => parseInt(s.trim(), 10)).filter(y => !isNaN(y))
+        : currentVehicle.productionYears;
+
+    const newVehicle: Vehicle = {
+        model: currentVehicle.model,
+        brand: currentVehicle.brand as any,
+        category: currentVehicle.category,
+        variants: currentVehicle.variants || [], // Assuming variants can be empty
+        fuelTypes: fuelTypesArray,
+        productionYears: productionYearsArray,
+    };
+
+    if (isEditing) {
+        setVehicles(prev => prev.map(v => v.model === newVehicle.model ? newVehicle : v));
+        toast({ title: 'Success', description: 'Vehicle updated.' });
+    } else {
+        if (vehicles.some(v => v.model.toLowerCase() === newVehicle.model.toLowerCase())) {
+            toast({ variant: 'destructive', title: 'Error', description: 'A vehicle with this model name already exists.' });
+            return;
+        }
+        setVehicles(prev => [...prev, newVehicle]);
+        toast({ title: 'Success', description: 'New vehicle added.' });
+    }
+
     setIsVehicleDialogOpen(false);
     setCurrentVehicle(null);
   };
+  
+  const handleDialogInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setCurrentVehicle(prev => ({...prev, [name]: value}));
+  }
+
+  const handleDialogSelectChange = (name: string, value: string) => {
+    setCurrentVehicle(prev => ({...prev, [name]: value}));
+  }
   
   const filteredVehicles = vehicles.filter(vehicle =>
     vehicle.model.toLowerCase().includes(searchTerm.toLowerCase())
@@ -65,74 +106,27 @@ export default function VehicleManagementPage() {
 
   return (
     <Card>
-        <Dialog open={isVehicleDialogOpen} onOpenChange={setIsVehicleDialogOpen}>
-            <CardHeader className="flex flex-row items-start sm:items-center justify-between gap-2">
-                <div className="space-y-1">
-                    <CardTitle className="flex items-center gap-2"><Car /> Manage Vehicle Models</CardTitle>
-                    <CardDescription>Add, edit, or remove vehicle models.</CardDescription>
+        <CardHeader className="flex flex-row items-start sm:items-center justify-between gap-2">
+            <div className="space-y-1">
+                <CardTitle className="flex items-center gap-2"><Car /> Manage Vehicle Models</CardTitle>
+                <CardDescription>Add, edit, or remove vehicle models.</CardDescription>
+            </div>
+              <div className="flex-1 flex justify-center sm:justify-end gap-2">
+                <div className="relative w-full max-w-xs">
+                    <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                    <Input
+                        type="search"
+                        placeholder="Search by model name..."
+                        className="pl-8"
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                    />
                 </div>
-                 <div className="flex-1 flex justify-center sm:justify-end gap-2">
-                    <div className="relative w-full max-w-xs">
-                        <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                        <Input
-                            type="search"
-                            placeholder="Search by model name..."
-                            className="pl-8"
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                        />
-                    </div>
-                     <Button onClick={handleAddVehicle} className="shrink-0">
-                        <PlusCircle /> Add New
-                    </Button>
-                </div>
-            </CardHeader>
-            <DialogContent className="sm:max-w-[425px]">
-                    <form onSubmit={handleSaveVehicle}>
-                    <DialogHeader>
-                        <DialogTitle>{currentVehicle?.model ? 'Edit Vehicle' : 'Add New Vehicle'}</DialogTitle>
-                        <DialogDescription>
-                            Fill in the details for the vehicle model. Model names must be unique.
-                        </DialogDescription>
-                    </DialogHeader>
-                    <div className="grid gap-4 py-4">
-                        <div className="grid grid-cols-4 items-center gap-4">
-                            <Label htmlFor="model" className="text-right">Model</Label>
-                            <Input id="model" name="model" defaultValue={currentVehicle?.model} className="col-span-3" required />
-                        </div>
-                        <div className="grid grid-cols-4 items-center gap-4">
-                            <Label htmlFor="brand" className="text-right">Brand</Label>
-                            <Select name="brand" defaultValue={currentVehicle?.brand} required>
-                                <SelectTrigger id="brand" className="col-span-3">
-                                    <SelectValue placeholder="Select brand" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="Arena">Arena</SelectItem>
-                                    <SelectItem value="Nexa">Nexa</SelectItem>
-                                    <SelectItem value="Commercial">Commercial</SelectItem>
-                                </SelectContent>
-                            </Select>
-                        </div>
-                            <div className="grid grid-cols-4 items-center gap-4">
-                            <Label htmlFor="category" className="text-right">Category</Label>
-                            <Input id="category" name="category" defaultValue={currentVehicle?.category} className="col-span-3" required />
-                        </div>
-                            <div className="grid grid-cols-4 items-center gap-4">
-                            <Label htmlFor="fuelTypes" className="text-right">Fuel Types</Label>
-                            <Input id="fuelTypes" name="fuelTypes" defaultValue={currentVehicle?.fuelTypes?.join(', ')} className="col-span-3" placeholder="e.g. Petrol, CNG" required />
-                        </div>
-                            <div className="grid grid-cols-4 items-center gap-4">
-                            <Label htmlFor="productionYears" className="text-right">Prod. Years</Label>
-                            <Input id="productionYears" name="productionYears" defaultValue={currentVehicle?.productionYears?.join(', ')} className="col-span-3" placeholder="e.g. 2022, 2023" required />
-                        </div>
-                    </div>
-                    <DialogFooter>
-                        <Button type="submit">Save changes</Button>
-                    </DialogFooter>
-                </form>
-            </DialogContent>
-        </Dialog>
-
+                  <Button onClick={handleAddVehicle} className="shrink-0">
+                    <PlusCircle /> Add New
+                </Button>
+            </div>
+        </CardHeader>
         <CardContent>
             <ScrollArea className="h-[70vh] relative">
             <Table>
@@ -178,6 +172,52 @@ export default function VehicleManagementPage() {
             </Table>
             </ScrollArea>
         </CardContent>
+        <Dialog open={isVehicleDialogOpen} onOpenChange={setIsVehicleDialogOpen}>
+            <DialogContent className="sm:max-w-[425px]">
+                    <form onSubmit={handleSaveVehicle}>
+                    <DialogHeader>
+                        <DialogTitle>{isEditing ? 'Edit Vehicle' : 'Add New Vehicle'}</DialogTitle>
+                        <DialogDescription>
+                            Fill in the details for the vehicle model. Model names must be unique.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <div className="grid gap-4 py-4">
+                        <div className="grid grid-cols-4 items-center gap-4">
+                            <Label htmlFor="model" className="text-right">Model</Label>
+                            <Input id="model" name="model" value={currentVehicle?.model || ''} onChange={handleDialogInputChange} className="col-span-3" required disabled={isEditing} />
+                        </div>
+                        <div className="grid grid-cols-4 items-center gap-4">
+                            <Label htmlFor="brand" className="text-right">Brand</Label>
+                            <Select name="brand" value={currentVehicle?.brand} onValueChange={(value) => handleDialogSelectChange('brand', value)} required>
+                                <SelectTrigger id="brand" className="col-span-3">
+                                    <SelectValue placeholder="Select brand" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="Arena">Arena</SelectItem>
+                                    <SelectItem value="Nexa">Nexa</SelectItem>
+                                    <SelectItem value="Commercial">Commercial</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
+                            <div className="grid grid-cols-4 items-center gap-4">
+                            <Label htmlFor="category" className="text-right">Category</Label>
+                            <Input id="category" name="category" value={currentVehicle?.category || ''} onChange={handleDialogInputChange} className="col-span-3" required />
+                        </div>
+                            <div className="grid grid-cols-4 items-center gap-4">
+                            <Label htmlFor="fuelTypes" className="text-right">Fuel Types</Label>
+                            <Input id="fuelTypes" name="fuelTypes" value={Array.isArray(currentVehicle?.fuelTypes) ? currentVehicle.fuelTypes.join(', ') : ''} onChange={handleDialogInputChange} className="col-span-3" placeholder="e.g. Petrol, CNG" required />
+                        </div>
+                            <div className="grid grid-cols-4 items-center gap-4">
+                            <Label htmlFor="productionYears" className="text-right">Prod. Years</Label>
+                            <Input id="productionYears" name="productionYears" value={Array.isArray(currentVehicle?.productionYears) ? currentVehicle.productionYears.join(', ') : ''} onChange={handleDialogInputChange} className="col-span-3" placeholder="e.g. 2022, 2023" required />
+                        </div>
+                    </div>
+                    <DialogFooter>
+                        <Button type="submit">Save changes</Button>
+                    </DialogFooter>
+                </form>
+            </DialogContent>
+        </Dialog>
     </Card>
   );
 }
