@@ -23,26 +23,20 @@ import type { Vehicle } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
 
 export default function VehicleManagementPage() {
-  const [vehicles] = useState<Vehicle[]>(initialVehicles);
+  const [vehicles, setVehicles] = useState<Vehicle[]>(initialVehicles);
   const [isVehicleDialogOpen, setIsVehicleDialogOpen] = useState(false);
   const [currentVehicle, setCurrentVehicle] = useState<Partial<Vehicle> | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const { toast } = useToast();
 
   const handleAddVehicle = () => {
-    toast({
-      variant: 'destructive',
-      title: 'Feature Under Development',
-      description: 'This function will be activated after as per management permission.',
-    });
+    setCurrentVehicle({});
+    setIsVehicleDialogOpen(true);
   };
 
   const handleEditVehicle = (vehicle: Vehicle) => {
-    toast({
-      variant: 'destructive',
-      title: 'Feature Under Development',
-      description: 'This function will be activated after as per management permission.',
-    });
+    setCurrentVehicle(vehicle);
+    setIsVehicleDialogOpen(true);
   };
 
   const handleDeleteVehicle = (model: string) => {
@@ -60,6 +54,8 @@ export default function VehicleManagementPage() {
       title: 'Feature Under Development',
       description: 'This function will be activated after as per management permission.',
     });
+    setIsVehicleDialogOpen(false);
+    setCurrentVehicle(null);
   };
   
   const filteredVehicles = vehicles.filter(vehicle =>
@@ -86,7 +82,7 @@ export default function VehicleManagementPage() {
                             onChange={(e) => setSearchTerm(e.target.value)}
                         />
                     </div>
-                     <Button onClick={handleAddVehicle} className="shrink-0" disabled>
+                     <Button onClick={handleAddVehicle} className="shrink-0">
                         <PlusCircle /> Add New
                     </Button>
                 </div>
@@ -131,7 +127,7 @@ export default function VehicleManagementPage() {
                         </div>
                     </div>
                     <DialogFooter>
-                        <Button type="submit" disabled>Save changes</Button>
+                        <Button type="submit">Save changes</Button>
                     </DialogFooter>
                 </form>
             </DialogContent>
@@ -169,10 +165,10 @@ export default function VehicleManagementPage() {
                         {vehicle.productionYears.join(', ')}
                     </TableCell>
                     <TableCell className="text-right">
-                        <Button variant="ghost" size="icon" onClick={() => handleEditVehicle(vehicle)} disabled>
+                        <Button variant="ghost" size="icon" onClick={() => handleEditVehicle(vehicle)}>
                             <Pencil className="h-4 w-4" />
                         </Button>
-                        <Button variant="ghost" size="icon" onClick={() => handleDeleteVehicle(vehicle.model)} disabled>
+                        <Button variant="ghost" size="icon" onClick={() => handleDeleteVehicle(vehicle.model)}>
                             <Trash2 className="h-4 w-4 text-destructive" />
                         </Button>
                     </TableCell>

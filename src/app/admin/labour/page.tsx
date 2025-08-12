@@ -23,30 +23,26 @@ import { useToast } from '@/hooks/use-toast';
 import { vehicles as initialVehicles } from '@/lib/data';
 
 export default function LabourManagementPage() {
-  const [customLabor] = useState<CustomLabor[]>(initialCustomLaborData);
+  const [customLabor, setCustomLabor] = useState<CustomLabor[]>(initialCustomLaborData);
   const [vehicles] = useState<Vehicle[]>(initialVehicles);
   const [isLaborDialogOpen, setIsLaborDialogOpen] = useState(false);
-  const [currentLabor, setCurrentLabor] = useState<CustomLabor | null>(null);
+  const [currentLabor, setCurrentLabor] = useState<Partial<CustomLabor> | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const { toast } = useToast();
 
   const handleAddLabor = () => {
-     toast({
-      variant: 'destructive',
-      title: 'Feature Under Development',
-      description: 'This function will be activated after as per management permission.',
-    });
+    setCurrentLabor({});
+    setIsLaborDialogOpen(true);
   };
 
   const handleEditLabor = (labor: CustomLabor) => {
-    toast({
-      variant: 'destructive',
-      title: 'Feature Under Development',
-      description: 'This function will be activated after as per management permission.',
-    });
+    setCurrentLabor(labor);
+    setIsLaborDialogOpen(true);
   };
 
   const handleDeleteLabor = (laborName: string, laborModel: string) => {
+    // In a real app, you'd call a server action here.
+    // For now, we'll just show a toast.
     toast({
       variant: 'destructive',
       title: 'Feature Under Development',
@@ -56,11 +52,15 @@ export default function LabourManagementPage() {
 
   const handleSaveLabor = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    // In a real app, you'd call a server action here.
+    // For now, we'll just show a toast.
     toast({
       variant: 'destructive',
       title: 'Feature Under Development',
       description: 'This function will be activated after as per management permission.',
     });
+    setIsLaborDialogOpen(false);
+    setCurrentLabor(null);
   };
   
   const filteredLabor = customLabor.filter(labor => 
@@ -87,7 +87,7 @@ export default function LabourManagementPage() {
                             onChange={(e) => setSearchTerm(e.target.value)}
                         />
                     </div>
-                     <Button onClick={handleAddLabor} className="shrink-0" disabled>
+                     <Button onClick={handleAddLabor} className="shrink-0">
                         <PlusCircle /> Add New
                     </Button>
                  </div>
@@ -95,7 +95,7 @@ export default function LabourManagementPage() {
             <DialogContent>
                 <form onSubmit={handleSaveLabor}>
                     <DialogHeader>
-                        <DialogTitle>{currentLabor?.name && currentLabor.name !== '' ? 'Edit Labour' : 'Add New Labour'}</DialogTitle>
+                        <DialogTitle>{currentLabor?.name ? 'Edit Labour' : 'Add New Labour'}</DialogTitle>
                         <DialogDescription>
                             Fill in the details for the labour charge. The combination of name and model must be unique.
                         </DialogDescription>
@@ -122,7 +122,7 @@ export default function LabourManagementPage() {
                         </div>
                     </div>
                     <DialogFooter>
-                        <Button type="submit" disabled>Save changes</Button>
+                        <Button type="submit">Save changes</Button>
                     </DialogFooter>
                 </form>
             </DialogContent>
@@ -145,10 +145,10 @@ export default function LabourManagementPage() {
                       <TableCell>{labor.model}</TableCell>
                       <TableCell className="text-right">{labor.charge.toFixed(2)}</TableCell>
                           <TableCell className="text-right">
-                          <Button variant="ghost" size="icon" onClick={() => handleEditLabor(labor)} disabled>
+                          <Button variant="ghost" size="icon" onClick={() => handleEditLabor(labor)}>
                           <Pencil className="h-4 w-4" />
                           </Button>
-                          <Button variant="ghost" size="icon" onClick={() => handleDeleteLabor(labor.name, labor.model)} disabled>
+                          <Button variant="ghost" size="icon" onClick={() => handleDeleteLabor(labor.name, labor.model)}>
                           <Trash2 className="h-4 w-4 text-destructive" />
                           </Button>
                       </TableCell>

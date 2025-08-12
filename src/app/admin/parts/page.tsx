@@ -21,26 +21,20 @@ import type { Part } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
 
 export default function PartsManagementPage() {
-  const [allParts] = useState<Part[]>(initialAllParts);
+  const [allParts, setAllParts] = useState<Part[]>(initialAllParts);
   const [isPartsDialogOpen, setIsPartsDialogOpen] = useState(false);
-  const [currentPart, setCurrentPart] = useState<Part | null>(null);
+  const [currentPart, setCurrentPart] = useState<Partial<Part> | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const { toast } = useToast();
 
   const handleAddPart = () => {
-     toast({
-      variant: 'destructive',
-      title: 'Feature Under Development',
-      description: 'This function will be activated after as per management permission.',
-    });
+    setCurrentPart({});
+    setIsPartsDialogOpen(true);
   };
 
   const handleEditPart = (part: Part) => {
-    toast({
-      variant: 'destructive',
-      title: 'Feature Under Development',
-      description: 'This function will be activated after as per management permission.',
-    });
+    setCurrentPart(part);
+    setIsPartsDialogOpen(true);
   };
 
   const handleDeletePart = (partName: string) => {
@@ -58,6 +52,8 @@ export default function PartsManagementPage() {
       title: 'Feature Under Development',
       description: 'This function will be activated after as per management permission.',
     });
+    setIsPartsDialogOpen(false);
+    setCurrentPart(null);
   }
 
   const filteredParts = allParts.filter(part => 
@@ -83,7 +79,7 @@ export default function PartsManagementPage() {
                         onChange={(e) => setSearchTerm(e.target.value)}
                     />
                 </div>
-                <Button onClick={handleAddPart} className="shrink-0" disabled>
+                <Button onClick={handleAddPart} className="shrink-0">
                     <PlusCircle /> Add New
                 </Button>
             </div>
@@ -91,7 +87,7 @@ export default function PartsManagementPage() {
         <DialogContent>
             <form onSubmit={handleSavePart}>
                 <DialogHeader>
-                <DialogTitle>{currentPart?.name && currentPart.name !== '' ? 'Edit Part' : 'Add New Part'}</DialogTitle>
+                <DialogTitle>{currentPart?.name ? 'Edit Part' : 'Add New Part'}</DialogTitle>
                 <DialogDescription>
                     Fill in the details for the part. Part names must be unique.
                 </DialogDescription>
@@ -107,7 +103,7 @@ export default function PartsManagementPage() {
                     </div>
                 </div>
                 <DialogFooter>
-                    <Button type="submit" disabled>Save changes</Button>
+                    <Button type="submit">Save changes</Button>
                 </DialogFooter>
             </form>
         </DialogContent>
@@ -128,10 +124,10 @@ export default function PartsManagementPage() {
                     <TableCell className="font-medium">{part.name}</TableCell>
                     <TableCell className="text-right">{part.price.toFixed(2)}</TableCell>
                     <TableCell className="text-right">
-                        <Button variant="ghost" size="icon" onClick={() => handleEditPart(part)} disabled>
+                        <Button variant="ghost" size="icon" onClick={() => handleEditPart(part)}>
                         <Pencil className="h-4 w-4" />
                         </Button>
-                        <Button variant="ghost" size="icon" onClick={() => handleDeletePart(part.name)} disabled>
+                        <Button variant="ghost" size="icon" onClick={() => handleDeletePart(part.name)}>
                         <Trash2 className="h-4 w-4 text-destructive" />
                         </Button>
                     </TableCell>

@@ -21,26 +21,20 @@ import type { Workshop } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
 
 export default function WorkshopManagementPage() {
-  const [workshops] = useState<Workshop[]>(initialWorkshopsData);
+  const [workshops, setWorkshops] = useState<Workshop[]>(initialWorkshopsData);
   const [isWorkshopDialogOpen, setIsWorkshopDialogOpen] = useState(false);
-  const [currentWorkshop, setCurrentWorkshop] = useState<Workshop | null>(null);
+  const [currentWorkshop, setCurrentWorkshop] = useState<Partial<Workshop> | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const { toast } = useToast();
 
   const handleAddWorkshop = () => {
-     toast({
-      variant: 'destructive',
-      title: 'Feature Under Development',
-      description: 'This function will be activated after as per management permission.',
-    });
+    setCurrentWorkshop({});
+    setIsWorkshopDialogOpen(true);
   };
 
   const handleEditWorkshop = (workshop: Workshop) => {
-    toast({
-      variant: 'destructive',
-      title: 'Feature Under Development',
-      description: 'This function will be activated after as per management permission.',
-    });
+    setCurrentWorkshop(workshop);
+    setIsWorkshopDialogOpen(true);
   };
 
   const handleDeleteWorkshop = (workshopId: string) => {
@@ -58,6 +52,8 @@ export default function WorkshopManagementPage() {
       title: 'Feature Under Development',
       description: 'This function will be activated after as per management permission.',
     });
+    setIsWorkshopDialogOpen(false);
+    setCurrentWorkshop(null);
   };
   
   const filteredWorkshops = workshops.filter(workshop => 
@@ -83,7 +79,7 @@ export default function WorkshopManagementPage() {
                             onChange={(e) => setSearchTerm(e.target.value)}
                         />
                     </div>
-                     <Button onClick={handleAddWorkshop} className="shrink-0" disabled>
+                     <Button onClick={handleAddWorkshop} className="shrink-0">
                         <PlusCircle /> Add New
                     </Button>
                  </div>
@@ -107,7 +103,7 @@ export default function WorkshopManagementPage() {
                         </div>
                     </div>
                     <DialogFooter>
-                        <Button type="submit" disabled>Save changes</Button>
+                        <Button type="submit">Save changes</Button>
                     </DialogFooter>
                 </form>
             </DialogContent>
@@ -128,10 +124,10 @@ export default function WorkshopManagementPage() {
                       <TableCell className="font-mono">{workshop.id}</TableCell>
                       <TableCell className="font-medium">{workshop.name}</TableCell>
                           <TableCell className="text-right">
-                          <Button variant="ghost" size="icon" onClick={() => handleEditWorkshop(workshop)} disabled>
+                          <Button variant="ghost" size="icon" onClick={() => handleEditWorkshop(workshop)}>
                           <Pencil className="h-4 w-4" />
                           </Button>
-                          <Button variant="ghost" size="icon" onClick={() => handleDeleteWorkshop(workshop.id)} disabled>
+                          <Button variant="ghost" size="icon" onClick={() => handleDeleteWorkshop(workshop.id)}>
                           <Trash2 className="h-4 w-4 text-destructive" />
                           </Button>
                       </TableCell>

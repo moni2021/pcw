@@ -17,6 +17,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useToast } from '@/hooks/use-toast';
 
 // Mock user data
 const mockUsers = [
@@ -29,6 +30,15 @@ const mockUsers = [
 export default function UserManagementPage() {
   const [users, setUsers] = useState(mockUsers);
   const [isNewUserDialogOpen, setIsNewUserDialogOpen] = useState(false);
+  const { toast } = useToast();
+
+  const handleAction = () => {
+    toast({
+      variant: 'destructive',
+      title: 'Feature Under Development',
+      description: 'User management will be enabled in a future update.',
+    });
+  }
 
   return (
     <div className="space-y-6">
@@ -40,7 +50,7 @@ export default function UserManagementPage() {
           </div>
           <Dialog open={isNewUserDialogOpen} onOpenChange={setIsNewUserDialogOpen}>
             <DialogTrigger asChild>
-              <Button disabled>
+              <Button onClick={handleAction}>
                 <UserPlus className="mr-2 h-4 w-4" /> Add New User
               </Button>
             </DialogTrigger>
@@ -62,7 +72,7 @@ export default function UserManagementPage() {
                 </div>
               </div>
               <DialogFooter>
-                <Button type="submit" disabled>Create User</Button>
+                <Button type="submit" onClick={handleAction}>Create User</Button>
               </DialogFooter>
             </DialogContent>
           </Dialog>
@@ -95,14 +105,14 @@ export default function UserManagementPage() {
                     <TableCell className="text-right">
                        <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" className="h-8 w-8 p-0" disabled>
+                          <Button variant="ghost" className="h-8 w-8 p-0" onClick={handleAction}>
                             <span className="sr-only">Open menu</span>
                             <MoreHorizontal className="h-4 w-4" />
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                          <DropdownMenuItem><Pencil className="mr-2 h-4 w-4" /> Edit</DropdownMenuItem>
-                          <DropdownMenuItem className="text-destructive">
+                          <DropdownMenuItem onClick={handleAction}><Pencil className="mr-2 h-4 w-4" /> Edit</DropdownMenuItem>
+                          <DropdownMenuItem className="text-destructive" onClick={handleAction}>
                             <Trash2 className="mr-2 h-4 w-4" /> Delete
                           </DropdownMenuItem>
                         </DropdownMenuContent>
