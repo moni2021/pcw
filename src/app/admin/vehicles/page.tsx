@@ -1,7 +1,7 @@
 
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   Card,
   CardContent,
@@ -99,9 +99,22 @@ export default function VehicleManagementPage() {
     setCurrentVehicle(prev => ({...prev, [name]: value}));
   }
   
-  const filteredVehicles = vehicles.filter(vehicle =>
-    vehicle.model.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const sortedAndFilteredVehicles = useMemo(() => {
+    const brandOrder: { [key: string]: number } = { 'Nexa': 1, 'Arena': 2, 'Commercial': 3 };
+    
+    return vehicles
+      .sort((a, b) => {
+        const orderA = brandOrder[a.brand] || 99;
+        const orderB = brandOrder[b.brand] || 99;
+        if (orderA !== orderB) {
+          return orderA - orderB;
+        }
+        return a.model.localeCompare(b.model); // a secondary sort by model name
+      })
+      .filter(vehicle =>
+        vehicle.model.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+  }, [vehicles, searchTerm]);
 
 
   return (
@@ -141,7 +154,7 @@ export default function VehicleManagementPage() {
                 </TableRow>
                 </TableHeader>
                 <TableBody>
-                {filteredVehicles.map((vehicle) => (
+                {sortedAndFilteredVehicles.map((vehicle) => (
                     <TableRow key={vehicle.model}>
                     <TableCell className="font-medium">{vehicle.model}</TableCell>
                     <TableCell>
