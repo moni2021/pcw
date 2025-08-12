@@ -4,14 +4,16 @@ import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
 
 // Your web app's Firebase configuration
+// IMPORTANT: Replace this with the configuration from your new Firebase project.
+// You can find this in your Firebase project settings under "General".
 const firebaseConfig = {
-  "projectId": "maruti-service-estimator",
-  "appId": "1:672968598920:web:436ff605b78db96db6463d",
-  "storageBucket": "maruti-service-estimator.firebasestorage.app",
-  "apiKey": "AIzaSyDKK6PfyXL3ybdk5maFovqpIuVa4G72F6M",
-  "authDomain": "maruti-service-estimator.firebaseapp.com",
-  "measurementId": "",
-  "messagingSenderId": "672968598920"
+  apiKey: "PASTE_YOUR_API_KEY_HERE",
+  authDomain: "PASTE_YOUR_AUTH_DOMAIN_HERE",
+  projectId: "PASTE_YOUR_PROJECT_ID_HERE",
+  storageBucket: "PASTE_YOUR_STORAGE_BUCKET_HERE",
+  messagingSenderId: "PASTE_YOUR_MESSAGING_SENDER_ID_HERE",
+  appId: "PASTE_YOUR_APP_ID_HERE",
+  measurementId: "PASTE_YOUR_MEASUREMENT_ID_HERE"
 };
 
 // Initialize Firebase
