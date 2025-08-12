@@ -18,7 +18,6 @@ import { threeMCareData } from '@/lib/3m-care-data';
 import { pmsCharges } from '@/lib/pms-charges';
 import { workshops } from '@/lib/workshops-data';
 import { customLaborData } from '@/lib/custom-labor-data';
-import { engineOilData } from '@/lib/engine-oil-data';
 
 const commonServices = [
     { name: 'NITROGEN GAS FILLING', charge: 200 },
@@ -55,7 +54,6 @@ export function VehicleServiceForm() {
   const [estimate, setEstimate] = useState<ServiceEstimateData | null>(null);
   const [error, setError] = useState<string>('');
   const [isLoading, setIsLoading] = useState(false);
-  const [engineOilInfo, setEngineOilInfo] = useState<string>('');
 
   useEffect(() => {
     // If there's only one workshop, auto-select it.
@@ -83,7 +81,6 @@ export function VehicleServiceForm() {
     setSelectedServiceType('');
     setEstimate(null);
     setError('');
-    setEngineOilInfo('');
   }
 
   const handleWorkshopChange = (workshopId: string) => {
@@ -93,14 +90,12 @@ export function VehicleServiceForm() {
   
   const handleModelChange = (model: string) => {
     const vehicle = vehicles.find(v => v.model === model);
-    const oilInfo = engineOilData.find(o => o.model === model);
     setSelectedModel(model);
     setSelectedFuelType('');
     setSelectedYear('');
     setSelectedServiceType('');
     setEstimate(null);
     setError('');
-    setEngineOilInfo(oilInfo ? oilInfo.engineOilQuantity : '');
     
     if (vehicle && vehicle.fuelTypes.length === 1) {
       setSelectedFuelType(vehicle.fuelTypes[0]);
@@ -266,10 +261,10 @@ export function VehicleServiceForm() {
                       <Tag className="mr-1 h-3 w-3" />
                       {currentVehicle.category}
                   </Badge>
-                  {engineOilInfo && (
+                  {currentVehicle.engineOilQuantity && (
                     <Badge variant="outline">
                         <Droplets className="mr-1 h-3 w-3" />
-                        Engine Oil: {engineOilInfo}
+                        Engine Oil: {currentVehicle.engineOilQuantity}
                     </Badge>
                   )}
                </div>

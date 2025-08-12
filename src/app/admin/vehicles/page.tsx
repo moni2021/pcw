@@ -9,7 +9,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Car, PlusCircle, Trash2, Pencil, Search } from 'lucide-react';
+import { Car, PlusCircle, Trash2, Pencil, Search, Droplets } from 'lucide-react';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
@@ -53,7 +53,7 @@ export default function VehicleManagementPage() {
   const handleSaveVehicle = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!currentVehicle || !currentVehicle.model || !currentVehicle.brand || !currentVehicle.category || !currentVehicle.fuelTypes || !currentVehicle.productionYears) {
-        toast({ variant: 'destructive', title: 'Error', description: 'Please fill all fields.' });
+        toast({ variant: 'destructive', title: 'Error', description: 'Please fill all required fields.' });
         return;
     }
     
@@ -69,9 +69,10 @@ export default function VehicleManagementPage() {
         model: currentVehicle.model,
         brand: currentVehicle.brand as any,
         category: currentVehicle.category,
-        variants: currentVehicle.variants || [], // Assuming variants can be empty
+        variants: currentVehicle.variants || [],
         fuelTypes: fuelTypesArray,
         productionYears: productionYearsArray,
+        engineOilQuantity: currentVehicle.engineOilQuantity || '',
     };
 
     if (isEditing) {
@@ -122,7 +123,7 @@ export default function VehicleManagementPage() {
         <CardHeader className="flex flex-row items-start sm:items-center justify-between gap-2">
             <div className="space-y-1">
                 <CardTitle className="flex items-center gap-2"><Car /> Manage Vehicle Models</CardTitle>
-                <CardDescription>Add, edit, or remove vehicle models.</CardDescription>
+                <CardDescription>Add, edit, or remove vehicle models and their properties.</CardDescription>
             </div>
               <div className="flex-1 flex justify-center sm:justify-end gap-2">
                 <div className="relative w-full max-w-xs">
@@ -148,8 +149,7 @@ export default function VehicleManagementPage() {
                     <TableHead>Model</TableHead>
                     <TableHead>Brand</TableHead>
                     <TableHead>Category</TableHead>
-                    <TableHead>Fuel Types</TableHead>
-                    <TableHead>Prod. Years</TableHead>
+                    <TableHead>Engine Oil</TableHead>
                     <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
                 </TableHeader>
@@ -163,14 +163,7 @@ export default function VehicleManagementPage() {
                         </Badge>
                     </TableCell>
                     <TableCell>{vehicle.category}</TableCell>
-                    <TableCell>
-                        <div className="flex flex-wrap gap-1">
-                            {vehicle.fuelTypes.map(fuel => <Badge key={fuel} variant="outline">{fuel}</Badge>)}
-                        </div>
-                    </TableCell>
-                    <TableCell>
-                        {vehicle.productionYears.join(', ')}
-                    </TableCell>
+                    <TableCell>{vehicle.engineOilQuantity || 'N/A'}</TableCell>
                     <TableCell className="text-right">
                         <Button variant="ghost" size="icon" onClick={() => handleEditVehicle(vehicle)}>
                             <Pencil className="h-4 w-4" />
@@ -186,7 +179,7 @@ export default function VehicleManagementPage() {
             </ScrollArea>
         </CardContent>
         <Dialog open={isVehicleDialogOpen} onOpenChange={setIsVehicleDialogOpen}>
-            <DialogContent className="sm:max-w-[425px]">
+            <DialogContent className="sm:max-w-md">
                     <form onSubmit={handleSaveVehicle}>
                     <DialogHeader>
                         <DialogTitle>{isEditing ? 'Edit Vehicle' : 'Add New Vehicle'}</DialogTitle>
@@ -223,6 +216,10 @@ export default function VehicleManagementPage() {
                             <div className="grid grid-cols-4 items-center gap-4">
                             <Label htmlFor="productionYears" className="text-right">Prod. Years</Label>
                             <Input id="productionYears" name="productionYears" value={Array.isArray(currentVehicle?.productionYears) ? currentVehicle.productionYears.join(', ') : ''} onChange={handleDialogInputChange} className="col-span-3" placeholder="e.g. 2022, 2023" required />
+                        </div>
+                         <div className="grid grid-cols-4 items-center gap-4">
+                            <Label htmlFor="engineOilQuantity" className="text-right">Engine Oil</Label>
+                            <Input id="engineOilQuantity" name="engineOilQuantity" value={currentVehicle?.engineOilQuantity || ''} onChange={handleDialogInputChange} className="col-span-3" placeholder="e.g. 3.1 Liters" />
                         </div>
                     </div>
                     <DialogFooter>

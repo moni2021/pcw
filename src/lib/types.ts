@@ -14,6 +14,7 @@ export const VehicleSchema = z.object({
   variants: z.array(z.string()),
   fuelTypes: z.array(z.string()),
   productionYears: z.array(z.number()),
+  engineOilQuantity: z.string().optional(),
 });
 export type Vehicle = z.infer<typeof VehicleSchema>;
 
