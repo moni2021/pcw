@@ -12,7 +12,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { syncToFirebase, uploadAndSyncToFirebase, downloadSampleJson } from './actions';
 import { Separator } from '@/components/ui/separator';
-import { Alert, AlertTitle, AlertDescription as AlertDescriptionComponent } from '@/components/ui/alert';
+import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 import { uploadServiceAccountKey } from '@/ai/flows/secure-key-uploader';
 
 
@@ -315,9 +315,9 @@ export default function DataManagementPage() {
                     </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                   <AlertDescriptionComponent>
+                   <AlertDescription>
                         Download the key from your Firebase project settings (Service Accounts tab), then upload it here. This is a one-time setup step.
-                   </AlertDescriptionComponent>
+                   </AlertDescription>
                    <div className="space-y-2">
                        <Label htmlFor="service-account-file">Service Account JSON File</Label>
                         <Input 
