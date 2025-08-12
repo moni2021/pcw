@@ -10,7 +10,7 @@ import { vehicles, serviceDataLookup } from '@/lib/data';
 import { ServiceEstimate } from './service-estimate';
 import type { ServiceEstimateData } from '@/lib/types';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Loader2, Car, Tag, Building, Building2 } from 'lucide-react';
+import { Loader2, Car, Tag, Building, Building2, Droplets } from 'lucide-react';
 import { Separator } from './ui/separator';
 import { Badge } from '@/components/ui/badge';
 import { useTheme } from '@/context/ThemeContext';
@@ -18,6 +18,7 @@ import { threeMCareData } from '@/lib/3m-care-data';
 import { pmsCharges } from '@/lib/pms-charges';
 import { workshops } from '@/lib/workshops-data';
 import { customLaborData } from '@/lib/custom-labor-data';
+import { engineOilData } from '@/lib/engine-oil-data';
 
 const commonServices = [
     { name: 'NITROGEN GAS FILLING', charge: 200 },
@@ -54,6 +55,7 @@ export function VehicleServiceForm() {
   const [estimate, setEstimate] = useState<ServiceEstimateData | null>(null);
   const [error, setError] = useState<string>('');
   const [isLoading, setIsLoading] = useState(false);
+  const [engineOilInfo, setEngineOilInfo] = useState<string>('');
 
   useEffect(() => {
     // If there's only one workshop, auto-select it.
@@ -81,6 +83,7 @@ export function VehicleServiceForm() {
     setSelectedServiceType('');
     setEstimate(null);
     setError('');
+    setEngineOilInfo('');
   }
 
   const handleWorkshopChange = (workshopId: string) => {
@@ -90,12 +93,14 @@ export function VehicleServiceForm() {
   
   const handleModelChange = (model: string) => {
     const vehicle = vehicles.find(v => v.model === model);
+    const oilInfo = engineOilData.find(o => o.model === model);
     setSelectedModel(model);
     setSelectedFuelType('');
     setSelectedYear('');
     setSelectedServiceType('');
     setEstimate(null);
     setError('');
+    setEngineOilInfo(oilInfo ? oilInfo.engineOilQuantity : '');
     
     if (vehicle && vehicle.fuelTypes.length === 1) {
       setSelectedFuelType(vehicle.fuelTypes[0]);
@@ -249,6 +254,7 @@ export function VehicleServiceForm() {
                   </SelectContent>
               </Select>
           </div>
+ <p className="text-sm text-muted-foreground mt-1">Note: Until data is available for all workshops, all estimates are currently based on Bijangar workshop.</p>
 
           {currentVehicle && (
                <div className="flex flex-wrap gap-2 items-center">
@@ -260,6 +266,12 @@ export function VehicleServiceForm() {
                       <Tag className="mr-1 h-3 w-3" />
                       {currentVehicle.category}
                   </Badge>
+                  {engineOilInfo && (
+                    <Badge variant="outline">
+                        <Droplets className="mr-1 h-3 w-3" />
+                        Engine Oil: {engineOilInfo}
+                    </Badge>
+                  )}
                </div>
           )}
 

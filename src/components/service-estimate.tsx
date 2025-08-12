@@ -16,6 +16,7 @@ import { Badge } from '@/components/ui/badge';
 import { customLaborData } from '@/lib/custom-labor-data';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { allParts } from '@/lib/parts-data';
+import { engineOilData } from '@/lib/engine-oil-data';
 
 
 interface ServiceEstimateProps {
