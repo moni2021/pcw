@@ -4,7 +4,6 @@ import { Workshop } from './types';
 export const workshops: Workshop[] = [
     { id: 'arena-bahari', name: 'ARENA - BAHARI, Senga' },
     { id: 'arena-barpeta-town', name: 'ARENA - BARPETA TOWN, Bilartarihati' },
-    { id: 'arena-bijoynagar', name: 'ARENA - BIJOYNAGAR' },
     { id: 'arena-bijoynagar-kamrup', name: 'ARENA - BIJOYNAGAR (KAMRUP)' },
     { id: 'arena-guwahati-gorchuk', name: 'ARENA - GUWAHATI (GORCHUK)' },
     { id: 'arena-guwahati-khanapara', name: 'ARENA - GUWAHATI (KHANAPARA)' },
