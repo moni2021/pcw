@@ -126,18 +126,31 @@ export async function downloadSampleJson(dataType: DataType): Promise<string> {
             sampleObject = [{ name: 'Sample Part', price: 100.00 }];
             break;
         case 'customLabor':
-            sampleObject = [{ workshopId: 'default', name: 'Sample Labor', model: 'Sample Model', charge: 500.00 }];
+            sampleObject = [
+                { workshopId: 'default', name: 'BATTERY GROUND CABLE', model: 'Ertiga', charge: 312.7 },
+                { workshopId: 'default', name: 'EVAPORATOR CLEANING', model: 'Ertiga', charge: 312.7 },
+                { workshopId: 'workshop-2', name: 'BATTERY GROUND CABLE', model: 'Ertiga', charge: 320.0 },
+                { workshopId: 'workshop-2', name: 'EVAPORATOR CLEANING', model: 'Ertiga', charge: 320.0 },
+                { workshopId: 'default', name: 'BATTERY GROUND CABLE', model: 'Swift', charge: 290.38 },
+                { workshopId: 'workshop-2', name: 'BATTERY GROUND CABLE', model: 'Swift', charge: 300.00 },
+            ];
             break;
         case 'pmsCharges':
-            sampleObject = [{ workshopId: 'default', model: 'Sample Model', labourDesc: 'Paid Service (20,000 km)', labourCode: 'L4020050', basicAmt: 1500 }];
+            sampleObject = [
+                { workshopId: 'default', model: 'Alto 800', labourDesc: 'Paid Service (20,000 km)', labourCode: 'L4020050', basicAmt: 1450 },
+                { workshopId: 'workshop-2', model: 'Alto 800', labourDesc: 'Paid Service (20,000 km)', labourCode: 'L4020050', basicAmt: 1500 },
+                { workshopId: 'default', model: 'Swift', labourDesc: 'Paid Service (20,000 km)', labourCode: 'L4020050', basicAmt: 1550 },
+                { workshopId: 'workshop-2', model: 'Swift', labourDesc: 'Paid Service (20,000 km)', labourCode: 'L4020050', basicAmt: 1600 },
+            ];
             break;
         case 'workshops':
-            sampleObject = [{ id: 'workshop-1', name: 'Main Workshop' }];
+            sampleObject = [
+                { id: 'workshop-1', name: 'Main Workshop' },
+                { id: 'workshop-2', name: 'Secondary Workshop' }
+            ];
             break;
         default:
             // This is a safety net, but based on the UI, dataType should always be valid.
-            // The `exhaustive-deps` check helps ensure all cases are handled.
-            // For a non-ts context, you could throw an error.
             const exhaustiveCheck: never = dataType;
             throw new Error(`Unhandled data type: ${exhaustiveCheck}`);
     }
