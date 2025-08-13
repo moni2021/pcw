@@ -1,6 +1,15 @@
 
 import { Workshop } from './types';
 
+// Temporarily limiting to only the workshop with data.
+// The full list is preserved below for easy restoration.
+export const workshops: Workshop[] = [
+    { id: 'arena-bijoynagar-kamrup', name: 'ARENA - BIJOYNAGAR (KAMRUP)' },
+];
+
+/*
+Full list for future use:
+
 export const workshops: Workshop[] = [
     { id: 'arena-bahari', name: 'ARENA - BAHARI, Senga' },
     { id: 'arena-barpeta-town', name: 'ARENA - BARPETA TOWN, Bilartarihati' },
@@ -21,3 +30,4 @@ export const workshops: Workshop[] = [
     { id: 'nexa-guwahati-kamakhya', name: 'NEXA - GUWAHATI (KAMAKHYA)' },
     { id: 'nexa-mangaldoi', name: 'NEXA - MANGALDOI, Lengeripara' },
 ];
+*/
