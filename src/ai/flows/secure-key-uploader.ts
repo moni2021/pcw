@@ -7,7 +7,7 @@
  *   and is intended to set it as a new secret.
  */
 
-import { ai } from '@/ai/genkit';
+import { ai } from '@/ai';
 import { z } from 'zod';
 import { defineSecret } from '@genkit-ai/core';
 

@@ -5,10 +5,10 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Bot, MessageSquare, Send, X, User, Loader2, Mail } from 'lucide-react';
+import { Bot, MessageSquare, Send, X, User, Loader2 } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { ScrollArea } from './ui/scroll-area';
-import { chatWithAdvisor, sendChatHistoryByEmail } from '@/ai/flows/service-advisor-flow';
+import { chatWithAdvisor } from '@/ai/flows/service-advisor-flow';
 import { useToast } from '@/hooks/use-toast';
 
 interface Message {
@@ -65,20 +65,6 @@ export function Chatbot() {
         }
     };
     
-    const handleSendHistory = async () => {
-        const chatHistoryString = messages.map(m => `${m.role === 'user' ? 'You' : 'Advisor'}: ${m.content}`).join('\n');
-        
-        try {
-            const result = await sendChatHistoryByEmail({ chatHistory: chatHistoryString });
-            if (result.success) {
-                toast({ title: 'Chat History Sent', description: result.message });
-            } else {
-                throw new Error(result.message);
-            }
-        } catch (error: any) {
-             toast({ variant: 'destructive', title: 'Error', description: error.message || "Could not send chat history." });
-        }
-    };
 
     return (
         <>
@@ -96,9 +82,6 @@ export function Chatbot() {
                                     <Bot /> Service Advisor
                                 </CardTitle>
                                 <div>
-                                    <Button variant="ghost" size="icon" onClick={handleSendHistory} disabled={messages.length <= 1}>
-                                        <Mail className="h-4 w-4" />
-                                    </Button>
                                     <Button variant="ghost" size="icon" onClick={() => setIsOpen(false)}>
                                         <X className="h-4 w-4" />
                                     </Button>

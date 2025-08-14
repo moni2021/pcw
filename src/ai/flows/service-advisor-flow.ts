@@ -4,10 +4,9 @@
  * @fileOverview An AI flow for a multilingual Maruti service advisor chatbot.
  *
  * - chatWithAdvisor - Handles the chat conversation.
- * - sendChatHistoryByEmail - A placeholder to send chat history via email.
  */
 
-import { ai } from '@/ai/genkit';
+import { ai } from '@/ai';
 import { z } from 'zod';
 
 const ChatInputSchema = z.object({
@@ -24,40 +23,11 @@ const ChatOutputSchema = z.object({
 });
 export type ChatOutput = z.infer<typeof ChatOutputSchema>;
 
-const EmailInputSchema = z.object({
-    chatHistory: z.string(),
-});
-export type EmailInput = z.infer<typeof EmailInputSchema>;
-
 
 export async function chatWithAdvisor(input: ChatInput): Promise<ChatOutput> {
   return serviceAdvisorFlow(input);
 }
 
-export async function sendChatHistoryByEmail(input: EmailInput): Promise<{ success: boolean; message: string }> {
-    console.log("------- CHAT HISTORY FOR daloihiru0@gmail.com -------");
-    console.log(input.chatHistory);
-    console.log("----------------------------------------------------");
-    
-    // In a real application, you would integrate an email sending service here.
-    // For example, using a library like `nodemailer` or an API like SendGrid.
-    //
-    // Example with a fictional email service:
-    //
-    // try {
-    //   await emailService.send({
-    //     to: 'daloihiru0@gmail.com',
-    //     subject: 'Chat History from Service Advisor',
-    //     body: input.chatHistory,
-    //   });
-    //   return { success: true, message: "Chat history sent successfully." };
-    // } catch (error) {
-    //   console.error("Failed to send email:", error);
-    //   return { success: false, message: "Failed to send chat history." };
-    // }
-
-    return { success: true, message: "Chat history ready. Configure an email provider to send to daloihiru0@gmail.com." };
-}
 
 const serviceAdvisorFlow = ai.defineFlow(
   {
