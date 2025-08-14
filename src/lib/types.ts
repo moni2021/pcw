@@ -15,13 +15,14 @@ export const VehicleSchema = z.object({
   fuelTypes: z.array(z.string()),
   productionYears: z.array(z.number()),
   engineOilQuantity: z.string().optional(),
+  engineOilLiters: z.number().optional(),
 });
 export type Vehicle = z.infer<typeof VehicleSchema>;
 
 
 export const PartSchema = z.object({
   name: z.string(),
-  price: z.number(),
+  price: z.number(), // For engine oil, this will be price per liter
 });
 export type Part = z.infer<typeof PartSchema>;
 
@@ -70,6 +71,7 @@ export const ServiceEstimateDataSchema = z.object({
         productionYear: z.number(),
         brand: z.string(),
         category: z.string(),
+        engineOilLiters: z.number().optional(),
     }),
     serviceType: z.string(),
     parts: z.array(PartSchema),

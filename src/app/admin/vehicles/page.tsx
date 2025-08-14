@@ -73,6 +73,7 @@ export default function VehicleManagementPage() {
         fuelTypes: fuelTypesArray,
         productionYears: productionYearsArray,
         engineOilQuantity: currentVehicle.engineOilQuantity || '',
+        engineOilLiters: Number(currentVehicle.engineOilLiters) || undefined,
     };
 
     if (isEditing) {
@@ -218,8 +219,12 @@ export default function VehicleManagementPage() {
                             <Input id="productionYears" name="productionYears" value={Array.isArray(currentVehicle?.productionYears) ? currentVehicle.productionYears.join(', ') : ''} onChange={handleDialogInputChange} className="col-span-3" placeholder="e.g. 2022, 2023" required />
                         </div>
                          <div className="grid grid-cols-4 items-center gap-4">
-                            <Label htmlFor="engineOilQuantity" className="text-right">Engine Oil</Label>
+                            <Label htmlFor="engineOilQuantity" className="text-right">Engine Oil (Desc)</Label>
                             <Input id="engineOilQuantity" name="engineOilQuantity" value={currentVehicle?.engineOilQuantity || ''} onChange={handleDialogInputChange} className="col-span-3" placeholder="e.g. 3.1 Liters" />
+                        </div>
+                         <div className="grid grid-cols-4 items-center gap-4">
+                            <Label htmlFor="engineOilLiters" className="text-right">Engine Oil (Liters)</Label>
+                            <Input id="engineOilLiters" name="engineOilLiters" type="number" step="0.1" value={currentVehicle?.engineOilLiters || ''} onChange={handleDialogInputChange} className="col-span-3" placeholder="e.g. 3.1" />
                         </div>
                     </div>
                     <DialogFooter>

@@ -1,8 +1,9 @@
 
 import type { Part } from './types';
 
+// Prices for engine oil are per liter.
 export const allParts: Part[] = [
-  { name: "DEFAULT ENGINE OIL", price: 1200 },
+  { name: "DEFAULT ENGINE OIL", price: 400 },
   { name: "Oil Filter", price: 80 },
   { name: "Drain Plug Gasket", price: 20 },
   { name: "Coolant", price: 400 },
@@ -17,12 +18,10 @@ export const allParts: Part[] = [
   { name: "Transfer Case Oil", price: 1200 },
   { name: "Differential Oil", price: 1000 },
   { name: "Diesel Filter", price: 1200 },
-  { name: "ECSTAR PREMIUM 0W20-SHELL", price: 1200 },
-  { name: "MGGO(75W90)-SHELL", price: 1200 },
-  { name: "SYNTHETIC OIL (0W40)-IOCL", price: 1200 },
-  { name: "ECSTAR PETROL 0W16 - SHELL", price: 1200 },
-  { name: "ECSTAR PETROL 0W20 - IOCL", price: 1200 },
-  { name: "ECSTAR DIESEL 5W30-IOCL", price: 1200 },
+  { name: "ECSTAR PREMIUM 0W20-SHELL", price: 400 }, // Assuming per liter, adjust if needed
+  { name: "MGGO(75W90)-SHELL", price: 450 }, // Assuming per liter, adjust if needed
+  { name: "SYNTHETIC OIL (0W40)-IOCL", price: 900 }, // Assuming per liter, adjust if needed
+  { name: "ECSTAR PETROL 0W16 - SHELL", price: 406.77 },
+  { name: "ECSTAR PETROL 0W20 - IOCL", price: 390.67 },
+  { name: "ECSTAR DIESEL 5W30-IOCL", price: 500 }, // Assuming per liter, adjust if needed
 ];
-
-    

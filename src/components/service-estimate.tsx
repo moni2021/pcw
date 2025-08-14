@@ -87,7 +87,17 @@ export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
 
 
   const pmsLaborCharge = useMemo(() => labor.reduce((sum, job) => sum + job.charge, 0), [labor]);
-  const partsTotal = useMemo(() => currentParts.reduce((sum, part) => sum + part.price, 0), [currentParts]);
+  
+  const calculatePartPrice = (part: Part) => {
+    const isEngineOil = allEngineOilParts.some(eo => eo.name === part.name);
+    if (isEngineOil && vehicle.engineOilLiters) {
+        return part.price * vehicle.engineOilLiters;
+    }
+    return part.price;
+  };
+
+  const partsTotal = useMemo(() => currentParts.reduce((sum, part) => sum + calculatePartPrice(part), 0), [currentParts, vehicle.engineOilLiters]);
+  
   const recommendedLaborCharge = useMemo(() => selectedRecommended.reduce((sum, job) => sum + job.charge, 0), [selectedRecommended]);
   const optionalServiceCharge = useMemo(() => selectedOptional.reduce((sum, job) => sum + job.charge, 0), [selectedOptional]);
   const customLaborCharge = useMemo(() => customLabor.reduce((sum, job) => sum + job.charge, 0), [customLabor]);
@@ -213,6 +223,7 @@ export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
                         {currentParts.map((part, index) => {
                            const isEngineOil = allEngineOilParts.some(eo => eo.name === part.name);
                            const isDiesel = vehicle.fuelType === 'Diesel';
+                           const finalPrice = calculatePartPrice(part);
 
                            if (isEngineOil && !isDiesel) {
                             return (
@@ -230,16 +241,26 @@ export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
                                             ))}
                                         </SelectContent>
                                     </Select>
+                                    <p className="text-xs text-muted-foreground mt-1">
+                                        {vehicle.engineOilLiters} L @ ₹{part.price.toFixed(2)}/L
+                                    </p>
                                 </TableCell>
-                                <TableCell className="text-right">{part.price.toFixed(2)}</TableCell>
+                                <TableCell className="text-right">{finalPrice.toFixed(2)}</TableCell>
                             </TableRow>
                             )
                           }
                           
                           return (
                             <TableRow key={`part-${index}`}>
-                                <TableCell className="font-medium">{part.name}</TableCell>
-                                <TableCell className="text-right">{part.price.toFixed(2)}</TableCell>
+                                <TableCell className="font-medium">
+                                    {part.name}
+                                    {isEngineOil && (
+                                        <p className="text-xs text-muted-foreground mt-1">
+                                            {vehicle.engineOilLiters} L @ ₹{part.price.toFixed(2)}/L
+                                        </p>
+                                    )}
+                                </TableCell>
+                                <TableCell className="text-right">{finalPrice.toFixed(2)}</TableCell>
                             </TableRow>
                           )
                         })}

@@ -185,19 +185,20 @@ export function VehicleServiceForm() {
       }
       
       const recommendedServices = [...commonServices];
-      const wheelAlignment = customLaborData.find(l => l.model === selectedModel && l.name === 'WHEEL ALIGNMENT (4 HEAD)');
-      if (wheelAlignment) {
-          recommendedServices.push({name: wheelAlignment.name, charge: wheelAlignment.charge});
-      }
-
       // Prefer 5-wheel balancing if available, otherwise check for 4-wheel.
-      let wheelBalancing = customLaborData.find(l => l.model === selectedModel && l.name === 'WHEEL BALANCING - 5 WHEEL');
+      let wheelBalancing = customLaborData.find(l => l.model === selectedModel && l.name === 'WHEEL BALANCING - 5 WHEEL' && l.workshopId === selectedWorkshop);
       if (!wheelBalancing) {
-          wheelBalancing = customLaborData.find(l => l.model === selectedModel && l.name === 'WHEEL BALANCING - 4 WHEEL');
+          wheelBalancing = customLaborData.find(l => l.model === selectedModel && l.name === 'WHEEL BALANCING - 4 WHEEL' && l.workshopId === selectedWorkshop);
       }
       if (wheelBalancing) {
           recommendedServices.push({name: wheelBalancing.name, charge: wheelBalancing.charge});
       }
+
+      const wheelAlignment = customLaborData.find(l => l.model === selectedModel && l.name === 'WHEEL ALIGNMENT (4 HEAD)' && l.workshopId === selectedWorkshop);
+      if (wheelAlignment) {
+          recommendedServices.push({name: wheelAlignment.name, charge: wheelAlignment.charge});
+      }
+
 
       const newEstimate: ServiceEstimateData = {
         workshopId: selectedWorkshop,
@@ -207,6 +208,7 @@ export function VehicleServiceForm() {
           productionYear: parseInt(selectedYear, 10),
           brand: vehicleInfo.brand,
           category: vehicleInfo.category,
+          engineOilLiters: vehicleInfo.engineOilLiters,
         },
         serviceType: selectedServiceType,
         parts: serviceDetails?.parts || [],
