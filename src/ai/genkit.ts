@@ -25,8 +25,4 @@ export const ai = genkit({
       // https://firebase.google.com/docs/genkit/plugins#google-ai
     }),
   ],
-  // Log developer-friendly error messages to the console.
-  logLevel: 'debug',
-  // Perform OpenTelemetry instrumentation and enable traces.
-  enableTracingAndMetrics: true,
 });
