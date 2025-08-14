@@ -21,11 +21,11 @@ import { customLaborData } from '@/lib/custom-labor-data';
 
 const commonServices = [
     { name: 'NITROGEN GAS FILLING', charge: 200 },
-    // { name: 'WHEEL ALIGNMENT (4 HEAD)', charge: 400 }, // This is now model-specific in customLaborData
+    { name: 'WHEEL ALIGNMENT (4 HEAD)', charge: 400 },
     { name: 'ENGINE ROOM PAINTING', charge: 400 },
     { name: 'STRUT GREASING', charge: 1650 },
     { name: 'HEADLAMP FOCUSSING', charge: 400 },
-].map(l => ({ ...l, workshopId: 'default' })); // These are common and don't need workshop-specific pricing for now
+];
 
 const serviceTypes = [
   '1st Free Service (1,000 km)',
@@ -185,12 +185,6 @@ export function VehicleServiceForm() {
           }
       }
       
-      // Find model-specific recommended labor, like Wheel Alignment
-      const modelSpecificLabor = customLaborData.filter(
-        (l) => l.model === selectedModel && l.name === 'WHEEL ALIGNMENT' && l.workshopId === selectedWorkshop
-      ).map(l => ({ name: l.name, charge: l.charge }));
-
-
       const newEstimate: ServiceEstimateData = {
         workshopId: selectedWorkshop,
         vehicle: {
@@ -203,7 +197,7 @@ export function VehicleServiceForm() {
         serviceType: selectedServiceType,
         parts: serviceDetails?.parts || [],
         labor: pmsLabor,
-        recommendedLabor: [...commonServices, ...modelSpecificLabor], // Combine common and model-specific
+        recommendedLabor: commonServices,
         optionalServices: threeMCareData[selectedModel] || [],
         totalPrice: 0, // This will be calculated in the ServiceEstimate component
       };
