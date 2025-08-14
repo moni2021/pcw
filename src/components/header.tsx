@@ -1,5 +1,6 @@
+
 import Link from "next/link"
-import { Bot, Settings } from "lucide-react"
+import { Bot, Settings, MessageSquare } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "./ui/button";
 
@@ -14,13 +15,18 @@ export function Header({ className }: HeaderProps) {
         <Bot className="h-6 w-6 text-primary" />
         <span className="sr-only">Service Estimator</span>
       </Link>
-      <div className="ml-auto flex items-center gap-4">
+      <nav className="ml-auto flex items-center gap-4">
+        <Button asChild variant="ghost" >
+          <Link href="/chat">
+            <MessageSquare className="mr-2 h-4 w-4"/> AI Advisor
+          </Link>
+        </Button>
         <Button asChild variant="ghost" size="icon">
           <Link href="/admin">
             <Settings />
           </Link>
         </Button>
-      </div>
+      </nav>
     </header>
   )
 }
