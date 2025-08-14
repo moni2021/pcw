@@ -132,9 +132,31 @@ const defaultCustomLabor: Omit<CustomLabor, 'workshopId'>[] = [
   { name: 'EVAPORATOR CLEANING', model: 'Brezza', charge: 295 },
   { name: 'EVAPORATOR CLEANING', model: 'Swift', charge: 290.38 },
   { name: 'EVAPORATOR CLEANING', model: 'Ertiga', charge: 312.7 },
+  // Wheel Alignment Charges from Image
+  { name: 'WHEEL ALIGNMENT', model: 'Alto K10', charge: 350 },
+  { name: 'WHEEL ALIGNMENT', model: 'Alto 800', charge: 350 },
+  { name: 'WHEEL ALIGNMENT', model: 'Celerio', charge: 350 },
+  { name: 'WHEEL ALIGNMENT', model: 'Dzire', charge: 400 },
+  { name: 'WHEEL ALIGNMENT', model: 'Eeco', charge: 325 },
+  { name: 'WHEEL ALIGNMENT', model: 'Swift', charge: 400 },
+  { name: 'WHEEL ALIGNMENT', model: 'Ertiga', charge: 400 },
+  { name: 'WHEEL ALIGNMENT', model: 'Fronx', charge: 400 },
+  { name: 'WHEEL ALIGNMENT', model: 'Ignis', charge: 400 },
+  { name: 'WHEEL ALIGNMENT', model: 'Baleno', charge: 400 },
+  { name: 'WHEEL ALIGNMENT', model: 'Grand Vitara', charge: 350 },
+  { name: 'WHEEL ALIGNMENT', model: 'S-Cross', charge: 425 },
+  { name: 'WHEEL ALIGNMENT', model: 'Brezza', charge: 400 },
+  { name: 'WHEEL ALIGNMENT', model: 'Wagon R', charge: 350 },
+  { name: 'WHEEL ALIGNMENT', model: 'Ritz', charge: 400 },
+  { name: 'WHEEL ALIGNMENT', model: 'S-Presso', charge: 350 },
+  { name: 'WHEEL ALIGNMENT', model: 'Super Carry', charge: 175 },
+  { name: 'WHEEL ALIGNMENT', model: 'XL6', charge: 400 },
+  // Note: Some models from image like "ALTO", "M 800", "OMNI" are not in the main vehicle list and are omitted.
+  // Models like "DZIRE TOUR DIESEL" are covered under "Dzire" with fuel type "Diesel".
 ];
 
 // Create a comprehensive list by duplicating default charges for each workshop
 export const customLaborData: CustomLabor[] = workshops.flatMap(workshop => 
     defaultCustomLabor.map(labor => ({ ...labor, workshopId: workshop.id }))
 );
+

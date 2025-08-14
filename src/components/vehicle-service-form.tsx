@@ -21,7 +21,7 @@ import { customLaborData } from '@/lib/custom-labor-data';
 
 const commonServices = [
     { name: 'NITROGEN GAS FILLING', charge: 200 },
-    { name: 'WHEEL ALIGNMENT (4 HEAD)', charge: 400 },
+    // { name: 'WHEEL ALIGNMENT (4 HEAD)', charge: 400 }, // This is now model-specific in customLaborData
     { name: 'ENGINE ROOM PAINTING', charge: 400 },
     { name: 'STRUT GREASING', charge: 1650 },
     { name: 'HEADLAMP FOCUSSING', charge: 400 },
@@ -184,6 +184,12 @@ export function VehicleServiceForm() {
               console.warn(`No PMS charge found for ${selectedModel} at workshop ${selectedWorkshop} for service ${selectedServiceType}`);
           }
       }
+      
+      // Find model-specific recommended labor, like Wheel Alignment
+      const modelSpecificLabor = customLaborData.filter(
+        (l) => l.model === selectedModel && l.name === 'WHEEL ALIGNMENT' && l.workshopId === selectedWorkshop
+      ).map(l => ({ name: l.name, charge: l.charge }));
+
 
       const newEstimate: ServiceEstimateData = {
         workshopId: selectedWorkshop,
@@ -197,7 +203,7 @@ export function VehicleServiceForm() {
         serviceType: selectedServiceType,
         parts: serviceDetails?.parts || [],
         labor: pmsLabor,
-        recommendedLabor: commonServices,
+        recommendedLabor: [...commonServices, ...modelSpecificLabor], // Combine common and model-specific
         optionalServices: threeMCareData[selectedModel] || [],
         totalPrice: 0, // This will be calculated in the ServiceEstimate component
       };

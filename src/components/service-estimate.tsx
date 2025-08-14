@@ -16,7 +16,6 @@ import { Badge } from '@/components/ui/badge';
 import { customLaborData } from '@/lib/custom-labor-data';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { allParts } from '@/lib/parts-data';
-import { engineOilData } from '@/lib/engine-oil-data';
 
 
 interface ServiceEstimateProps {
@@ -41,6 +40,8 @@ const dieselEngineOil = allEngineOilParts.find(part => part.name.includes('DIESE
 export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
   const { vehicle, serviceType, parts: initialParts, labor, recommendedLabor, optionalServices, workshopId } = estimate;
   const GST_RATE = 0.18;
+  
+  const dieselFilter = useMemo(() => allParts.find(p => p.name === 'Diesel Filter'), []);
 
   const [currentParts, setCurrentParts] = useState<Part[]>(initialParts);
   const [discountType, setDiscountType] = useState<'percentage' | 'rupees'>('percentage');
@@ -54,31 +55,42 @@ export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
   const [showOptional, setShowOptional] = useState(false);
   
   useEffect(() => {
-    const hasEngineOilPlaceholder = initialParts.some(p => allEngineOilParts.some(eo => eo.name === p.name));
     let partsWithCorrectEngineOil = [...initialParts];
 
+    // Handle Engine Oil
+    const hasEngineOilPlaceholder = initialParts.some(p => allEngineOilParts.some(eo => eo.name === p.name));
     if (hasEngineOilPlaceholder) {
-        // Filter out ALL engine oils to start fresh
         const nonEngineOilParts = initialParts.filter(p => !allEngineOilParts.some(eo => eo.name === p.name));
-        
         if (vehicle.fuelType === 'Diesel' && dieselEngineOil) {
             partsWithCorrectEngineOil = [...nonEngineOilParts, dieselEngineOil];
         } else {
-            // Add a default petrol oil if it's not a diesel vehicle
             const defaultPetrolOil = petrolEngineOils[0];
             if(defaultPetrolOil) {
                 partsWithCorrectEngineOil = [...nonEngineOilParts, defaultPetrolOil];
             }
         }
     }
+
+    // Handle Diesel Filter for relevant paid services
+    if (vehicle.fuelType === 'Diesel' && serviceType.startsWith('Paid Service') && dieselFilter) {
+        const serviceKm = parseInt(serviceType.match(/\(([\d,]+)\s*km\)/)?.[1].replace(/,/g, '') || '0', 10);
+        if (serviceKm % 20000 === 0 && !partsWithCorrectEngineOil.some(p => p.name === 'Diesel Filter')) {
+             partsWithCorrectEngineOil.push(dieselFilter);
+        }
+    }
     
     setCurrentParts(partsWithCorrectEngineOil);
+    
+    // Auto-select model-specific recommended labor like Wheel Alignment
+    const modelSpecificRecommended = recommendedLabor?.filter(l => l.name === 'WHEEL ALIGNMENT') || [];
+    setSelectedRecommended(modelSpecificRecommended);
+    
     setDiscountValue(0);
     setDiscountType('percentage');
-    setSelectedRecommended([]);
+    // Keep other recommended selections if any, but start fresh for optional
     setSelectedOptional([]);
     setCustomLabor([]);
-  }, [estimate, initialParts, vehicle.fuelType]);
+  }, [estimate, initialParts, vehicle.fuelType, vehicle.model, recommendedLabor, serviceType, dieselFilter]);
 
 
   const pmsLaborCharge = useMemo(() => labor.reduce((sum, job) => sum + job.charge, 0), [labor]);
@@ -88,7 +100,8 @@ export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
   const customLaborCharge = useMemo(() => customLabor.reduce((sum, job) => sum + job.charge, 0), [customLabor]);
 
   const availableCustomLabor = useMemo(() => {
-    return customLaborData.filter(item => item.model === vehicle.model && item.workshopId === workshopId);
+    // Exclude Wheel Alignment as it's now in recommended labor
+    return customLaborData.filter(item => item.model === vehicle.model && item.workshopId === workshopId && item.name !== 'WHEEL ALIGNMENT');
   }, [vehicle.model, workshopId]);
   
   const totalLaborCharge = useMemo(() => pmsLaborCharge + recommendedLaborCharge + optionalServiceCharge + customLaborCharge, [pmsLaborCharge, recommendedLaborCharge, optionalServiceCharge, customLaborCharge]);
@@ -97,7 +110,7 @@ export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
   const discountableLaborCharge = useMemo(() => {
     const pms = pmsLaborCharge;
     const specificRecommended = selectedRecommended
-      .filter(job => job.name === 'NITROGEN GAS FILLING' || job.name === 'WHEEL ALIGNMENT (4 HEAD)')
+      .filter(job => job.name === 'NITROGEN GAS FILLING' || job.name === 'WHEEL ALIGNMENT')
       .reduce((sum, job) => sum + job.charge, 0);
     return pms + specificRecommended;
   }, [pmsLaborCharge, selectedRecommended]);
@@ -351,6 +364,8 @@ export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
                                     id={`rec-${index}`} 
                                     onCheckedChange={() => handleOptionalChange(job, 'recommended')}
                                     checked={!!selectedRecommended.find(item => item.name === job.name)}
+                                    // Disable checkbox for auto-selected items like Wheel Alignment
+                                    disabled={job.name === 'WHEEL ALIGNMENT'}
                                 />
                                 <label
                                     htmlFor={`rec-${index}`}
