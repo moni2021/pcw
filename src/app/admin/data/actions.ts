@@ -144,8 +144,8 @@ export async function downloadSampleJson(dataType: DataType): Promise<string> {
             sampleObject = [
                 { workshopId: 'default', model: 'Alto 800', labourDesc: 'Paid Service (20,000 km)', labourCode: 'L4020050', basicAmt: 1450 },
                 { workshopId: 'workshop-2', model: 'Alto 800', labourDesc: 'Paid Service (20,000 km)', labourCode: 'L4020050', basicAmt: 1500 },
-                { workshopId: 'default', model: 'Swift', labourDesc: 'Paid Service (20,000 km)', labourCode: 'L4020050', basicAmt: 1550 },
-                { workshopId: 'workshop-2', model: 'Swift', labourDesc: 'Paid Service (20,000 km)', labourCode: 'L4020050', basicAmt: 1600 },
+                { workshopId: 'default', name: 'Swift', labourDesc: 'Paid Service (20,000 km)', labourCode: 'L4020050', basicAmt: 1550 },
+                { workshopId: 'workshop-2', name: 'Swift', labourDesc: 'Paid Service (20,000 km)', labourCode: 'L4020050', basicAmt: 1600 },
             ];
             break;
         case 'workshops':
