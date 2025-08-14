@@ -21,7 +21,6 @@ import { customLaborData } from '@/lib/custom-labor-data';
 
 const commonServices = [
     { name: 'NITROGEN GAS FILLING', charge: 200 },
-    { name: 'WHEEL ALIGNMENT (4 HEAD)', charge: 400 },
     { name: 'ENGINE ROOM PAINTING', charge: 400 },
     { name: 'STRUT GREASING', charge: 1650 },
     { name: 'HEADLAMP FOCUSSING', charge: 400 },
@@ -184,6 +183,9 @@ export function VehicleServiceForm() {
               console.warn(`No PMS charge found for ${selectedModel} at workshop ${selectedWorkshop} for service ${selectedServiceType}`);
           }
       }
+
+      const wheelAlignmentCharge = customLaborData.find(l => l.model === selectedModel && l.name === 'WHEEL ALIGNMENT (4 HEAD)');
+      const recommendedServicesWithAlignment = wheelAlignmentCharge ? [...commonServices, {name: 'WHEEL ALIGNMENT (4 HEAD)', charge: wheelAlignmentCharge.charge}] : commonServices;
       
       const newEstimate: ServiceEstimateData = {
         workshopId: selectedWorkshop,
@@ -197,7 +199,7 @@ export function VehicleServiceForm() {
         serviceType: selectedServiceType,
         parts: serviceDetails?.parts || [],
         labor: pmsLabor,
-        recommendedLabor: commonServices,
+        recommendedLabor: recommendedServicesWithAlignment,
         optionalServices: threeMCareData[selectedModel] || [],
         totalPrice: 0, // This will be calculated in the ServiceEstimate component
       };

@@ -35,6 +35,7 @@ const allEngineOilsFromImage = [
 const allEngineOilParts = allParts.filter(part => allEngineOilsFromImage.includes(part.name));
 const petrolEngineOils = allEngineOilParts.filter(part => !part.name.includes('DIESEL'));
 const dieselEngineOil = allEngineOilParts.find(part => part.name.includes('DIESEL'));
+const dieselFilter = allParts.find(p => p.name === 'Diesel Filter');
 
 
 export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
@@ -55,6 +56,7 @@ export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
   useEffect(() => {
     let partsWithCorrectEngineOil = [...initialParts];
     const hasEngineOilPlaceholder = initialParts.some(p => allEngineOilParts.some(eo => eo.name === p.name));
+    
     if (hasEngineOilPlaceholder) {
         const nonEngineOilParts = initialParts.filter(p => !allEngineOilParts.some(eo => eo.name === p.name));
         if (vehicle.fuelType === 'Diesel' && dieselEngineOil) {
@@ -66,6 +68,14 @@ export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
             }
         }
     }
+
+    // Add diesel filter if applicable
+    if (vehicle.fuelType === 'Diesel' && serviceType.startsWith('Paid Service') && dieselFilter) {
+       const serviceKm = parseInt(serviceType.match(/\(([\d,]+)\s*km\)/)?.[1].replace(/,/g, '') || '0', 10);
+       if (serviceKm >= 20000 && serviceKm % 20000 === 0 && !partsWithCorrectEngineOil.some(p => p.name === 'Diesel Filter')) {
+           partsWithCorrectEngineOil.push(dieselFilter);
+       }
+    }
     setCurrentParts(partsWithCorrectEngineOil);
     
     setDiscountValue(0);
@@ -73,7 +83,7 @@ export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
     setSelectedRecommended([]);
     setSelectedOptional([]);
     setCustomLabor([]);
-  }, [estimate, initialParts, vehicle.fuelType]);
+  }, [estimate, initialParts, vehicle.fuelType, serviceType]);
 
 
   const pmsLaborCharge = useMemo(() => labor.reduce((sum, job) => sum + job.charge, 0), [labor]);
@@ -83,7 +93,8 @@ export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
   const customLaborCharge = useMemo(() => customLabor.reduce((sum, job) => sum + job.charge, 0), [customLabor]);
 
   const availableCustomLabor = useMemo(() => {
-    return customLaborData.filter(item => item.model === vehicle.model && item.workshopId === workshopId);
+    // Exclude wheel alignment as it's now in recommended services
+    return customLaborData.filter(item => item.model === vehicle.model && item.workshopId === workshopId && item.name !== 'WHEEL ALIGNMENT (4 HEAD)');
   }, [vehicle.model, workshopId]);
   
   const totalLaborCharge = useMemo(() => pmsLaborCharge + recommendedLaborCharge + optionalServiceCharge + customLaborCharge, [pmsLaborCharge, recommendedLaborCharge, optionalServiceCharge, customLaborCharge]);

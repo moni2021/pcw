@@ -5,6 +5,26 @@ import { workshops } from './workshops-data';
 // Prices for the 'default' workshop.
 // These will be used as a template for all other workshops.
 const defaultCustomLabor: Omit<CustomLabor, 'workshopId'>[] = [
+  { name: 'WHEEL ALIGNMENT (4 HEAD)', model: 'Wagon R', charge: 375 },
+  { name: 'WHEEL ALIGNMENT (4 HEAD)', model: 'S-Presso', charge: 330 },
+  { name: 'WHEEL ALIGNMENT (4 HEAD)', model: 'Alto 800', charge: 330 },
+  { name: 'WHEEL ALIGNMENT (4 HEAD)', model: 'Dzire', charge: 375 },
+  { name: 'WHEEL ALIGNMENT (4 HEAD)', model: 'Swift', charge: 375 },
+  { name: 'WHEEL ALIGNMENT (4 HEAD)', model: 'Ertiga', charge: 400 },
+  { name: 'WHEEL ALIGNMENT (4 HEAD)', model: 'Alto K10', charge: 400 },
+  { name: 'WHEEL ALIGNMENT (4 HEAD)', model: 'Baleno', charge: 400 },
+  { name: 'WHEEL ALIGNMENT (4 HEAD)', model: 'Brezza', charge: 400 },
+  { name: 'WHEEL ALIGNMENT (4 HEAD)', model: 'Fronx', charge: 400 },
+  { name: 'WHEEL ALIGNMENT (4 HEAD)', model: 'Ignis', charge: 400 },
+  { name: 'WHEEL ALIGNMENT (4 HEAD)', model: 'Celerio', charge: 400 },
+  { name: 'WHEEL ALIGNMENT (4 HEAD)', model: 'Super Carry', charge: 400 },
+  { name: 'WHEEL ALIGNMENT (4 HEAD)', model: 'Jimny', charge: 400 },
+  { name: 'WHEEL ALIGNMENT (4 HEAD)', model: 'Eeco', charge: 400 },
+  { name: 'WHEEL ALIGNMENT (4 HEAD)', model: 'Grand Vitara', charge: 400 },
+  { name: 'WHEEL ALIGNMENT (4 HEAD)', model: 'Ritz', charge: 400 },
+  { name: 'WHEEL ALIGNMENT (4 HEAD)', model: 'Ciaz', charge: 400 },
+  { name: 'WHEEL ALIGNMENT (4 HEAD)', model: 'XL6', charge: 400 },
+  { name: 'WHEEL ALIGNMENT (4 HEAD)', model: 'S-Cross', charge: 400 },
   { name: 'BATTERY GROUND CABLE', model: 'Ertiga', charge: 312.7 },
   { name: 'BATTERY GROUND CABLE', model: 'Celerio', charge: 274.03 },
   { name: 'BATTERY GROUND CABLE', model: 'Wagon R', charge: 278.88 },
@@ -138,5 +158,6 @@ const defaultCustomLabor: Omit<CustomLabor, 'workshopId'>[] = [
 export const customLaborData: CustomLabor[] = workshops.flatMap(workshop => 
     defaultCustomLabor.map(labor => ({ ...labor, workshopId: workshop.id }))
 );
+
 
 
