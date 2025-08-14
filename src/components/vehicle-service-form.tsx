@@ -183,10 +183,22 @@ export function VehicleServiceForm() {
               console.warn(`No PMS charge found for ${selectedModel} at workshop ${selectedWorkshop} for service ${selectedServiceType}`);
           }
       }
-
-      const wheelAlignmentCharge = customLaborData.find(l => l.model === selectedModel && l.name === 'WHEEL ALIGNMENT (4 HEAD)');
-      const recommendedServicesWithAlignment = wheelAlignmentCharge ? [...commonServices, {name: 'WHEEL ALIGNMENT (4 HEAD)', charge: wheelAlignmentCharge.charge}] : commonServices;
       
+      const recommendedServices = [...commonServices];
+      const wheelAlignment = customLaborData.find(l => l.model === selectedModel && l.name === 'WHEEL ALIGNMENT (4 HEAD)');
+      if (wheelAlignment) {
+          recommendedServices.push({name: wheelAlignment.name, charge: wheelAlignment.charge});
+      }
+
+      // Prefer 5-wheel balancing if available, otherwise check for 4-wheel.
+      let wheelBalancing = customLaborData.find(l => l.model === selectedModel && l.name === 'WHEEL BALANCING - 5 WHEEL');
+      if (!wheelBalancing) {
+          wheelBalancing = customLaborData.find(l => l.model === selectedModel && l.name === 'WHEEL BALANCING - 4 WHEEL');
+      }
+      if (wheelBalancing) {
+          recommendedServices.push({name: wheelBalancing.name, charge: wheelBalancing.charge});
+      }
+
       const newEstimate: ServiceEstimateData = {
         workshopId: selectedWorkshop,
         vehicle: {
@@ -199,7 +211,7 @@ export function VehicleServiceForm() {
         serviceType: selectedServiceType,
         parts: serviceDetails?.parts || [],
         labor: pmsLabor,
-        recommendedLabor: recommendedServicesWithAlignment,
+        recommendedLabor: recommendedServices,
         optionalServices: threeMCareData[selectedModel] || [],
         totalPrice: 0, // This will be calculated in the ServiceEstimate component
       };

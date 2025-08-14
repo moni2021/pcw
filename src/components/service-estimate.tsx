@@ -93,8 +93,13 @@ export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
   const customLaborCharge = useMemo(() => customLabor.reduce((sum, job) => sum + job.charge, 0), [customLabor]);
 
   const availableCustomLabor = useMemo(() => {
-    // Exclude wheel alignment as it's now in recommended services
-    return customLaborData.filter(item => item.model === vehicle.model && item.workshopId === workshopId && item.name !== 'WHEEL ALIGNMENT (4 HEAD)');
+    const specialRecommendedServices = ["WHEEL ALIGNMENT (4 HEAD)", "WHEEL BALANCING - 4 WHEEL", "WHEEL BALANCING - 5 WHEEL"];
+    // Exclude special services that are handled in the recommended section
+    return customLaborData.filter(item => 
+        item.model === vehicle.model && 
+        item.workshopId === workshopId && 
+        !specialRecommendedServices.includes(item.name)
+    );
   }, [vehicle.model, workshopId]);
   
   const totalLaborCharge = useMemo(() => pmsLaborCharge + recommendedLaborCharge + optionalServiceCharge + customLaborCharge, [pmsLaborCharge, recommendedLaborCharge, optionalServiceCharge, customLaborCharge]);
@@ -103,7 +108,7 @@ export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
   const discountableLaborCharge = useMemo(() => {
     const pms = pmsLaborCharge;
     const specificRecommended = selectedRecommended
-      .filter(job => job.name === 'NITROGEN GAS FILLING' || job.name === 'WHEEL ALIGNMENT (4 HEAD)')
+      .filter(job => job.name === 'NITROGEN GAS FILLING' || job.name.startsWith('WHEEL'))
       .reduce((sum, job) => sum + job.charge, 0);
     return pms + specificRecommended;
   }, [pmsLaborCharge, selectedRecommended]);

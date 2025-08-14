@@ -5,6 +5,35 @@ import { workshops } from './workshops-data';
 // Prices for the 'default' workshop.
 // These will be used as a template for all other workshops.
 const defaultCustomLabor: Omit<CustomLabor, 'workshopId'>[] = [
+  // Wheel Balancing - 4 Wheel
+  { name: 'WHEEL BALANCING - 4 WHEEL', model: 'Wagon R', charge: 320 },
+  { name: 'WHEEL BALANCING - 4 WHEEL', model: 'Ertiga', charge: 320 },
+  { name: 'WHEEL BALANCING - 4 WHEEL', model: 'Ciaz', charge: 340 },
+  { name: 'WHEEL BALANCING - 4 WHEEL', model: 'Swift', charge: 320 },
+  { name: 'WHEEL BALANCING - 4 WHEEL', model: 'Dzire', charge: 320 },
+
+  // Wheel Balancing - 5 Wheel
+  { name: 'WHEEL BALANCING - 5 WHEEL', model: 'Alto K10', charge: 350 },
+  { name: 'WHEEL BALANCING - 5 WHEEL', model: 'Baleno', charge: 400 },
+  { name: 'WHEEL BALANCING - 5 WHEEL', model: 'Swift', charge: 400 },
+  { name: 'WHEEL BALANCING - 5 WHEEL', model: 'S-Presso', charge: 350 },
+  { name: 'WHEEL BALANCING - 5 WHEEL', model: 'Alto 800', charge: 350 },
+  { name: 'WHEEL BALANCING - 5 WHEEL', model: 'Ertiga', charge: 400 },
+  { name: 'WHEEL BALANCING - 5 WHEEL', model: 'Brezza', charge: 400 },
+  { name: 'WHEEL BALANCING - 5 WHEEL', model: 'Celerio', charge: 350 },
+  { name: 'WHEEL BALANCING - 5 WHEEL', model: 'Wagon R', charge: 400 }, // From "NEW WAGON R 1.2L PETROL"
+  { name: 'WHEEL BALANCING - 5 WHEEL', model: 'Ignis', charge: 400 },
+  { name: 'WHEEL BALANCING - 5 WHEEL', model: 'Super Carry', charge: 175 },
+  { name: 'WHEEL BALANCING - 5 WHEEL', model: 'Eeco', charge: 325 },
+  { name: 'WHEEL BALANCING - 5 WHEEL', model: 'Fronx', charge: 400 },
+  { name: 'WHEEL BALANCING - 5 WHEEL', model: 'Ritz', charge: 400 },
+  { name: 'WHEEL BALANCING - 5 WHEEL', model: 'Dzire', charge: 400 },
+  { name: 'WHEEL BALANCING - 5 WHEEL', model: 'S-Cross', charge: 425 },
+  { name: 'WHEEL BALANCING - 5 WHEEL', model: 'Grand Vitara', charge: 400 },
+  { name: 'WHEEL BALANCING - 5 WHEEL', model: 'Omni', charge: 325 },
+  { name: 'WHEEL BALANCING - 5 WHEEL', model: 'XL6', charge: 400 },
+  
+  // Wheel Alignment
   { name: 'WHEEL ALIGNMENT (4 HEAD)', model: 'Wagon R', charge: 375 },
   { name: 'WHEEL ALIGNMENT (4 HEAD)', model: 'S-Presso', charge: 330 },
   { name: 'WHEEL ALIGNMENT (4 HEAD)', model: 'Alto 800', charge: 330 },
@@ -158,6 +187,7 @@ const defaultCustomLabor: Omit<CustomLabor, 'workshopId'>[] = [
 export const customLaborData: CustomLabor[] = workshops.flatMap(workshop => 
     defaultCustomLabor.map(labor => ({ ...labor, workshopId: workshop.id }))
 );
+
 
 
 
