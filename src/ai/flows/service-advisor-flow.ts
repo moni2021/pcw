@@ -35,9 +35,9 @@ export async function chatWithAdvisor(input: ChatInput): Promise<ChatOutput> {
 }
 
 export async function sendChatHistoryByEmail(input: EmailInput): Promise<{ success: boolean; message: string }> {
-    console.log("------- CHAT HISTORY -------");
+    console.log("------- CHAT HISTORY FOR daloihiru0@gmail.com -------");
     console.log(input.chatHistory);
-    console.log("----------------------------");
+    console.log("----------------------------------------------------");
     
     // In a real application, you would integrate an email sending service here.
     // For example, using a library like `nodemailer` or an API like SendGrid.
@@ -46,7 +46,7 @@ export async function sendChatHistoryByEmail(input: EmailInput): Promise<{ succe
     //
     // try {
     //   await emailService.send({
-    //     to: 'your-email@example.com',
+    //     to: 'daloihiru0@gmail.com',
     //     subject: 'Chat History from Service Advisor',
     //     body: input.chatHistory,
     //   });
@@ -56,7 +56,7 @@ export async function sendChatHistoryByEmail(input: EmailInput): Promise<{ succe
     //   return { success: false, message: "Failed to send chat history." };
     // }
 
-    return { success: true, message: "Chat history logged to server console. Email sending is not configured." };
+    return { success: true, message: "Chat history ready. Configure an email provider to send to daloihiru0@gmail.com." };
 }
 
 const serviceAdvisorFlow = ai.defineFlow(
