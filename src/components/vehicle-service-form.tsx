@@ -45,7 +45,7 @@ const serviceTypes = [
 
 export function VehicleServiceForm() {
   const { setTheme } = useTheme();
-  const [selectedWorkshop, setSelectedWorkshop] = useState<string>('');
+  const [selectedWorkshop, setSelectedWorkshop] = useState<string>('arena-bijoynagar-kamrup');
   const [selectedModel, setSelectedModel] = useState<string>('');
   const [selectedFuelType, setSelectedFuelType] = useState<string>('');
   const [selectedYear, setSelectedYear] = useState<string>('');
@@ -55,10 +55,8 @@ export function VehicleServiceForm() {
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    // If there's only one workshop, auto-select it.
-    if (workshops.length === 1) {
-      setSelectedWorkshop(workshops[0].id);
-    }
+    // Set the default workshop on initial render.
+    setSelectedWorkshop('arena-bijoynagar-kamrup');
   }, []);
 
   const currentVehicle = useMemo(() => {
@@ -83,6 +81,7 @@ export function VehicleServiceForm() {
   }
 
   const handleWorkshopChange = (workshopId: string) => {
+    // This function is kept for future use but won't be triggered while the select is disabled.
     setSelectedWorkshop(workshopId);
     resetSelections();
   };
@@ -233,10 +232,9 @@ export function VehicleServiceForm() {
           <CardDescription>Select your vehicle and service type to get an estimate.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
-          {workshops.length > 1 && (
             <div className="space-y-2">
               <Label htmlFor="workshop">Workshop</Label>
-              <Select onValueChange={handleWorkshopChange} value={selectedWorkshop} >
+              <Select onValueChange={handleWorkshopChange} value={selectedWorkshop} disabled>
                 <SelectTrigger id="workshop">
                   <SelectValue placeholder="Select Workshop" />
                 </SelectTrigger>
@@ -248,8 +246,8 @@ export function VehicleServiceForm() {
                   ))}
                 </SelectContent>
               </Select>
+              <p className="text-sm text-muted-foreground mt-1">Note: This application is under review. Access to other locations will be enabled upon approval.</p>
             </div>
-          )}
 
           <div className="space-y-2">
               <Label htmlFor="vehicle-model">Vehicle Model</Label>
@@ -266,7 +264,6 @@ export function VehicleServiceForm() {
                   </SelectContent>
               </Select>
           </div>
- <p className="text-sm text-muted-foreground mt-1">Note: Until data is available for all workshops, all estimates are currently based on Bijangar workshop.</p>
 
           {currentVehicle && (
                <div className="flex flex-wrap gap-2 items-center">
