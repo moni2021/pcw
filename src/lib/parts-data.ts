@@ -1,4 +1,3 @@
-
 import type { Part } from './types';
 
 // Prices for engine oil are per liter.
@@ -6,7 +5,7 @@ export const allParts: Part[] = [
   { name: "DEFAULT ENGINE OIL", price: 400 },
   { name: "Oil Filter", price: 80 },
   { name: "Drain Plug Gasket", price: 20 },
-  { name: "Coolant", price: 400 },
+  // { name: "Coolant", price: 400 }, // Deprecated
   { name: "Brake Fluid", price: 350 },
   { name: "Air Filter", price: 250 },
   { name: "Fuel Filter", price: 300 },
@@ -24,4 +23,6 @@ export const allParts: Part[] = [
   { name: "ECSTAR PETROL 0W16 - SHELL", price: 406.77 },
   { name: "ECSTAR PETROL 0W20 - IOCL", price: 390.67 },
   { name: "ECSTAR DIESEL 5W30-IOCL", price: 524.57 },
+  { name: "COOLANT PREMIX GOLDEN YELLOW", price: 457.62 },
+  { name: "COOLANT PREMIX GREEN", price: 618.64 },
 ];

@@ -37,6 +37,8 @@ const petrolEngineOils = allEngineOilParts.filter(part => !part.name.includes('D
 const dieselEngineOil = allEngineOilParts.find(part => part.name.includes('DIESEL'));
 const dieselFilter = allParts.find(p => p.name === 'Diesel Filter');
 
+const allCoolantParts = allParts.filter(part => part.name.toLowerCase().includes('coolant'));
+
 
 export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
   const { vehicle, serviceType, parts: initialParts, labor, recommendedLabor, optionalServices, workshopId } = estimate;
@@ -177,6 +179,16 @@ export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
           return [...otherParts, newOilPart];
       });
   };
+  
+  const handleCoolantChange = (newCoolantName: string) => {
+      const newCoolantPart = allCoolantParts.find(p => p.name === newCoolantName);
+      if (!newCoolantPart) return;
+
+      setCurrentParts(prevParts => {
+          const otherParts = prevParts.filter(p => !allCoolantParts.some(c => c.name === p.name));
+          return [...otherParts, newCoolantPart];
+      });
+  };
 
   return (
     <div>
@@ -225,6 +237,7 @@ export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
                       <TableBody>
                         {currentParts.map((part, index) => {
                            const isEngineOil = allEngineOilParts.some(eo => eo.name === part.name);
+                           const isCoolant = allCoolantParts.some(c => c.name === part.name);
                            const isDiesel = vehicle.fuelType === 'Diesel';
                            const finalPrice = calculatePartPrice(part);
 
@@ -253,6 +266,28 @@ export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
                             )
                           }
                           
+                          if (isCoolant) {
+                             return (
+                               <TableRow key={`part-${index}`}>
+                                <TableCell className="font-medium">
+                                     <Select value={part.name} onValueChange={handleCoolantChange}>
+                                        <SelectTrigger className="w-full sm:w-[300px]">
+                                            <SelectValue placeholder="Select Coolant" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            {allCoolantParts.map(coolant => (
+                                                <SelectItem key={coolant.name} value={coolant.name}>
+                                                    {coolant.name}
+                                                </SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                </TableCell>
+                                <TableCell className="text-right">{part.price.toFixed(2)}</TableCell>
+                               </TableRow>
+                             )
+                          }
+
                           return (
                             <TableRow key={`part-${index}`}>
                                 <TableCell className="font-medium">

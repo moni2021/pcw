@@ -1,4 +1,3 @@
-
 import { Vehicle, ServiceData, Service } from './types';
 import { allParts } from './parts-data';
 
@@ -38,7 +37,7 @@ const getPart = (name: string) => allParts.find(p => p.name === name)!;
 
 const oilFilter = getPart("Oil Filter");
 const drainPlugGasket = getPart("Drain Plug Gasket");
-const coolant = getPart("Coolant");
+const coolant = getPart("COOLANT PREMIX GOLDEN YELLOW");
 const brakeFluid = getPart("Brake Fluid");
 const airFilter = getPart("Air Filter");
 const fuelFilter = getPart("Fuel Filter");
