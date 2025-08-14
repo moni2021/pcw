@@ -113,7 +113,7 @@ const serviceAdvisorFlow = ai.defineFlow(
     const { output } = await advisorPrompt(input);
 
     return {
-      response: output!.text.trim(),
+      response: output.text.trim(),
     };
   }
 );

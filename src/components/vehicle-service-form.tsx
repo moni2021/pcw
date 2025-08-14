@@ -45,7 +45,7 @@ const serviceTypes = [
 
 export function VehicleServiceForm() {
   const { setTheme } = useTheme();
-  const [selectedWorkshop, setSelectedWorkshop] = useState<string>('arena-bijoynagar-kamrup');
+  const [selectedWorkshop, setSelectedWorkshop] = useState<string>('');
   const [selectedModel, setSelectedModel] = useState<string>('');
   const [selectedFuelType, setSelectedFuelType] = useState<string>('');
   const [selectedYear, setSelectedYear] = useState<string>('');
@@ -55,9 +55,11 @@ export function VehicleServiceForm() {
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    // Set the default workshop on initial render.
-    setSelectedWorkshop('arena-bijoynagar-kamrup');
-  }, []);
+    // Set the default workshop on initial render if it's not set.
+    if (workshops.length > 0 && !selectedWorkshop) {
+      setSelectedWorkshop(workshops[0].id);
+    }
+  }, [selectedWorkshop]);
 
   const currentVehicle = useMemo(() => {
     return vehicles.find(v => v.model === selectedModel);
@@ -81,7 +83,6 @@ export function VehicleServiceForm() {
   }
 
   const handleWorkshopChange = (workshopId: string) => {
-    // This function is kept for future use but won't be triggered while the select is disabled.
     setSelectedWorkshop(workshopId);
     resetSelections();
   };
@@ -234,7 +235,7 @@ export function VehicleServiceForm() {
         <CardContent className="space-y-6">
             <div className="space-y-2">
               <Label htmlFor="workshop">Workshop</Label>
-              <Select onValueChange={handleWorkshopChange} value={selectedWorkshop} disabled>
+              <Select onValueChange={handleWorkshopChange} value={selectedWorkshop}>
                 <SelectTrigger id="workshop">
                   <SelectValue placeholder="Select Workshop" />
                 </SelectTrigger>
@@ -246,7 +247,6 @@ export function VehicleServiceForm() {
                   ))}
                 </SelectContent>
               </Select>
-              <p className="text-sm text-muted-foreground mt-1">Note: This application is under review. Access to other locations will be enabled upon approval.</p>
             </div>
 
           <div className="space-y-2">

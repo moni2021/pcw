@@ -9,17 +9,6 @@ const nextConfig: NextConfig = {
   eslint: {
     ignoreDuringBuilds: true,
   },
-  devIndicators: {
-    buildActivity: false,
-  },
-  experimental: {
-    serverActions: {
-      allowedOrigins: [
-        '*.firebaseapp.com',
-        '*.web.app',
-      ],
-    },
-  },
 };
 
 export default nextConfig;

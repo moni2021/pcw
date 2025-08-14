@@ -88,7 +88,6 @@ const converterFlow = ai.defineFlow(
         ---
         `,
         config: {
-            // Setting a higher temperature to allow the model to be more flexible with unstructured data
             temperature: 0.3,
         }
     });

@@ -45,7 +45,7 @@ export default function DataManagementPage() {
     const handlePasswordSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         // This is a simple client-side check. For real security, use proper authentication.
-        if (password === 'Hirudaloi') {
+        if (password === 'Admin@123') {
             setIsAuthenticated(true);
             setIsPasswordDialogOpen(false);
             toast({
