@@ -5,7 +5,7 @@ import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Download, Database, KeyRound, Save, UploadCloud, ShieldCheck, Loader2, Upload, FileJson, AlertCircle, Building } from 'lucide-react';
+import { Download, Database, KeyRound, Save, UploadCloud, ShieldCheck, Loader2, Upload, FileJson, AlertCircle, Building, Sparkles } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
@@ -24,7 +24,7 @@ import { customLaborData } from '@/lib/custom-labor-data';
 import { pmsCharges } from '@/lib/pms-charges';
 import { threeMCareData } from '@/lib/3m-care-data';
 
-type DataType = 'workshops' | 'vehicles' | 'parts' | 'customLabor' | 'pmsCharges';
+type DataType = 'workshops' | 'vehicles' | 'parts' | 'customLabor' | 'pmsCharges' | 'threeMCare';
 
 export default function DataManagementPage() {
     const { toast } = useToast();
@@ -67,7 +67,7 @@ export default function DataManagementPage() {
         parts: allParts,
         customLabor: customLaborData,
         pmsCharges,
-        threeMCareData,
+        threeMCare: threeMCareData,
     };
 
     const handleMasterDownload = () => {
@@ -378,12 +378,13 @@ export default function DataManagementPage() {
                 </CardHeader>
                 <CardContent>
                     <Tabs defaultValue="workshops">
-                        <TabsList className="grid w-full grid-cols-2 md:grid-cols-5">
+                        <TabsList className="grid w-full grid-cols-3 md:grid-cols-6">
                             <TabsTrigger value="workshops">Workshops</TabsTrigger>
                             <TabsTrigger value="vehicles">Vehicles</TabsTrigger>
                             <TabsTrigger value="parts">Parts</TabsTrigger>
                             <TabsTrigger value="customLabor">Custom Labour</TabsTrigger>
                             <TabsTrigger value="pmsCharges">PMS Charges</TabsTrigger>
+                            <TabsTrigger value="threeMCare">3M Care</TabsTrigger>
                         </TabsList>
                         <TabsContent value="workshops" className="pt-4">
                            {renderUploadTab('workshops', 'Workshops Data', 'Upload a JSON file with the list of all workshops.', <Building />)}
@@ -399,6 +400,9 @@ export default function DataManagementPage() {
                         </TabsContent>
                           <TabsContent value="pmsCharges" className="pt-4">
                            {renderUploadTab('pmsCharges', 'PMS Charges Data', 'Upload a JSON file defining the periodic maintenance service (PMS) labour charges per workshop.', <FileJson />)}
+                        </TabsContent>
+                        <TabsContent value="threeMCare" className="pt-4">
+                           {renderUploadTab('threeMCare', '3M Care Data', 'Upload a JSON file with the 3M care services and prices per model.', <Sparkles />)}
                         </TabsContent>
                     </Tabs>
                 </CardContent>

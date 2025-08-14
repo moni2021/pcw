@@ -27,7 +27,7 @@ const ThreeMCareSchema = z.object({
 
 const ConvertToJsonInputSchema = z.object({
   rawText: z.string().describe('The raw, unstructured text to be converted. This could be from a CSV, Excel, or just plain text.'),
-  jsonFormat: z.enum(['parts', 'customLabor', 'pmsCharges', 'vehicles', 'threeMCareData']).describe('The target JSON format.'),
+  jsonFormat: z.enum(['parts', 'customLabor', 'pmsCharges', 'vehicles', 'threeMCare']).describe('The target JSON format.'),
 });
 export type ConvertToJsonInput = z.infer<typeof ConvertToJsonInputSchema>;
 
@@ -69,7 +69,7 @@ const converterFlow = ai.defineFlow(
         formatDescription = 'An array of Vehicle objects. Each object must have a `model` (string), `brand` ("Arena", "Nexa", or "Commercial"), `category` (string), `fuelTypes` (array of strings), and `productionYears` (array of numbers). `variants` can be an empty array.';
         exampleObject = { model: 'Sample Model', brand: 'Arena', category: 'Hatchback', variants: [], fuelTypes: ['Petrol'], productionYears: [2024] };
         break;
-       case 'threeMCareData':
+       case 'threeMCare':
         formatDescription = 'A dictionary where keys are model names (string) and values are arrays of objects, each with `name` (string) and `charge` (number).';
         exampleObject = { "Some Model": [{ "name": "INTERIOR CLEANING", "charge": 1500 }]};
         break;
@@ -99,5 +99,3 @@ const converterFlow = ai.defineFlow(
     return { jsonString: cleanedOutput };
   }
 );
-
-    

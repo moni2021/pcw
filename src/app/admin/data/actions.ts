@@ -29,6 +29,12 @@ const getDb = () => {
     return getApps().length > 0 ? getFirestore() : null;
 };
 
+const ThreeMCareServiceSchema = z.object({
+  name: z.string(),
+  charge: z.number(),
+});
+
+const ThreeMCareSchema = z.record(z.array(ThreeMCareServiceSchema));
 
 const dataSchemas = {
   vehicles: z.array(VehicleSchema),
@@ -36,6 +42,7 @@ const dataSchemas = {
   customLabor: z.array(CustomLaborSchema),
   pmsCharges: z.array(PmsChargeSchema),
   workshops: z.array(WorkshopSchema),
+  threeMCare: ThreeMCareSchema,
 };
 
 type DataType = keyof typeof dataSchemas;
@@ -146,6 +153,18 @@ export async function downloadSampleJson(dataType: DataType): Promise<string> {
                 { id: 'workshop-1', name: 'Main Workshop' },
                 { id: 'workshop-2', name: 'Secondary Workshop' }
             ];
+            break;
+        case 'threeMCare':
+            sampleObject = {
+              "Ciaz": [
+                { "name": "INTERIOR CLEANING", "charge": 1500 },
+                { "name": "BODY RUBBING & POLISHING", "charge": 1500 }
+              ],
+              "Ertiga": [
+                { "name": "INTERIOR CLEANING", "charge": 1500 },
+                { "name": "BODY RUBBING & POLISHING", "charge": 1500 }
+              ]
+            };
             break;
         default:
             // This is a safety net, but based on the UI, dataType should always be valid.
