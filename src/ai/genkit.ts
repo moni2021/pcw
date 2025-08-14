@@ -6,7 +6,7 @@
  * It is not necessary to edit this file to use Genkit.
  * To add a flow, see `src/ai/flows/example-flow.ts`.
  */
-import { genkit } from '@genkit-ai/core';
+import * as genkitCore from '@genkit-ai/core';
 import { googleAI } from '@genkit-ai/googleai';
 
 // Initialize Genkit with the Google AI plugin.
@@ -14,7 +14,7 @@ import { googleAI } from '@genkit-ai/googleai';
 // to the project containing your service account.
 //
 // See: https://firebase.google.com/docs/genkit/plugins#google-ai
-export const ai = genkit({
+export const ai = genkitCore.genkit({
   plugins: [
     googleAI({
       // The Google AI API key is read from the GOOGLE_GENAI_API_KEY
