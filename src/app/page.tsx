@@ -5,7 +5,6 @@ import { VehicleServiceForm } from '@/components/vehicle-service-form';
 import { Card } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 import { Header } from '@/components/header';
-import { Chatbot } from '@/components/chatbot';
 
 export default function EstimatorPage() {
 
@@ -40,7 +39,6 @@ export default function EstimatorPage() {
             </p>
         </div>
       </footer>
-      <Chatbot />
     </div>
   );
 }
