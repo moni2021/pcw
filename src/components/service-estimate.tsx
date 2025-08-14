@@ -59,10 +59,13 @@ export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
     
     if (hasEngineOilPlaceholder) {
         const nonEngineOilParts = initialParts.filter(p => !allEngineOilParts.some(eo => eo.name === p.name));
+        
         if (vehicle.fuelType === 'Diesel' && dieselEngineOil) {
             partsWithCorrectEngineOil = [...nonEngineOilParts, dieselEngineOil];
         } else {
-            const defaultPetrolOil = petrolEngineOils[0];
+            // Use the vehicle's default oil if specified, otherwise fall back
+            const defaultOilName = vehicle.defaultEngineOil || 'ECSTAR PETROL 0W16 - SHELL';
+            const defaultPetrolOil = petrolEngineOils.find(p => p.name === defaultOilName) || petrolEngineOils[0];
             if(defaultPetrolOil) {
                 partsWithCorrectEngineOil = [...nonEngineOilParts, defaultPetrolOil];
             }
@@ -83,7 +86,7 @@ export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
     setSelectedRecommended([]);
     setSelectedOptional([]);
     setCustomLabor([]);
-  }, [estimate, initialParts, vehicle.fuelType, serviceType]);
+  }, [estimate, initialParts, vehicle.fuelType, serviceType, vehicle.defaultEngineOil]);
 
 
   const pmsLaborCharge = useMemo(() => labor.reduce((sum, job) => sum + job.charge, 0), [labor]);

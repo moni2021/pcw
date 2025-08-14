@@ -10,7 +10,7 @@ import { vehicles, serviceDataLookup } from '@/lib/data';
 import { ServiceEstimate } from './service-estimate';
 import type { ServiceEstimateData } from '@/lib/types';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Loader2, Car, Tag, Building, Building2, Droplets } from 'lucide-react';
+import { Loader2, Car, Tag, Building2, Droplets } from 'lucide-react';
 import { Separator } from './ui/separator';
 import { Badge } from '@/components/ui/badge';
 import { useTheme } from '@/context/ThemeContext';
@@ -209,6 +209,7 @@ export function VehicleServiceForm() {
           brand: vehicleInfo.brand,
           category: vehicleInfo.category,
           engineOilLiters: vehicleInfo.engineOilLiters,
+          defaultEngineOil: vehicleInfo.defaultEngineOil,
         },
         serviceType: selectedServiceType,
         parts: serviceDetails?.parts || [],

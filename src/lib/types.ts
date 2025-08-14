@@ -16,6 +16,7 @@ export const VehicleSchema = z.object({
   productionYears: z.array(z.number()),
   engineOilQuantity: z.string().optional(),
   engineOilLiters: z.number().optional(),
+  defaultEngineOil: z.string().optional(),
 });
 export type Vehicle = z.infer<typeof VehicleSchema>;
 
@@ -72,6 +73,7 @@ export const ServiceEstimateDataSchema = z.object({
         brand: z.string(),
         category: z.string(),
         engineOilLiters: z.number().optional(),
+        defaultEngineOil: z.string().optional(),
     }),
     serviceType: z.string(),
     parts: z.array(PartSchema),
