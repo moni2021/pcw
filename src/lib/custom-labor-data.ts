@@ -219,12 +219,3 @@ const defaultCustomLabor: Omit<CustomLabor, 'workshopId'>[] = [
 export const customLaborData: CustomLabor[] = workshops.flatMap(workshop => 
     defaultCustomLabor.map(labor => ({ ...labor, workshopId: workshop.id }))
 );
-
-
-
-
-
-
-
-
-    
