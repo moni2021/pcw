@@ -23,24 +23,6 @@ export default function RootLayout({
           <body className={`${inter.className} antialiased`}>
             {children}
             <Toaster />
-            {/* Disable react-devtools in production */}
-            <script
-              dangerouslySetInnerHTML={{
-                __html: `
-              if (typeof window.__REACT_DEVTOOLS_GLOBAL_HOOK__ === 'object') {
-                Object.defineProperty(window, '__REACT_DEVTOOLS_GLOBAL_HOOK__', {
-                  value: {
-                    inject: function() {},
-                    onCommitFiberRoot: function() {},
-                    onCommitFiberUnmount: function() {},
-                    supportsFiber: true,
-                  },
-                  configurable: false
-                });
-              }
-            `,
-              }}
-            />
           </body>
       </ThemeProvider>
     </html>
