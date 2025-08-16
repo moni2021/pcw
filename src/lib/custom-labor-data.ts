@@ -5,6 +5,15 @@ import { workshops } from './workshops-data';
 // Prices for the 'default' workshop.
 // These will be used as a template for all other workshops.
 const defaultCustomLabor: Omit<CustomLabor, 'workshopId'>[] = [
+  // A/C Servicing
+  { name: 'A/C SERVICING', model: 'Alto 800', charge: 1320 },
+  { name: 'A/C SERVICING', model: 'Swift', charge: 1710 },
+  { name: 'A/C SERVICING', model: 'Dzire', charge: 1710 },
+  { name: 'A/C SERVICING', model: 'Alto K10', charge: 1320 },
+  { name: 'A/C SERVICING', model: 'Ritz', charge: 1710 },
+  { name: 'A/C SERVICING', model: 'Wagon R', charge: 1320 },
+  { name: 'A/C SERVICING', model: 'Celerio', charge: 1320 },
+    
   // Wheel Balancing - 4 Wheel
   { name: 'WHEEL BALANCING - 4 WHEEL', model: 'Wagon R', charge: 320 },
   { name: 'WHEEL BALANCING - 4 WHEEL', model: 'Ertiga', charge: 320 },
@@ -187,6 +196,7 @@ const defaultCustomLabor: Omit<CustomLabor, 'workshopId'>[] = [
 export const customLaborData: CustomLabor[] = workshops.flatMap(workshop => 
     defaultCustomLabor.map(labor => ({ ...labor, workshopId: workshop.id }))
 );
+
 
 
 
