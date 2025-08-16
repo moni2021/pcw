@@ -1,6 +1,14 @@
 
 import type { CustomLabor } from './types';
 import { workshops } from './workshops-data';
+import { vehicles } from './data';
+
+// Create the AC Gas Top-up entries for all vehicles
+const acGasTopUpLabor: Omit<CustomLabor, 'workshopId'>[] = vehicles.map(vehicle => ({
+  name: 'AC GAS TOP-UP',
+  model: vehicle.model,
+  charge: 1600.00,
+}));
 
 // Prices for the 'default' workshop.
 // These will be used as a template for all other workshops.
@@ -190,12 +198,14 @@ const defaultCustomLabor: Omit<CustomLabor, 'workshopId'>[] = [
   { name: 'EVAPORATOR CLEANING', model: 'Brezza', charge: 295 },
   { name: 'EVAPORATOR CLEANING', model: 'Swift', charge: 290.38 },
   { name: 'EVAPORATOR CLEANING', model: 'Ertiga', charge: 312.7 },
+  ...acGasTopUpLabor
 ];
 
 // Create a comprehensive list by duplicating default charges for each workshop
 export const customLaborData: CustomLabor[] = workshops.flatMap(workshop => 
     defaultCustomLabor.map(labor => ({ ...labor, workshopId: workshop.id }))
 );
+
 
 
 
