@@ -57,6 +57,11 @@ const serviceAccountUploaderFlow = ai.defineFlow(
       
       console.log('Successfully received and validated service account key.');
       console.log('In a real deployment, this key would be stored as a secret/environment variable.');
+      
+      // We set the process environment variable for the current session.
+      // This allows the user to use the app immediately without restarting the server.
+      process.env.SERVICE_ACCOUNT_KEY = jsonContent;
+
 
       return {
         success: true,

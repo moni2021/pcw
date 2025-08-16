@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Separator } from '@/components/ui/separator';
-import { Percent, PlusCircle, Sparkles, Wrench, Package, Hammer, MinusCircle, ChevronDown, ChevronUp, Printer } from 'lucide-react';
+import { Percent, PlusCircle, Sparkles, Wrench, Package, Hammer, MinusCircle, ChevronDown, ChevronUp, Printer, Bot } from 'lucide-react';
 import type { ServiceEstimateData, Labor, Part } from '@/lib/types';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
@@ -16,6 +16,10 @@ import { Badge } from '@/components/ui/badge';
 import { customLaborData } from '@/lib/custom-labor-data';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { allParts } from '@/lib/parts-data';
+import { generateCustomerScript } from '@/ai/flows/customer-script-flow';
+import { useToast } from '@/hooks/use-toast';
+import { Textarea } from './ui/textarea';
+import { Skeleton } from './ui/skeleton';
 
 
 interface ServiceEstimateProps {
@@ -41,6 +45,7 @@ const allCoolantParts = allParts.filter(part => part.name.toLowerCase().includes
 
 
 export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
+  const { toast } = useToast();
   const { vehicle, serviceType, parts: initialParts, labor, recommendedLabor, optionalServices, workshopId } = estimate;
   const GST_RATE = 0.18;
 
@@ -54,6 +59,8 @@ export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
   const [finalTotal, setFinalTotal] = useState(0);
   const [showRecommended, setShowRecommended] = useState(false);
   const [showOptional, setShowOptional] = useState(false);
+  const [isGeneratingScript, setIsGeneratingScript] = useState(false);
+  const [customerScript, setCustomerScript] = useState('');
   
   useEffect(() => {
     let partsWithCorrectEngineOil = [...initialParts];
@@ -189,6 +196,30 @@ export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
           return [...otherParts, newCoolantPart];
       });
   };
+
+  const handleGenerateScript = async () => {
+    setIsGeneratingScript(true);
+    setCustomerScript('');
+    try {
+        const result = await generateCustomerScript({
+            vehicleModel: vehicle.model,
+            serviceType: serviceType,
+            totalCost: finalTotal,
+            parts: currentParts.map(p => ({...p, price: calculatePartPrice(p)})),
+            labor: [...labor, ...customLabor, ...selectedRecommended, ...selectedOptional],
+        });
+        setCustomerScript(result.script);
+    } catch (error) {
+        console.error("Error generating script:", error);
+        toast({
+            variant: "destructive",
+            title: 'Script Generation Failed',
+            description: 'Could not generate the customer script. Please try again.',
+        });
+    } finally {
+        setIsGeneratingScript(false);
+    }
+  }
 
   return (
     <div>
@@ -523,13 +554,46 @@ export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
             <p className="text-xl font-bold">Total Estimate:</p>
             <p className="text-xl font-bold">₹{finalTotal.toFixed(2)}</p>
         </div>
-        <div className="w-full mt-4 no-print">
+        <div className="w-full mt-4 no-print space-y-4">
             <Button onClick={() => window.print()} className="w-full">
                 <Printer className="mr-2 h-4 w-4" />
                 Print Estimate
             </Button>
+            <Button onClick={handleGenerateScript} className="w-full" variant="secondary" disabled={isGeneratingScript}>
+               {isGeneratingScript ? <Bot className="mr-2 h-4 w-4 animate-spin" /> : <Bot className="mr-2 h-4 w-4" />}
+                Generate Customer Script
+            </Button>
         </div>
       </CardFooter>
+      
+      {(isGeneratingScript || customerScript) && (
+        <div className="mt-4 no-print px-6 pb-6">
+            <Card>
+                <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                        <Bot /> AI-Generated Customer Script
+                    </CardTitle>
+                </CardHeader>
+                <CardContent>
+                    {isGeneratingScript && (
+                        <div className="space-y-2">
+                            <Skeleton className="h-4 w-5/6" />
+                            <Skeleton className="h-4 w-full" />
+                            <Skeleton className="h-4 w-4/6" />
+                            <Skeleton className="h-4 w-5/6" />
+                        </div>
+                    )}
+                    {customerScript && (
+                        <Textarea 
+                            value={customerScript}
+                            readOnly
+                            className="min-h-[200px] text-base"
+                        />
+                    )}
+                </CardContent>
+            </Card>
+        </div>
+      )}
     </div>
   );
 }
