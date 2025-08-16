@@ -21,7 +21,9 @@ import { customLaborData } from '@/lib/custom-labor-data';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from '@/components/ui/command';
 import { cn } from '@/lib/utils';
-
+import { ServiceChecklistDialog } from './service-checklist-dialog';
+import type { ChecklistCategory } from '@/lib/pms-checklists';
+import { pmsChecklists } from '@/lib/pms-checklists';
 
 const commonServices = [
     { name: 'NITROGEN GAS FILLING', charge: 200 },
@@ -58,7 +60,8 @@ export function VehicleServiceForm() {
   const [error, setError] = useState<string>('');
   const [isLoading, setIsLoading] = useState(false);
   const [isModelPopoverOpen, setIsModelPopoverOpen] = useState(false);
-
+  const [isChecklistOpen, setIsChecklistOpen] = useState(false);
+  const [checklistData, setChecklistData] = useState<ChecklistCategory[] | null>(null);
 
   useEffect(() => {
     // Programmatically set the default workshop and keep it locked.
@@ -148,12 +151,19 @@ export function VehicleServiceForm() {
           suggestedService = closestService;
       }
       setSelectedServiceType(suggestedService);
+      handleServiceTypeChange(suggestedService, true);
   }
 
-  const handleServiceTypeChange = (serviceType: string) => {
+  const handleServiceTypeChange = (serviceType: string, fromYearChange: boolean = false) => {
     setSelectedServiceType(serviceType);
     setEstimate(null);
     setError('');
+    
+    const checklist = pmsChecklists[serviceType];
+    if (checklist) {
+        setChecklistData(checklist);
+        setIsChecklistOpen(true);
+    }
   }
 
 
@@ -233,6 +243,12 @@ export function VehicleServiceForm() {
 
   return (
     <>
+      <ServiceChecklistDialog
+        isOpen={isChecklistOpen}
+        onOpenChange={setIsChecklistOpen}
+        serviceType={selectedServiceType}
+        checklist={checklistData}
+      />
       <div className="no-print">
         <CardHeader>
           <CardTitle>Create an Estimate</CardTitle>
@@ -361,7 +377,7 @@ export function VehicleServiceForm() {
 
           <div className="space-y-2">
             <Label htmlFor="service-type">Service Type</Label>
-            <Select onValueChange={handleServiceTypeChange} value={selectedServiceType} disabled={!selectedYear}>
+            <Select onValueChange={(value) => handleServiceTypeChange(value)} value={selectedServiceType} disabled={!selectedYear}>
               <SelectTrigger id="service-type">
                 <SelectValue placeholder="Select Service Type" />
               </SelectTrigger>
