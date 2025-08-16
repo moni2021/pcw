@@ -9,13 +9,12 @@
 
 import { ai } from '@/ai';
 import { z } from 'zod';
-import { defineSecret } from '@genkit-ai/core';
 
 // Define the secret where the service account key will be stored.
 // In a real environment, this would be managed by a secrets manager.
 // For this context, we simulate the action, but the actual environment variable
 // would need to be set on the hosting platform (e.g., App Hosting for Firebase).
-defineSecret({
+ai.defineSecret({
   name: 'SERVICE_ACCOUNT_KEY',
   description: 'The JSON content of the Firebase service account key.',
 });
