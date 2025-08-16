@@ -47,7 +47,6 @@ const defaultCustomLabor: Omit<CustomLabor, 'workshopId'>[] = [
   { name: 'WHEEL BALANCING - 5 WHEEL', model: 'Dzire', charge: 400 },
   { name: 'WHEEL BALANCING - 5 WHEEL', model: 'S-Cross', charge: 425 },
   { name: 'WHEEL BALANCING - 5 WHEEL', model: 'Grand Vitara', charge: 400 },
-  { name: 'WHEEL BALANCING - 5 WHEEL', model: 'Omni', charge: 325 },
   { name: 'WHEEL BALANCING - 5 WHEEL', model: 'XL6', charge: 400 },
   
   // Wheel Alignment
@@ -198,6 +197,21 @@ const defaultCustomLabor: Omit<CustomLabor, 'workshopId'>[] = [
   { name: 'EVAPORATOR CLEANING', model: 'Brezza', charge: 295 },
   { name: 'EVAPORATOR CLEANING', model: 'Swift', charge: 290.38 },
   { name: 'EVAPORATOR CLEANING', model: 'Ertiga', charge: 312.7 },
+  { name: 'ALL ELECTRICALS CHECK-UP', model: 'Ertiga', charge: 1000 },
+  { name: 'ALL ELECTRICALS CHECK-UP', model: 'Fronx', charge: 450 },
+  { name: 'ALL ELECTRICALS CHECK-UP', model: 'Eeco', charge: 416 },
+  { name: 'ALL ELECTRICALS CHECK-UP', model: 'Super Carry', charge: 158.2 },
+  { name: 'ALL ELECTRICALS CHECK-UP', model: 'Dzire', charge: 339 },
+  { name: 'ALL ELECTRICALS CHECK-UP', model: 'Wagon R', charge: 254 },
+  { name: 'ALL ELECTRICALS CHECK-UP', model: 'Swift', charge: 338 },
+  { name: 'ALL ELECTRICALS CHECK-UP', model: 'S-Presso', charge: 500 },
+  { name: 'ALL ELECTRICALS CHECK-UP', model: 'Alto 800', charge: 450 },
+  { name: 'ALL ELECTRICALS CHECK-UP', model: 'Brezza', charge: 380 },
+  { name: 'ALL ELECTRICALS CHECK-UP', model: 'Ciaz', charge: 450 },
+  { name: 'ALL ELECTRICALS CHECK-UP', model: 'Celerio', charge: 338 },
+  { name: 'ALL ELECTRICALS CHECK-UP', model: 'Grand Vitara', charge: 315 },
+  { name: 'ALL ELECTRICALS CHECK-UP', model: 'Alto K10', charge: 273 },
+  { name: 'ALL ELECTRICALS CHECK-UP', model: 'Baleno', charge: 560 },
   ...acGasTopUpLabor
 ];
 
@@ -211,3 +225,6 @@ export const customLaborData: CustomLabor[] = workshops.flatMap(workshop =>
 
 
 
+
+
+    
