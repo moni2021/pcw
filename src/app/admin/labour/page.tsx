@@ -9,7 +9,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Wrench, PlusCircle, Trash2, Pencil, Search } from 'lucide-react';
+import { Wrench, PlusCircle, Trash2, Pencil, Search, Check, ChevronsUpDown } from 'lucide-react';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
@@ -22,6 +22,10 @@ import type { CustomLabor, Vehicle } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
 import { vehicles as initialVehicles } from '@/lib/data';
 import { workshops as initialWorkshops } from '@/lib/workshops-data';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from '@/components/ui/command';
+import { cn } from '@/lib/utils';
+
 
 export default function LabourManagementPage() {
   const [customLabor, setCustomLabor] = useState<CustomLabor[]>(initialCustomLaborData);
@@ -31,6 +35,7 @@ export default function LabourManagementPage() {
   const [currentLabor, setCurrentLabor] = useState<Partial<CustomLabor> | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
+  const [isModelPopoverOpen, setIsModelPopoverOpen] = useState(false);
   const { toast } = useToast();
 
   const handleAddLabor = () => {
@@ -186,14 +191,48 @@ export default function LabourManagementPage() {
                     </div>
                         <div className="grid grid-cols-4 items-center gap-4">
                         <Label htmlFor="model" className="text-right">Model</Label>
-                        <Select name="model" value={currentLabor?.model} onValueChange={(value) => handleDialogSelectChange('model', value)} required>
-                            <SelectTrigger id="model" className="col-span-3">
-                                <SelectValue placeholder="Select vehicle model" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                {vehicles.map(v => <SelectItem key={v.model} value={v.model}>{v.model}</SelectItem>)}
-                            </SelectContent>
-                        </Select>
+                         <Popover open={isModelPopoverOpen} onOpenChange={setIsModelPopoverOpen}>
+                            <PopoverTrigger asChild>
+                                <Button
+                                    variant="outline"
+                                    role="combobox"
+                                    aria-expanded={isModelPopoverOpen}
+                                    className="col-span-3 justify-between"
+                                >
+                                    {currentLabor?.model
+                                        ? vehicles.find((vehicle) => vehicle.model === currentLabor.model)?.model
+                                        : "Select vehicle model..."}
+                                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                </Button>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-[300px] p-0">
+                                <Command>
+                                    <CommandInput placeholder="Search model..." />
+                                    <CommandEmpty>No vehicle found.</CommandEmpty>
+                                    <CommandGroup>
+                                        {vehicles.map((vehicle) => (
+                                            <CommandItem
+                                                key={vehicle.model}
+                                                value={vehicle.model}
+                                                onSelect={(currentValue) => {
+                                                    const model = vehicles.find(v => v.model.toLowerCase() === currentValue.toLowerCase())?.model || '';
+                                                    handleDialogSelectChange('model', model === currentLabor?.model ? '' : model);
+                                                    setIsModelPopoverOpen(false);
+                                                }}
+                                            >
+                                                <Check
+                                                    className={cn(
+                                                        "mr-2 h-4 w-4",
+                                                        currentLabor?.model === vehicle.model ? "opacity-100" : "opacity-0"
+                                                    )}
+                                                />
+                                                {vehicle.model}
+                                            </CommandItem>
+                                        ))}
+                                    </CommandGroup>
+                                </Command>
+                            </PopoverContent>
+                        </Popover>
                     </div>
                     <div className="grid grid-cols-4 items-center gap-4">
                         <Label htmlFor="charge" className="text-right">Charge (₹)</Label>

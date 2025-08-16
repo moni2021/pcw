@@ -10,7 +10,7 @@ import { vehicles, serviceDataLookup } from '@/lib/data';
 import { ServiceEstimate } from './service-estimate';
 import type { ServiceEstimateData } from '@/lib/types';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Loader2, Car, Tag, Building2, Droplets, Info } from 'lucide-react';
+import { Loader2, Car, Tag, Building2, Droplets, Info, Check, ChevronsUpDown } from 'lucide-react';
 import { Separator } from './ui/separator';
 import { Badge } from '@/components/ui/badge';
 import { useTheme } from '@/context/ThemeContext';
@@ -18,6 +18,9 @@ import { threeMCareData } from '@/lib/3m-care-data';
 import { pmsCharges } from '@/lib/pms-charges';
 import { workshops } from '@/lib/workshops-data';
 import { customLaborData } from '@/lib/custom-labor-data';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from '@/components/ui/command';
+import { cn } from '@/lib/utils';
 
 const commonServices = [
     { name: 'NITROGEN GAS FILLING', charge: 200 },
@@ -53,6 +56,8 @@ export function VehicleServiceForm() {
   const [estimate, setEstimate] = useState<ServiceEstimateData | null>(null);
   const [error, setError] = useState<string>('');
   const [isLoading, setIsLoading] = useState(false);
+  const [isModelPopoverOpen, setIsModelPopoverOpen] = useState(false);
+
 
   useEffect(() => {
     // Programmatically set the default workshop and keep it locked.
@@ -255,18 +260,49 @@ export function VehicleServiceForm() {
 
           <div className="space-y-2">
               <Label htmlFor="vehicle-model">Vehicle Model</Label>
-               <Select onValueChange={handleModelChange} value={selectedModel} disabled={!selectedWorkshop}>
-                  <SelectTrigger id="vehicle-model">
-                      <SelectValue placeholder="Select Model" />
-                  </SelectTrigger>
-                  <SelectContent>
-                      {vehicles.map(vehicle => (
-                          <SelectItem key={vehicle.model} value={vehicle.model}>
-                              {vehicle.model}
-                          </SelectItem>
-                      ))}
-                  </SelectContent>
-              </Select>
+                <Popover open={isModelPopoverOpen} onOpenChange={setIsModelPopoverOpen}>
+                    <PopoverTrigger asChild>
+                        <Button
+                            variant="outline"
+                            role="combobox"
+                            aria-expanded={isModelPopoverOpen}
+                            className="w-full justify-between"
+                            disabled={!selectedWorkshop}
+                        >
+                            {selectedModel
+                                ? vehicles.find((vehicle) => vehicle.model === selectedModel)?.model
+                                : "Select Model..."}
+                            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                        </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-full p-0" align="start">
+                        <Command>
+                            <CommandInput placeholder="Search model..." />
+                            <CommandEmpty>No vehicle found.</CommandEmpty>
+                            <CommandGroup>
+                                {vehicles.map((vehicle) => (
+                                    <CommandItem
+                                        key={vehicle.model}
+                                        value={vehicle.model}
+                                        onSelect={(currentValue) => {
+                                            const model = vehicles.find(v => v.model.toLowerCase() === currentValue.toLowerCase())?.model || '';
+                                            handleModelChange(model === selectedModel ? '' : model);
+                                            setIsModelPopoverOpen(false);
+                                        }}
+                                    >
+                                        <Check
+                                            className={cn(
+                                                "mr-2 h-4 w-4",
+                                                selectedModel === vehicle.model ? "opacity-100" : "opacity-0"
+                                            )}
+                                        />
+                                        {vehicle.model}
+                                    </CommandItem>
+                                ))}
+                            </CommandGroup>
+                        </Command>
+                    </PopoverContent>
+                </Popover>
           </div>
 
           {currentVehicle && (
