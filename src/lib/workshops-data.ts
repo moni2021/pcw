@@ -2,6 +2,6 @@
 import { Workshop } from './types';
 
 export const workshops: Workshop[] = [
-    { id: 'default', name: 'Default Workshop' },
-    { id: 'workshop-2', name: 'Workshop 2' },
+    { id: 'arena-bijoynagar', name: 'ARENA - BIJOYNAGAR (KAMRUP)' },
+    { id: 'workshop-2', name: 'Workshop 2 (Other Location)' },
 ];

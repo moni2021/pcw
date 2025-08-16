@@ -10,7 +10,7 @@ import { vehicles, serviceDataLookup } from '@/lib/data';
 import { ServiceEstimate } from './service-estimate';
 import type { ServiceEstimateData } from '@/lib/types';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Loader2, Car, Tag, Building2, Droplets } from 'lucide-react';
+import { Loader2, Car, Tag, Building2, Droplets, Info } from 'lucide-react';
 import { Separator } from './ui/separator';
 import { Badge } from '@/components/ui/badge';
 import { useTheme } from '@/context/ThemeContext';
@@ -45,7 +45,7 @@ const serviceTypes = [
 
 export function VehicleServiceForm() {
   const { setTheme } = useTheme();
-  const [selectedWorkshop, setSelectedWorkshop] = useState<string>('');
+  const [selectedWorkshop, setSelectedWorkshop] = useState<string>('arena-bijoynagar');
   const [selectedModel, setSelectedModel] = useState<string>('');
   const [selectedFuelType, setSelectedFuelType] = useState<string>('');
   const [selectedYear, setSelectedYear] = useState<string>('');
@@ -55,11 +55,9 @@ export function VehicleServiceForm() {
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    // Set the default workshop on initial render if it's not set.
-    if (workshops.length > 0 && !selectedWorkshop) {
-      setSelectedWorkshop(workshops[0].id);
-    }
-  }, [selectedWorkshop]);
+    // Programmatically set the default workshop and keep it locked.
+    setSelectedWorkshop('arena-bijoynagar');
+  }, []);
 
   const currentVehicle = useMemo(() => {
     return vehicles.find(v => v.model === selectedModel);
@@ -83,6 +81,8 @@ export function VehicleServiceForm() {
   }
 
   const handleWorkshopChange = (workshopId: string) => {
+    // This function is kept for potential future use but is currently inactive
+    // because the dropdown is disabled.
     setSelectedWorkshop(workshopId);
     resetSelections();
   };
@@ -235,7 +235,7 @@ export function VehicleServiceForm() {
         <CardContent className="space-y-6">
             <div className="space-y-2">
               <Label htmlFor="workshop">Workshop</Label>
-              <Select onValueChange={handleWorkshopChange} value={selectedWorkshop}>
+              <Select onValueChange={handleWorkshopChange} value={selectedWorkshop} disabled>
                 <SelectTrigger id="workshop">
                   <SelectValue placeholder="Select Workshop" />
                 </SelectTrigger>
@@ -247,6 +247,10 @@ export function VehicleServiceForm() {
                   ))}
                 </SelectContent>
               </Select>
+               <div className="flex items-start gap-2 p-2 text-xs text-muted-foreground bg-muted/50 rounded-md border">
+                  <Info className="h-4 w-4 mt-0.5 shrink-0" />
+                  <p>This application is under review. Access to other locations will be enabled upon approval.</p>
+              </div>
             </div>
 
           <div className="space-y-2">
