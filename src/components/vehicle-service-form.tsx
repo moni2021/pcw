@@ -51,7 +51,7 @@ const serviceTypes = [
 
 export function VehicleServiceForm() {
   const { setTheme } = useTheme();
-  const [selectedWorkshop, setSelectedWorkshop] = useState<string>('arena-bijoynagar');
+  const [selectedWorkshop, setSelectedWorkshop] = useState<string>('');
   const [selectedModel, setSelectedModel] = useState<string>('');
   const [selectedFuelType, setSelectedFuelType] = useState<string>('');
   const [selectedYear, setSelectedYear] = useState<string>('');
@@ -62,11 +62,6 @@ export function VehicleServiceForm() {
   const [isModelPopoverOpen, setIsModelPopoverOpen] = useState(false);
   const [isChecklistOpen, setIsChecklistOpen] = useState(false);
   const [checklistData, setChecklistData] = useState<ChecklistCategory[] | null>(null);
-
-  useEffect(() => {
-    // Programmatically set the default workshop and keep it locked.
-    setSelectedWorkshop('arena-bijoynagar');
-  }, []);
 
   const currentVehicle = useMemo(() => {
     return vehicles.find(v => v.model === selectedModel);
@@ -90,8 +85,6 @@ export function VehicleServiceForm() {
   }
 
   const handleWorkshopChange = (workshopId: string) => {
-    // This function is kept for potential future use but is currently inactive
-    // because the dropdown is disabled.
     setSelectedWorkshop(workshopId);
     resetSelections();
   };
@@ -257,7 +250,7 @@ export function VehicleServiceForm() {
         <CardContent className="space-y-6">
             <div className="space-y-2">
               <Label htmlFor="workshop">Workshop</Label>
-              <Select onValueChange={handleWorkshopChange} value={selectedWorkshop} disabled>
+              <Select onValueChange={handleWorkshopChange} value={selectedWorkshop}>
                 <SelectTrigger id="workshop">
                   <SelectValue placeholder="Select Workshop" />
                 </SelectTrigger>
@@ -269,10 +262,6 @@ export function VehicleServiceForm() {
                   ))}
                 </SelectContent>
               </Select>
-               <div className="flex items-start gap-2 p-2 text-xs text-muted-foreground bg-muted/50 rounded-md border">
-                  <Info className="h-4 w-4 mt-0.5 shrink-0" />
-                  <p>This application is under review. Access to other locations will be enabled upon approval.</p>
-              </div>
             </div>
 
           <div className="space-y-2">
