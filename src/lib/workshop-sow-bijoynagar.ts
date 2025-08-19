@@ -3,7 +3,6 @@ import type { CustomLabor, PmsCharge } from './types';
 import { vehicles } from './data';
 
 // --- PMS CHARGES for sow-bijoynagar ---
-// For now, they are the same as the other workshop. This can be changed later.
 const defaultPmsCharges: Omit<PmsCharge, 'workshopId'>[] = [
     // Paid Service (20,000 km)
     { model: 'Alto 800', labourDesc: 'Paid Service (20,000 km)', labourCode: 'L4020050', basicAmt: 1435 },
