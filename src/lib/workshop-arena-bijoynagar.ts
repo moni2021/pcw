@@ -3,9 +3,100 @@ import type { CustomLabor, PmsCharge } from './types';
 import { vehicles } from './data';
 
 // --- PMS CHARGES for arena-bijoynagar ---
-const defaultPmsCharges: Omit<PmsCharge, 'workshopId'>[] = [];
+const defaultPmsCharges: Omit<PmsCharge, 'workshopId' | 'labourCode'>[] = [
+  // PMS-1P 20/30/40/50/60/70/80/90/100/110K
+  ...["NEW CELERIO 2021", "NEW WAGON R 1.2L PETROL", "NEW WAGON R 1L PETROL", "SWIFT", "IGNIS-PETROL", "RITZ", "A-STAR", "WAGON R", "CELERIO", "NEW WAGON-R K-SERIES", "WAGON-R NEW", "ZEN ESTILO", "ALTO K10", "S-PRESSO", "ALTO 800", "ALTO", "ALTO K10C"].flatMap(model =>
+    ["Paid Service (20,000 km)", "Paid Service (30,000 km)", "Paid Service (40,000 km)", "Paid Service (50,000 km)", "Paid Service (60,000 km)", "Paid Service (70,000 km)", "Paid Service (80,000 km)", "Paid Service (90,000 km)", "Paid Service (100,000 km)", "Paid Service (110,000 km)"].map(desc => ({ model, labourDesc: desc, basicAmt: 1410 }))
+  ),
+  ...["NEW DZIRE PETROL", "SWIFT DZIRE", "CIAZ PETROL"].flatMap(model =>
+    ["Paid Service (20,000 km)", "Paid Service (30,000 km)", "Paid Service (40,000 km)", "Paid Service (50,000 km)", "Paid Service (60,000 km)", "Paid Service (70,000 km)", "Paid Service (80,000 km)", "Paid Service (90,000 km)", "Paid Service (100,000 km)", "Paid Service (110,000 km)"].map(desc => ({ model, labourDesc: desc, basicAmt: 1470 }))
+  ),
+  ...["OMNI"].flatMap(model =>
+    ["Paid Service (20,000 km)", "Paid Service (30,000 km)", "Paid Service (40,000 km)", "Paid Service (50,000 km)", "Paid Service (60,000 km)", "Paid Service (70,000 km)", "Paid Service (80,000 km)", "Paid Service (90,000 km)", "Paid Service (100,000 km)", "Paid Service (110,000 km)"].map(desc => ({ model, labourDesc: desc, basicAmt: 1180 }))
+  ),
+  ...["SUPER CARRY PETROL"].flatMap(model =>
+    ["Paid Service (20,000 km)", "Paid Service (30,000 km)", "Paid Service (40,000 km)", "Paid Service (50,000 km)", "Paid Service (60,000 km)", "Paid Service (70,000 km)", "Paid Service (80,000 km)", "Paid Service (90,000 km)", "Paid Service (100,000 km)", "Paid Service (110,000 km)"].map(desc => ({ model, labourDesc: desc, basicAmt: 975 }))
+  ),
+  ...["EECO K12N 2022", "MARUTI EECO PETROL", "EECO"].flatMap(model =>
+    ["Paid Service (20,000 km)", "Paid Service (30,000 km)", "Paid Service (40,000 km)", "Paid Service (50,000 km)", "Paid Service (60,000 km)", "Paid Service (70,000 km)", "Paid Service (80,000 km)", "Paid Service (90,000 km)", "Paid Service (100,000 km)", "Paid Service (110,000 km)"].map(desc => ({ model, labourDesc: desc, basicAmt: 1255 }))
+  ),
+  ...["VITARA BREZZA 1.3D"].flatMap(model =>
+    ["Paid Service (20,000 km)", "Paid Service (30,000 km)", "Paid Service (40,000 km)", "Paid Service (50,000 km)", "Paid Service (60,000 km)", "Paid Service (70,000 km)", "Paid Service (80,000 km)", "Paid Service (90,000 km)", "Paid Service (100,000 km)", "Paid Service (110,000 km)"].map(desc => ({ model, labourDesc: desc, basicAmt: 2010 }))
+  ),
+  // PMS-1P 20K
+  ...["NEW BALENO"].flatMap(model =>
+    ["Paid Service (20,000 km)"].map(desc => ({ model, labourDesc: desc, basicAmt: 1400 }))
+  ),
+  ...["NEW BREZZA"].flatMap(model =>
+    ["Paid Service (20,000 km)"].map(desc => ({ model, labourDesc: desc, basicAmt: 1530 }))
+  ),
+  // PMS-1P 30K/50K/70K/90K/110K
+  ...["NEW BREZZA"].flatMap(model =>
+    ["Paid Service (30,000 km)", "Paid Service (50,000 km)", "Paid Service (70,000 km)", "Paid Service (90,000 km)", "Paid Service (110,000 km)"].map(desc => ({ model, labourDesc: desc, basicAmt: 1530 }))
+  ),
+  ...["XL6", "NEW ERTIGA PETROL", "ERTIGA PETROL"].flatMap(model =>
+    ["Paid Service (30,000 km)", "Paid Service (50,000 km)", "Paid Service (70,000 km)", "Paid Service (90,000 km)", "Paid Service (110,000 km)"].map(desc => ({ model, labourDesc: desc, basicAmt: 1545 }))
+  ),
+  ...["NEW BALENO"].flatMap(model =>
+    ["Paid Service (30,000 km)", "Paid Service (50,000 km)", "Paid Service (70,000 km)", "Paid Service (90,000 km)", "Paid Service (110,000 km)"].map(desc => ({ model, labourDesc: desc, basicAmt: 1470 }))
+  ),
+  // PMS-1P 40K/60K/80K/100K/120K
+  ...["XL6", "NEW ERTIGA PETROL", "ERTIGA PETROL"].flatMap(model =>
+    ["Paid Service (40,000 km)", "Paid Service (60,000 km)", "Paid Service (80,000 km)", "Paid Service (100,000 km)", "Paid Service (120,000 km)"].map(desc => ({ model, labourDesc: desc, basicAmt: 1615 }))
+  ),
+  ...["NEW BALENO"].flatMap(model =>
+    ["Paid Service (40,000 km)", "Paid Service (60,000 km)", "Paid Service (80,000 km)", "Paid Service (100,000 km)", "Paid Service (120,000 km)"].map(desc => ({ model, labourDesc: desc, basicAmt: 1535 }))
+  ),
+  ...["NEW BREZZA"].flatMap(model =>
+    ["Paid Service (40,000 km)", "Paid Service (60,000 km)", "Paid Service (80,000 km)", "Paid Service (100,000 km)", "Paid Service (120,000 km)"].map(desc => ({ model, labourDesc: desc, basicAmt: 1600 }))
+  ),
+  // PMS-1P 20K/30K/40K/50K/60K
+  ...["MARUTI GRAND VITARA Strong Hybrid"].flatMap(model =>
+    ["Paid Service (20,000 km)", "Paid Service (30,000 km)", "Paid Service (40,000 km)", "Paid Service (50,000 km)", "Paid Service (60,000 km)"].map(desc => ({ model, labourDesc: desc, basicAmt: 1995 }))
+  ),
+  // PMS-1P 20K/40K/60K/80K
+  ...["NEW SWIFT DZIRE TOUR S PETROL", "DAZZLING NEW DZIRE"].flatMap(model =>
+    ["Paid Service (20,000 km)", "Paid Service (40,000 km)", "Paid Service (60,000 km)", "Paid Service (80,000 km)"].map(desc => ({ model, labourDesc: desc, basicAmt: 1545 }))
+  ),
+  // PMS-2D 20K/60K/100K
+  ...["SWIFT NEW/ DZIRE NEW DIESEL"].flatMap(model =>
+    ["Paid Service (20,000 km)", "Paid Service (60,000 km)", "Paid Service (100,000 km)"].map(desc => ({ model, labourDesc: desc, basicAmt: 2010 }))
+  ),
+  // PMS-2D 30K/50K/70K
+  ...["ERTIGA DIESEL"].flatMap(model =>
+    ["Paid Service (30,000 km)", "Paid Service (50,000 km)", "Paid Service (70,000 km)"].map(desc => ({ model, labourDesc: desc, basicAmt: 1815 }))
+  ),
+  // PMS-2D 40K/80K
+  ...["SWIFT NEW/ DZIRE NEW DIESEL"].flatMap(model =>
+    ["Paid Service (40,000 km)", "Paid Service (80,000 km)"].map(desc => ({ model, labourDesc: desc, basicAmt: 2210 }))
+  ),
+  // PMS-2D 30K
+  ...["DZIRE TOUR DIESEL", "S-CROSS (D13)", "New Dzire Diesel", "CIAZ DIESEL"].flatMap(model =>
+    ["Paid Service (30,000 km)"].map(desc => ({ model, labourDesc: desc, basicAmt: 2010 }))
+  ),
+  // PMS-2D 20K
+  ...["S-CROSS (D13)", "New Dzire Diesel", "DZIRE TOUR DIESEL", "CIAZ DIESEL"].flatMap(model =>
+    ["Paid Service (20,000 km)"].map(desc => ({ model, labourDesc: desc, basicAmt: 1815 }))
+  ),
+  // PMS-2P 20/40/60/80/100K
+  ...["SWIFT NEW/ DZIRE NEW PETROL"].flatMap(model =>
+    ["Paid Service (20,000 km)", "Paid Service (40,000 km)", "Paid Service (60,000 km)", "Paid Service (80,000 km)", "Paid Service (100,000 km)"].map(desc => ({ model, labourDesc: desc, basicAmt: 1475 }))
+  ),
+  // PMS-2P 20K/40K/60K
+  ...["Fronx Domestic P74", "Fronx Turbo Smart Hybrid Domestic P74"].flatMap(model =>
+    ["Paid Service (20,000 km)", "Paid Service (40,000 km)", "Paid Service (60,000 km)"].map(desc => ({ model, labourDesc: desc, basicAmt: 1475 }))
+  ),
+  ...["Jimny 5 Door Domestic P74"].flatMap(model =>
+    ["Paid Service (20,000 km)", "Paid Service (40,000 km)", "Paid Service (60,000 km)"].map(desc => ({ model, labourDesc: desc, basicAmt: 1425 }))
+  ),
+];
 
-const pmsCharges: PmsCharge[] = defaultPmsCharges.map(charge => ({ ...charge, workshopId: 'arena-bijoynagar' }));
+
+const pmsCharges: PmsCharge[] = defaultPmsCharges.map((charge, index) => ({ 
+    ...charge, 
+    workshopId: 'arena-bijoynagar',
+    labourCode: `ARENA-PMS-${index + 1}`
+}));
 
 
 // --- CUSTOM LABOR for arena-bijoynagar ---
