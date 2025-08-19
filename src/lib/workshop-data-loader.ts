@@ -25,6 +25,11 @@ export function getPmsLabor(model: string, serviceType: string, workshopId: stri
     
     let pmsLabor: { name: string; charge: number }[] = [];
 
+    // Add convenience charges for SOW workshop for any service type.
+    if (workshopId === 'sow-bijoynagar') {
+        pmsLabor.push({ name: 'SOW Convenience Charges', charge: 150 });
+    }
+
     if (serviceType.startsWith('Paid Service')) {
         // Normalize model name from data file to match lookup
         const normalizedModelName = (name: string) => {
@@ -42,25 +47,32 @@ export function getPmsLabor(model: string, serviceType: string, workshopId: stri
             return [name];
         };
 
-        const matchingCharges = data.pmsCharges.filter(p => {
-             const chargeModels = normalizedModelName(p.model);
-             return chargeModels.includes(model) && p.labourDesc === serviceType && p.workshopId === workshopId;
-        });
+        const findCharge = (charges: PmsCharge[]) => {
+             const matchingCharges = charges.filter(p => {
+                const chargeModels = normalizedModelName(p.model);
+                return chargeModels.includes(model) && p.labourDesc === serviceType;
+            });
+            return matchingCharges[0]; // Return the best match
+        }
 
-        // Find the best match, sometimes there are multiple due to naming conventions
-        const pmsCharge = matchingCharges[0];
+        let pmsCharge = findCharge(data.pmsCharges);
+        
+        // If no charge found in SOW, fallback to Arena data to generate a price
+        if (workshopId === 'sow-bijoynagar' && !pmsCharge) {
+            console.warn(`No PMS charge found for ${model} - ${serviceType} in SOW. Falling back to Arena pricing.`);
+            const arenaPmsCharge = findCharge(workshopDataMap['arena-bijoynagar'].pmsCharges);
+            if(arenaPmsCharge) {
+                pmsCharge = { ...arenaPmsCharge, workshopId: 'sow-bijoynagar' };
+            }
+        }
+
 
         if (pmsCharge) {
             pmsLabor.push({ name: 'Periodic Maintenance Service', charge: pmsCharge.basicAmt });
         }
     }
     
-    // Add convenience charges only for SOW workshop and if there's a PMS charge
-    if (workshopId === 'sow-bijoynagar' && pmsLabor.length > 0) {
-        pmsLabor.push({ name: 'SOW Convenience Charges', charge: 150 });
-    }
-    
-    // Return empty array if it's a free service or if no matching paid service charge is found
+    // Return empty array if it's a free service without convenience charge
     return pmsLabor;
 }
 

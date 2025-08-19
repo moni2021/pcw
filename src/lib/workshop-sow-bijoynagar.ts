@@ -140,29 +140,19 @@ const pmsCharges: PmsCharge[] = defaultPmsCharges.map((charge, index) => ({
 
 // --- CUSTOM LABOR for sow-bijoynagar ---
 
-const acGasTopUpLabor: Omit<CustomLabor, 'workshopId'>[] = vehicles.map(vehicle => ({
-  name: 'AC GAS TOP-UP',
-  model: vehicle.model,
-  charge: 1600.00,
-}));
-
-const batteryCheckLabor: Omit<CustomLabor, 'workshopId'>[] = vehicles.map(vehicle => ({
-  name: 'BATTERY CHECK',
-  model: vehicle.model,
-  charge: 250.00,
-}));
-
-const acDisinfectantLabor: Omit<CustomLabor, 'workshopId'>[] = vehicles.map(vehicle => ({
-  name: 'AC DISINFECTANT',
-  model: vehicle.model,
-  charge: 650.00,
-}));
+const createUniversalLabor = (name: string, charge: number) => 
+    vehicles.map(vehicle => ({
+        name,
+        model: vehicle.model,
+        charge,
+    }));
 
 
 const defaultCustomLabor: Omit<CustomLabor, 'workshopId'>[] = [
-  ...acGasTopUpLabor,
-  ...batteryCheckLabor,
-  ...acDisinfectantLabor,
+  ...createUniversalLabor('AC GAS TOP-UP', 1600.00),
+  ...createUniversalLabor('BATTERY CHECK', 250.00),
+  ...createUniversalLabor('AC DISINFECTANT', 650.00),
+  ...createUniversalLabor('EVAPORATOR CLEANING', 260.00),
 ];
 
 const customLaborData: CustomLabor[] = defaultCustomLabor.map(labor => ({ ...labor, workshopId: 'sow-bijoynagar' }));
