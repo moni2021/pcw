@@ -37,11 +37,14 @@ const ThreeMCareServiceSchema = z.object({
 const ThreeMCareSchema = z.record(z.array(ThreeMCareServiceSchema));
 
 // We need to bring in the workshop-specific data for a master sync/download
-import { workshopData as arenaData } from '@/lib/workshop-arena-bijoynagar';
-import { workshopData as sowData } from '@/lib/workshop-sow-bijoynagar';
+import { workshopData } from '@/lib/workshop-data-loader';
+import { workshops } from '@/lib/data/workshops';
+import { vehicles } from '@/lib/data';
+import { allParts } from '@/lib/data/parts';
+import { threeMCareData } from '@/lib/data/3m';
 
-const allCustomLabor = [...arenaData.customLabor, ...sowData.customLabor];
-const allPmsCharges = [...arenaData.pmsCharges, ...sowData.pmsCharges];
+const allCustomLabor = [...workshopData.customLabor];
+const allPmsCharges = [...workshopData.pmsCharges];
 
 const dataSchemas = {
   vehicles: z.array(VehicleSchema),
@@ -124,43 +127,38 @@ export async function uploadAndSyncToFirebase(jsonString: string, dataType: Data
 }
 
 /**
- * Generates a sample JSON string for a given data type.
- * @param dataType The type of data for which to generate a sample.
- * @returns A JSON string representing a sample of the data.
+ * Generates a JSON string for a given data type from the current application data.
+ * @param dataType The type of data for which to generate the JSON.
+ * @returns A JSON string representing the data.
  */
-export async function downloadSampleJson(dataType: DataType): Promise<string> {
-    let sampleObject;
+export async function downloadMasterJson(dataType: DataType): Promise<string> {
+    let dataObject;
     switch(dataType) {
         case 'vehicles':
-            sampleObject = [{ model: 'Sample Model', brand: 'Arena', category: 'Hatchback', variants: ['LXI'], fuelTypes: ['Petrol'], productionYears: [2024] }];
+            dataObject = vehicles;
             break;
         case 'parts':
-            sampleObject = [{ name: 'Sample Part', price: 100.00 }];
+            dataObject = allParts;
             break;
+
         case 'customLabor':
-            sampleObject = allCustomLabor.slice(0, 5); // Sample a few from the combined list
+            dataObject = allCustomLabor;
             break;
         case 'pmsCharges':
-             sampleObject = allPmsCharges.slice(0, 5); // Sample a few from the combined list
+             dataObject = allPmsCharges;
             break;
         case 'workshops':
-            sampleObject = [
-                { id: 'workshop-1', name: 'Main Workshop' },
-                { id: 'workshop-2', name: 'Secondary Workshop' }
-            ];
+            dataObject = workshops;
             break;
         case 'threeMCare':
-            sampleObject = {
-              "Ciaz": [
-                { "name": "INTERIOR CLEANING", "charge": 1500 },
-                { "name": "BODY RUBBING & POLISHING", "charge": 1500 }
-              ]
-            };
+            dataObject = threeMCareData;
             break;
         default:
             // This is a safety net, but based on the UI, dataType should always be valid.
             const exhaustiveCheck: never = dataType;
             throw new Error(`Unhandled data type: ${exhaustiveCheck}`);
     }
-    return JSON.stringify(sampleObject, null, 2);
+    return JSON.stringify(dataObject, null, 2);
 }
+
+    

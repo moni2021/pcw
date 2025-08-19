@@ -5,15 +5,18 @@ import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Download, Database, KeyRound, Save, UploadCloud, ShieldCheck, Loader2, Upload, FileJson, AlertCircle, Building, Sparkles } from 'lucide-react';
+import { Download, Database, KeyRound, Save, UploadCloud, ShieldCheck, Loader2, Upload, FileJson, AlertCircle, Building, Sparkles, BrainCircuit } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { syncToFirebase, uploadAndSyncToFirebase, downloadSampleJson } from './actions';
+import { syncToFirebase, uploadAndSyncToFirebase, downloadMasterJson } from './actions';
 import { Separator } from '@/components/ui/separator';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 import { uploadServiceAccountKey } from '@/ai/flows/secure-key-uploader';
+import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { convertToJson } from '@/ai/flows/json-converter-flow';
 
 
 // Import all data sources for the "Master" sync
@@ -21,12 +24,14 @@ import { workshops } from '@/lib/data/workshops';
 import { vehicles } from '@/lib/data';
 import { allParts } from '@/lib/data/parts';
 import { threeMCareData } from '@/lib/data/3m';
-import { workshopData as arenaData } from '@/lib/workshop-data-loader';
+import { workshopData } from '@/lib/workshop-data-loader';
 
-const allCustomLabor = [...arenaData.customLabor];
-const allPmsCharges = [...arenaData.pmsCharges];
+const allCustomLabor = [...workshopData.customLabor];
+const allPmsCharges = [...workshopData.pmsCharges];
 
 type DataType = 'workshops' | 'vehicles' | 'parts' | 'customLabor' | 'pmsCharges' | 'threeMCare';
+type JsonFormatType = 'workshops' | 'vehicles' | 'parts' | 'customLabor' | 'pmsCharges' | 'threeMCare';
+
 
 export default function DataManagementPage() {
     const { toast } = useToast();
@@ -38,6 +43,11 @@ export default function DataManagementPage() {
     const [selectedFile, setSelectedFile] = useState<{ [key in DataType]?: File | null }>({});
     const [isUploadingKey, setIsUploadingKey] = useState(false);
     const [serviceAccountFile, setServiceAccountFile] = useState<File | null>(null);
+    const [isConverterOpen, setIsConverterOpen] = useState(false);
+    const [rawText, setRawText] = useState('');
+    const [jsonFormat, setJsonFormat] = useState<JsonFormatType>('parts');
+    const [convertedJson, setConvertedJson] = useState('');
+    const [isConverting, setIsConverting] = useState(false);
 
     useEffect(() => {
         setIsAuthenticated(false);
@@ -72,15 +82,15 @@ export default function DataManagementPage() {
         threeMCare: threeMCareData,
     };
 
-    const handleMasterDownload = () => {
+    const handleMasterDownload = async (dataType: DataType) => {
         try {
-            const jsonString = JSON.stringify(allData, null, 2);
+            const jsonString = await downloadMasterJson(dataType);
             const blob = new Blob([jsonString], { type: 'application/json' });
             const url = URL.createObjectURL(blob);
 
             const link = document.createElement('a');
             link.href = url;
-            link.download = 'maruti_service_master_data.json';
+            link.download = `${dataType}_master_data.json`;
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
@@ -88,7 +98,7 @@ export default function DataManagementPage() {
 
             toast({
                 title: 'Download Started',
-                description: 'Your master data file is being downloaded.',
+                description: `Your ${dataType} master data file is being downloaded.`,
             });
         } catch (error) {
             console.error("Failed to prepare data for download:", error);
@@ -100,26 +110,23 @@ export default function DataManagementPage() {
         }
     };
     
-    const handleSampleDownload = async (dataType: DataType) => {
-        try {
-            const jsonString = await downloadSampleJson(dataType);
-            const blob = new Blob([jsonString], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            const link = document.createElement('a');
-            link.href = url;
-            link.download = `${dataType}_sample.json`;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            URL.revokeObjectURL(url);
-        } catch (error) {
-             toast({
-                variant: "destructive",
-                title: 'Sample Download Failed',
-                description: 'Could not download the sample file.',
-            });
+    const handleConvertText = async () => {
+        if (!rawText) {
+            toast({ variant: 'destructive', title: 'Error', description: 'Raw text input cannot be empty.' });
+            return;
         }
-    }
+        setIsConverting(true);
+        setConvertedJson('');
+        try {
+            const result = await convertToJson({ rawText, jsonFormat });
+            setConvertedJson(result.jsonString);
+            toast({ title: 'Success', description: 'Text converted to JSON successfully.' });
+        } catch (error: any) {
+            toast({ variant: 'destructive', title: 'Conversion Failed', description: error.message || 'An unknown error occurred.' });
+        } finally {
+            setIsConverting(false);
+        }
+    };
 
 
     const handleSync = async () => {
@@ -294,11 +301,11 @@ export default function DataManagementPage() {
                         ) : (
                             <UploadCloud className="mr-2 h-4 w-4" />
                         )}
-                        Upload & Sync
+                        Upload & Sync to Firebase
                     </Button>
-                    <Button onClick={() => handleSampleDownload(dataType)} variant="outline">
+                    <Button onClick={() => handleMasterDownload(dataType)} variant="outline">
                         <Download className="mr-2 h-4 w-4" />
-                        Download Sample
+                        Download Master File
                     </Button>
                   </div>
             </CardContent>
@@ -307,6 +314,59 @@ export default function DataManagementPage() {
 
     return (
         <div className="space-y-6">
+            <Dialog open={isConverterOpen} onOpenChange={setIsConverterOpen}>
+                <DialogContent className="max-w-4xl">
+                    <DialogHeader>
+                        <DialogTitle className="flex items-center gap-2"><BrainCircuit /> AI JSON Converter</DialogTitle>
+                        <DialogDescription>
+                            Paste unstructured text (e.g., from a spreadsheet) and convert it to structured JSON for upload.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="space-y-4">
+                            <div className="space-y-2">
+                                <Label htmlFor="raw-text">Raw Text Input</Label>
+                                <Textarea id="raw-text" placeholder="Paste your data here..." className="h-64" value={rawText} onChange={(e) => setRawText(e.target.value)} />
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="json-format">Target JSON Format</Label>
+                                <Select value={jsonFormat} onValueChange={(v) => setJsonFormat(v as JsonFormatType)}>
+                                    <SelectTrigger id="json-format">
+                                        <SelectValue placeholder="Select format" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="workshops">Workshops</SelectItem>
+                                        <SelectItem value="vehicles">Vehicles</SelectItem>
+                                        <SelectItem value="parts">Parts</SelectItem>
+                                        <SelectItem value="customLabor">Custom Labour</SelectItem>
+                                        <SelectItem value="pmsCharges">PMS Charges</SelectItem>
+                                        <SelectItem value="threeMCare">3M Care</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="converted-json">Converted JSON Output</Label>
+                            <div className="relative h-full">
+                                <Textarea id="converted-json" readOnly value={convertedJson} className="h-full" placeholder="JSON output will appear here..." />
+                                {isConverting && (
+                                    <div className="absolute inset-0 flex items-center justify-center bg-background/80">
+                                        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                    <DialogFooter>
+                         <Button onClick={() => navigator.clipboard.writeText(convertedJson)} variant="outline" disabled={!convertedJson}>Copy JSON</Button>
+                        <Button onClick={handleConvertText} disabled={isConverting}>
+                            {isConverting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <BrainCircuit className="mr-2 h-4 w-4" />}
+                            Convert
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
+
             <Card className="border-destructive">
                 <CardHeader>
                     <CardTitle className="flex items-center gap-2 text-destructive">
@@ -343,27 +403,25 @@ export default function DataManagementPage() {
             <Card>
                 <CardHeader>
                     <CardTitle className="flex items-center gap-2">
-                        <Database /> Master Data Management
+                        <Database /> Master Data Sync
                     </CardTitle>
                     <CardDescription>
-                       Download the application's current local data or push it to Firebase. This is useful for backups or initializing the database.
+                       Push all data modified in the admin panels (Parts, Labour, etc.) to your live Firebase database. This overwrites the existing data in Firebase.
                     </CardDescription>
                 </CardHeader>
-                <CardContent>
-                    <div className="flex gap-2">
-                        <Button onClick={handleMasterDownload}>
-                            <Download className="mr-2 h-4 w-4" />
-                            Download All Data
-                        </Button>
-                         <Button onClick={handleSync} disabled={isSyncing} variant="secondary">
-                            {isSyncing ? (
-                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                            ) : (
-                                <UploadCloud className="mr-2 h-4 w-4" />
-                            )}
-                            Sync Local to Firebase
-                        </Button>
-                    </div>
+                <CardContent className="flex flex-col sm:flex-row gap-2">
+                     <Button onClick={handleSync} disabled={isSyncing}>
+                        {isSyncing ? (
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        ) : (
+                            <UploadCloud className="mr-2 h-4 w-4" />
+                        )}
+                        Sync All Local Data to Firebase
+                    </Button>
+                     <Button onClick={() => setIsConverterOpen(true)} variant="outline">
+                        <BrainCircuit className="mr-2 h-4 w-4" />
+                        AI JSON Converter
+                    </Button>
                 </CardContent>
             </Card>
 
@@ -372,10 +430,10 @@ export default function DataManagementPage() {
              <Card>
                 <CardHeader>
                     <CardTitle className="flex items-center gap-2">
-                        <Upload /> Structured Data Upload
+                        <Upload /> Individual Data Upload
                     </CardTitle>
                     <CardDescription>
-                       Upload a JSON file for a specific data type to update it in Firebase. Use the sample files to ensure correct formatting.
+                       Upload a JSON file for a specific data type to update it in Firebase. This is useful for migrating data from another system.
                     </CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -412,3 +470,5 @@ export default function DataManagementPage() {
         </div>
     );
 }
+
+    

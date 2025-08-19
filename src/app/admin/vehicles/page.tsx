@@ -9,7 +9,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Car, PlusCircle, Trash2, Pencil, Search, Droplets } from 'lucide-react';
+import { Car, PlusCircle, Trash2, Pencil, Search } from 'lucide-react';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
@@ -25,20 +25,20 @@ import { useToast } from '@/hooks/use-toast';
 export default function VehicleManagementPage() {
   const [vehicles, setVehicles] = useState<Vehicle[]>(initialVehicles);
   const [isVehicleDialogOpen, setIsVehicleDialogOpen] = useState(false);
-  const [currentVehicle, setCurrentVehicle] = useState<Partial<Vehicle> | null>(null);
+  const [currentVehicle, setCurrentVehicle] = useState<Partial<Vehicle> & { model_original?: string } | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const { toast } = useToast();
 
   const handleAddVehicle = () => {
     setIsEditing(false);
-    setCurrentVehicle({});
+    setCurrentVehicle({ fuelTypes: [], productionYears: [], variants: [] });
     setIsVehicleDialogOpen(true);
   };
 
   const handleEditVehicle = (vehicle: Vehicle) => {
     setIsEditing(true);
-    setCurrentVehicle({ ...vehicle });
+    setCurrentVehicle({ ...vehicle, model_original: vehicle.model });
     setIsVehicleDialogOpen(true);
   };
 
@@ -46,7 +46,7 @@ export default function VehicleManagementPage() {
     setVehicles(prev => prev.filter(v => v.model !== model));
     toast({
       title: 'Vehicle Deleted',
-      description: 'The vehicle has been removed from the list (local state).',
+      description: 'The vehicle has been removed. Sync to Firebase to make this change permanent.',
     });
   };
 
@@ -71,13 +71,14 @@ export default function VehicleManagementPage() {
         category: currentVehicle.category,
         variants: currentVehicle.variants || [],
         fuelTypes: fuelTypesArray,
-        productionYears: productionYearsArray,
+        productionYears: productionYearsArray.sort((a,b) => a - b),
         engineOilQuantity: currentVehicle.engineOilQuantity || '',
         engineOilLiters: Number(currentVehicle.engineOilLiters) || undefined,
+        defaultEngineOil: currentVehicle.defaultEngineOil || '',
     };
 
     if (isEditing) {
-        setVehicles(prev => prev.map(v => v.model === newVehicle.model ? newVehicle : v));
+        setVehicles(prev => prev.map(v => v.model === currentVehicle.model_original ? newVehicle : v));
         toast({ title: 'Success', description: 'Vehicle updated.' });
     } else {
         if (vehicles.some(v => v.model.toLowerCase() === newVehicle.model.toLowerCase())) {
@@ -105,6 +106,11 @@ export default function VehicleManagementPage() {
     const brandOrder: { [key: string]: number } = { 'Nexa': 1, 'Arena': 2, 'Commercial': 3 };
     
     return vehicles
+      .filter(vehicle =>
+        vehicle.model.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        vehicle.brand.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        vehicle.category.toLowerCase().includes(searchTerm.toLowerCase())
+      )
       .sort((a, b) => {
         const orderA = brandOrder[a.brand] || 99;
         const orderB = brandOrder[b.brand] || 99;
@@ -112,10 +118,7 @@ export default function VehicleManagementPage() {
           return orderA - orderB;
         }
         return a.model.localeCompare(b.model); // a secondary sort by model name
-      })
-      .filter(vehicle =>
-        vehicle.model.toLowerCase().includes(searchTerm.toLowerCase())
-      );
+      });
   }, [vehicles, searchTerm]);
 
 
@@ -124,21 +127,21 @@ export default function VehicleManagementPage() {
         <CardHeader className="flex flex-row items-start sm:items-center justify-between gap-2">
             <div className="space-y-1">
                 <CardTitle className="flex items-center gap-2"><Car /> Manage Vehicle Models</CardTitle>
-                <CardDescription>Add, edit, or remove vehicle models and their properties.</CardDescription>
+                <CardDescription>Add, edit, or remove vehicle models. Remember to sync to Firebase to save changes.</CardDescription>
             </div>
               <div className="flex-1 flex justify-center sm:justify-end gap-2">
                 <div className="relative w-full max-w-xs">
                     <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                     <Input
                         type="search"
-                        placeholder="Search by model name..."
+                        placeholder="Search by model, brand..."
                         className="pl-8"
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                     />
                 </div>
                   <Button onClick={handleAddVehicle} className="shrink-0">
-                    <PlusCircle /> Add New
+                    <PlusCircle className="mr-2 h-4 w-4" /> Add New
                 </Button>
             </div>
         </CardHeader>
@@ -191,7 +194,7 @@ export default function VehicleManagementPage() {
                     <div className="grid gap-4 py-4">
                         <div className="grid grid-cols-4 items-center gap-4">
                             <Label htmlFor="model" className="text-right">Model</Label>
-                            <Input id="model" name="model" value={currentVehicle?.model || ''} onChange={handleDialogInputChange} className="col-span-3" required disabled={isEditing} />
+                            <Input id="model" name="model" value={currentVehicle?.model || ''} onChange={handleDialogInputChange} className="col-span-3" required />
                         </div>
                         <div className="grid grid-cols-4 items-center gap-4">
                             <Label htmlFor="brand" className="text-right">Brand</Label>
@@ -226,6 +229,10 @@ export default function VehicleManagementPage() {
                             <Label htmlFor="engineOilLiters" className="text-right">Engine Oil (Liters)</Label>
                             <Input id="engineOilLiters" name="engineOilLiters" type="number" step="0.1" value={currentVehicle?.engineOilLiters || ''} onChange={handleDialogInputChange} className="col-span-3" placeholder="e.g. 3.1" />
                         </div>
+                         <div className="grid grid-cols-4 items-center gap-4">
+                            <Label htmlFor="defaultEngineOil" className="text-right">Default Oil Part</Label>
+                            <Input id="defaultEngineOil" name="defaultEngineOil" value={currentVehicle?.defaultEngineOil || ''} onChange={handleDialogInputChange} className="col-span-3" placeholder="Part name from Parts list" />
+                        </div>
                     </div>
                     <DialogFooter>
                         <Button type="submit">Save changes</Button>
@@ -236,3 +243,5 @@ export default function VehicleManagementPage() {
     </Card>
   );
 }
+
+    

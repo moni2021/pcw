@@ -45,12 +45,12 @@ const jsonSchemas = {
 };
 
 const jsonExamples = {
-    parts: { name: 'Sample Part', price: 100 },
-    customLabor: { workshopId: "default", name: 'Sample Labor', model: 'Some Model', charge: 500 },
-    pmsCharges: { workshopId: "default", model: 'Some Model', labourDesc: 'Paid Service (20,000 km)', labourCode: 'L4020050', basicAmt: 1500 },
-    vehicles: { model: 'Sample Model', brand: 'Arena', category: 'Hatchback', variants: [], fuelTypes: ['Petrol'], productionYears: [2024] },
+    parts: [{ name: 'Sample Part', price: 100 }],
+    customLabor: [{ workshopId: "default", name: 'Sample Labor', model: 'Some Model', charge: 500 }],
+    pmsCharges: [{ workshopId: "default", model: 'Some Model', labourDesc: 'Paid Service (20,000 km)', labourCode: 'L4020050', basicAmt: 1500 }],
+    vehicles: [{ model: 'Sample Model', brand: 'Arena', category: 'Hatchback', variants: [], fuelTypes: ['Petrol'], productionYears: [2024] }],
     threeMCare: { "Some Model": [{ "name": "INTERIOR CLEANING", "charge": 1500 }]},
-    workshops: { id: 'workshop-1', name: 'Main Workshop' },
+    workshops: [{ id: 'workshop-1', name: 'Main Workshop' }],
 };
 
 const jsonDescriptions = {
@@ -115,3 +115,5 @@ const converterFlow = ai.defineFlow(
     return { jsonString: JSON.stringify(output, null, 2) };
   }
 );
+
+    

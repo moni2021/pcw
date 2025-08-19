@@ -43,7 +43,7 @@ export default function LabourManagementPage() {
 
   const handleAddLabor = () => {
     setIsEditing(false);
-    setCurrentLabor({ workshopId: workshops[0]?.id || 'default' });
+    setCurrentLabor({ workshopId: workshops[0]?.id || '' });
     setIsLaborDialogOpen(true);
   };
 
@@ -53,11 +53,15 @@ export default function LabourManagementPage() {
     setIsLaborDialogOpen(true);
   };
 
-  const handleDeleteLabor = (workshopId: string, laborName: string, laborModel: string) => {
-    setCustomLabor(prev => prev.filter(l => !(l.workshopId === workshopId && l.name === laborName && l.model === laborModel)));
+  const handleDeleteLabor = (laborToDelete: CustomLabor) => {
+    setCustomLabor(prev => prev.filter(l => 
+        l.workshopId !== laborToDelete.workshopId || 
+        l.name !== laborToDelete.name || 
+        l.model !== laborToDelete.model
+    ));
     toast({
       title: 'Labour Charge Deleted',
-      description: 'The labour charge has been removed from the list (local state).',
+      description: 'The labour charge has been removed. Sync to Firebase to make this change permanent.',
     });
   };
 
@@ -78,18 +82,18 @@ export default function LabourManagementPage() {
 
     if (isEditing) {
         setCustomLabor(prev => prev.map(l => 
-            (l.name === newLabor.name && l.model === newLabor.model && l.workshopId === newLabor.workshopId) 
+            (l.name === currentLabor.name && l.model === currentLabor.model && l.workshopId === currentLabor.workshopId) 
             ? newLabor 
             : l
         ));
         toast({ title: 'Success', description: 'Labour charge updated.' });
     } else {
          // Check for duplicates before adding
-        if (customLabor.some(l => l.name === newLabor.name && l.model === newLabor.model && l.workshopId === newLabor.workshopId)) {
+        if (customLabor.some(l => l.name.toLowerCase() === newLabor.name.toLowerCase() && l.model === newLabor.model && l.workshopId === newLabor.workshopId)) {
             toast({ variant: 'destructive', title: 'Error', description: 'This labour charge already exists for the selected workshop and model.' });
             return;
         }
-        setCustomLabor(prev => [...prev, newLabor]);
+        setCustomLabor(prev => [...prev, newLabor].sort((a,b) => a.name.localeCompare(b.name)));
         toast({ title: 'Success', description: 'New labour charge added.' });
     }
 
@@ -108,7 +112,8 @@ export default function LabourManagementPage() {
 
   const filteredLabor = customLabor.filter(labor => 
     labor.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    labor.model.toLowerCase().includes(searchTerm.toLowerCase())
+    labor.model.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (workshops.find(w => w.id === labor.workshopId)?.name || '').toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
@@ -116,21 +121,21 @@ export default function LabourManagementPage() {
       <CardHeader className="flex flex-row items-start sm:items-center justify-between gap-2">
           <div className="space-y-1">
               <CardTitle className="flex items-center gap-2"><Wrench /> Manage Labour Charges</CardTitle>
-              <CardDescription>Add, edit, or remove custom labour charges for each workshop.</CardDescription>
+              <CardDescription>Add, edit, or remove custom labour charges for each workshop. Remember to sync to Firebase to save changes.</CardDescription>
           </div>
             <div className="flex-1 flex justify-center sm:justify-end gap-2">
               <div className="relative w-full max-w-xs">
                   <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                   <Input
                       type="search"
-                      placeholder="Search by name or model..."
+                      placeholder="Search by name, model, workshop..."
                       className="pl-8"
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
                   />
               </div>
                 <Button onClick={handleAddLabor} className="shrink-0">
-                  <PlusCircle /> Add New
+                  <PlusCircle className="mr-2 h-4 w-4"/> Add New
               </Button>
             </div>
       </CardHeader>
@@ -157,7 +162,7 @@ export default function LabourManagementPage() {
                         <Button variant="ghost" size="icon" onClick={() => handleEditLabor(labor)}>
                         <Pencil className="h-4 w-4" />
                         </Button>
-                        <Button variant="ghost" size="icon" onClick={() => handleDeleteLabor(labor.workshopId, labor.name, labor.model)}>
+                        <Button variant="ghost" size="icon" onClick={() => handleDeleteLabor(labor)}>
                         <Trash2 className="h-4 w-4 text-destructive" />
                         </Button>
                     </TableCell>
@@ -251,3 +256,5 @@ export default function LabourManagementPage() {
     </Card>
   );
 }
+
+    

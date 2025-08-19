@@ -44,7 +44,7 @@ export default function PartsManagementPage() {
     setAllParts(prev => prev.filter(p => p.name !== partName));
     toast({
       title: 'Part Deleted',
-      description: 'The part has been removed from the list (local state).',
+      description: 'The part has been removed. Sync to Firebase to make this change permanent.',
     });
   };
 
@@ -61,14 +61,14 @@ export default function PartsManagementPage() {
     };
 
     if (isEditing) {
-        setAllParts(prev => prev.map(p => p.name === newPart.name ? newPart : p));
+        setAllParts(prev => prev.map(p => p.name === (currentPart.name) ? newPart : p));
         toast({ title: 'Success', description: 'Part updated.' });
     } else {
         if (allParts.some(p => p.name.toLowerCase() === newPart.name.toLowerCase())) {
             toast({ variant: 'destructive', title: 'Error', description: 'A part with this name already exists.' });
             return;
         }
-        setAllParts(prev => [...prev, newPart]);
+        setAllParts(prev => [...prev, newPart].sort((a,b) => a.name.localeCompare(b.name)));
         toast({ title: 'Success', description: 'New part added.' });
     }
 
@@ -90,7 +90,7 @@ export default function PartsManagementPage() {
         <CardHeader className="flex flex-row items-start sm:items-center justify-between gap-2">
             <div className="space-y-1">
                 <CardTitle className="flex items-center gap-2"><Package /> Manage Parts and Pricing</CardTitle>
-                <CardDescription>Add, edit, or remove parts from the central price list.</CardDescription>
+                <CardDescription>Add, edit, or remove parts from the central price list. Remember to sync to Firebase to save changes.</CardDescription>
             </div>
              <div className="flex-1 flex justify-center sm:justify-end gap-2">
                 <div className="relative w-full max-w-xs">
@@ -104,7 +104,7 @@ export default function PartsManagementPage() {
                     />
                 </div>
                 <Button onClick={handleAddPart} className="shrink-0">
-                    <PlusCircle /> Add New
+                    <PlusCircle className="mr-2 h-4 w-4"/> Add New
                 </Button>
             </div>
         </CardHeader>
@@ -153,7 +153,7 @@ export default function PartsManagementPage() {
                       </div>
                       <div className="grid grid-cols-4 items-center gap-4">
                           <Label htmlFor="price" className="text-right">Price (₹)</Label>
-                          <Input id="price" name="price" type="number" value={currentPart?.price || ''} onChange={handleDialogInputChange} className="col-span-3" required />
+                          <Input id="price" name="price" type="number" step="0.01" value={currentPart?.price || ''} onChange={handleDialogInputChange} className="col-span-3" required />
                       </div>
                   </div>
                   <DialogFooter>
@@ -165,3 +165,5 @@ export default function PartsManagementPage() {
     </Card>
   );
 }
+
+    

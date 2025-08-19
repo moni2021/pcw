@@ -44,7 +44,7 @@ export default function WorkshopManagementPage() {
     setWorkshops(prev => prev.filter(w => w.id !== workshopId));
     toast({
       title: 'Workshop Deleted',
-      description: 'The workshop has been removed from the list (local state).',
+      description: 'The workshop has been removed. Sync to Firebase to make this change permanent.',
     });
   };
 
@@ -56,19 +56,19 @@ export default function WorkshopManagementPage() {
     }
 
     const newWorkshop: Workshop = {
-        id: currentWorkshop.id,
+        id: currentWorkshop.id.toLowerCase().replace(/\s+/g, '-'), // Sanitize ID
         name: currentWorkshop.name,
     };
 
     if (isEditing) {
-        setWorkshops(prev => prev.map(w => w.id === newWorkshop.id ? newWorkshop : w));
+        setWorkshops(prev => prev.map(w => w.id === (currentWorkshop as Workshop).id ? newWorkshop : w));
         toast({ title: 'Success', description: 'Workshop updated.' });
     } else {
         if (workshops.some(w => w.id.toLowerCase() === newWorkshop.id.toLowerCase())) {
             toast({ variant: 'destructive', title: 'Error', description: 'A workshop with this ID already exists.' });
             return;
         }
-        setWorkshops(prev => [...prev, newWorkshop]);
+        setWorkshops(prev => [...prev, newWorkshop].sort((a,b) => a.name.localeCompare(b.name)));
         toast({ title: 'Success', description: 'New workshop added.' });
     }
 
@@ -91,7 +91,7 @@ export default function WorkshopManagementPage() {
       <CardHeader className="flex flex-row items-start sm:items-center justify-between gap-2">
           <div className="space-y-1">
               <CardTitle className="flex items-center gap-2"><Building /> Manage Workshops</CardTitle>
-              <CardDescription>Add, edit, or remove workshops.</CardDescription>
+              <CardDescription>Add, edit, or remove workshops. Remember to sync to Firebase to save changes.</CardDescription>
           </div>
             <div className="flex-1 flex justify-center sm:justify-end gap-2">
               <div className="relative w-full max-w-xs">
@@ -105,7 +105,7 @@ export default function WorkshopManagementPage() {
                   />
               </div>
                 <Button onClick={handleAddWorkshop} className="shrink-0">
-                  <PlusCircle /> Add New
+                  <PlusCircle className="mr-2 h-4 w-4"/> Add New
               </Button>
             </div>
       </CardHeader>
@@ -144,7 +144,7 @@ export default function WorkshopManagementPage() {
                 <DialogHeader>
                     <DialogTitle>{isEditing ? 'Edit Workshop' : 'Add New Workshop'}</DialogTitle>
                     <DialogDescription>
-                        Fill in the details for the workshop. The ID must be unique.
+                        Fill in the details for the workshop. The ID must be unique and will be sanitized (e.g., "My Workshop" becomes "my-workshop").
                     </DialogDescription>
                 </DialogHeader>
                 <div className="grid gap-4 py-4">
@@ -166,3 +166,5 @@ export default function WorkshopManagementPage() {
     </Card>
   );
 }
+
+    
