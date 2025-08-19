@@ -1,8 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   experimental: {
-    esmExternals: 'loose', 
-    serverActions: true,
+    serverActions: {},
   },
   typescript: {
     ignoreBuildErrors: true,
