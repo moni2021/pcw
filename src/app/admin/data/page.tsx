@@ -22,10 +22,9 @@ import { vehicles } from '@/lib/data';
 import { allParts } from '@/lib/parts-data';
 import { threeMCareData } from '@/lib/3m-care-data';
 import { workshopData as arenaData } from '@/lib/workshop-arena-bijoynagar';
-import { workshopData as sowData } from '@/lib/workshop-sow-bijoynagar';
 
-const allCustomLabor = [...arenaData.customLabor, ...sowData.customLabor];
-const allPmsCharges = [...arenaData.pmsCharges, ...sowData.pmsCharges];
+const allCustomLabor = [...arenaData.customLabor];
+const allPmsCharges = [...arenaData.pmsCharges];
 
 type DataType = 'workshops' | 'vehicles' | 'parts' | 'customLabor' | 'pmsCharges' | 'threeMCare';
 

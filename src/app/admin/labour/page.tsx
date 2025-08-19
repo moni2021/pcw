@@ -17,7 +17,6 @@ import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { workshopData as arenaData } from '@/lib/workshop-arena-bijoynagar';
-import { workshopData as sowData } from '@/lib/workshop-sow-bijoynagar';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import type { CustomLabor, Vehicle } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
@@ -28,7 +27,7 @@ import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from '
 import { cn } from '@/lib/utils';
 
 // Combine custom labor data from all workshops
-const initialCustomLaborData = [...arenaData.customLabor, ...sowData.customLabor];
+const initialCustomLaborData = [...arenaData.customLabor];
 
 
 export default function LabourManagementPage() {

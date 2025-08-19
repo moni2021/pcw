@@ -1,8 +1,8 @@
 
 import type { PmsCharge, CustomLabor, Workshop, ServiceEstimateData } from './types';
 import { workshopData as arenaData } from './workshop-arena-bijoynagar';
-import { workshopData as sowData } from './workshop-sow-bijoynagar';
-import { workshopData as nexaData } from './workshop-nexa-bijoynagar';
+// import { workshopData as sowData } from './workshop-sow-bijoynagar';
+// import { workshopData as nexaData } from './workshop-nexa-bijoynagar';
 import { threeMCareData } from './3m-care-data';
 
 interface WorkshopData {
@@ -12,8 +12,8 @@ interface WorkshopData {
 
 const workshopDataMap: { [key: string]: WorkshopData } = {
     'arena-bijoynagar': arenaData,
-    'sow-bijoynagar': sowData,
-    'nexa-bijoynagar': nexaData,
+    // 'sow-bijoynagar': sowData,
+    // 'nexa-bijoynagar': nexaData,
 };
 
 const commonServices = [
