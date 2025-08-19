@@ -36,6 +36,13 @@ const ThreeMCareServiceSchema = z.object({
 
 const ThreeMCareSchema = z.record(z.array(ThreeMCareServiceSchema));
 
+// We need to bring in the workshop-specific data for a master sync/download
+import { workshopData as arenaData } from '@/lib/workshop-arena-bijoynagar';
+import { workshopData as sowData } from '@/lib/workshop-sow-bijoynagar';
+
+const allCustomLabor = [...arenaData.customLabor, ...sowData.customLabor];
+const allPmsCharges = [...arenaData.pmsCharges, ...sowData.pmsCharges];
+
 const dataSchemas = {
   vehicles: z.array(VehicleSchema),
   parts: z.array(PartSchema),
@@ -131,22 +138,10 @@ export async function downloadSampleJson(dataType: DataType): Promise<string> {
             sampleObject = [{ name: 'Sample Part', price: 100.00 }];
             break;
         case 'customLabor':
-            sampleObject = [
-                { workshopId: 'default', name: 'BATTERY GROUND CABLE', model: 'Ertiga', charge: 312.7 },
-                { workshopId: 'default', name: 'EVAPORATOR CLEANING', model: 'Ertiga', charge: 312.7 },
-                { workshopId: 'workshop-2', name: 'BATTERY GROUND CABLE', model: 'Ertiga', charge: 320.0 },
-                { workshopId: 'workshop-2', name: 'EVAPORATOR CLEANING', model: 'Ertiga', charge: 320.0 },
-                { workshopId: 'default', name: 'BATTERY GROUND CABLE', model: 'Swift', charge: 290.38 },
-                { workshopId: 'workshop-2', name: 'BATTERY GROUND CABLE', model: 'Swift', charge: 300.00 },
-            ];
+            sampleObject = allCustomLabor.slice(0, 5); // Sample a few from the combined list
             break;
         case 'pmsCharges':
-            sampleObject = [
-                { workshopId: 'default', model: 'Alto 800', labourDesc: 'Paid Service (20,000 km)', labourCode: 'L4020050', basicAmt: 1450 },
-                { workshopId: 'workshop-2', model: 'Alto 800', labourDesc: 'Paid Service (20,000 km)', labourCode: 'L4020050', basicAmt: 1500 },
-                { workshopId: 'default', name: 'Swift', labourDesc: 'Paid Service (20,000 km)', labourCode: 'L4020050', basicAmt: 1550 },
-                { workshopId: 'workshop-2', name: 'Swift', labourDesc: 'Paid Service (20,000 km)', labourCode: 'L4020050', basicAmt: 1600 },
-            ];
+             sampleObject = allPmsCharges.slice(0, 5); // Sample a few from the combined list
             break;
         case 'workshops':
             sampleObject = [
@@ -157,10 +152,6 @@ export async function downloadSampleJson(dataType: DataType): Promise<string> {
         case 'threeMCare':
             sampleObject = {
               "Ciaz": [
-                { "name": "INTERIOR CLEANING", "charge": 1500 },
-                { "name": "BODY RUBBING & POLISHING", "charge": 1500 }
-              ],
-              "Ertiga": [
                 { "name": "INTERIOR CLEANING", "charge": 1500 },
                 { "name": "BODY RUBBING & POLISHING", "charge": 1500 }
               ]

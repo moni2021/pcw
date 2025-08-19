@@ -13,13 +13,13 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Input } from '@/components/ui/input';
 import { Checkbox } from './ui/checkbox';
 import { Badge } from '@/components/ui/badge';
-import { customLaborData } from '@/lib/custom-labor-data';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { allParts } from '@/lib/parts-data';
 import { generateCustomerScript } from '@/ai/flows/customer-script-flow';
 import { useToast } from '@/hooks/use-toast';
 import { Textarea } from './ui/textarea';
 import { Skeleton } from './ui/skeleton';
+import { getAvailableCustomLabor } from '@/lib/workshop-data-loader';
 
 
 interface ServiceEstimateProps {
@@ -115,13 +115,7 @@ export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
   const customLaborCharge = useMemo(() => customLabor.reduce((sum, job) => sum + job.charge, 0), [customLabor]);
 
   const availableCustomLabor = useMemo(() => {
-    const specialRecommendedServices = ["WHEEL ALIGNMENT (4 HEAD)", "WHEEL BALANCING - 4 WHEEL", "WHEEL BALANCING - 5 WHEEL"];
-    // Exclude special services that are handled in the recommended section
-    return customLaborData.filter(item => 
-        item.model === vehicle.model && 
-        item.workshopId === workshopId && 
-        !specialRecommendedServices.includes(item.name)
-    );
+    return getAvailableCustomLabor(vehicle.model, workshopId);
   }, [vehicle.model, workshopId]);
   
   const totalLaborCharge = useMemo(() => pmsLaborCharge + recommendedLaborCharge + optionalServiceCharge + customLaborCharge, [pmsLaborCharge, recommendedLaborCharge, optionalServiceCharge, customLaborCharge]);

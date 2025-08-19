@@ -20,9 +20,12 @@ import { uploadServiceAccountKey } from '@/ai/flows/secure-key-uploader';
 import { workshops } from '@/lib/workshops-data';
 import { vehicles } from '@/lib/data';
 import { allParts } from '@/lib/parts-data';
-import { customLaborData } from '@/lib/custom-labor-data';
-import { pmsCharges } from '@/lib/pms-charges';
 import { threeMCareData } from '@/lib/3m-care-data';
+import { workshopData as arenaData } from '@/lib/workshop-arena-bijoynagar';
+import { workshopData as sowData } from '@/lib/workshop-sow-bijoynagar';
+
+const allCustomLabor = [...arenaData.customLabor, ...sowData.customLabor];
+const allPmsCharges = [...arenaData.pmsCharges, ...sowData.pmsCharges];
 
 type DataType = 'workshops' | 'vehicles' | 'parts' | 'customLabor' | 'pmsCharges' | 'threeMCare';
 
@@ -65,8 +68,8 @@ export default function DataManagementPage() {
         workshops,
         vehicles,
         parts: allParts,
-        customLabor: customLaborData,
-        pmsCharges,
+        customLabor: allCustomLabor,
+        pmsCharges: allPmsCharges,
         threeMCare: threeMCareData,
     };
 

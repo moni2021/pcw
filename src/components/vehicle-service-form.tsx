@@ -14,23 +14,14 @@ import { Loader2, Car, Tag, Building2, Droplets, Info, Check, ChevronsUpDown } f
 import { Separator } from './ui/separator';
 import { Badge } from '@/components/ui/badge';
 import { useTheme } from '@/context/ThemeContext';
-import { threeMCareData } from '@/lib/3m-care-data';
-import { pmsCharges } from '@/lib/pms-charges';
 import { workshops } from '@/lib/workshops-data';
-import { customLaborData } from '@/lib/custom-labor-data';
+import { getPmsLabor, getRecommendedLabor, getOptionalServices } from '@/lib/workshop-data-loader';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from '@/components/ui/command';
 import { cn } from '@/lib/utils';
 import { ServiceChecklistDialog } from './service-checklist-dialog';
 import type { ChecklistCategory } from '@/lib/pms-checklists';
 import { pmsChecklists } from '@/lib/pms-checklists';
-
-const commonServices = [
-    { name: 'NITROGEN GAS FILLING', charge: 200 },
-    { name: 'ENGINE ROOM PAINTING', charge: 400 },
-    { name: 'STRUT GREASING', charge: 1650 },
-    { name: 'HEADLAMP FOCUSSING', charge: 400 },
-];
 
 const serviceTypes = [
   '1st Free Service (1,000 km)',
@@ -183,31 +174,9 @@ export function VehicleServiceForm() {
       const serviceLookupKey = `${selectedModel} ${selectedFuelType} ${selectedServiceType}`;
       const serviceDetails = serviceDataLookup[serviceLookupKey];
       
-      let pmsLabor = [];
-      if (selectedServiceType.startsWith('Paid Service')) {
-          const pmsCharge = pmsCharges.find(p => p.model === selectedModel && p.labourDesc === selectedServiceType && p.workshopId === selectedWorkshop);
-          if (pmsCharge) {
-              pmsLabor.push({ name: 'Periodic Maintenance Service', charge: pmsCharge.basicAmt });
-          } else {
-              console.warn(`No PMS charge found for ${selectedModel} at workshop ${selectedWorkshop} for service ${selectedServiceType}`);
-          }
-      }
-      
-      const recommendedServices = [...commonServices];
-      // Prefer 5-wheel balancing if available, otherwise check for 4-wheel.
-      let wheelBalancing = customLaborData.find(l => l.model === selectedModel && l.name === 'WHEEL BALANCING - 5 WHEEL' && l.workshopId === selectedWorkshop);
-      if (!wheelBalancing) {
-          wheelBalancing = customLaborData.find(l => l.model === selectedModel && l.name === 'WHEEL BALANCING - 4 WHEEL' && l.workshopId === selectedWorkshop);
-      }
-      if (wheelBalancing) {
-          recommendedServices.push({name: wheelBalancing.name, charge: wheelBalancing.charge});
-      }
-
-      const wheelAlignment = customLaborData.find(l => l.model === selectedModel && l.name === 'WHEEL ALIGNMENT (4 HEAD)' && l.workshopId === selectedWorkshop);
-      if (wheelAlignment) {
-          recommendedServices.push({name: wheelAlignment.name, charge: wheelAlignment.charge});
-      }
-
+      const pmsLabor = getPmsLabor(selectedModel, selectedServiceType, selectedWorkshop);
+      const recommendedServices = getRecommendedLabor(selectedModel, selectedWorkshop);
+      const optionalServices = getOptionalServices(selectedModel, selectedWorkshop);
 
       const newEstimate: ServiceEstimateData = {
         workshopId: selectedWorkshop,
@@ -224,7 +193,7 @@ export function VehicleServiceForm() {
         parts: serviceDetails?.parts || [],
         labor: pmsLabor,
         recommendedLabor: recommendedServices,
-        optionalServices: threeMCareData[selectedModel] || [],
+        optionalServices: optionalServices,
         totalPrice: 0, // This will be calculated in the ServiceEstimate component
       };
       
