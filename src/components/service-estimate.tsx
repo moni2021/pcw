@@ -14,7 +14,7 @@ import { Input } from '@/components/ui/input';
 import { Checkbox } from './ui/checkbox';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { allParts } from '@/lib/parts-data';
+import { allParts } from '@/lib/data/parts';
 import { generateCustomerScript } from '@/ai/flows/customer-script-flow';
 import { useToast } from '@/hooks/use-toast';
 import { Textarea } from './ui/textarea';

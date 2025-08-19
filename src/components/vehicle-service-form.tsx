@@ -14,7 +14,7 @@ import { Loader2, Car, Tag, Building2, Droplets, Info, Check, ChevronsUpDown } f
 import { Separator } from './ui/separator';
 import { Badge } from '@/components/ui/badge';
 import { useTheme } from '@/context/ThemeContext';
-import { workshops } from '@/lib/workshops-data';
+import { workshops } from '@/lib/data/workshops';
 import { getPmsLabor, getRecommendedLabor, getOptionalServices } from '@/lib/workshop-data-loader';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from '@/components/ui/command';

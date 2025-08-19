@@ -16,18 +16,18 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { workshopData as arenaData } from '@/lib/workshop-arena-bijoynagar';
+import { workshopData } from '@/lib/workshop-data-loader';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import type { CustomLabor, Vehicle } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
 import { vehicles as initialVehicles } from '@/lib/data';
-import { workshops as initialWorkshops } from '@/lib/workshops-data';
+import { workshops as initialWorkshops } from '@/lib/data/workshops';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from '@/components/ui/command';
 import { cn } from '@/lib/utils';
 
 // Combine custom labor data from all workshops
-const initialCustomLaborData = [...arenaData.customLabor];
+const initialCustomLaborData = [...workshopData.customLabor];
 
 
 export default function LabourManagementPage() {

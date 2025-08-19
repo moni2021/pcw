@@ -15,7 +15,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { workshops as initialWorkshopsData } from '@/lib/workshops-data';
+import { workshops as initialWorkshopsData } from '@/lib/data/workshops';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import type { Workshop } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';

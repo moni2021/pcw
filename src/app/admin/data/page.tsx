@@ -17,11 +17,11 @@ import { uploadServiceAccountKey } from '@/ai/flows/secure-key-uploader';
 
 
 // Import all data sources for the "Master" sync
-import { workshops } from '@/lib/workshops-data';
+import { workshops } from '@/lib/data/workshops';
 import { vehicles } from '@/lib/data';
-import { allParts } from '@/lib/parts-data';
-import { threeMCareData } from '@/lib/3m-care-data';
-import { workshopData as arenaData } from '@/lib/workshop-arena-bijoynagar';
+import { allParts } from '@/lib/data/parts';
+import { threeMCareData } from '@/lib/data/3m';
+import { workshopData as arenaData } from '@/lib/workshop-data-loader';
 
 const allCustomLabor = [...arenaData.customLabor];
 const allPmsCharges = [...arenaData.pmsCharges];

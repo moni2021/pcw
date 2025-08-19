@@ -15,7 +15,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { allParts as initialAllParts } from '@/lib/parts-data';
+import { allParts as initialAllParts } from '@/lib/data/parts';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import type { Part } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
