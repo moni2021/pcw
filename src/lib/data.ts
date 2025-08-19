@@ -197,5 +197,3 @@ function generateServiceData() {
 }
 
 export const serviceDataLookup: { [key: string]: Service } = generateServiceData();
-
-export const serviceData: ServiceData = {};
