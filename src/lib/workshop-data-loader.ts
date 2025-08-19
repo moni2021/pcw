@@ -23,14 +23,45 @@ export function getPmsLabor(model: string, serviceType: string, workshopId: stri
     const data = workshopDataMap[workshopId];
     if (!data) return [];
     
+    let pmsLabor: { name: string; charge: number }[] = [];
+
     if (serviceType.startsWith('Paid Service')) {
-        const pmsCharge = data.pmsCharges.find(p => p.model === model && p.labourDesc === serviceType && p.workshopId === workshopId);
+        // Normalize model name from data file to match lookup
+        const normalizedModelName = (name: string) => {
+            if (name.includes('SWIFT NEW / DZIRE NEW')) return ['Swift', 'Dzire'];
+            if (name === 'New Dzire Petrol') return ['Dzire'];
+            if (name.startsWith('NEW WAGON R 1')) return ['Wagon R'];
+            if (name.startsWith('NEW CELERIO')) return ['Celerio'];
+            if (name.startsWith('MARUTI BALENO')) return ['Baleno'];
+            if (name.startsWith('VITARA BREZZA')) return ['Brezza'];
+            if (name.startsWith('ERTIGA')) return ['Ertiga'];
+            if (name.startsWith('MARUTI EECO')) return ['Eeco'];
+            if (name.startsWith('Jimny')) return ['Jimny'];
+            if (name.startsWith('Fronx')) return ['Fronx'];
+            if (name.startsWith('EPIC NEW SWIFT')) return ['Swift'];
+            return [name];
+        };
+
+        const matchingCharges = data.pmsCharges.filter(p => {
+             const chargeModels = normalizedModelName(p.model);
+             return chargeModels.includes(model) && p.labourDesc === serviceType && p.workshopId === workshopId;
+        });
+
+        // Find the best match, sometimes there are multiple due to naming conventions
+        const pmsCharge = matchingCharges[0];
+
         if (pmsCharge) {
-            return [{ name: 'Periodic Maintenance Service', charge: pmsCharge.basicAmt }];
+            pmsLabor.push({ name: 'Periodic Maintenance Service', charge: pmsCharge.basicAmt });
         }
     }
+    
+    // Add convenience charges only for SOW workshop and if there's a PMS charge
+    if (workshopId === 'sow-bijoynagar' && pmsLabor.length > 0) {
+        pmsLabor.push({ name: 'SOW Convenience Charges', charge: 150 });
+    }
+    
     // Return empty array if it's a free service or if no matching paid service charge is found
-    return [];
+    return pmsLabor;
 }
 
 export function getRecommendedLabor(model: string, workshopId: string): { name: string; charge: number }[] {
