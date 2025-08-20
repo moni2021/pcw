@@ -48,6 +48,7 @@ export default function DataManagementPage() {
     const [jsonFormat, setJsonFormat] = useState<JsonFormatType>('parts');
     const [convertedJson, setConvertedJson] = useState('');
     const [isConverting, setIsConverting] = useState(false);
+    const [converterWorkshop, setConverterWorkshop] = useState('');
 
     useEffect(() => {
         setIsAuthenticated(false);
@@ -115,10 +116,14 @@ export default function DataManagementPage() {
             toast({ variant: 'destructive', title: 'Error', description: 'Raw text input cannot be empty.' });
             return;
         }
+        if ((jsonFormat === 'customLabor' || jsonFormat === 'pmsCharges') && !converterWorkshop) {
+            toast({ variant: 'destructive', title: 'Error', description: 'Please select a workshop for this data type.' });
+            return;
+        }
         setIsConverting(true);
         setConvertedJson('');
         try {
-            const result = await convertToJson({ rawText, jsonFormat });
+            const result = await convertToJson({ rawText, jsonFormat, workshopId: converterWorkshop });
             setConvertedJson(result.jsonString);
             toast({ title: 'Success', description: 'Text converted to JSON successfully.' });
         } catch (error: any) {
@@ -328,21 +333,38 @@ export default function DataManagementPage() {
                                 <Label htmlFor="raw-text">Raw Text Input</Label>
                                 <Textarea id="raw-text" placeholder="Paste your data here..." className="h-64" value={rawText} onChange={(e) => setRawText(e.target.value)} />
                             </div>
-                            <div className="space-y-2">
-                                <Label htmlFor="json-format">Target JSON Format</Label>
-                                <Select value={jsonFormat} onValueChange={(v) => setJsonFormat(v as JsonFormatType)}>
-                                    <SelectTrigger id="json-format">
-                                        <SelectValue placeholder="Select format" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="workshops">Workshops</SelectItem>
-                                        <SelectItem value="vehicles">Vehicles</SelectItem>
-                                        <SelectItem value="parts">Parts</SelectItem>
-                                        <SelectItem value="customLabor">Custom Labour</SelectItem>
-                                        <SelectItem value="pmsCharges">PMS Charges</SelectItem>
-                                        <SelectItem value="threeMCare">3M Care</SelectItem>
-                                    </SelectContent>
-                                </Select>
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="space-y-2">
+                                    <Label htmlFor="json-format">Target JSON Format</Label>
+                                    <Select value={jsonFormat} onValueChange={(v) => setJsonFormat(v as JsonFormatType)}>
+                                        <SelectTrigger id="json-format">
+                                            <SelectValue placeholder="Select format" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="workshops">Workshops</SelectItem>
+                                            <SelectItem value="vehicles">Vehicles</SelectItem>
+                                            <SelectItem value="parts">Parts</SelectItem>
+                                            <SelectItem value="customLabor">Custom Labour</SelectItem>
+                                            <SelectItem value="pmsCharges">PMS Charges</SelectItem>
+                                            <SelectItem value="threeMCare">3M Care</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                                {(jsonFormat === 'customLabor' || jsonFormat === 'pmsCharges') && (
+                                    <div className="space-y-2">
+                                        <Label htmlFor="converter-workshop">Workshop</Label>
+                                        <Select value={converterWorkshop} onValueChange={setConverterWorkshop}>
+                                            <SelectTrigger id="converter-workshop">
+                                                <SelectValue placeholder="Select Workshop" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                {workshops.map(w => (
+                                                    <SelectItem key={w.id} value={w.id}>{w.name}</SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
+                                )}
                             </div>
                         </div>
                         <div className="space-y-2">
