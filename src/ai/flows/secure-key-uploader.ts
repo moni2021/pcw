@@ -10,14 +10,10 @@
 import { ai } from '@/ai';
 import { z } from 'zod';
 
-// Define the secret where the service account key will be stored.
 // In a real environment, this would be managed by a secrets manager.
 // For this context, we simulate the action, but the actual environment variable
 // would need to be set on the hosting platform (e.g., App Hosting for Firebase).
-ai.defineSecret({
-  name: 'SERVICE_ACCOUNT_KEY',
-  description: 'The JSON content of the Firebase service account key.',
-});
+// The `ai.defineSecret` function from older Genkit versions is no longer used.
 
 const UploadKeyInputSchema = z.object({
   jsonContent: z.string().describe('The full JSON content of the service account key file.'),
