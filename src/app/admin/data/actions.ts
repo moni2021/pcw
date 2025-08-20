@@ -195,17 +195,17 @@ async function updateArrayInFirebase(dataType: DataType, item: DataObjectType, o
 }
 
 // Individual item actions
-export const addWorkshop = (item: Workshop) => updateArrayInFirebase('workshops', item, 'add', 'id');
-export const updateWorkshop = (item: Workshop) => updateArrayInFirebase('workshops', item, 'update', 'id');
-export const deleteWorkshop = (item: Workshop) => updateArrayInFirebase('workshops', item, 'delete', 'id');
+export const addWorkshop = async (item: Workshop) => updateArrayInFirebase('workshops', item, 'add', 'id');
+export const updateWorkshop = async (item: Workshop) => updateArrayInFirebase('workshops', item, 'update', 'id');
+export const deleteWorkshop = async (item: Workshop) => updateArrayInFirebase('workshops', item, 'delete', 'id');
 
-export const addPart = (item: Part) => updateArrayInFirebase('parts', item, 'add', 'name');
-export const updatePart = (item: Part) => updateArrayInFirebase('parts', item, 'update', 'name');
-export const deletePart = (item: Part) => updateArrayInFirebase('parts', item, 'delete', 'name');
+export const addPart = async (item: Part) => updateArrayInFirebase('parts', item, 'add', 'name');
+export const updatePart = async (item: Part) => updateArrayInFirebase('parts', item, 'update', 'name');
+export const deletePart = async (item: Part) => updateArrayInFirebase('parts', item, 'delete', 'name');
 
-export const addVehicle = (item: Vehicle) => updateArrayInFirebase('vehicles', item, 'add', 'model');
-export const updateVehicle = (item: Vehicle) => updateArrayInFirebase('vehicles', item, 'update', 'model');
-export const deleteVehicle = (item: Vehicle) => updateArrayInFirebase('vehicles', item, 'delete', 'model');
+export const addVehicle = async (item: Vehicle) => updateArrayInFirebase('vehicles', item, 'add', 'model');
+export const updateVehicle = async (item: Vehicle) => updateArrayInFirebase('vehicles', item, 'update', 'model');
+export const deleteVehicle = async (item: Vehicle) => updateArrayInFirebase('vehicles', item, 'delete', 'model');
 
 // Custom labor needs a composite key for identification, but for simplicity we'll just match all fields for deletion.
 // A more robust solution might add a unique ID to each custom labor entry.
@@ -241,6 +241,6 @@ async function updateCustomLaborArray(item: CustomLabor, operation: 'add' | 'upd
     }
 }
 
-export const addCustomLabor = (item: CustomLabor) => updateCustomLaborArray(item, 'add');
-export const updateCustomLabor = (item: CustomLabor) => updateCustomLaborArray(item, 'update');
-export const deleteCustomLabor = (item: CustomLabor) => updateCustomLaborArray(item, 'delete');
+export const addCustomLabor = async (item: CustomLabor) => updateCustomLaborArray(item, 'add');
+export const updateCustomLabor = async (item: CustomLabor) => updateCustomLaborArray(item, 'update');
+export const deleteCustomLabor = async (item: CustomLabor) => updateCustomLaborArray(item, 'delete');
