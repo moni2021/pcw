@@ -21,7 +21,7 @@ import { useToast } from '@/hooks/use-toast';
 
 // Mock user data
 const initialUsers = [
-  { id: 'usr_1', email: 'admin@example.com', isAdmin: true, status: 'Active' },
+  { id: 'usr_1', email: 'daloihiru8@gmail.com', isAdmin: true, status: 'Active' },
   { id: 'usr_2', email: 'editor@example.com', isAdmin: false, status: 'Active' },
   { id: 'usr_3', email: 'viewer@example.com', isAdmin: false, status: 'Inactive' },
 ];
