@@ -19,27 +19,39 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useToast } from '@/hooks/use-toast';
 
+type UserRole = 'Admin' | 'User' | 'Developer';
+
+interface User {
+  id: string;
+  email: string;
+  role: UserRole;
+  isAdmin: boolean;
+  status: 'Active' | 'Inactive';
+}
+
 // Mock user data
-const initialUsers = [
-  { id: 'usr_1', email: 'daloihiru8@gmail.com', isAdmin: true, status: 'Active' },
-  { id: 'usr_2', email: 'editor@example.com', isAdmin: false, status: 'Active' },
-  { id: 'usr_3', email: 'viewer@example.com', isAdmin: false, status: 'Inactive' },
+const initialUsers: User[] = [
+  { id: 'usr_1', email: 'daloihiru8@gmail.com', role: 'Developer', isAdmin: true, status: 'Active' },
+  { id: 'usr_4', email: 'admin@estimator.in', role: 'Admin', isAdmin: true, status: 'Active' },
+  { id: 'usr_2', email: 'editor@example.com', role: 'User', isAdmin: false, status: 'Active' },
+  { id: 'usr_3', email: 'viewer@example.com', role: 'User', isAdmin: false, status: 'Inactive' },
 ];
+
 
 export default function UserManagementPage() {
   const [users, setUsers] = useState(initialUsers);
   const [isUserDialogOpen, setIsUserDialogOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
-  const [currentUser, setCurrentUser] = useState<typeof initialUsers[0] | null>(null);
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
   const { toast } = useToast();
 
   const handleAddNewUser = () => {
     setIsEditing(false);
-    setCurrentUser({ id: `usr_${Date.now()}`, email: '', isAdmin: false, status: 'Active' });
+    setCurrentUser({ id: `usr_${Date.now()}`, email: '', role: 'User', isAdmin: false, status: 'Active' });
     setIsUserDialogOpen(true);
   };
 
-  const handleEditUser = (user: typeof initialUsers[0]) => {
+  const handleEditUser = (user: User) => {
     setIsEditing(true);
     setCurrentUser({ ...user });
     setIsUserDialogOpen(true);
@@ -59,15 +71,18 @@ export default function UserManagementPage() {
       return;
     }
 
+    const finalUser = { ...currentUser, role: currentUser.isAdmin ? 'Admin' : currentUser.role === 'Admin' ? 'User' : currentUser.role } as User;
+
+
     if (isEditing) {
-      setUsers(prevUsers => prevUsers.map(user => (user.id === currentUser.id ? currentUser : user)));
+      setUsers(prevUsers => prevUsers.map(user => (user.id === finalUser.id ? finalUser : user)));
       toast({ title: 'User Updated' });
     } else {
-      if (users.some(user => user.email === currentUser.email)) {
+      if (users.some(user => user.email === finalUser.email)) {
         toast({ variant: 'destructive', title: 'Error', description: 'A user with this email already exists.' });
         return;
       }
-      setUsers(prevUsers => [...prevUsers, currentUser]);
+      setUsers(prevUsers => [...prevUsers, finalUser]);
       toast({ title: 'User Added' });
     }
 
@@ -112,8 +127,8 @@ export default function UserManagementPage() {
                   <TableRow key={user.id}>
                     <TableCell className="font-medium">{user.email}</TableCell>
                     <TableCell>
-                      <Badge variant={user.isAdmin ? 'default' : 'secondary'}>
-                        {user.isAdmin ? 'Admin' : 'User'}
+                      <Badge variant={user.isAdmin ? 'default' : user.role === 'Developer' ? 'secondary' : 'outline'}>
+                        {user.role}
                       </Badge>
                     </TableCell>
                     <TableCell>
@@ -157,6 +172,20 @@ export default function UserManagementPage() {
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="email" className="text-right">Email</Label>
               <Input id="email" name="email" type="email" placeholder="user@example.com" className="col-span-3" value={currentUser?.email || ''} onChange={handleDialogInputChange} disabled={isEditing} />
+            </div>
+             <div className="grid grid-cols-4 items-center gap-4">
+               <Label htmlFor="role" className="text-right">Role</Label>
+                 <select
+                    id="role"
+                    name="role"
+                    className="col-span-3 rounded-md border border-input bg-background px-3 py-2 text-sm"
+                    value={currentUser?.role || 'User'}
+                    onChange={(e) => setCurrentUser(prev => prev ? {...prev, role: e.target.value as UserRole, isAdmin: e.target.value === 'Admin' } : null)}
+                    >
+                    <option value="User">User</option>
+                    <option value="Admin">Admin</option>
+                    <option value="Developer">Developer</option>
+                </select>
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="is-admin" className="text-right">Admin Privileges</Label>
