@@ -1,10 +1,11 @@
 
 /**
  * @fileoverview This is the main export point for the AI module.
- * It initializes and configures the Genkit AI toolkit for the application.
+ * It initializes and onfigures the Genkit AI toolkit for the application.
  */
-import { genkit } from '@genkit-ai/core';
+import { configureGenkit } from '@genkit-ai/core';
 import { googleAI } from '@genkit-ai/googleai';
+import { genkit } from 'genkit';
 
 // Initialize Genkit with the Google AI plugin.
 export const ai = genkit({
