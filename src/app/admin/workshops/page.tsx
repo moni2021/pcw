@@ -19,11 +19,14 @@ import { workshops as initialWorkshopsData } from '@/lib/data/workshops';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import type { Workshop } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
 
 export default function WorkshopManagementPage() {
   const [workshops, setWorkshops] = useState<Workshop[]>(initialWorkshopsData);
   const [isWorkshopDialogOpen, setIsWorkshopDialogOpen] = useState(false);
   const [currentWorkshop, setCurrentWorkshop] = useState<Partial<Workshop> | null>(null);
+  const [workshopPrefix, setWorkshopPrefix] = useState('');
+  const [workshopName, setWorkshopName] = useState('');
   const [isEditing, setIsEditing] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const { toast } = useToast();
@@ -31,12 +34,24 @@ export default function WorkshopManagementPage() {
   const handleAddWorkshop = () => {
     setIsEditing(false);
     setCurrentWorkshop({});
+    setWorkshopPrefix('');
+    setWorkshopName('');
     setIsWorkshopDialogOpen(true);
   };
 
   const handleEditWorkshop = (workshop: Workshop) => {
     setIsEditing(true);
     setCurrentWorkshop({ ...workshop });
+    
+    const parts = workshop.name.split(' - ');
+    if (parts.length > 1 && ['SOW', 'ARENA', 'NEXA'].includes(parts[0])) {
+        setWorkshopPrefix(parts[0]);
+        setWorkshopName(parts.slice(1).join(' - '));
+    } else {
+        setWorkshopPrefix('');
+        setWorkshopName(workshop.name);
+    }
+    
     setIsWorkshopDialogOpen(true);
   };
 
@@ -50,29 +65,26 @@ export default function WorkshopManagementPage() {
 
   const handleSaveWorkshop = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!currentWorkshop || !currentWorkshop.name) {
-        toast({ variant: 'destructive', title: 'Error', description: 'Please enter a workshop name.' });
+    if (!workshopName || (!isEditing && !workshopPrefix)) {
+        toast({ variant: 'destructive', title: 'Error', description: 'Please select a type and enter a workshop name.' });
         return;
     }
 
-    const newWorkshopId = currentWorkshop.name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+    const finalName = workshopPrefix ? `${workshopPrefix} - ${workshopName}` : workshopName;
+    const newWorkshopId = finalName.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
 
-    const newWorkshop: Workshop = {
-        id: isEditing ? (currentWorkshop as Workshop).id : newWorkshopId,
-        name: currentWorkshop.name,
-    };
-
-    if (isEditing) {
-        // Find the original workshop by its ID to update it
-        const originalWorkshop = workshops.find(w => w.id === (currentWorkshop as Workshop).id);
-        // Check if the new name would conflict with another existing workshop
-        if (workshops.some(w => w.name.toLowerCase() === newWorkshop.name.toLowerCase() && w.id !== (currentWorkshop as Workshop).id)) {
+    if (isEditing && currentWorkshop) {
+        if (workshops.some(w => w.name.toLowerCase() === finalName.toLowerCase() && w.id !== currentWorkshop.id)) {
              toast({ variant: 'destructive', title: 'Error', description: 'A workshop with this name already exists.' });
             return;
         }
-        setWorkshops(prev => prev.map(w => w.id === (currentWorkshop as Workshop).id ? { ...w, name: newWorkshop.name } : w));
+        setWorkshops(prev => prev.map(w => w.id === (currentWorkshop as Workshop).id ? { ...w, name: finalName } : w));
         toast({ title: 'Success', description: 'Workshop updated.' });
     } else {
+        const newWorkshop: Workshop = {
+            id: newWorkshopId,
+            name: finalName,
+        };
         if (workshops.some(w => w.id === newWorkshop.id || w.name.toLowerCase() === newWorkshop.name.toLowerCase())) {
             toast({ variant: 'destructive', title: 'Error', description: 'A workshop with this name or ID already exists.' });
             return;
@@ -85,11 +97,6 @@ export default function WorkshopManagementPage() {
     setCurrentWorkshop(null);
   };
   
-  const handleDialogInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setCurrentWorkshop(prev => ({...prev, [name]: value}));
-  }
-
   const filteredWorkshops = workshops.filter(workshop => 
     workshop.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     workshop.id.toLowerCase().includes(searchTerm.toLowerCase())
@@ -153,13 +160,26 @@ export default function WorkshopManagementPage() {
                 <DialogHeader>
                     <DialogTitle>{isEditing ? 'Edit Workshop' : 'Add New Workshop'}</DialogTitle>
                     <DialogDescription>
-                        Enter the workshop name. The ID will be automatically generated.
+                        Select the workshop type and enter the name. The ID will be automatically generated.
                     </DialogDescription>
                 </DialogHeader>
                 <div className="grid gap-4 py-4">
                     <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="type" className="text-right">Type</Label>
+                         <Select value={workshopPrefix} onValueChange={setWorkshopPrefix} required>
+                             <SelectTrigger className="col-span-3">
+                                 <SelectValue placeholder="Select workshop type" />
+                             </SelectTrigger>
+                             <SelectContent>
+                                 <SelectItem value="SOW">SOW</SelectItem>
+                                 <SelectItem value="ARENA">ARENA</SelectItem>
+                                 <SelectItem value="NEXA">NEXA</SelectItem>
+                             </SelectContent>
+                         </Select>
+                    </div>
+                    <div className="grid grid-cols-4 items-center gap-4">
                         <Label htmlFor="name" className="text-right">Name</Label>
-                        <Input id="name" name="name" value={currentWorkshop?.name || ''} onChange={handleDialogInputChange} className="col-span-3" required placeholder="e.g., Downtown Service Center" />
+                        <Input id="name" name="name" value={workshopName} onChange={(e) => setWorkshopName(e.target.value)} className="col-span-3" required placeholder="e.g., Downtown Service Center" />
                     </div>
                 </div>
                 <DialogFooter>
