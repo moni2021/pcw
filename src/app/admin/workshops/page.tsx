@@ -50,22 +50,31 @@ export default function WorkshopManagementPage() {
 
   const handleSaveWorkshop = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!currentWorkshop || !currentWorkshop.id || !currentWorkshop.name) {
-        toast({ variant: 'destructive', title: 'Error', description: 'Please fill all fields.' });
+    if (!currentWorkshop || !currentWorkshop.name) {
+        toast({ variant: 'destructive', title: 'Error', description: 'Please enter a workshop name.' });
         return;
     }
 
+    const newWorkshopId = currentWorkshop.name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+
     const newWorkshop: Workshop = {
-        id: currentWorkshop.id.toLowerCase().replace(/\s+/g, '-'), // Sanitize ID
+        id: isEditing ? (currentWorkshop as Workshop).id : newWorkshopId,
         name: currentWorkshop.name,
     };
 
     if (isEditing) {
-        setWorkshops(prev => prev.map(w => w.id === (currentWorkshop as Workshop).id ? newWorkshop : w));
+        // Find the original workshop by its ID to update it
+        const originalWorkshop = workshops.find(w => w.id === (currentWorkshop as Workshop).id);
+        // Check if the new name would conflict with another existing workshop
+        if (workshops.some(w => w.name.toLowerCase() === newWorkshop.name.toLowerCase() && w.id !== (currentWorkshop as Workshop).id)) {
+             toast({ variant: 'destructive', title: 'Error', description: 'A workshop with this name already exists.' });
+            return;
+        }
+        setWorkshops(prev => prev.map(w => w.id === (currentWorkshop as Workshop).id ? { ...w, name: newWorkshop.name } : w));
         toast({ title: 'Success', description: 'Workshop updated.' });
     } else {
-        if (workshops.some(w => w.id.toLowerCase() === newWorkshop.id.toLowerCase())) {
-            toast({ variant: 'destructive', title: 'Error', description: 'A workshop with this ID already exists.' });
+        if (workshops.some(w => w.id === newWorkshop.id || w.name.toLowerCase() === newWorkshop.name.toLowerCase())) {
+            toast({ variant: 'destructive', title: 'Error', description: 'A workshop with this name or ID already exists.' });
             return;
         }
         setWorkshops(prev => [...prev, newWorkshop].sort((a,b) => a.name.localeCompare(b.name)));
@@ -91,7 +100,7 @@ export default function WorkshopManagementPage() {
       <CardHeader className="flex flex-row items-start sm:items-center justify-between gap-2">
           <div className="space-y-1">
               <CardTitle className="flex items-center gap-2"><Building /> Manage Workshops</CardTitle>
-              <CardDescription>Add, edit, or remove workshops. Remember to sync to Firebase to save changes.</CardDescription>
+              <CardDescription>Add, edit, or remove workshops. The Workshop ID is auto-generated from the name. Remember to sync to Firebase to save changes.</CardDescription>
           </div>
             <div className="flex-1 flex justify-center sm:justify-end gap-2">
               <div className="relative w-full max-w-xs">
@@ -106,7 +115,7 @@ export default function WorkshopManagementPage() {
               </div>
                 <Button onClick={handleAddWorkshop} className="shrink-0">
                   <PlusCircle className="mr-2 h-4 w-4"/> Add New
-              </Button>
+                </Button>
             </div>
       </CardHeader>
       <CardContent>
@@ -144,14 +153,10 @@ export default function WorkshopManagementPage() {
                 <DialogHeader>
                     <DialogTitle>{isEditing ? 'Edit Workshop' : 'Add New Workshop'}</DialogTitle>
                     <DialogDescription>
-                        Fill in the details for the workshop. The ID must be unique and will be sanitized (e.g., "My Workshop" becomes "my-workshop").
+                        Enter the workshop name. The ID will be automatically generated.
                     </DialogDescription>
                 </DialogHeader>
                 <div className="grid gap-4 py-4">
-                    <div className="grid grid-cols-4 items-center gap-4">
-                        <Label htmlFor="id" className="text-right">ID</Label>
-                        <Input id="id" name="id" value={currentWorkshop?.id || ''} onChange={handleDialogInputChange} className="col-span-3" required disabled={isEditing} placeholder="e.g., workshop-1" />
-                    </div>
                     <div className="grid grid-cols-4 items-center gap-4">
                         <Label htmlFor="name" className="text-right">Name</Label>
                         <Input id="name" name="name" value={currentWorkshop?.name || ''} onChange={handleDialogInputChange} className="col-span-3" required placeholder="e.g., Downtown Service Center" />
@@ -166,5 +171,3 @@ export default function WorkshopManagementPage() {
     </Card>
   );
 }
-
-    
