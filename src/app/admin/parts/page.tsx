@@ -1,7 +1,7 @@
 
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Card,
   CardContent,
@@ -9,24 +9,41 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Package, PlusCircle, Trash2, Pencil, Search } from 'lucide-react';
+import { Package, PlusCircle, Trash2, Pencil, Search, Loader2 } from 'lucide-react';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { allParts as initialAllParts } from '@/lib/data/parts';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import type { Part } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
+import { addPart, updatePart, deletePart, getFullDataFromFirebase } from '../data/actions';
 
 export default function PartsManagementPage() {
-  const [allParts, setAllParts] = useState<Part[]>(initialAllParts);
+  const [allParts, setAllParts] = useState<Part[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isMutating, setIsMutating] = useState(false);
   const [isPartsDialogOpen, setIsPartsDialogOpen] = useState(false);
   const [currentPart, setCurrentPart] = useState<Partial<Part> | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const { toast } = useToast();
+
+  useEffect(() => {
+    async function loadData() {
+        setIsLoading(true);
+        try {
+            const data = await getFullDataFromFirebase();
+            setAllParts(data.parts || []);
+        } catch (error) {
+            toast({ variant: 'destructive', title: 'Error loading data', description: 'Could not fetch parts from Firebase.' });
+        } finally {
+            setIsLoading(false);
+        }
+    }
+    loadData();
+  }, [toast]);
 
   const handleAddPart = () => {
     setIsEditing(false);
@@ -40,20 +57,25 @@ export default function PartsManagementPage() {
     setIsPartsDialogOpen(true);
   };
 
-  const handleDeletePart = (partName: string) => {
-    setAllParts(prev => prev.filter(p => p.name !== partName));
-    toast({
-      title: 'Part Deleted',
-      description: 'The part has been removed. Sync to Firebase to make this change permanent.',
-    });
+  const handleDeletePart = async (partToDelete: Part) => {
+    setIsMutating(true);
+    const result = await deletePart(partToDelete);
+    if (result.success) {
+      setAllParts(prev => prev.filter(p => p.name !== partToDelete.name));
+      toast({ title: 'Part Deleted', description: 'The part has been removed from the database.' });
+    } else {
+      toast({ variant: 'destructive', title: 'Error', description: result.error });
+    }
+    setIsMutating(false);
   };
 
-  const handleSavePart = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSavePart = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!currentPart || !currentPart.name || !currentPart.price) {
         toast({ variant: 'destructive', title: 'Error', description: 'Please fill all fields.' });
         return;
     }
+    setIsMutating(true);
 
     const newPart: Part = {
         name: currentPart.name,
@@ -61,19 +83,30 @@ export default function PartsManagementPage() {
     };
 
     if (isEditing) {
-        setAllParts(prev => prev.map(p => p.name === (currentPart.name) ? newPart : p));
-        toast({ title: 'Success', description: 'Part updated.' });
+        const result = await updatePart(newPart);
+        if (result.success) {
+            setAllParts(prev => prev.map(p => p.name === newPart.name ? newPart : p));
+            toast({ title: 'Success', description: 'Part updated.' });
+            setIsPartsDialogOpen(false);
+        } else {
+            toast({ variant: 'destructive', title: 'Error', description: result.error });
+        }
     } else {
         if (allParts.some(p => p.name.toLowerCase() === newPart.name.toLowerCase())) {
             toast({ variant: 'destructive', title: 'Error', description: 'A part with this name already exists.' });
+            setIsMutating(false);
             return;
         }
-        setAllParts(prev => [...prev, newPart].sort((a,b) => a.name.localeCompare(b.name)));
-        toast({ title: 'Success', description: 'New part added.' });
+        const result = await addPart(newPart);
+        if (result.success) {
+            setAllParts(prev => [...prev, newPart].sort((a,b) => a.name.localeCompare(b.name)));
+            toast({ title: 'Success', description: 'New part added.' });
+            setIsPartsDialogOpen(false);
+        } else {
+            toast({ variant: 'destructive', title: 'Error', description: result.error });
+        }
     }
-
-    setIsPartsDialogOpen(false);
-    setCurrentPart(null);
+    setIsMutating(false);
   };
 
   const handleDialogInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -90,7 +123,7 @@ export default function PartsManagementPage() {
         <CardHeader className="flex flex-row items-start sm:items-center justify-between gap-2">
             <div className="space-y-1">
                 <CardTitle className="flex items-center gap-2"><Package /> Manage Parts and Pricing</CardTitle>
-                <CardDescription>Add, edit, or remove parts from the central price list. Remember to sync to Firebase to save changes.</CardDescription>
+                <CardDescription>Add, edit, or remove parts from the central price list. Changes are saved directly to the database.</CardDescription>
             </div>
              <div className="flex-1 flex justify-center sm:justify-end gap-2">
                 <div className="relative w-full max-w-xs">
@@ -119,15 +152,21 @@ export default function PartsManagementPage() {
                 </TableRow>
                 </TableHeader>
                 <TableBody>
-                {filteredParts.map((part) => (
+                {isLoading ? (
+                    <TableRow>
+                        <TableCell colSpan={3} className="text-center h-24">
+                            <Loader2 className="h-6 w-6 animate-spin mx-auto" />
+                        </TableCell>
+                    </TableRow>
+                ) : filteredParts.map((part) => (
                     <TableRow key={part.name}>
                     <TableCell className="font-medium">{part.name}</TableCell>
                     <TableCell className="text-right">{part.price.toFixed(2)}</TableCell>
                     <TableCell className="text-right">
-                        <Button variant="ghost" size="icon" onClick={() => handleEditPart(part)}>
+                        <Button variant="ghost" size="icon" onClick={() => handleEditPart(part)} disabled={isMutating}>
                         <Pencil className="h-4 w-4" />
                         </Button>
-                        <Button variant="ghost" size="icon" onClick={() => handleDeletePart(part.name)}>
+                        <Button variant="ghost" size="icon" onClick={() => handleDeletePart(part)} disabled={isMutating}>
                         <Trash2 className="h-4 w-4 text-destructive" />
                         </Button>
                     </TableCell>
@@ -157,7 +196,10 @@ export default function PartsManagementPage() {
                       </div>
                   </div>
                   <DialogFooter>
-                      <Button type="submit">Save changes</Button>
+                      <Button type="submit" disabled={isMutating}>
+                        {isMutating && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                        Save changes
+                      </Button>
                   </DialogFooter>
               </form>
           </DialogContent>
@@ -165,5 +207,3 @@ export default function PartsManagementPage() {
     </Card>
   );
 }
-
-    

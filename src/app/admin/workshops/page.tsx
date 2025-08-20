@@ -1,7 +1,7 @@
 
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Card,
   CardContent,
@@ -9,20 +9,22 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Building, PlusCircle, Trash2, Pencil, Search } from 'lucide-react';
+import { Building, PlusCircle, Trash2, Pencil, Search, Loader2 } from 'lucide-react';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { workshops as initialWorkshopsData } from '@/lib/data/workshops';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import type { Workshop } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
+import { addWorkshop, deleteWorkshop, updateWorkshop, getFullDataFromFirebase } from '../data/actions';
 
 export default function WorkshopManagementPage() {
-  const [workshops, setWorkshops] = useState<Workshop[]>(initialWorkshopsData);
+  const [workshops, setWorkshops] = useState<Workshop[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isMutating, setIsMutating] = useState(false);
   const [isWorkshopDialogOpen, setIsWorkshopDialogOpen] = useState(false);
   const [currentWorkshop, setCurrentWorkshop] = useState<Partial<Workshop> | null>(null);
   const [workshopPrefix, setWorkshopPrefix] = useState('');
@@ -30,6 +32,21 @@ export default function WorkshopManagementPage() {
   const [isEditing, setIsEditing] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const { toast } = useToast();
+
+  useEffect(() => {
+    async function loadData() {
+        setIsLoading(true);
+        try {
+            const data = await getFullDataFromFirebase();
+            setWorkshops(data.workshops || []);
+        } catch (error) {
+            toast({ variant: 'destructive', title: 'Error loading data', description: 'Could not fetch workshops from Firebase.' });
+        } finally {
+            setIsLoading(false);
+        }
+    }
+    loadData();
+  }, [toast]);
 
   const handleAddWorkshop = () => {
     setIsEditing(false);
@@ -55,46 +72,62 @@ export default function WorkshopManagementPage() {
     setIsWorkshopDialogOpen(true);
   };
 
-  const handleDeleteWorkshop = (workshopId: string) => {
-    setWorkshops(prev => prev.filter(w => w.id !== workshopId));
-    toast({
-      title: 'Workshop Deleted',
-      description: 'The workshop has been removed. Sync to Firebase to make this change permanent.',
-    });
+  const handleDeleteWorkshop = async (workshopToDelete: Workshop) => {
+    setIsMutating(true);
+    const result = await deleteWorkshop(workshopToDelete);
+    if (result.success) {
+      setWorkshops(prev => prev.filter(w => w.id !== workshopToDelete.id));
+      toast({ title: 'Workshop Deleted', description: 'The workshop has been removed from the database.' });
+    } else {
+      toast({ variant: 'destructive', title: 'Error', description: result.error });
+    }
+    setIsMutating(false);
   };
 
-  const handleSaveWorkshop = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSaveWorkshop = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!workshopName || (!isEditing && !workshopPrefix)) {
         toast({ variant: 'destructive', title: 'Error', description: 'Please select a type and enter a workshop name.' });
         return;
     }
+    setIsMutating(true);
 
     const finalName = workshopPrefix ? `${workshopPrefix} - ${workshopName}` : workshopName;
-    const newWorkshopId = finalName.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
-
+    
     if (isEditing && currentWorkshop) {
-        if (workshops.some(w => w.name.toLowerCase() === finalName.toLowerCase() && w.id !== currentWorkshop.id)) {
+        const updatedWorkshop = { ...currentWorkshop, name: finalName } as Workshop;
+        if (workshops.some(w => w.name.toLowerCase() === finalName.toLowerCase() && w.id !== updatedWorkshop.id)) {
              toast({ variant: 'destructive', title: 'Error', description: 'A workshop with this name already exists.' });
+             setIsMutating(false);
             return;
         }
-        setWorkshops(prev => prev.map(w => w.id === (currentWorkshop as Workshop).id ? { ...w, name: finalName } : w));
-        toast({ title: 'Success', description: 'Workshop updated.' });
+        const result = await updateWorkshop(updatedWorkshop);
+        if (result.success) {
+            setWorkshops(prev => prev.map(w => w.id === updatedWorkshop.id ? updatedWorkshop : w));
+            toast({ title: 'Success', description: 'Workshop updated.' });
+            setIsWorkshopDialogOpen(false);
+        } else {
+            toast({ variant: 'destructive', title: 'Error', description: result.error });
+        }
     } else {
-        const newWorkshop: Workshop = {
-            id: newWorkshopId,
-            name: finalName,
-        };
+        const newWorkshopId = finalName.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+        const newWorkshop: Workshop = { id: newWorkshopId, name: finalName };
         if (workshops.some(w => w.id === newWorkshop.id || w.name.toLowerCase() === newWorkshop.name.toLowerCase())) {
             toast({ variant: 'destructive', title: 'Error', description: 'A workshop with this name or ID already exists.' });
+            setIsMutating(false);
             return;
         }
-        setWorkshops(prev => [...prev, newWorkshop].sort((a,b) => a.name.localeCompare(b.name)));
-        toast({ title: 'Success', description: 'New workshop added.' });
+        const result = await addWorkshop(newWorkshop);
+        if (result.success) {
+            setWorkshops(prev => [...prev, newWorkshop].sort((a,b) => a.name.localeCompare(b.name)));
+            toast({ title: 'Success', description: 'New workshop added.' });
+            setIsWorkshopDialogOpen(false);
+        } else {
+            toast({ variant: 'destructive', title: 'Error', description: result.error });
+        }
     }
 
-    setIsWorkshopDialogOpen(false);
-    setCurrentWorkshop(null);
+    setIsMutating(false);
   };
   
   const filteredWorkshops = workshops.filter(workshop => 
@@ -107,7 +140,7 @@ export default function WorkshopManagementPage() {
       <CardHeader className="flex flex-row items-start sm:items-center justify-between gap-2">
           <div className="space-y-1">
               <CardTitle className="flex items-center gap-2"><Building /> Manage Workshops</CardTitle>
-              <CardDescription>Add, edit, or remove workshops. The Workshop ID is auto-generated from the name. Remember to sync to Firebase to save changes.</CardDescription>
+              <CardDescription>Add, edit, or remove workshops. Changes are saved directly to the database.</CardDescription>
           </div>
             <div className="flex-1 flex justify-center sm:justify-end gap-2">
               <div className="relative w-full max-w-xs">
@@ -136,15 +169,21 @@ export default function WorkshopManagementPage() {
                 </TableRow>
                 </TableHeader>
                 <TableBody>
-                {filteredWorkshops.map((workshop) => (
+                {isLoading ? (
+                    <TableRow>
+                        <TableCell colSpan={3} className="text-center h-24">
+                            <Loader2 className="h-6 w-6 animate-spin mx-auto" />
+                        </TableCell>
+                    </TableRow>
+                ) : filteredWorkshops.map((workshop) => (
                     <TableRow key={workshop.id}>
                     <TableCell className="font-mono">{workshop.id}</TableCell>
                     <TableCell className="font-medium">{workshop.name}</TableCell>
                         <TableCell className="text-right">
-                        <Button variant="ghost" size="icon" onClick={() => handleEditWorkshop(workshop)}>
+                        <Button variant="ghost" size="icon" onClick={() => handleEditWorkshop(workshop)} disabled={isMutating}>
                         <Pencil className="h-4 w-4" />
                         </Button>
-                        <Button variant="ghost" size="icon" onClick={() => handleDeleteWorkshop(workshop.id)}>
+                        <Button variant="ghost" size="icon" onClick={() => handleDeleteWorkshop(workshop)} disabled={isMutating}>
                         <Trash2 className="h-4 w-4 text-destructive" />
                         </Button>
                     </TableCell>
@@ -166,7 +205,7 @@ export default function WorkshopManagementPage() {
                 <div className="grid gap-4 py-4">
                     <div className="grid grid-cols-4 items-center gap-4">
                         <Label htmlFor="type" className="text-right">Type</Label>
-                         <Select value={workshopPrefix} onValueChange={setWorkshopPrefix} required>
+                         <Select value={workshopPrefix} onValueChange={setWorkshopPrefix} required disabled={isEditing}>
                              <SelectTrigger className="col-span-3">
                                  <SelectValue placeholder="Select workshop type" />
                              </SelectTrigger>
@@ -183,7 +222,10 @@ export default function WorkshopManagementPage() {
                     </div>
                 </div>
                 <DialogFooter>
-                    <Button type="submit">Save changes</Button>
+                    <Button type="submit" disabled={isMutating}>
+                        {isMutating && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                        Save changes
+                    </Button>
                 </DialogFooter>
             </form>
         </DialogContent>

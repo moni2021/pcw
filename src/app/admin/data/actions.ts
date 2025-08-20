@@ -2,7 +2,7 @@
 'use server';
 
 import { initializeApp, getApps, cert } from 'firebase-admin/app';
-import { getFirestore } from 'firebase-admin/firestore';
+import { getFirestore, FieldValue } from 'firebase-admin/firestore';
 import { z } from 'zod';
 import { VehicleSchema, PartSchema, CustomLaborSchema, WorkshopSchema, PmsChargeSchema } from '@/lib/types';
 
@@ -36,7 +36,7 @@ const ThreeMCareServiceSchema = z.object({
 
 const ThreeMCareSchema = z.record(z.array(ThreeMCareServiceSchema));
 
-// We need to bring in the workshop-specific data for a master sync/download
+// Import all local data sources for initial sync or as a fallback.
 import { workshopData } from '@/lib/workshop-data-loader';
 import { workshops } from '@/lib/data/workshops';
 import { vehicles } from '@/lib/data';
@@ -56,14 +56,9 @@ const dataSchemas = {
 };
 
 type DataType = keyof typeof dataSchemas;
+type DataObjectType = Workshop | Part | Vehicle | CustomLabor | PmsCharge;
 
 
-/**
- * Writes data to a single document in Firestore, either overwriting the whole document or merging specific fields.
- * @param data The data object to write.
- * @param merge If true, merges the data with the existing document. If false, overwrites.
- * @returns A promise that resolves with a success or error status.
- */
 async function writeDataToFirebase(data: any, merge: boolean = false): Promise<{ success: boolean, error?: string }> {
      const db = getDb();
      if (!db) {
@@ -75,7 +70,6 @@ async function writeDataToFirebase(data: any, merge: boolean = false): Promise<{
     try {
         const appDataDocRef = db.collection('config').doc('app_data');
         await appDataDocRef.set(data, { merge });
-
         console.log('Data successfully written to Firebase Firestore.');
         return { success: true };
     } catch (error: any) {
@@ -84,23 +78,18 @@ async function writeDataToFirebase(data: any, merge: boolean = false): Promise<{
     }
 }
 
-
-/**
- * Syncs the entire application data (from local files) to a single document in Firestore.
- * @param data The complete application data object.
- * @returns A promise that resolves with a success or error status.
- */
 export async function syncToFirebase(data: any): Promise<{ success: boolean, error?: string }> {
-    return writeDataToFirebase(data, false); // Overwrite the document completely
+    const fullData = {
+        workshops,
+        vehicles,
+        parts: allParts,
+        customLabor: allCustomLabor,
+        pmsCharges: allPmsCharges,
+        threeMCare: threeMCareData,
+    };
+    return writeDataToFirebase(fullData, false);
 }
 
-/**
- * Parses a JSON string for a specific data type, validates it, and syncs it to Firebase.
- * This performs a partial update on the main data document.
- * @param jsonString The JSON data to upload and sync.
- * @param dataType The key for the data being updated (e.g., 'vehicles', 'parts').
- * @returns A promise that resolves with a success or error status.
- */
 export async function uploadAndSyncToFirebase(jsonString: string, dataType: DataType): Promise<{ success: boolean, error?: string }> {
     let data;
     try {
@@ -110,7 +99,6 @@ export async function uploadAndSyncToFirebase(jsonString: string, dataType: Data
         return { success: false, error: "Invalid JSON format. " + error.message };
     }
 
-    // Validate the parsed data against the corresponding schema
     const schema = dataSchemas[dataType];
     const validationResult = schema.safeParse(data);
 
@@ -119,46 +107,140 @@ export async function uploadAndSyncToFirebase(jsonString: string, dataType: Data
         return { success: false, error: "JSON data does not match the required format for " + dataType + "." };
     }
 
-    // Prepare data for a partial update
     const dataToUpdate = { [dataType]: validationResult.data };
     
-    // Use merge option to only update the specified field
     return writeDataToFirebase(dataToUpdate, true); 
 }
 
-/**
- * Generates a JSON string for a given data type from the current application data.
- * @param dataType The type of data for which to generate the JSON.
- * @returns A JSON string representing the data.
- */
 export async function downloadMasterJson(dataType: DataType): Promise<string> {
-    let dataObject;
-    switch(dataType) {
-        case 'vehicles':
-            dataObject = vehicles;
-            break;
-        case 'parts':
-            dataObject = allParts;
-            break;
-
-        case 'customLabor':
-            dataObject = allCustomLabor;
-            break;
-        case 'pmsCharges':
-             dataObject = allPmsCharges;
-            break;
-        case 'workshops':
-            dataObject = workshops;
-            break;
-        case 'threeMCare':
-            dataObject = threeMCareData;
-            break;
-        default:
-            // This is a safety net, but based on the UI, dataType should always be valid.
-            const exhaustiveCheck: never = dataType;
-            throw new Error(`Unhandled data type: ${exhaustiveCheck}`);
+    const db = getDb();
+    if (!db) {
+      // Fallback to local data if DB not connected
+      console.warn("Firebase not connected. Falling back to local data for download.");
+      const localData = { workshops, vehicles, parts: allParts, customLabor: allCustomLabor, pmsCharges: allPmsCharges, threeMCare: threeMCareData };
+      return JSON.stringify(localData[dataType] || {}, null, 2);
     }
-    return JSON.stringify(dataObject, null, 2);
+
+    const docRef = db.collection('config').doc('app_data');
+    const docSnap = await docRef.get();
+    
+    if (docSnap.exists()) {
+        const data = docSnap.data();
+        return JSON.stringify(data?.[dataType] || {}, null, 2);
+    }
+    return JSON.stringify({}, null, 2);
 }
 
+// ---- Live Data Fetching and Mutation Actions ----
+
+export async function getFullDataFromFirebase() {
+    const db = getDb();
+    if (!db) {
+        // Fallback to local data if DB isn't connected
+        console.warn("Firebase not connected, returning local fallback data.");
+        return {
+            workshops,
+            vehicles,
+            parts: allParts,
+            customLabor: allCustomLabor,
+            pmsCharges: allPmsCharges,
+            threeMCare: threeMCareData,
+        };
+    }
     
+    const docRef = db.collection('config').doc('app_data');
+    const docSnap = await docRef.get();
+    
+    if (docSnap.exists()) {
+        return docSnap.data() as any; // Cast as any to simplify usage on client
+    } else {
+        // If no data in Firestore, return local data as a default
+        console.warn("No data in Firestore, returning local fallback data.");
+         return { workshops, vehicles, parts: allParts, customLabor: allCustomLabor, pmsCharges: allPmsCharges, threeMCare: threeMCareData, };
+    }
+}
+
+async function updateArrayInFirebase(dataType: DataType, item: DataObjectType, operation: 'add' | 'update' | 'delete', identifierKey: keyof DataObjectType) {
+    const db = getDb();
+    if (!db) return { success: false, error: "Database not connected." };
+    const docRef = db.collection('config').doc('app_data');
+
+    try {
+        await db.runTransaction(async (transaction) => {
+            const doc = await transaction.get(docRef);
+            if (!doc.exists) {
+                throw new Error("Data document does not exist!");
+            }
+            
+            const currentArray = doc.data()?.[dataType] || [];
+            let newArray;
+
+            if (operation === 'add') {
+                newArray = [...currentArray, item];
+            } else {
+                const itemIdentifier = item[identifierKey];
+                if(operation === 'update') {
+                     newArray = currentArray.map((i: any) => i[identifierKey] === itemIdentifier ? item : i);
+                } else { // delete
+                     newArray = currentArray.filter((i: any) => i[identifierKey] !== itemIdentifier);
+                }
+            }
+            transaction.update(docRef, { [dataType]: newArray });
+        });
+        return { success: true };
+    } catch (e: any) {
+        console.error(`Error in ${operation} for ${dataType}:`, e);
+        return { success: false, error: e.message };
+    }
+}
+
+// Individual item actions
+export const addWorkshop = (item: Workshop) => updateArrayInFirebase('workshops', item, 'add', 'id');
+export const updateWorkshop = (item: Workshop) => updateArrayInFirebase('workshops', item, 'update', 'id');
+export const deleteWorkshop = (item: Workshop) => updateArrayInFirebase('workshops', item, 'delete', 'id');
+
+export const addPart = (item: Part) => updateArrayInFirebase('parts', item, 'add', 'name');
+export const updatePart = (item: Part) => updateArrayInFirebase('parts', item, 'update', 'name');
+export const deletePart = (item: Part) => updateArrayInFirebase('parts', item, 'delete', 'name');
+
+export const addVehicle = (item: Vehicle) => updateArrayInFirebase('vehicles', item, 'add', 'model');
+export const updateVehicle = (item: Vehicle) => updateArrayInFirebase('vehicles', item, 'update', 'model');
+export const deleteVehicle = (item: Vehicle) => updateArrayInFirebase('vehicles', item, 'delete', 'model');
+
+// Custom labor needs a composite key for identification, but for simplicity we'll just match all fields for deletion.
+// A more robust solution might add a unique ID to each custom labor entry.
+async function updateCustomLaborArray(item: CustomLabor, operation: 'add' | 'update' | 'delete') {
+    const db = getDb();
+    if (!db) return { success: false, error: "Database not connected." };
+    const docRef = db.collection('config').doc('app_data');
+
+    try {
+        await db.runTransaction(async (transaction) => {
+            const doc = await transaction.get(docRef);
+            if (!doc.exists) throw new Error("Data document does not exist!");
+            
+            const currentArray = doc.data()?.customLabor || [];
+            let newArray;
+
+            if (operation === 'add') {
+                newArray = [...currentArray, item];
+            } else {
+                 newArray = currentArray.filter((i: any) => 
+                    !(i.name === item.name && i.model === item.model && i.workshopId === item.workshopId)
+                );
+                if (operation === 'update') {
+                    newArray.push(item);
+                }
+            }
+            transaction.update(docRef, { customLabor: newArray });
+        });
+        return { success: true };
+    } catch (e: any) {
+        console.error(`Error in ${operation} for custom labor:`, e);
+        return { success: false, error: e.message };
+    }
+}
+
+export const addCustomLabor = (item: CustomLabor) => updateCustomLaborArray(item, 'add');
+export const updateCustomLabor = (item: CustomLabor) => updateCustomLaborArray(item, 'update');
+export const deleteCustomLabor = (item: CustomLabor) => updateCustomLaborArray(item, 'delete');

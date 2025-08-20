@@ -1,7 +1,7 @@
 
 "use client";
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import {
   Card,
   CardContent,
@@ -9,7 +9,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Car, PlusCircle, Trash2, Pencil, Search } from 'lucide-react';
+import { Car, PlusCircle, Trash2, Pencil, Search, Loader2 } from 'lucide-react';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
@@ -17,18 +17,35 @@ import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
-import { vehicles as initialVehicles } from '@/lib/data';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import type { Vehicle } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
+import { addVehicle, updateVehicle, deleteVehicle, getFullDataFromFirebase } from '../data/actions';
 
 export default function VehicleManagementPage() {
-  const [vehicles, setVehicles] = useState<Vehicle[]>(initialVehicles);
+  const [vehicles, setVehicles] = useState<Vehicle[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isMutating, setIsMutating] = useState(false);
   const [isVehicleDialogOpen, setIsVehicleDialogOpen] = useState(false);
   const [currentVehicle, setCurrentVehicle] = useState<Partial<Vehicle> & { model_original?: string } | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const { toast } = useToast();
+
+  useEffect(() => {
+    async function loadData() {
+        setIsLoading(true);
+        try {
+            const data = await getFullDataFromFirebase();
+            setVehicles(data.vehicles || []);
+        } catch (error) {
+            toast({ variant: 'destructive', title: 'Error loading data', description: 'Could not fetch vehicles from Firebase.' });
+        } finally {
+            setIsLoading(false);
+        }
+    }
+    loadData();
+  }, [toast]);
 
   const handleAddVehicle = () => {
     setIsEditing(false);
@@ -42,24 +59,28 @@ export default function VehicleManagementPage() {
     setIsVehicleDialogOpen(true);
   };
 
-  const handleDeleteVehicle = (model: string) => {
-    setVehicles(prev => prev.filter(v => v.model !== model));
-    toast({
-      title: 'Vehicle Deleted',
-      description: 'The vehicle has been removed. Sync to Firebase to make this change permanent.',
-    });
+  const handleDeleteVehicle = async (vehicleToDelete: Vehicle) => {
+    setIsMutating(true);
+    const result = await deleteVehicle(vehicleToDelete);
+    if (result.success) {
+      setVehicles(prev => prev.filter(v => v.model !== vehicleToDelete.model));
+      toast({ title: 'Vehicle Deleted', description: 'The vehicle has been removed from the database.' });
+    } else {
+      toast({ variant: 'destructive', title: 'Error', description: result.error });
+    }
+    setIsMutating(false);
   };
 
-  const handleSaveVehicle = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSaveVehicle = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!currentVehicle || !currentVehicle.model || !currentVehicle.brand || !currentVehicle.category || !currentVehicle.fuelTypes || !currentVehicle.productionYears) {
         toast({ variant: 'destructive', title: 'Error', description: 'Please fill all required fields.' });
         return;
     }
+    setIsMutating(true);
     
-    // Convert comma-separated strings to arrays
     const fuelTypesArray = typeof currentVehicle.fuelTypes === 'string' 
-        ? (currentVehicle.fuelTypes as string).split(',').map(s => s.trim()) 
+        ? (currentVehicle.fuelTypes as string).split(',').map(s => s.trim()).filter(Boolean)
         : currentVehicle.fuelTypes;
     const productionYearsArray = typeof currentVehicle.productionYears === 'string'
         ? (currentVehicle.productionYears as string).split(',').map(s => parseInt(s.trim(), 10)).filter(y => !isNaN(y))
@@ -69,7 +90,7 @@ export default function VehicleManagementPage() {
         model: currentVehicle.model,
         brand: currentVehicle.brand as any,
         category: currentVehicle.category,
-        variants: currentVehicle.variants || [],
+        variants: typeof currentVehicle.variants === 'string' ? (currentVehicle.variants as string).split(',').map(s => s.trim()).filter(Boolean) : (currentVehicle.variants || []),
         fuelTypes: fuelTypesArray,
         productionYears: productionYearsArray.sort((a,b) => a - b),
         engineOilQuantity: currentVehicle.engineOilQuantity || '',
@@ -78,19 +99,30 @@ export default function VehicleManagementPage() {
     };
 
     if (isEditing) {
-        setVehicles(prev => prev.map(v => v.model === currentVehicle.model_original ? newVehicle : v));
-        toast({ title: 'Success', description: 'Vehicle updated.' });
+        const result = await updateVehicle(newVehicle);
+        if (result.success) {
+            setVehicles(prev => prev.map(v => v.model === currentVehicle.model_original ? newVehicle : v));
+            toast({ title: 'Success', description: 'Vehicle updated.' });
+            setIsVehicleDialogOpen(false);
+        } else {
+            toast({ variant: 'destructive', title: 'Error', description: result.error });
+        }
     } else {
         if (vehicles.some(v => v.model.toLowerCase() === newVehicle.model.toLowerCase())) {
             toast({ variant: 'destructive', title: 'Error', description: 'A vehicle with this model name already exists.' });
+            setIsMutating(false);
             return;
         }
-        setVehicles(prev => [...prev, newVehicle]);
-        toast({ title: 'Success', description: 'New vehicle added.' });
+        const result = await addVehicle(newVehicle);
+        if (result.success) {
+            setVehicles(prev => [...prev, newVehicle]);
+            toast({ title: 'Success', description: 'New vehicle added.' });
+            setIsVehicleDialogOpen(false);
+        } else {
+            toast({ variant: 'destructive', title: 'Error', description: result.error });
+        }
     }
-
-    setIsVehicleDialogOpen(false);
-    setCurrentVehicle(null);
+    setIsMutating(false);
   };
   
   const handleDialogInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -105,7 +137,7 @@ export default function VehicleManagementPage() {
   const sortedAndFilteredVehicles = useMemo(() => {
     const brandOrder: { [key: string]: number } = { 'Nexa': 1, 'Arena': 2, 'Commercial': 3 };
     
-    return vehicles
+    return [...vehicles]
       .filter(vehicle =>
         vehicle.model.toLowerCase().includes(searchTerm.toLowerCase()) ||
         vehicle.brand.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -117,7 +149,7 @@ export default function VehicleManagementPage() {
         if (orderA !== orderB) {
           return orderA - orderB;
         }
-        return a.model.localeCompare(b.model); // a secondary sort by model name
+        return a.model.localeCompare(b.model);
       });
   }, [vehicles, searchTerm]);
 
@@ -127,7 +159,7 @@ export default function VehicleManagementPage() {
         <CardHeader className="flex flex-row items-start sm:items-center justify-between gap-2">
             <div className="space-y-1">
                 <CardTitle className="flex items-center gap-2"><Car /> Manage Vehicle Models</CardTitle>
-                <CardDescription>Add, edit, or remove vehicle models. Remember to sync to Firebase to save changes.</CardDescription>
+                <CardDescription>Add, edit, or remove vehicle models. Changes are saved directly to the database.</CardDescription>
             </div>
               <div className="flex-1 flex justify-center sm:justify-end gap-2">
                 <div className="relative w-full max-w-xs">
@@ -158,7 +190,13 @@ export default function VehicleManagementPage() {
                 </TableRow>
                 </TableHeader>
                 <TableBody>
-                {sortedAndFilteredVehicles.map((vehicle) => (
+                {isLoading ? (
+                    <TableRow>
+                        <TableCell colSpan={5} className="text-center h-24">
+                            <Loader2 className="h-6 w-6 animate-spin mx-auto" />
+                        </TableCell>
+                    </TableRow>
+                ) : sortedAndFilteredVehicles.map((vehicle) => (
                     <TableRow key={vehicle.model}>
                     <TableCell className="font-medium">{vehicle.model}</TableCell>
                     <TableCell>
@@ -169,10 +207,10 @@ export default function VehicleManagementPage() {
                     <TableCell>{vehicle.category}</TableCell>
                     <TableCell>{vehicle.engineOilQuantity || 'N/A'}</TableCell>
                     <TableCell className="text-right">
-                        <Button variant="ghost" size="icon" onClick={() => handleEditVehicle(vehicle)}>
+                        <Button variant="ghost" size="icon" onClick={() => handleEditVehicle(vehicle)} disabled={isMutating}>
                             <Pencil className="h-4 w-4" />
                         </Button>
-                        <Button variant="ghost" size="icon" onClick={() => handleDeleteVehicle(vehicle.model)}>
+                        <Button variant="ghost" size="icon" onClick={() => handleDeleteVehicle(vehicle)} disabled={isMutating}>
                             <Trash2 className="h-4 w-4 text-destructive" />
                         </Button>
                     </TableCell>
@@ -194,7 +232,7 @@ export default function VehicleManagementPage() {
                     <div className="grid gap-4 py-4">
                         <div className="grid grid-cols-4 items-center gap-4">
                             <Label htmlFor="model" className="text-right">Model</Label>
-                            <Input id="model" name="model" value={currentVehicle?.model || ''} onChange={handleDialogInputChange} className="col-span-3" required />
+                            <Input id="model" name="model" value={currentVehicle?.model || ''} onChange={handleDialogInputChange} className="col-span-3" required disabled={isEditing}/>
                         </div>
                         <div className="grid grid-cols-4 items-center gap-4">
                             <Label htmlFor="brand" className="text-right">Brand</Label>
@@ -235,7 +273,10 @@ export default function VehicleManagementPage() {
                         </div>
                     </div>
                     <DialogFooter>
-                        <Button type="submit">Save changes</Button>
+                        <Button type="submit" disabled={isMutating}>
+                            {isMutating && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                            Save changes
+                        </Button>
                     </DialogFooter>
                 </form>
             </DialogContent>
@@ -243,5 +284,3 @@ export default function VehicleManagementPage() {
     </Card>
   );
 }
-
-    
