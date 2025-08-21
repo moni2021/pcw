@@ -241,6 +241,12 @@ export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
             <p className="font-semibold text-muted-foreground">Category</p>
             <Badge variant="secondary">{vehicle.category}</Badge>
           </div>
+           {vehicle.engineOilQuantity && (
+            <div>
+                <p className="font-semibold text-muted-foreground">Engine Oil Capacity</p>
+                <p>{vehicle.engineOilQuantity}</p>
+            </div>
+           )}
           <div className="col-span-2">
             <p className="font-semibold text-muted-foreground">Service Type</p>
             <p>{serviceType}</p>
