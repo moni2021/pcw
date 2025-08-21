@@ -191,7 +191,7 @@ export function VehicleServiceForm() {
       const serviceDetails = serviceDataLookup[serviceLookupKey];
       
       const pmsLabor = getPmsLabor(selectedModel, selectedServiceType, selectedWorkshop);
-      const recommendedServices = getRecommendedLabor(selectedModel, selectedWorkshop);
+      const recommendedServices = getRecommendedLabor(selectedModel, selectedWorkshop, selectedServiceType);
       const optionalServices = getOptionalServices(selectedModel, selectedWorkshop);
       
       const newEstimate: ServiceEstimateData = {
@@ -204,6 +204,7 @@ export function VehicleServiceForm() {
           category: vehicleInfo.category,
           engineOilLiters: vehicleInfo.engineOilLiters,
           defaultEngineOil: vehicleInfo.defaultEngineOil,
+          engineOilQuantity: vehicleInfo.engineOilQuantity,
         },
         serviceType: selectedServiceType,
         parts: serviceDetails?.parts || [],

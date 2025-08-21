@@ -76,6 +76,7 @@ export const ServiceEstimateDataSchema = z.object({
         category: z.string(),
         engineOilLiters: z.number().optional(),
         defaultEngineOil: z.string().optional(),
+        engineOilQuantity: z.string().optional(),
     }),
     serviceType: z.string(),
     parts: z.array(PartSchema),

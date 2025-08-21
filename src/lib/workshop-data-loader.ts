@@ -58,7 +58,7 @@ export function getPmsLabor(model: string, serviceType: string, workshopId: stri
     return pmsLabor;
 }
 
-export function getRecommendedLabor(model: string, workshopId: string): { name: string; charge: number }[] {
+export function getRecommendedLabor(model: string, workshopId: string, serviceType: string): { name: string; charge: number }[] {
     const data = workshopDataMap[workshopId];
     if (!data) return [];
 
@@ -79,6 +79,14 @@ export function getRecommendedLabor(model: string, workshopId: string): { name: 
         recommendedServices.push({ name: wheelAlignment.name, charge: wheelAlignment.charge });
     }
     
+    // Conditionally add brake caliper service for paid services
+    if (serviceType.startsWith('Paid Service')) {
+        const brakeCaliperService = data.customLabor.find(l => l.model === model && l.name === 'FRONT BRAKE CALIPER ASSY (ONE SIDE) WITH OPPOSITE SIDE');
+        if (brakeCaliperService) {
+            recommendedServices.push({ name: brakeCaliperService.name, charge: brakeCaliperService.charge });
+        }
+    }
+    
     return recommendedServices;
 }
 
@@ -97,7 +105,8 @@ export function getAvailableCustomLabor(model: string, workshopId: string) {
         "WHEEL BALANCING - 4 WHEEL", 
         "WHEEL BALANCING - 5 WHEEL", 
         "STRUT GREASING",
-        "HEADLAMP FOCUSSING"
+        "HEADLAMP FOCUSSING",
+        "FRONT BRAKE CALIPER ASSY (ONE SIDE) WITH OPPOSITE SIDE"
     ];
 
     return data.customLabor.filter(item => 
