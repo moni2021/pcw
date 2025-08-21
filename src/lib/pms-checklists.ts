@@ -14,9 +14,11 @@ export const pmsChecklists: { [key: string]: ChecklistCategory[] } = {
       items: [
         'Wash vehicle',
         'Check all lights, horns, and wipers for proper operation',
-        'Inspect for any fluid leaks',
+        'Inspect for any fluid leaks from the engine, transmission, and brakes',
         'Check and top-up all fluid levels (engine oil, coolant, brake fluid, washer fluid)',
-        'Check tyre pressure and condition',
+        'Check tyre pressure and inspect for abnormal wear',
+        'Check battery terminals for cleanliness and tightness',
+        'Inspect underbody for any damage or loose components',
       ],
     },
     {
@@ -24,7 +26,7 @@ export const pmsChecklists: { [key: string]: ChecklistCategory[] } = {
       icon: 'warn',
       items: [
         'Advise on running-in period best practices',
-        'Explain features and functions of the vehicle',
+        'Explain vehicle features, functions, and warning lights',
       ],
     },
   ],
@@ -36,40 +38,48 @@ export const pmsChecklists: { [key: string]: ChecklistCategory[] } = {
         'Wash vehicle',
         'Check all lights, horns, and wipers for proper operation',
         'Inspect for any fluid leaks',
-        'Check and top-up all fluid levels (engine oil, coolant, brake fluid, washer fluid)',
+        'Check and top-up all fluid levels',
         'Check tyre pressure and condition',
         'Inspect battery and terminals',
-        'Check brake pedal travel',
+        'Check brake pedal travel and handbrake operation',
+      ],
+    },
+     {
+      title: 'Important Recommendations',
+      icon: 'warn',
+      items: [
+        'Discuss any driving concerns reported by the customer',
       ],
     },
   ],
   '3rd Free Service (10,000 km)': [
     {
-      title: 'Replacements',
+      title: 'Mandatory Replacements',
       icon: 'sparkle',
       items: ['Engine oil replacement', 'Oil filter replacement', 'Drain plug gasket replacement'],
     },
     {
-      title: 'Inspections & Checks',
+      title: 'Inspections & Cleaning',
       icon: 'check',
       items: [
         'Wash vehicle',
-        'Inspect brake pads and discs',
-        'Check and top-up all fluid levels',
-        'Inspect battery and terminals',
+        'Inspect brake pads and discs for wear',
+        'Clean A/C filter',
+        'Check and top-up coolant, brake, and washer fluids',
+        'Inspect battery health and terminals',
         'Check all lights, horns, and wipers for proper operation',
-        'Inspect tyre condition and rotate tyres',
+        'Inspect tyre condition, check pressure, and rotate tyres',
       ],
     },
     {
       title: 'Important Recommendations',
       icon: 'warn',
-      items: ['Wheel alignment and balancing recommended', 'A/C filter cleaning/replacement recommended'],
+      items: ['Wheel alignment and balancing recommended to prevent uneven tyre wear', 'Consider A/C filter replacement if very dirty'],
     },
   ],
   'Paid Service (20,000 km)': [
     {
-      title: 'Replacements',
+      title: 'Mandatory Replacements',
       icon: 'sparkle',
       items: [
         'Engine oil replacement',
@@ -77,21 +87,22 @@ export const pmsChecklists: { [key: string]: ChecklistCategory[] } = {
         'Drain plug gasket replacement',
         'Air filter replacement',
         'A/C (Cabin) filter replacement',
-        'Brake fluid top-up/replacement as needed',
-        'Diesel Filter replacement (for Diesel models)',
+        'Brake fluid replacement/top-up',
+        'Diesel Filter replacement (for Diesel models, if applicable)',
       ],
     },
     {
-      title: 'Inspections, Cleaning & Checks',
+      title: 'Inspections, Cleaning & Lubrication',
       icon: 'check',
       items: [
         'Wash vehicle',
-        'Clean brake calipers and pads',
-        'Inspect drive belts',
-        'Check suspension components',
-        'Inspect exhaust system',
+        'Clean front and rear brake calipers, pads, and drums',
+        'Inspect drive belts for cracks and tension',
+        'Check suspension components for any play or damage',
+        'Inspect exhaust system for leaks or damage',
         'Check all lights, horns, and wipers',
         'Tyre rotation, pressure check, and condition inspection',
+        'Lubricate all door hinges and locks',
       ],
     },
     {
@@ -99,20 +110,20 @@ export const pmsChecklists: { [key: string]: ChecklistCategory[] } = {
       icon: 'warn',
       items: [
         'Wheel alignment and balancing strongly recommended',
-        'Throttle body cleaning if required',
-        'Consider 3M interior/exterior treatments',
+        'Throttle body cleaning if facing idling issues',
+        'Consider 3M interior/exterior treatments for vehicle protection',
       ],
     },
   ],
   'Paid Service (30,000 km)': [
     {
-      title: 'Replacements',
+      title: 'Mandatory Replacements',
       icon: 'sparkle',
       items: [
         'Engine oil replacement',
         'Oil filter replacement',
         'Drain plug gasket replacement',
-        'Coolant replacement/top-up',
+        'Coolant replacement or top-up as required',
       ],
     },
     {
@@ -120,22 +131,23 @@ export const pmsChecklists: { [key: string]: ChecklistCategory[] } = {
       icon: 'check',
       items: [
         'Wash vehicle',
-        'Inspect brake pads and discs',
+        'Inspect brake pads and discs for wear',
         'Check and top-up all other fluid levels',
-        'Inspect battery and terminals',
+        'Inspect battery health and terminals',
         'Check all lights, horns, and wipers for proper operation',
         'Inspect tyre condition and rotate tyres',
+        'Check suspension and steering components',
       ],
     },
     {
       title: 'Important Recommendations',
       icon: 'warn',
-      items: ['Wheel alignment and balancing recommended', 'A/C performance check'],
+      items: ['Wheel alignment and balancing recommended', 'A/C performance check and vent cleaning'],
     },
   ],
   'Paid Service (40,000 km)': [
     {
-      title: 'Replacements',
+      title: 'Mandatory Replacements',
       icon: 'sparkle',
       items: [
         'Engine oil replacement',
@@ -150,25 +162,26 @@ export const pmsChecklists: { [key: string]: ChecklistCategory[] } = {
       ],
     },
     {
-      title: 'Inspections, Cleaning & Checks',
+      title: 'Inspections, Cleaning & Lubrication',
       icon: 'check',
       items: [
         'Wash vehicle',
-        'Clean brake calipers and pads',
-        'Inspect drive belts',
+        'Clean front and rear brake calipers, pads, and drums',
+        'Inspect drive belts for cracks and tension',
         'Check suspension for wear and tear',
-        'Inspect exhaust system',
+        'Inspect exhaust system and heat shields',
         'Check all lights, horns, and wipers',
         'Tyre rotation, pressure check, and condition inspection',
+        'Lubricate all door hinges and locks',
       ],
     },
     {
       title: 'Important Recommendations',
       icon: 'warn',
       items: [
-        'Wheel alignment and balancing strongly recommended',
-        'Throttle body cleaning',
-        'A/C system servicing',
+        'Wheel alignment and balancing is critical at this stage',
+        'Throttle body cleaning is highly recommended',
+        'Full A/C system servicing should be considered',
         'Consider 3M treatments (Antirust, Silencer coating)',
       ],
     },
@@ -178,15 +191,25 @@ export const pmsChecklists: { [key: string]: ChecklistCategory[] } = {
 // Add fallbacks for higher mileage services
 const servicesToCopy = [
   { from: 'Paid Service (20,000 km)', to: 'Paid Service (100,000 km)' },
+  { from: 'Paid Service (20,000 km)', to: 'Paid Service (140,000 km)' },
+  { from: 'Paid Service (20,000 km)', to: 'Paid Service (180,000 km)' },
+  { from: 'Paid Service (20,000 km)', to: 'Paid Service (220,000 km)' },
   { from: 'Paid Service (30,000 km)', to: 'Paid Service (50,000 km)' },
   { from: 'Paid Service (30,000 km)', to: 'Paid Service (70,000 km)' },
   { from: 'Paid Service (30,000 km)', to: 'Paid Service (90,000 km)' },
   { from: 'Paid Service (30,000 km)', to: 'Paid Service (110,000 km)' },
+  { from: 'Paid Service (30,000 km)', to: 'Paid Service (130,000 km)' },
+  { from: 'Paid Service (30,000 km)', to: 'Paid Service (150,000 km)' },
+  { from: 'Paid Service (30,000 km)', to: 'Paid Service (170,000 km)' },
+  { from: 'Paid Service (30,000 km)', to: 'Paid Service (190,000 km)' },
+  { from: 'Paid Service (30,000 km)', to: 'Paid Service (210,000 km)' },
   { from: 'Paid Service (40,000 km)', to: 'Paid Service (80,000 km)' },
+  { from: 'Paid Service (40,000 km)', to: 'Paid Service (160,000 km)' },
+  { from: 'Paid Service (40,000 km)', to: 'Paid Service (200,000 km)' },
 ];
 
 servicesToCopy.forEach(({ from, to }) => {
-  if (pmsChecklists[from]) {
+  if (pmsChecklists[from] && !pmsChecklists[to]) {
     pmsChecklists[to] = pmsChecklists[from];
   }
 });
@@ -197,7 +220,7 @@ pmsChecklists['Paid Service (60,000 km)'] = [
   {
     title: 'Additional Replacements (60,000 km)',
     icon: 'sparkle',
-    items: ['Transmission fluid replacement'],
+    items: ['Transmission fluid replacement (if applicable)'],
   },
 ];
 
@@ -206,6 +229,6 @@ pmsChecklists['Paid Service (120,000 km)'] = [
   {
     title: 'Additional Replacements (120,000 km)',
     icon: 'sparkle',
-    items: ['Transmission fluid replacement'],
+    items: ['Transmission fluid replacement (if applicable)'],
   },
 ];
