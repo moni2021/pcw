@@ -33,15 +33,15 @@ export const vehicles: Vehicle[] = [
   // =================================================================================
   // COMMERCIAL
   // =================================================================================
-  { model: 'Eeco Cargo', brand: 'Commercial', category: 'Van', variants: [], fuelTypes: ['Petrol', 'CNG'], productionYears: [2018, 2019, 2020, 2021, 2022, 2023, 2024], engineOilLiters: 4.2, defaultEngineOil: 'ECSTAR PETROL 0W20 - IOCL' },
-  { model: 'Super Carry', brand: 'Commercial', category: 'Light Commercial Vehicle', variants: [], fuelTypes: ['Petrol', 'CNG'], productionYears: [2018, 2019, 2020, 2021, 2022, 2023, 2024], engineOilLiters: 3.0, defaultEngineOil: 'ECSTAR PETROL 0W20 - IOCL' },
+  { model: 'Eeco Cargo', brand: 'Commercial', category: 'Van', variants: [], fuelTypes: ['Petrol', 'CNG'], productionYears: [2018, 2019, 2020, 2021, 2022, 2023, 2024], engineOilQuantity: "4.2 Liters", engineOilLiters: 4.2, defaultEngineOil: 'ECSTAR PETROL 0W20 - IOCL' },
+  { model: 'Super Carry', brand: 'Commercial', category: 'Light Commercial Vehicle', variants: [], fuelTypes: ['Petrol', 'CNG'], productionYears: [2018, 2019, 2020, 2021, 2022, 2023, 2024], engineOilQuantity: "3.0 Liters", engineOilLiters: 3.0, defaultEngineOil: 'ECSTAR PETROL 0W20 - IOCL' },
   
   // =================================================================================
   // DISCONTINUED (but still serviced)
   // =================================================================================
-  { model: 'Alto 800', brand: 'Arena', category: 'Hatchback', variants: [], fuelTypes: ['Petrol', 'CNG'], productionYears: [2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023], engineOilLiters: 2.8, defaultEngineOil: 'ECSTAR PETROL 0W20 - IOCL' },
-  { model: 'Ritz', brand: 'Arena', category: 'Hatchback', variants: [], fuelTypes: ['Petrol', 'Diesel'], productionYears: [2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017], engineOilLiters: 3.1, defaultEngineOil: 'ECSTAR PETROL 0W20 - IOCL' },
-  { model: 'S-Cross', brand: 'Nexa', category: 'SUV', variants: [], fuelTypes: ['Petrol', 'Diesel'], productionYears: [2017, 2018, 2019, 2020, 2021], engineOilLiters: 4.0, defaultEngineOil: 'ECSTAR PETROL 0W20 - IOCL' },
+  { model: 'Alto 800', brand: 'Arena', category: 'Hatchback', variants: [], fuelTypes: ['Petrol', 'CNG'], productionYears: [2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023], engineOilQuantity: "2.8 Liters", engineOilLiters: 2.8, defaultEngineOil: 'ECSTAR PETROL 0W20 - IOCL' },
+  { model: 'Ritz', brand: 'Arena', category: 'Hatchback', variants: [], fuelTypes: ['Petrol', 'Diesel'], productionYears: [2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017], engineOilQuantity: "3.1 Liters", engineOilLiters: 3.1, defaultEngineOil: 'ECSTAR PETROL 0W20 - IOCL' },
+  { model: 'S-Cross', brand: 'Nexa', category: 'SUV', variants: [], fuelTypes: ['Petrol', 'Diesel'], productionYears: [2017, 2018, 2019, 2020, 2021], engineOilQuantity: "4.0 Liters", engineOilLiters: 4.0, defaultEngineOil: 'ECSTAR PETROL 0W20 - IOCL' },
 ];
 
 function generateServiceData() {
