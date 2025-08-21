@@ -7,6 +7,8 @@ const createLaborForAllModels = (name: string, charge: number): Omit<CustomLabor
     return allModels.map(model => ({ name, model, charge }));
 };
 
-const customLabor: Omit<CustomLabor, 'workshopId'>[] = [];
+const customLabor: Omit<CustomLabor, 'workshopId'>[] = [
+    ...createLaborForAllModels('AC GAS TOP-UP', 1600),
+];
 
 export default customLabor;
