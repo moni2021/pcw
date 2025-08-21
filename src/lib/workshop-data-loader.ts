@@ -4,6 +4,7 @@ import { threeMCareData } from './data/3m';
 import pmsChargesArena from './data/workshops/arena-bijoynagar/pms-charges';
 import customLaborArena from './data/workshops/arena-bijoynagar/custom-labor';
 import { recommendedLaborSchedule } from './data/recommended-labor';
+import { vehicles } from './data';
 
 interface WorkshopData {
     pmsCharges: PmsCharge[];
@@ -26,10 +27,40 @@ export const workshopData = {
     pmsCharges: allPmsCharges,
 };
 
+// Define common services that should be available for ALL models and workshops.
 const commonServices = [
+    { name: 'AC GAS TOP-UP', charge: 1600 },
     { name: 'NITROGEN GAS FILLING', charge: 200 },
     { name: 'ENGINE ROOM PAINTING', charge: 400 },
 ];
+
+// Helper to get all labor charges for a model, combining workshop-specific and common ones.
+function getAllLaborForModel(model: string, workshopId: string): CustomLabor[] {
+    const workshopSpecificLabor = workshopDataMap[workshopId]?.customLabor.filter(l => l.model === model) || [];
+    
+    const commonLaborForModel: CustomLabor[] = vehicles
+        .filter(v => v.model === model)
+        .flatMap(v => 
+            commonServices.map(cs => ({
+                workshopId,
+                model: v.model,
+                name: cs.name,
+                charge: cs.charge,
+            }))
+        );
+
+    // Combine and remove duplicates, giving workshop-specific prices precedence.
+    const combined = [...workshopSpecificLabor, ...commonLaborForModel];
+    const uniqueLabor = combined.reduce((acc, current) => {
+        if (!acc.find(item => item.name === current.name)) {
+            acc.push(current);
+        }
+        return acc;
+    }, [] as CustomLabor[]);
+
+    return uniqueLabor;
+}
+
 
 export function getPmsLabor(model: string, serviceType: string, workshopId: string): { name: string; charge: number }[] {
     const data = workshopDataMap[workshopId];
@@ -51,13 +82,11 @@ export function getPmsLabor(model: string, serviceType: string, workshopId: stri
 }
 
 export function getRecommendedLabor(model: string, workshopId: string, serviceType: string): { name: string; charge: number }[] {
-    const data = workshopDataMap[workshopId];
-    if (!data) return [];
-    
     const serviceKmRaw = serviceType.match(/\(([\d,]+)\s*km\)/)?.[1].replace(/,/g, '');
     if (!serviceKmRaw) return [];
     
     const serviceKm = parseInt(serviceKmRaw, 10) / 1000; // Convert to thousands
+    const allLaborForModel = getAllLaborForModel(model, workshopId);
 
     let recommendedServices: { name: string; charge: number }[] = [];
 
@@ -70,13 +99,13 @@ export function getRecommendedLabor(model: string, workshopId: string, serviceTy
         }
         
         if (shouldRecommend) {
-             const laborData = data.customLabor.find(l => l.model === model && l.name === laborName);
+             const laborData = allLaborForModel.find(l => l.name === laborName);
              if (laborData) {
                  recommendedServices.push({ name: laborData.name, charge: laborData.charge });
              } else {
-                // Fallback for services like wheel balancing that have two names
+                // Fallback for services like wheel balancing that might have multiple names
                 if (laborName === 'WHEEL BALANCING - 5 WHEEL') {
-                    const fallbackLabor = data.customLabor.find(l => l.model === model && l.name === 'WHEEL BALANCING - 4 WHEEL');
+                    const fallbackLabor = allLaborForModel.find(l => l.name === 'WHEEL BALANCING - 4 WHEEL');
                     if(fallbackLabor) recommendedServices.push({ name: fallbackLabor.name, charge: fallbackLabor.charge });
                 }
              }
@@ -93,13 +122,10 @@ export function getOptionalServices(model: string, workshopId: string) {
 
 
 export function getAvailableCustomLabor(model: string, workshopId: string) {
-    const data = workshopDataMap[workshopId];
-    if (!data) return [];
+    const allLaborForModel = getAllLaborForModel(model, workshopId);
     
     // Exclude services that are now automatically recommended
     const recommendedNames = Object.keys(recommendedLaborSchedule);
 
-    return data.customLabor.filter(item => 
-        item.model === model && !recommendedNames.includes(item.name)
-    );
+    return allLaborForModel.filter(item => !recommendedNames.includes(item.name));
 }
