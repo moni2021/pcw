@@ -9,7 +9,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Package, PlusCircle, Trash2, Pencil, Search, Loader2 } from 'lucide-react';
+import { Package, PlusCircle, Trash2, Pencil, Search, Loader2, ChevronsLeft, ChevronsRight } from 'lucide-react';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -19,6 +19,8 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import type { Part } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
 import { addPart, updatePart, deletePart, getFullDataFromFirebase } from '../data/actions';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+
 
 export default function PartsManagementPage() {
   const [allParts, setAllParts] = useState<Part[]>([]);
@@ -28,6 +30,7 @@ export default function PartsManagementPage() {
   const [currentPart, setCurrentPart] = useState<Partial<Part> | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
+  const [isTableOpen, setIsTableOpen] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -119,18 +122,18 @@ export default function PartsManagementPage() {
 
   return (
     <Card>
-        <CardHeader className="flex flex-row items-start sm:items-center justify-between gap-2">
+        <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div className="space-y-1">
                 <CardTitle className="flex items-center gap-2"><Package /> Manage Parts and Pricing</CardTitle>
                 <CardDescription>Add, edit, or remove parts from the central price list. Changes are saved directly to the database.</CardDescription>
             </div>
-             <div className="flex-1 flex justify-center sm:justify-end gap-2">
-                <div className="relative w-full max-w-xs">
+             <div className="w-full sm:w-auto flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+                <div className="relative w-full sm:w-auto flex-1">
                     <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                     <Input
                         type="search"
-                        placeholder="Search by part name..."
-                        className="pl-8"
+                        placeholder="Search..."
+                        className="pl-8 w-full sm:w-64"
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                     />
@@ -141,52 +144,66 @@ export default function PartsManagementPage() {
             </div>
         </CardHeader>
         <CardContent>
-        <ScrollArea className="h-[70vh] relative">
-            <div className="relative">
-                <Table>
-                    <TableHeader>
-                    <TableRow>
-                        <TableHead>Part Name</TableHead>
-                        <TableHead className="text-right">Price (₹)</TableHead>
-                        <TableHead className="text-right">Actions</TableHead>
-                    </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                    {isLoading ? (
-                        <TableRow>
-                            <TableCell colSpan={3} className="h-48 text-center">
-                                <div className="flex flex-col items-center gap-2">
-                                    <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-                                    <span className="text-muted-foreground">Loading Poddar Car World...</span>
+            <Collapsible open={isTableOpen} onOpenChange={setIsTableOpen}>
+                <CollapsibleTrigger asChild>
+                     <Button variant="ghost" className="mb-4">
+                        {isTableOpen ? <ChevronsRight className="mr-2 h-4 w-4" /> : <ChevronsLeft className="mr-2 h-4 w-4" />}
+                        {isTableOpen ? 'Hide' : 'Show'} Table ({filteredParts.length} items)
+                    </Button>
+                </CollapsibleTrigger>
+                <CollapsibleContent>
+                    <ScrollArea className="h-[60vh] relative border rounded-md">
+                        <div className="relative">
+                            <Table>
+                                <TableHeader className="sticky top-0 bg-background z-10">
+                                <TableRow>
+                                    <TableHead>Part Name</TableHead>
+                                    <TableHead className="text-right">Price (₹)</TableHead>
+                                    <TableHead className="text-right">Actions</TableHead>
+                                </TableRow>
+                                </TableHeader>
+                                <TableBody>
+                                {isLoading ? (
+                                    <TableRow>
+                                        <TableCell colSpan={3} className="h-48 text-center">
+                                            <div className="flex flex-col items-center gap-2">
+                                                <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+                                                <span className="text-muted-foreground">Loading Poddar Car World...</span>
+                                            </div>
+                                        </TableCell>
+                                    </TableRow>
+                                ) : filteredParts.length === 0 ? (
+                                    <TableRow>
+                                        <TableCell colSpan={3} className="h-24 text-center">No parts found.</TableCell>
+                                    </TableRow>
+                                ) : filteredParts.map((part) => (
+                                    <TableRow key={part.name}>
+                                    <TableCell className="font-medium">{part.name}</TableCell>
+                                    <TableCell className="text-right">{part.price.toFixed(2)}</TableCell>
+                                    <TableCell className="text-right">
+                                        <Button variant="ghost" size="icon" onClick={() => handleEditPart(part)} disabled={isMutating}>
+                                        <Pencil className="h-4 w-4" />
+                                        </Button>
+                                        <Button variant="ghost" size="icon" onClick={() => handleDeletePart(part)} disabled={isMutating}>
+                                        <Trash2 className="h-4 w-4 text-destructive" />
+                                        </Button>
+                                    </TableCell>
+                                    </TableRow>
+                                ))}
+                                </TableBody>
+                            </Table>
+                            {(isMutating) && (
+                                <div className="absolute inset-0 bg-background/80 flex items-center justify-center">
+                                    <div className="flex flex-col items-center gap-2">
+                                        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+                                        <span className="text-muted-foreground">Updating Poddar Car World...</span>
+                                    </div>
                                 </div>
-                            </TableCell>
-                        </TableRow>
-                    ) : filteredParts.map((part) => (
-                        <TableRow key={part.name}>
-                        <TableCell className="font-medium">{part.name}</TableCell>
-                        <TableCell className="text-right">{part.price.toFixed(2)}</TableCell>
-                        <TableCell className="text-right">
-                            <Button variant="ghost" size="icon" onClick={() => handleEditPart(part)} disabled={isMutating}>
-                            <Pencil className="h-4 w-4" />
-                            </Button>
-                            <Button variant="ghost" size="icon" onClick={() => handleDeletePart(part)} disabled={isMutating}>
-                            <Trash2 className="h-4 w-4 text-destructive" />
-                            </Button>
-                        </TableCell>
-                        </TableRow>
-                    ))}
-                    </TableBody>
-                </Table>
-                {(isMutating) && (
-                    <div className="absolute inset-0 bg-background/80 flex items-center justify-center">
-                        <div className="flex flex-col items-center gap-2">
-                            <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-                            <span className="text-muted-foreground">Updating Poddar Car World...</span>
+                            )}
                         </div>
-                    </div>
-                )}
-            </div>
-        </ScrollArea>
+                    </ScrollArea>
+                </CollapsibleContent>
+            </Collapsible>
         </CardContent>
         <Dialog open={isPartsDialogOpen} onOpenChange={setIsPartsDialogOpen}>
           <DialogContent>

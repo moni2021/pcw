@@ -9,7 +9,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Building, PlusCircle, Trash2, Pencil, Search, Loader2 } from 'lucide-react';
+import { Building, PlusCircle, Trash2, Pencil, Search, Loader2, ChevronsRight, ChevronsLeft } from 'lucide-react';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -20,6 +20,8 @@ import type { Workshop } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
 import { addWorkshop, deleteWorkshop, updateWorkshop, getFullDataFromFirebase } from '../data/actions';
+import { Collapsible, CollapsibleTrigger, CollapsibleContent } from '@/components/ui/collapsible';
+
 
 export default function WorkshopManagementPage() {
   const [workshops, setWorkshops] = useState<Workshop[]>([]);
@@ -32,6 +34,7 @@ export default function WorkshopManagementPage() {
   const [workshopCity, setWorkshopCity] = useState('');
   const [isEditing, setIsEditing] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
+  const [isTableOpen, setIsTableOpen] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -140,18 +143,18 @@ export default function WorkshopManagementPage() {
 
   return (
     <Card>
-      <CardHeader className="flex flex-row items-start sm:items-center justify-between gap-2">
+      <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div className="space-y-1">
               <CardTitle className="flex items-center gap-2"><Building /> Manage Workshops</CardTitle>
               <CardDescription>Add, edit, or remove workshops. Changes are saved directly to the database.</CardDescription>
           </div>
-            <div className="flex-1 flex justify-center sm:justify-end gap-2">
-              <div className="relative w-full max-w-xs">
+            <div className="w-full sm:w-auto flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+              <div className="relative w-full sm:w-auto flex-1">
                   <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                   <Input
                       type="search"
-                      placeholder="Search by name, ID, city..."
-                      className="pl-8"
+                      placeholder="Search..."
+                      className="pl-8 w-full sm:w-64"
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
                   />
@@ -162,54 +165,68 @@ export default function WorkshopManagementPage() {
             </div>
       </CardHeader>
       <CardContent>
-          <ScrollArea className="h-[70vh] relative">
-            <div className="relative">
-                <Table>
-                    <TableHeader>
-                    <TableRow>
-                        <TableHead>Workshop ID</TableHead>
-                        <TableHead>Workshop Name</TableHead>
-                        <TableHead>Dealer City</TableHead>
-                        <TableHead className="text-right">Actions</TableHead>
-                    </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                    {isLoading ? (
+        <Collapsible open={isTableOpen} onOpenChange={setIsTableOpen}>
+            <CollapsibleTrigger asChild>
+                <Button variant="ghost" className="mb-4">
+                    {isTableOpen ? <ChevronsRight className="mr-2 h-4 w-4" /> : <ChevronsLeft className="mr-2 h-4 w-4" />}
+                    {isTableOpen ? 'Hide' : 'Show'} Table ({filteredWorkshops.length} items)
+                </Button>
+            </CollapsibleTrigger>
+            <CollapsibleContent>
+              <ScrollArea className="h-[60vh] relative border rounded-md">
+                <div className="relative">
+                    <Table>
+                        <TableHeader className="sticky top-0 bg-background z-10">
                         <TableRow>
-                            <TableCell colSpan={4} className="h-48 text-center">
-                            <div className="flex flex-col items-center gap-2">
-                                    <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-                                    <span className="text-muted-foreground">Loading Poddar Car World...</span>
-                                </div>
+                            <TableHead>Workshop ID</TableHead>
+                            <TableHead>Workshop Name</TableHead>
+                            <TableHead>Dealer City</TableHead>
+                            <TableHead className="text-right">Actions</TableHead>
+                        </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                        {isLoading ? (
+                            <TableRow>
+                                <TableCell colSpan={4} className="h-48 text-center">
+                                <div className="flex flex-col items-center gap-2">
+                                        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+                                        <span className="text-muted-foreground">Loading Poddar Car World...</span>
+                                    </div>
+                                </TableCell>
+                            </TableRow>
+                        ) : filteredWorkshops.length === 0 ? (
+                            <TableRow>
+                                <TableCell colSpan={4} className="h-24 text-center">No workshops found.</TableCell>
+                            </TableRow>
+                        ) : filteredWorkshops.map((workshop) => (
+                            <TableRow key={workshop.id}>
+                            <TableCell className="font-mono">{workshop.id}</TableCell>
+                            <TableCell className="font-medium">{workshop.name}</TableCell>
+                            <TableCell>{workshop.city || 'N/A'}</TableCell>
+                                <TableCell className="text-right">
+                                <Button variant="ghost" size="icon" onClick={() => handleEditWorkshop(workshop)} disabled={isMutating}>
+                                <Pencil className="h-4 w-4" />
+                                </Button>
+                                <Button variant="ghost" size="icon" onClick={() => handleDeleteWorkshop(workshop)} disabled={isMutating}>
+                                <Trash2 className="h-4 w-4 text-destructive" />
+                                </Button>
                             </TableCell>
-                        </TableRow>
-                    ) : filteredWorkshops.map((workshop) => (
-                        <TableRow key={workshop.id}>
-                        <TableCell className="font-mono">{workshop.id}</TableCell>
-                        <TableCell className="font-medium">{workshop.name}</TableCell>
-                        <TableCell>{workshop.city || 'N/A'}</TableCell>
-                            <TableCell className="text-right">
-                            <Button variant="ghost" size="icon" onClick={() => handleEditWorkshop(workshop)} disabled={isMutating}>
-                            <Pencil className="h-4 w-4" />
-                            </Button>
-                            <Button variant="ghost" size="icon" onClick={() => handleDeleteWorkshop(workshop)} disabled={isMutating}>
-                            <Trash2 className="h-4 w-4 text-destructive" />
-                            </Button>
-                        </TableCell>
-                        </TableRow>
-                    ))}
-                    </TableBody>
-                </Table>
-                {(isMutating) && (
-                    <div className="absolute inset-0 bg-background/80 flex items-center justify-center">
-                        <div className="flex flex-col items-center gap-2">
-                            <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-                            <span className="text-muted-foreground">Updating Poddar Car World...</span>
+                            </TableRow>
+                        ))}
+                        </TableBody>
+                    </Table>
+                    {(isMutating) && (
+                        <div className="absolute inset-0 bg-background/80 flex items-center justify-center">
+                            <div className="flex flex-col items-center gap-2">
+                                <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+                                <span className="text-muted-foreground">Updating Poddar Car World...</span>
+                            </div>
                         </div>
-                    </div>
-                )}
-            </div>
-          </ScrollArea>
+                    )}
+                </div>
+              </ScrollArea>
+            </CollapsibleContent>
+        </Collapsible>
       </CardContent>
       <Dialog open={isWorkshopDialogOpen} onOpenChange={setIsWorkshopDialogOpen}>
         <DialogContent>

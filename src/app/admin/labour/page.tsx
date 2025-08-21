@@ -9,7 +9,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Wrench, PlusCircle, Trash2, Pencil, Search, Check, ChevronsUpDown, Loader2 } from 'lucide-react';
+import { Wrench, PlusCircle, Trash2, Pencil, Search, Check, ChevronsUpDown, Loader2, ChevronsRight, ChevronsLeft } from 'lucide-react';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
@@ -23,6 +23,8 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from '@/components/ui/command';
 import { cn } from '@/lib/utils';
 import { addCustomLabor, updateCustomLabor, deleteCustomLabor, getFullDataFromFirebase } from '../data/actions';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+
 
 export default function LabourManagementPage() {
   const [customLabor, setCustomLabor] = useState<CustomLabor[]>([]);
@@ -36,6 +38,7 @@ export default function LabourManagementPage() {
   const [isEditing, setIsEditing] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [isModelPopoverOpen, setIsModelPopoverOpen] = useState(false);
+  const [isTableOpen, setIsTableOpen] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -160,18 +163,18 @@ export default function LabourManagementPage() {
 
   return (
     <Card>
-      <CardHeader className="flex flex-row items-start sm:items-center justify-between gap-2">
+      <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div className="space-y-1">
               <CardTitle className="flex items-center gap-2"><Wrench /> Manage Labour Charges</CardTitle>
               <CardDescription>Add, edit, or remove custom labour charges. Changes are saved directly to the database.</CardDescription>
           </div>
-            <div className="flex-1 flex justify-center sm:justify-end gap-2">
-              <div className="relative w-full max-w-xs">
+            <div className="w-full sm:w-auto flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+              <div className="relative w-full sm:w-auto flex-1">
                   <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                   <Input
                       type="search"
-                      placeholder="Search by name, model, workshop..."
-                      className="pl-8"
+                      placeholder="Search..."
+                      className="pl-8 w-full sm:w-64"
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
                   />
@@ -182,56 +185,70 @@ export default function LabourManagementPage() {
             </div>
       </CardHeader>
       <CardContent>
-          <ScrollArea className="h-[70vh] relative">
-            <div className="relative">
-              <Table>
-                  <TableHeader>
-                  <TableRow>
-                      <TableHead>Labour Name</TableHead>
-                      <TableHead>Model</TableHead>
-                      <TableHead>Workshop</TableHead>
-                      <TableHead className="text-right">Charge (₹)</TableHead>
-                      <TableHead className="text-right">Actions</TableHead>
-                  </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                  {isLoading ? (
-                      <TableRow>
-                          <TableCell colSpan={5} className="h-48 text-center">
-                              <div className="flex flex-col items-center gap-2">
-                                  <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-                                  <span className="text-muted-foreground">Loading Poddar Car World...</span>
-                              </div>
-                          </TableCell>
-                      </TableRow>
-                  ) : filteredLabor.map((labor, index) => (
-                      <TableRow key={`${labor.workshopId}-${labor.model}-${labor.name}-${index}`}>
-                      <TableCell className="font-medium">{labor.name}</TableCell>
-                      <TableCell>{labor.model}</TableCell>
-                      <TableCell>{workshops.find(w => w.id === labor.workshopId)?.name || labor.workshopId}</TableCell>
-                      <TableCell className="text-right">{labor.charge.toFixed(2)}</TableCell>
-                          <TableCell className="text-right">
-                          <Button variant="ghost" size="icon" onClick={() => handleEditLabor(labor)} disabled={isMutating}>
-                          <Pencil className="h-4 w-4" />
-                          </Button>
-                          <Button variant="ghost" size="icon" onClick={() => handleDeleteLabor(labor)} disabled={isMutating}>
-                          <Trash2 className="h-4 w-4 text-destructive" />
-                          </Button>
-                      </TableCell>
-                      </TableRow>
-                  ))}
-                  </TableBody>
-              </Table>
-              {(isMutating) && (
-                  <div className="absolute inset-0 bg-background/80 flex items-center justify-center">
-                      <div className="flex flex-col items-center gap-2">
-                          <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-                          <span className="text-muted-foreground">Updating Poddar Car World...</span>
-                      </div>
-                  </div>
-              )}
-            </div>
-          </ScrollArea>
+        <Collapsible open={isTableOpen} onOpenChange={setIsTableOpen}>
+          <CollapsibleTrigger asChild>
+              <Button variant="ghost" className="mb-4">
+                  {isTableOpen ? <ChevronsRight className="mr-2 h-4 w-4" /> : <ChevronsLeft className="mr-2 h-4 w-4" />}
+                  {isTableOpen ? 'Hide' : 'Show'} Table ({filteredLabor.length} items)
+              </Button>
+          </CollapsibleTrigger>
+          <CollapsibleContent>
+            <ScrollArea className="h-[60vh] relative border rounded-md">
+              <div className="relative">
+                <Table>
+                    <TableHeader className="sticky top-0 bg-background z-10">
+                    <TableRow>
+                        <TableHead>Labour Name</TableHead>
+                        <TableHead>Model</TableHead>
+                        <TableHead>Workshop</TableHead>
+                        <TableHead className="text-right">Charge (₹)</TableHead>
+                        <TableHead className="text-right">Actions</TableHead>
+                    </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                    {isLoading ? (
+                        <TableRow>
+                            <TableCell colSpan={5} className="h-48 text-center">
+                                <div className="flex flex-col items-center gap-2">
+                                    <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+                                    <span className="text-muted-foreground">Loading Poddar Car World...</span>
+                                </div>
+                            </TableCell>
+                        </TableRow>
+                    ) : filteredLabor.length === 0 ? (
+                        <TableRow>
+                            <TableCell colSpan={5} className="h-24 text-center">No labour charges found.</TableCell>
+                        </TableRow>
+                    ) : filteredLabor.map((labor, index) => (
+                        <TableRow key={`${labor.workshopId}-${labor.model}-${labor.name}-${index}`}>
+                        <TableCell className="font-medium">{labor.name}</TableCell>
+                        <TableCell>{labor.model}</TableCell>
+                        <TableCell>{workshops.find(w => w.id === labor.workshopId)?.name || labor.workshopId}</TableCell>
+                        <TableCell className="text-right">{labor.charge.toFixed(2)}</TableCell>
+                            <TableCell className="text-right">
+                            <Button variant="ghost" size="icon" onClick={() => handleEditLabor(labor)} disabled={isMutating}>
+                            <Pencil className="h-4 w-4" />
+                            </Button>
+                            <Button variant="ghost" size="icon" onClick={() => handleDeleteLabor(labor)} disabled={isMutating}>
+                            <Trash2 className="h-4 w-4 text-destructive" />
+                            </Button>
+                        </TableCell>
+                        </TableRow>
+                    ))}
+                    </TableBody>
+                </Table>
+                {(isMutating) && (
+                    <div className="absolute inset-0 bg-background/80 flex items-center justify-center">
+                        <div className="flex flex-col items-center gap-2">
+                            <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+                            <span className="text-muted-foreground">Updating Poddar Car World...</span>
+                        </div>
+                    </div>
+                )}
+              </div>
+            </ScrollArea>
+          </CollapsibleContent>
+        </Collapsible>
       </CardContent>
       <Dialog open={isLaborDialogOpen} onOpenChange={setIsLaborDialogOpen}>
         <DialogContent>

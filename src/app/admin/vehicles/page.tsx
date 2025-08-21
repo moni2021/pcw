@@ -9,7 +9,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Car, PlusCircle, Trash2, Pencil, Search, Loader2 } from 'lucide-react';
+import { Car, PlusCircle, Trash2, Pencil, Search, Loader2, ChevronsRight, ChevronsLeft } from 'lucide-react';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
@@ -21,6 +21,8 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import type { Vehicle } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
 import { addVehicle, updateVehicle, deleteVehicle, getFullDataFromFirebase } from '../data/actions';
+import { Collapsible, CollapsibleTrigger, CollapsibleContent } from '@/components/ui/collapsible';
+
 
 export default function VehicleManagementPage() {
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
@@ -30,6 +32,7 @@ export default function VehicleManagementPage() {
   const [currentVehicle, setCurrentVehicle] = useState<Partial<Vehicle> & { model_original?: string } | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
+  const [isTableOpen, setIsTableOpen] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -155,18 +158,18 @@ export default function VehicleManagementPage() {
 
   return (
     <Card>
-        <CardHeader className="flex flex-row items-start sm:items-center justify-between gap-2">
+        <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div className="space-y-1">
                 <CardTitle className="flex items-center gap-2"><Car /> Manage Vehicle Models</CardTitle>
                 <CardDescription>Add, edit, or remove vehicle models. Changes are saved directly to the database.</CardDescription>
             </div>
-              <div className="flex-1 flex justify-center sm:justify-end gap-2">
-                <div className="relative w-full max-w-xs">
+              <div className="w-full sm:w-auto flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+                <div className="relative w-full sm:w-auto flex-1">
                     <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                     <Input
                         type="search"
-                        placeholder="Search by model, brand..."
-                        className="pl-8"
+                        placeholder="Search..."
+                        className="pl-8 w-full sm:w-64"
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                     />
@@ -177,60 +180,74 @@ export default function VehicleManagementPage() {
             </div>
         </CardHeader>
         <CardContent>
-            <ScrollArea className="h-[70vh] relative">
-            <div className="relative">
-                <Table>
-                    <TableHeader>
-                    <TableRow>
-                        <TableHead>Model</TableHead>
-                        <TableHead>Brand</TableHead>
-                        <TableHead>Category</TableHead>
-                        <TableHead>Engine Oil</TableHead>
-                        <TableHead className="text-right">Actions</TableHead>
-                    </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                    {isLoading ? (
-                        <TableRow>
-                            <TableCell colSpan={5} className="h-48 text-center">
-                                <div className="flex flex-col items-center gap-2">
-                                    <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-                                    <span className="text-muted-foreground">Loading Poddar Car World...</span>
+            <Collapsible open={isTableOpen} onOpenChange={setIsTableOpen}>
+                <CollapsibleTrigger asChild>
+                    <Button variant="ghost" className="mb-4">
+                        {isTableOpen ? <ChevronsRight className="mr-2 h-4 w-4" /> : <ChevronsLeft className="mr-2 h-4 w-4" />}
+                        {isTableOpen ? 'Hide' : 'Show'} Table ({sortedAndFilteredVehicles.length} items)
+                    </Button>
+                </CollapsibleTrigger>
+                <CollapsibleContent>
+                    <ScrollArea className="h-[60vh] relative border rounded-md">
+                        <div className="relative">
+                            <Table>
+                                <TableHeader className="sticky top-0 bg-background z-10">
+                                <TableRow>
+                                    <TableHead>Model</TableHead>
+                                    <TableHead>Brand</TableHead>
+                                    <TableHead>Category</TableHead>
+                                    <TableHead>Engine Oil</TableHead>
+                                    <TableHead className="text-right">Actions</TableHead>
+                                </TableRow>
+                                </TableHeader>
+                                <TableBody>
+                                {isLoading ? (
+                                    <TableRow>
+                                        <TableCell colSpan={5} className="h-48 text-center">
+                                            <div className="flex flex-col items-center gap-2">
+                                                <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+                                                <span className="text-muted-foreground">Loading Poddar Car World...</span>
+                                            </div>
+                                        </TableCell>
+                                    </TableRow>
+                                ) : sortedAndFilteredVehicles.length === 0 ? (
+                                     <TableRow>
+                                        <TableCell colSpan={5} className="h-24 text-center">No vehicles found.</TableCell>
+                                    </TableRow>
+                                ) : sortedAndFilteredVehicles.map((vehicle) => (
+                                    <TableRow key={vehicle.model}>
+                                    <TableCell className="font-medium">{vehicle.model}</TableCell>
+                                    <TableCell>
+                                        <Badge variant={vehicle.brand === 'Nexa' ? 'default' : 'secondary'}>
+                                        {vehicle.brand}
+                                        </Badge>
+                                    </TableCell>
+                                    <TableCell>{vehicle.category}</TableCell>
+                                    <TableCell>{vehicle.engineOilQuantity || 'N/A'}</TableCell>
+                                    <TableCell className="text-right">
+                                        <Button variant="ghost" size="icon" onClick={() => handleEditVehicle(vehicle)} disabled={isMutating}>
+                                            <Pencil className="h-4 w-4" />
+                                        </Button>
+                                        <Button variant="ghost" size="icon" onClick={() => handleDeleteVehicle(vehicle)} disabled={isMutating}>
+                                            <Trash2 className="h-4 w-4 text-destructive" />
+                                        </Button>
+                                    </TableCell>
+                                    </TableRow>
+                                ))}
+                                </TableBody>
+                            </Table>
+                            {(isMutating) && (
+                                <div className="absolute inset-0 bg-background/80 flex items-center justify-center">
+                                    <div className="flex flex-col items-center gap-2">
+                                        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+                                        <span className="text-muted-foreground">Updating Poddar Car World...</span>
+                                    </div>
                                 </div>
-                            </TableCell>
-                        </TableRow>
-                    ) : sortedAndFilteredVehicles.map((vehicle) => (
-                        <TableRow key={vehicle.model}>
-                        <TableCell className="font-medium">{vehicle.model}</TableCell>
-                        <TableCell>
-                            <Badge variant={vehicle.brand === 'Nexa' ? 'default' : 'secondary'}>
-                            {vehicle.brand}
-                            </Badge>
-                        </TableCell>
-                        <TableCell>{vehicle.category}</TableCell>
-                        <TableCell>{vehicle.engineOilQuantity || 'N/A'}</TableCell>
-                        <TableCell className="text-right">
-                            <Button variant="ghost" size="icon" onClick={() => handleEditVehicle(vehicle)} disabled={isMutating}>
-                                <Pencil className="h-4 w-4" />
-                            </Button>
-                            <Button variant="ghost" size="icon" onClick={() => handleDeleteVehicle(vehicle)} disabled={isMutating}>
-                                <Trash2 className="h-4 w-4 text-destructive" />
-                            </Button>
-                        </TableCell>
-                        </TableRow>
-                    ))}
-                    </TableBody>
-                </Table>
-                {(isMutating) && (
-                    <div className="absolute inset-0 bg-background/80 flex items-center justify-center">
-                        <div className="flex flex-col items-center gap-2">
-                            <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-                            <span className="text-muted-foreground">Updating Poddar Car World...</span>
+                            )}
                         </div>
-                    </div>
-                )}
-            </div>
-            </ScrollArea>
+                    </ScrollArea>
+                </CollapsibleContent>
+            </Collapsible>
         </CardContent>
         <Dialog open={isVehicleDialogOpen} onOpenChange={setIsVehicleDialogOpen}>
             <DialogContent className="sm:max-w-md">

@@ -1,9 +1,9 @@
 
 'use server';
 /**
- * @fileOverview An AI flow to convert unstructured text into structured JSON.
+ * @fileOverview An AI flow to convert unstructured text into structured JSON, with model name normalization.
  *
- * - convertToJson - Converts raw text data into a specified JSON format.
+ * - convertToJson - Converts raw text data into a specified JSON format and normalizes vehicle model names.
  * - ConvertToJsonInput - The input type for the convertToJson function.
  * - ConvertToJsonOutput - The return type for the convertToJson function.
  */
@@ -11,6 +11,8 @@
 import { ai } from '@/ai';
 import { z } from 'zod';
 import { PartSchema, CustomLaborSchema, VehicleSchema, WorkshopSchema, PmsChargeSchema } from '@/lib/types';
+import { vehicles as masterVehicles } from '@/lib/data';
+
 
 const ThreeMCareServiceSchema = z.object({
     name: z.string(),
@@ -72,6 +74,7 @@ const jsonConverterPrompt = ai.definePrompt({
             formatDescription: z.string(),
             exampleObject: z.string(),
             jsonFormat: z.string(),
+            validModels: z.string().optional(),
         }),
     },
     prompt: `You are an expert data formatting assistant. Your task is to convert the following raw text into a valid JSON based on the specified format. The raw text could be comma-separated, tab-separated, or unstructured. Analyze the text and produce a clean JSON output. Do not include any explanations, only the JSON output.
@@ -79,6 +82,14 @@ const jsonConverterPrompt = ai.definePrompt({
 Format: {{{jsonFormat}}}
 Format Description: {{{formatDescription}}}
 Example of the expected output structure: {{{exampleObject}}}
+
+{{#if validModels}}
+IMPORTANT: When a 'model' field is present, you MUST normalize the model name from the raw text to match one of the official names from this list. For example, if the text says "alto k10" or "alt k10", you must use the official name "Alto K10".
+Official Vehicle Models:
+---
+{{{validModels}}}
+---
+{{/if}}
 
 Raw Text Input:
 ---
@@ -99,6 +110,10 @@ const converterFlow = ai.defineFlow(
     const targetSchema = jsonSchemas[jsonFormat];
     const formatDescription = jsonDescriptions[jsonFormat];
     const exampleObject = jsonExamples[jsonFormat];
+    
+    // Check if the format involves vehicle models
+    const needsModelNormalization = ['customLabor', 'pmsCharges', 'vehicles', 'threeMCare'].includes(jsonFormat);
+    const validModels = needsModelNormalization ? masterVehicles.map(v => v.model).join(', ') : undefined;
 
     const { output } = await jsonConverterPrompt(
         {
@@ -106,9 +121,10 @@ const converterFlow = ai.defineFlow(
             formatDescription,
             exampleObject: JSON.stringify(exampleObject),
             jsonFormat,
+            validModels,
         },
         {
-            output: { schema: z.array(targetSchema.element) } 
+            output: { schema: z.any() } // Use z.any() to handle different possible output structures before validation
         }
     );
     
@@ -116,10 +132,31 @@ const converterFlow = ai.defineFlow(
       throw new Error("Failed to get a structured response from the model.");
     }
     
-    let finalData: any = output;
+    // The AI might return a string, so we need to parse it.
+    let parsedOutput;
+    if (typeof output === 'string') {
+        try {
+            parsedOutput = JSON.parse(output);
+        } catch (e) {
+            // If parsing fails, it might be that the model returned the raw object directly
+             parsedOutput = output;
+        }
+    } else {
+        parsedOutput = output;
+    }
+
+    // Now validate the parsed JSON against the target schema
+    const validationResult = targetSchema.safeParse(parsedOutput);
+
+    if (!validationResult.success) {
+      console.error("AI-generated JSON does not match the target schema:", validationResult.error.flatten());
+      throw new Error("The AI failed to generate JSON in the correct format. Please check the raw text.");
+    }
+
+    let finalData: any = validationResult.data;
 
     if ((jsonFormat === 'customLabor' || jsonFormat === 'pmsCharges') && workshopId) {
-        finalData = output.map((item: any) => ({ ...item, workshopId }));
+        finalData = (finalData as any[]).map((item: any) => ({ ...item, workshopId }));
     }
 
     return { jsonString: JSON.stringify(finalData, null, 2) };

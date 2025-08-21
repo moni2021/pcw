@@ -9,7 +9,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Banknote, Pencil, Loader2, Save } from 'lucide-react';
+import { Banknote, Pencil, Loader2, Save, ChevronsLeft, ChevronsRight } from 'lucide-react';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
@@ -20,6 +20,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import type { PmsCharge, Vehicle, Workshop } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
 import { getFullDataFromFirebase, addPmsCharge, updatePmsCharge } from '../data/actions';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 
 const serviceIntervals = [
   '1st Free Service (1,000 km)',
@@ -49,6 +50,7 @@ export default function PmsChargesManagementPage() {
 
   const [isChargeDialogOpen, setIsChargeDialogOpen] = useState(false);
   const [currentCharge, setCurrentCharge] = useState<PmsCharge | null>(null);
+  const [isTableOpen, setIsTableOpen] = useState(false);
 
   const { toast } = useToast();
 
@@ -163,58 +165,68 @@ export default function PmsChargesManagementPage() {
                   </Select>
               </div>
           </div>
-
-          <ScrollArea className="h-[60vh] relative">
-            <div className="relative">
-                <Table>
-                    <TableHeader>
-                    <TableRow>
-                        <TableHead>Service Interval</TableHead>
-                        <TableHead className="text-right">Charge (₹)</TableHead>
-                        <TableHead className="text-right">Actions</TableHead>
-                    </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                    {isLoading ? (
+        
+          <Collapsible open={isTableOpen} onOpenChange={setIsTableOpen}>
+            <CollapsibleTrigger asChild>
+                <Button variant="ghost" className="mb-4" disabled={!selectedModel || !selectedWorkshop}>
+                    {isTableOpen ? <ChevronsRight className="mr-2 h-4 w-4" /> : <ChevronsLeft className="mr-2 h-4 w-4" />}
+                    {isTableOpen ? 'Hide' : 'Show'} PMS Charges
+                </Button>
+            </CollapsibleTrigger>
+            <CollapsibleContent>
+              <ScrollArea className="h-[60vh] relative border rounded-md">
+                <div className="relative">
+                    <Table>
+                        <TableHeader className="sticky top-0 bg-background z-10">
                         <TableRow>
-                            <TableCell colSpan={3} className="h-48 text-center">
-                                <div className="flex flex-col items-center gap-2">
-                                    <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-                                    <span className="text-muted-foreground">Loading Poddar Car World...</span>
-                                </div>
-                            </TableCell>
+                            <TableHead>Service Interval</TableHead>
+                            <TableHead className="text-right">Charge (₹)</TableHead>
+                            <TableHead className="text-right">Actions</TableHead>
                         </TableRow>
-                    ) : (!selectedWorkshop || !selectedModel) ? (
-                        <TableRow>
-                            <TableCell colSpan={3} className="h-24 text-center text-muted-foreground">
-                                Please select a workshop and model to view charges.
-                            </TableCell>
-                        </TableRow>
-                    ) : (
-                        displayedCharges.map(({ labourDesc, basicAmt, existingCharge }) => (
-                        <TableRow key={labourDesc}>
-                            <TableCell className="font-medium">{labourDesc}</TableCell>
-                            <TableCell className="text-right">{basicAmt !== undefined ? `₹${basicAmt.toFixed(2)}` : 'Not set'}</TableCell>
-                            <TableCell className="text-right">
-                            <Button variant="ghost" size="icon" onClick={() => handleEditCharge(labourDesc, existingCharge)}>
-                                <Pencil className="h-4 w-4" />
-                            </Button>
-                            </TableCell>
-                        </TableRow>
-                        ))
-                    )}
-                    </TableBody>
-                </Table>
-                {(isMutating) && (
-                    <div className="absolute inset-0 bg-background/80 flex items-center justify-center">
-                        <div className="flex flex-col items-center gap-2">
-                            <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-                            <span className="text-muted-foreground">Updating Poddar Car World...</span>
+                        </TableHeader>
+                        <TableBody>
+                        {isLoading ? (
+                            <TableRow>
+                                <TableCell colSpan={3} className="h-48 text-center">
+                                    <div className="flex flex-col items-center gap-2">
+                                        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+                                        <span className="text-muted-foreground">Loading Poddar Car World...</span>
+                                    </div>
+                                </TableCell>
+                            </TableRow>
+                        ) : (!selectedWorkshop || !selectedModel) ? (
+                            <TableRow>
+                                <TableCell colSpan={3} className="h-24 text-center text-muted-foreground">
+                                    Please select a workshop and model to view charges.
+                                </TableCell>
+                            </TableRow>
+                        ) : (
+                            displayedCharges.map(({ labourDesc, basicAmt, existingCharge }) => (
+                            <TableRow key={labourDesc}>
+                                <TableCell className="font-medium">{labourDesc}</TableCell>
+                                <TableCell className="text-right">{basicAmt !== undefined ? `₹${basicAmt.toFixed(2)}` : 'Not set'}</TableCell>
+                                <TableCell className="text-right">
+                                <Button variant="ghost" size="icon" onClick={() => handleEditCharge(labourDesc, existingCharge)}>
+                                    <Pencil className="h-4 w-4" />
+                                </Button>
+                                </TableCell>
+                            </TableRow>
+                            ))
+                        )}
+                        </TableBody>
+                    </Table>
+                    {(isMutating) && (
+                        <div className="absolute inset-0 bg-background/80 flex items-center justify-center">
+                            <div className="flex flex-col items-center gap-2">
+                                <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+                                <span className="text-muted-foreground">Updating Poddar Car World...</span>
+                            </div>
                         </div>
-                    </div>
-                )}
-            </div>
-          </ScrollArea>
+                    )}
+                </div>
+              </ScrollArea>
+            </CollapsibleContent>
+          </Collapsible>
       </CardContent>
 
        <Dialog open={isChargeDialogOpen} onOpenChange={setIsChargeDialogOpen}>
