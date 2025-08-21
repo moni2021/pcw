@@ -22,6 +22,9 @@ import { useToast } from '@/hooks/use-toast';
 import { getFullDataFromFirebase, addPmsCharge, updatePmsCharge } from '../data/actions';
 
 const serviceIntervals = [
+  '1st Free Service (1,000 km)',
+  '2nd Free Service (5,000 km)',
+  '3rd Free Service (10,000 km)',
   'Paid Service (20,000 km)', 'Paid Service (30,000 km)', 'Paid Service (40,000 km)', 
   'Paid Service (50,000 km)', 'Paid Service (60,000 km)', 'Paid Service (70,000 km)', 
   'Paid Service (80,000 km)', 'Paid Service (90,000 km)', 'Paid Service (100,000 km)',
@@ -71,14 +74,13 @@ export default function PmsChargesManagementPage() {
     if (existingCharge) {
       setCurrentCharge(existingCharge);
     } else {
-      // Create a new charge object if one doesn't exist
       const newId = `${selectedWorkshop}-${selectedModel}-${labourDesc}`.toLowerCase().replace(/[^a-z0-9-]/g, '');
       setCurrentCharge({
         id: newId,
         workshopId: selectedWorkshop,
         model: selectedModel,
         labourDesc: labourDesc,
-        labourCode: `pms-${labourDesc.split(' ')[2].replace(/,/g, '')}`, // e.g., pms-20000km
+        labourCode: `pms-${labourDesc.split(' ')[2]?.replace(/,/g, '') || ''}`,
         basicAmt: 0,
       });
     }
