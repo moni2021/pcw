@@ -176,8 +176,11 @@ export default function WorkshopManagementPage() {
                 <TableBody>
                 {isLoading ? (
                     <TableRow>
-                        <TableCell colSpan={4} className="text-center h-24">
-                            <Loader2 className="h-6 w-6 animate-spin mx-auto" />
+                        <TableCell colSpan={4} className="h-48 text-center">
+                           <div className="flex flex-col items-center gap-2">
+                                <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+                                <span className="text-muted-foreground">Loading workshop data...</span>
+                            </div>
                         </TableCell>
                     </TableRow>
                 ) : filteredWorkshops.map((workshop) => (

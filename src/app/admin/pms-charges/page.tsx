@@ -35,9 +35,11 @@ const serviceIntervals = [
 ];
 
 export default function PmsChargesManagementPage() {
-  const [pmsCharges, setPmsCharges] = useState<PmsCharge[]>([]);
-  const [vehicles, setVehicles] = useState<Vehicle[]>([]);
-  const [workshops, setWorkshops] = useState<Workshop[]>([]);
+  const [allData, setAllData] = useState<{ pmsCharges: PmsCharge[], vehicles: Vehicle[], workshops: Workshop[] }>({
+    pmsCharges: [],
+    vehicles: [],
+    workshops: [],
+  });
   
   const [isLoading, setIsLoading] = useState(true);
   const [isMutating, setIsMutating] = useState(false);
@@ -55,11 +57,14 @@ export default function PmsChargesManagementPage() {
         setIsLoading(true);
         try {
             const data = await getFullDataFromFirebase();
-            setPmsCharges(data.pmsCharges || []);
-            setVehicles(data.vehicles || []);
-            setWorkshops(data.workshops || []);
-            if(data.workshops?.length > 0) {
-              setSelectedWorkshop(data.workshops[0].id);
+            const initialWorkshops = data.workshops || [];
+            setAllData({
+              pmsCharges: data.pmsCharges || [],
+              vehicles: data.vehicles || [],
+              workshops: initialWorkshops,
+            });
+            if(initialWorkshops.length > 0) {
+              setSelectedWorkshop(initialWorkshops[0].id);
             }
         } catch (error) {
             toast({ variant: 'destructive', title: 'Error loading data', description: 'Could not fetch data from Firebase.' });
@@ -94,14 +99,14 @@ export default function PmsChargesManagementPage() {
     setIsMutating(true);
     const chargeToSave = { ...currentCharge, basicAmt: Number(currentCharge.basicAmt || 0) };
 
-    const existing = pmsCharges.find(p => p.id === chargeToSave.id);
+    const existing = allData.pmsCharges.find(p => p.id === chargeToSave.id);
     const result = existing ? await updatePmsCharge(chargeToSave) : await addPmsCharge(chargeToSave);
 
     if (result.success) {
       if (existing) {
-        setPmsCharges(prev => prev.map(p => p.id === chargeToSave.id ? chargeToSave : p));
+        setAllData(prev => ({...prev, pmsCharges: prev.pmsCharges.map(p => p.id === chargeToSave.id ? chargeToSave : p)}));
       } else {
-        setPmsCharges(prev => [...prev, chargeToSave]);
+        setAllData(prev => ({...prev, pmsCharges: [...prev.pmsCharges, chargeToSave]}));
       }
       toast({ title: 'Success', description: 'PMS charge saved.' });
       setIsChargeDialogOpen(false);
@@ -114,7 +119,7 @@ export default function PmsChargesManagementPage() {
   const displayedCharges = useMemo(() => {
     if (!selectedWorkshop || !selectedModel) return [];
     
-    const chargesForModel = pmsCharges.filter(p => p.workshopId === selectedWorkshop && p.model === selectedModel);
+    const chargesForModel = allData.pmsCharges.filter(p => p.workshopId === selectedWorkshop && p.model === selectedModel);
 
     return serviceIntervals.map(interval => {
       const existingCharge = chargesForModel.find(p => p.labourDesc === interval);
@@ -124,7 +129,7 @@ export default function PmsChargesManagementPage() {
         existingCharge: existingCharge,
       };
     });
-  }, [pmsCharges, selectedWorkshop, selectedModel]);
+  }, [allData.pmsCharges, selectedWorkshop, selectedModel]);
 
 
   return (
@@ -142,7 +147,7 @@ export default function PmsChargesManagementPage() {
                           <SelectValue placeholder="Select a workshop" />
                       </SelectTrigger>
                       <SelectContent>
-                          {workshops.map(w => <SelectItem key={w.id} value={w.id}>{w.name}</SelectItem>)}
+                          {allData.workshops.map(w => <SelectItem key={w.id} value={w.id}>{w.name}</SelectItem>)}
                       </SelectContent>
                   </Select>
               </div>
@@ -153,7 +158,7 @@ export default function PmsChargesManagementPage() {
                           <SelectValue placeholder="Select a model" />
                       </SelectTrigger>
                       <SelectContent>
-                          {vehicles.sort((a,b) => a.model.localeCompare(b.model)).map(v => <SelectItem key={v.model} value={v.model}>{v.model}</SelectItem>)}
+                          {allData.vehicles.sort((a,b) => a.model.localeCompare(b.model)).map(v => <SelectItem key={v.model} value={v.model}>{v.model}</SelectItem>)}
                       </SelectContent>
                   </Select>
               </div>
@@ -171,13 +176,16 @@ export default function PmsChargesManagementPage() {
                 <TableBody>
                  {isLoading ? (
                     <TableRow>
-                        <TableCell colSpan={3} className="text-center h-24">
-                            <Loader2 className="h-6 w-6 animate-spin mx-auto" />
+                        <TableCell colSpan={3} className="h-48 text-center">
+                             <div className="flex flex-col items-center gap-2">
+                                <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+                                <span className="text-muted-foreground">Loading PMS data...</span>
+                            </div>
                         </TableCell>
                     </TableRow>
                  ) : (!selectedWorkshop || !selectedModel) ? (
                      <TableRow>
-                        <TableCell colSpan={3} className="text-center h-24 text-muted-foreground">
+                        <TableCell colSpan={3} className="h-24 text-center text-muted-foreground">
                             Please select a workshop and model to view charges.
                         </TableCell>
                     </TableRow>
@@ -205,7 +213,7 @@ export default function PmsChargesManagementPage() {
                 <DialogHeader>
                     <DialogTitle>Edit PMS Charge</DialogTitle>
                     <DialogDescription>
-                        Set the labour charge for {currentCharge?.labourDesc} for the {currentCharge?.model} at {workshops.find(w=>w.id === currentCharge?.workshopId)?.name}.
+                        Set the labour charge for {currentCharge?.labourDesc} for the {currentCharge?.model} at {allData.workshops.find(w=>w.id === currentCharge?.workshopId)?.name}.
                     </DialogDescription>
                 </DialogHeader>
                 <div className="grid gap-4 py-4">

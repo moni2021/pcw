@@ -192,8 +192,11 @@ export default function VehicleManagementPage() {
                 <TableBody>
                 {isLoading ? (
                     <TableRow>
-                        <TableCell colSpan={5} className="text-center h-24">
-                            <Loader2 className="h-6 w-6 animate-spin mx-auto" />
+                        <TableCell colSpan={5} className="h-48 text-center">
+                            <div className="flex flex-col items-center gap-2">
+                                <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+                                <span className="text-muted-foreground">Loading vehicle data...</span>
+                            </div>
                         </TableCell>
                     </TableRow>
                 ) : sortedAndFilteredVehicles.map((vehicle) => (

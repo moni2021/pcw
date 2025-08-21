@@ -154,8 +154,11 @@ export default function PartsManagementPage() {
                 <TableBody>
                 {isLoading ? (
                     <TableRow>
-                        <TableCell colSpan={3} className="text-center h-24">
-                            <Loader2 className="h-6 w-6 animate-spin mx-auto" />
+                        <TableCell colSpan={3} className="h-48 text-center">
+                            <div className="flex flex-col items-center gap-2">
+                                <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+                                <span className="text-muted-foreground">Loading parts data...</span>
+                            </div>
                         </TableCell>
                     </TableRow>
                 ) : filteredParts.map((part) => (
