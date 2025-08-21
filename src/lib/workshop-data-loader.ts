@@ -70,8 +70,26 @@ export function getRecommendedLabor(model: string, workshopId: string, serviceTy
     const data = workshopDataMap[workshopId];
     if (!data) return [];
 
-    const recommendedServices = [...commonServices];
+    let recommendedServices = [...commonServices];
     
+    // Add services specific to NEXA workshop
+    if (workshopId === 'nexa-bijoynagar') {
+        const nexaServices = [
+            'AC GAS TOP-UP',
+            'BATTERY GROUND CABLE',
+            'COOLANT CHECK / REPLACE',
+            'DOOR GLASS/ ADJUST/ LUBRICATE',
+            'ENGINE OIL & FILTER ASSY REPLACE',
+            'EVAPORATOR CLEANING'
+        ];
+        nexaServices.forEach(serviceName => {
+            const labor = data.customLabor.find(l => l.model === model && l.name === serviceName);
+            if (labor) {
+                recommendedServices.push({ name: labor.name, charge: labor.charge });
+            }
+        });
+    }
+
     recommendedServices.push({ name: 'STRUT GREASING', charge: 1650 });
 
     let wheelBalancing = data.customLabor.find(l => l.model === model && l.name === 'WHEEL BALANCING - 5 WHEEL');
@@ -114,7 +132,13 @@ export function getAvailableCustomLabor(model: string, workshopId: string) {
         "WHEEL BALANCING - 5 WHEEL", 
         "STRUT GREASING",
         "HEADLAMP FOCUSSING",
-        "FRONT BRAKE CALIPER ASSY (ONE SIDE) WITH OPPOSITE SIDE"
+        "FRONT BRAKE CALIPER ASSY (ONE SIDE) WITH OPPOSITE SIDE",
+        'AC GAS TOP-UP',
+        'BATTERY GROUND CABLE',
+        'COOLANT CHECK / REPLACE',
+        'DOOR GLASS/ ADJUST/ LUBRICATE',
+        'ENGINE OIL & FILTER ASSY REPLACE',
+        'EVAPORATOR CLEANING'
     ];
 
     return data.customLabor.filter(item => 
