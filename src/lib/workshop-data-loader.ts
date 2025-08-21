@@ -2,10 +2,10 @@ import type { PmsCharge, CustomLabor, Workshop, ServiceEstimateData } from './ty
 import { threeMCareData } from './data/3m';
 import pmsChargesArena from './data/workshops/arena-bijoynagar/pms-charges';
 import customLaborArena from './data/workshops/arena-bijoynagar/custom-labor';
-import pmsChargesSow from './data/workshops/sow-azara/pms-charges';
-import customLaborSow from './data/workshops/sow-azara/custom-labor';
-import pmsChargesNexa from './data/workshops/nexa-bijoynagar/pms-charges';
-import customLaborNexa from './data/workshops/nexa-bijoynagar/custom-labor';
+// import pmsChargesSow from './data/workshops/sow-azara/pms-charges';
+// import customLaborSow from './data/workshops/sow-azara/custom-labor';
+// import pmsChargesNexa from './data/workshops/nexa-bijoynagar/pms-charges';
+// import customLaborNexa from './data/workshops/nexa-bijoynagar/custom-labor';
 
 
 interface WorkshopData {
@@ -19,14 +19,14 @@ const workshopDataMap: { [key: string]: WorkshopData } = {
         pmsCharges: pmsChargesArena.map(p => ({...p, workshopId: 'arena-bijoynagar'})),
         customLabor: customLaborArena.map(c => ({...c, workshopId: 'arena-bijoynagar'})),
     },
-    'sow-azara': {
-        pmsCharges: pmsChargesSow.map(p => ({...p, workshopId: 'sow-azara'})),
-        customLabor: customLaborSow.map(c => ({...c, workshopId: 'sow-azara'})),
-    },
-    'nexa-bijoynagar': {
-        pmsCharges: pmsChargesNexa.map(p => ({...p, workshopId: 'nexa-bijoynagar'})),
-        customLabor: customLaborNexa.map(c => ({...c, workshopId: 'nexa-bijoynagar'})),
-    },
+    // 'sow-azara': {
+    //     pmsCharges: pmsChargesSow.map(p => ({...p, workshopId: 'sow-azara'})),
+    //     customLabor: customLaborSow.map(c => ({...c, workshopId: 'sow-azara'})),
+    // },
+    // 'nexa-bijoynagar': {
+    //     pmsCharges: pmsChargesNexa.map(p => ({...p, workshopId: 'nexa-bijoynagar'})),
+    //     customLabor: customLaborNexa.map(c => ({...c, workshopId: 'nexa-bijoynagar'})),
+    // },
 };
 
 // Combine all custom labor and pms charges for admin pages

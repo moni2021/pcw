@@ -14,7 +14,6 @@ import { Loader2, Car, Tag, Building2, Droplets, Info, Check, ChevronsUpDown, Al
 import { Separator } from './ui/separator';
 import { Badge } from '@/components/ui/badge';
 import { useTheme } from '@/context/ThemeContext';
-import { workshops } from '@/lib/data/workshops';
 import { getPmsLabor, getRecommendedLabor, getOptionalServices } from '@/lib/workshop-data-loader';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from '@/components/ui/command';
@@ -22,6 +21,7 @@ import { cn } from '@/lib/utils';
 import { ServiceChecklistDialog } from './service-checklist-dialog';
 import type { ChecklistCategory } from '@/lib/pms-checklists';
 import { pmsChecklists } from '@/lib/pms-checklists';
+import { Input } from './ui/input';
 
 const serviceTypes = [
   '1st Free Service (1,000 km)',
@@ -52,7 +52,7 @@ const serviceTypes = [
 
 export function VehicleServiceForm() {
   const { setTheme } = useTheme();
-  const [selectedWorkshop, setSelectedWorkshop] = useState<string>('');
+  const [selectedWorkshop, setSelectedWorkshop] = useState<string>('arena-bijoynagar');
   const [selectedModel, setSelectedModel] = useState<string>('');
   const [selectedFuelType, setSelectedFuelType] = useState<string>('');
   const [selectedYear, setSelectedYear] = useState<string>('');
@@ -75,20 +75,6 @@ export function VehicleServiceForm() {
       setTheme('default');
     }
   }, [currentVehicle, setTheme]);
-  
-  const resetSelections = () => {
-    setSelectedModel('');
-    setSelectedFuelType('');
-    setSelectedYear('');
-    setSelectedServiceType('');
-    setEstimate(null);
-    setError('');
-  }
-
-  const handleWorkshopChange = (workshopId: string) => {
-    setSelectedWorkshop(workshopId);
-    resetSelections();
-  };
   
   const handleModelChange = (model: string) => {
     const vehicle = vehicles.find(v => v.model === model);
@@ -235,19 +221,11 @@ export function VehicleServiceForm() {
         </CardHeader>
         <CardContent className="space-y-6">
             <div className="space-y-2">
-              <Label htmlFor="workshop">Workshop</Label>
-              <Select onValueChange={handleWorkshopChange} value={selectedWorkshop}>
-                <SelectTrigger id="workshop">
-                  <SelectValue placeholder="Select Workshop" />
-                </SelectTrigger>
-                <SelectContent>
-                  {workshops.map(workshop => (
-                    <SelectItem key={workshop.id} value={workshop.id}>
-                      {workshop.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+                <Label htmlFor="workshop">Workshop</Label>
+                <Input id="workshop" value="ARENA - BIJOYNAGAR (KAMRUP)" disabled />
+                 <p className="text-xs text-muted-foreground">
+                    This application is under review. Access to other locations will be enabled upon approval.
+                 </p>
             </div>
 
           <div className="space-y-2">
