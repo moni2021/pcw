@@ -52,6 +52,10 @@ export function getPmsLabor(model: string, serviceType: string, workshopId: stri
 
         if (pmsCharge) {
             pmsLabor.push({ name: 'Periodic Maintenance Service', charge: pmsCharge.basicAmt });
+            // Add convenience charge for SOW workshop if there is a main PMS charge
+            if (workshopId === 'sow-azara' && pmsCharge.basicAmt > 0) {
+                 pmsLabor.push({ name: 'SOW CONVENIENCE CHARGES', charge: 150 });
+            }
         }
     }
     
