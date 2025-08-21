@@ -1,8 +1,10 @@
-
 import type { PmsCharge, CustomLabor, Workshop, ServiceEstimateData } from './types';
 import { threeMCareData } from './data/3m';
 import pmsChargesArena from './data/workshops/arena-bijoynagar/pms-charges';
 import customLaborArena from './data/workshops/arena-bijoynagar/custom-labor';
+import pmsChargesSow from './data/workshops/sow-azara/pms-charges';
+import customLaborSow from './data/workshops/sow-azara/custom-labor';
+
 
 interface WorkshopData {
     pmsCharges: PmsCharge[];
@@ -16,7 +18,10 @@ const workshopDataMap: { [key: string]: WorkshopData } = {
         pmsCharges: pmsChargesArena.map(p => ({...p, workshopId: 'arena-bijoynagar'})),
         customLabor: customLaborArena.map(c => ({...c, workshopId: 'arena-bijoynagar'})),
     },
-    // 'sow-bijoynagar': { pmsCharges: sowPms, customLabor: sowCustom },
+    'sow-azara': {
+        pmsCharges: pmsChargesSow.map(p => ({...p, workshopId: 'sow-azara'})),
+        customLabor: customLaborSow.map(c => ({...c, workshopId: 'sow-azara'})),
+    },
     // 'nexa-bijoynagar': { pmsCharges: nexaPms, customLabor: nexaCustom },
 };
 
@@ -40,7 +45,7 @@ export function getPmsLabor(model: string, serviceType: string, workshopId: stri
     
     let pmsLabor: { name: string; charge: number }[] = [];
 
-    if (serviceType.startsWith('Paid Service')) {
+    if (serviceType.startsWith('Paid Service') || serviceType.startsWith('3rd Free')) {
         const pmsCharge = data.pmsCharges.find(p => 
             p.model === model && p.labourDesc === serviceType
         );
