@@ -32,6 +32,10 @@ const commonServices = [
     { name: 'AC GAS TOP-UP', charge: 1600 },
     { name: 'NITROGEN GAS FILLING', charge: 200 },
     { name: 'ENGINE ROOM PAINTING', charge: 400 },
+    { name: 'STRUT GREASING', charge: 1650 },
+    { name: 'HEADLAMP FOCUSSING', charge: 400 },
+    { name: 'WHEEL BALANCING - 5 WHEEL', charge: 350 },
+    { name: 'WHEEL ALIGNMENT (4 HEAD)', charge: 400 },
 ];
 
 // Helper to get all labor charges for a model, combining workshop-specific and common ones.
