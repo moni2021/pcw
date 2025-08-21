@@ -56,10 +56,6 @@ export function getPmsLabor(model: string, serviceType: string, workshopId: stri
 
         if (pmsCharge) {
             pmsLabor.push({ name: 'Periodic Maintenance Service', charge: pmsCharge.basicAmt });
-            // Add convenience charge for SOW workshop if there is a main PMS charge
-            if (workshopId === 'sow-azara' && pmsCharge.basicAmt > 0) {
-                 pmsLabor.push({ name: 'SOW CONVENIENCE CHARGES', charge: 150 });
-            }
         }
     }
     
@@ -72,24 +68,6 @@ export function getRecommendedLabor(model: string, workshopId: string, serviceTy
 
     let recommendedServices = [...commonServices];
     
-    // Add services specific to NEXA workshop
-    if (workshopId === 'nexa-bijoynagar') {
-        const nexaServices = [
-            'AC GAS TOP-UP',
-            'BATTERY GROUND CABLE',
-            'COOLANT CHECK / REPLACE',
-            'DOOR GLASS/ ADJUST/ LUBRICATE',
-            'ENGINE OIL & FILTER ASSY REPLACE',
-            'EVAPORATOR CLEANING'
-        ];
-        nexaServices.forEach(serviceName => {
-            const labor = data.customLabor.find(l => l.model === model && l.name === serviceName);
-            if (labor) {
-                recommendedServices.push({ name: labor.name, charge: labor.charge });
-            }
-        });
-    }
-
     recommendedServices.push({ name: 'STRUT GREASING', charge: 1650 });
 
     let wheelBalancing = data.customLabor.find(l => l.model === model && l.name === 'WHEEL BALANCING - 5 WHEEL');
@@ -103,14 +81,6 @@ export function getRecommendedLabor(model: string, workshopId: string, serviceTy
     const wheelAlignment = data.customLabor.find(l => l.model === model && l.name === 'WHEEL ALIGNMENT (4 HEAD)');
     if (wheelAlignment) {
         recommendedServices.push({ name: wheelAlignment.name, charge: wheelAlignment.charge });
-    }
-    
-    // Conditionally add brake caliper service for paid services
-    if (serviceType.startsWith('Paid Service')) {
-        const brakeCaliperService = data.customLabor.find(l => l.model === model && l.name === 'FRONT BRAKE CALIPER ASSY (ONE SIDE) WITH OPPOSITE SIDE');
-        if (brakeCaliperService) {
-            recommendedServices.push({ name: brakeCaliperService.name, charge: brakeCaliperService.charge });
-        }
     }
     
     return recommendedServices;
@@ -131,14 +101,7 @@ export function getAvailableCustomLabor(model: string, workshopId: string) {
         "WHEEL BALANCING - 4 WHEEL", 
         "WHEEL BALANCING - 5 WHEEL", 
         "STRUT GREASING",
-        "HEADLAMP FOCUSSING",
-        "FRONT BRAKE CALIPER ASSY (ONE SIDE) WITH OPPOSITE SIDE",
-        'AC GAS TOP-UP',
-        'BATTERY GROUND CABLE',
-        'COOLANT CHECK / REPLACE',
-        'DOOR GLASS/ ADJUST/ LUBRICATE',
-        'ENGINE OIL & FILTER ASSY REPLACE',
-        'EVAPORATOR CLEANING'
+        "HEADLAMP FOCUSSING"
     ];
 
     return data.customLabor.filter(item => 
