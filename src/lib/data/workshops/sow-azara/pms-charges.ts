@@ -10,6 +10,7 @@ const pmsChargesRaw: Omit<PmsCharge, 'workshopId' | 'id'>[] = [
     { model: "Wagon R", labourCode: "PMS-1P-MULTI", labourDesc: service, basicAmt: 1335 },
     { model: "Swift", labourCode: "PMS-1P-MULTI", labourDesc: service, basicAmt: 1410 },
     { model: "Dzire", labourCode: "PMS-1P-MULTI", labourDesc: service, basicAmt: 1410 },
+    { model: "Dzire TOUR S PETROL", labourCode: "PMS-1P-MULTI", labourDesc: service, basicAmt: 1410 },
     { model: "Alto 800", labourCode: "PMS-1P-MULTI", labourDesc: service, basicAmt: 1080 }, // M 800 mapped to Alto 800
     { model: "Ignis", labourCode: "PMS-1P-MULTI", labourDesc: service, basicAmt: 1410 },
     { model: "Jimny", labourCode: "PMS-1P-MULTI", labourDesc: service, basicAmt: 1530 },
@@ -35,6 +36,7 @@ const pmsChargesRaw: Omit<PmsCharge, 'workshopId' | 'id'>[] = [
     { model: "Baleno", labourCode: "PMS-2P-MULTI", labourDesc: service, basicAmt: 1475 },
     { model: "Swift", labourCode: "PMS-2P-MULTI", labourDesc: service, basicAmt: 1490 },
     { model: "Dzire", labourCode: "PMS-2P-MULTI", labourDesc: service, basicAmt: 1490 },
+    { model: "Dzire TOUR S PETROL", labourCode: "PMS-2P-MULTI", labourDesc: service, basicAmt: 1490 },
     { model: "Alto 800", labourCode: "PMS-2P-MULTI", labourDesc: service, basicAmt: 1435 },
     { model: "Alto K10", labourCode: "PMS-2P-MULTI", labourDesc: service, basicAmt: 1435 },
     { model: "Ertiga", labourCode: "PMS-2P-MULTI", labourDesc: service, basicAmt: 1675 },
@@ -59,6 +61,7 @@ const pmsChargesRaw: Omit<PmsCharge, 'workshopId' | 'id'>[] = [
     { model: "Alto K10", labourCode: "PMS-MIXED-1", labourDesc: service, basicAmt: 1460 },
     { model: "Wagon R", labourCode: "PMS-MIXED-1", labourDesc: service, basicAmt: 1460 },
     { model: "Dzire", labourCode: "PMS-MIXED-1", labourDesc: service, basicAmt: 1515 },
+    { model: "Dzire TOUR S PETROL", labourCode: "PMS-MIXED-1", labourDesc: service, basicAmt: 1515 },
     { model: "Fronx", labourCode: "PMS-MIXED-1", labourDesc: service, basicAmt: 1500 },
     { model: "Ertiga", labourCode: "PMS-MIXED-1", labourDesc: service, basicAmt: 1700 },
   ]),
