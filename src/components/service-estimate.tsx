@@ -391,14 +391,13 @@ export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
           )}
 
         <div className="no-print">
-          {availableCustomLabor.length > 0 && (
-            <div className="space-y-4 rounded-lg border border-dashed p-4">
+            <div className="space-y-4 rounded-lg border border-dashed p-4 mt-4">
               <h3 className="text-lg font-semibold mb-2 flex items-center gap-2 text-primary"><Wrench className="h-5 w-5"/> Custom Labor</h3>
               <p className="text-sm text-muted-foreground">Add custom labor charges for this vehicle.</p>
               <div className="flex flex-col gap-4">
-                  <Select onValueChange={handleCustomLaborAdd}>
+                  <Select onValueChange={handleCustomLaborAdd} disabled={availableCustomLabor.length === 0}>
                       <SelectTrigger>
-                          <SelectValue placeholder="Select a custom labor item" />
+                          <SelectValue placeholder={availableCustomLabor.length > 0 ? "Select a custom labor item" : "No custom labor for this model"} />
                       </SelectTrigger>
                       <SelectContent>
                           {availableCustomLabor.map((job, index) => (
@@ -437,7 +436,6 @@ export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
                   )}
               </div>
             </div>
-          )}
             
           {recommendedLabor && recommendedLabor.length > 0 && (
              <div className="space-y-4 rounded-lg border border-dashed p-4">
