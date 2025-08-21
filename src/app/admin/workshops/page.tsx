@@ -94,6 +94,7 @@ export default function WorkshopManagementPage() {
         return;
     }
     setIsMutating(true);
+    setIsWorkshopDialogOpen(false);
 
     const finalName = workshopPrefix ? `${workshopPrefix} - ${workshopName}` : workshopName;
     
@@ -108,7 +109,6 @@ export default function WorkshopManagementPage() {
         if (result.success) {
             setWorkshops(prev => prev.map(w => w.id === updatedWorkshop.id ? updatedWorkshop : w));
             toast({ title: 'Success', description: 'Workshop updated.' });
-            setIsWorkshopDialogOpen(false);
         } else {
             toast({ variant: 'destructive', title: 'Error', description: result.error });
         }
@@ -124,7 +124,6 @@ export default function WorkshopManagementPage() {
         if (result.success) {
             setWorkshops(prev => [...prev, newWorkshop].sort((a,b) => a.name.localeCompare(b.name)));
             toast({ title: 'Success', description: 'New workshop added.' });
-            setIsWorkshopDialogOpen(false);
         } else {
             toast({ variant: 'destructive', title: 'Error', description: result.error });
         }
@@ -164,42 +163,52 @@ export default function WorkshopManagementPage() {
       </CardHeader>
       <CardContent>
           <ScrollArea className="h-[70vh] relative">
-            <Table>
-                <TableHeader>
-                <TableRow>
-                    <TableHead>Workshop ID</TableHead>
-                    <TableHead>Workshop Name</TableHead>
-                    <TableHead>Dealer City</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
-                </TableRow>
-                </TableHeader>
-                <TableBody>
-                {isLoading ? (
+            <div className="relative">
+                <Table>
+                    <TableHeader>
                     <TableRow>
-                        <TableCell colSpan={4} className="h-48 text-center">
-                           <div className="flex flex-col items-center gap-2">
-                                <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-                                <span className="text-muted-foreground">Loading workshop data...</span>
-                            </div>
+                        <TableHead>Workshop ID</TableHead>
+                        <TableHead>Workshop Name</TableHead>
+                        <TableHead>Dealer City</TableHead>
+                        <TableHead className="text-right">Actions</TableHead>
+                    </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                    {isLoading ? (
+                        <TableRow>
+                            <TableCell colSpan={4} className="h-48 text-center">
+                            <div className="flex flex-col items-center gap-2">
+                                    <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+                                    <span className="text-muted-foreground">Loading workshop data...</span>
+                                </div>
+                            </TableCell>
+                        </TableRow>
+                    ) : filteredWorkshops.map((workshop) => (
+                        <TableRow key={workshop.id}>
+                        <TableCell className="font-mono">{workshop.id}</TableCell>
+                        <TableCell className="font-medium">{workshop.name}</TableCell>
+                        <TableCell>{workshop.city || 'N/A'}</TableCell>
+                            <TableCell className="text-right">
+                            <Button variant="ghost" size="icon" onClick={() => handleEditWorkshop(workshop)} disabled={isMutating}>
+                            <Pencil className="h-4 w-4" />
+                            </Button>
+                            <Button variant="ghost" size="icon" onClick={() => handleDeleteWorkshop(workshop)} disabled={isMutating}>
+                            <Trash2 className="h-4 w-4 text-destructive" />
+                            </Button>
                         </TableCell>
-                    </TableRow>
-                ) : filteredWorkshops.map((workshop) => (
-                    <TableRow key={workshop.id}>
-                    <TableCell className="font-mono">{workshop.id}</TableCell>
-                    <TableCell className="font-medium">{workshop.name}</TableCell>
-                    <TableCell>{workshop.city || 'N/A'}</TableCell>
-                        <TableCell className="text-right">
-                        <Button variant="ghost" size="icon" onClick={() => handleEditWorkshop(workshop)} disabled={isMutating}>
-                        <Pencil className="h-4 w-4" />
-                        </Button>
-                        <Button variant="ghost" size="icon" onClick={() => handleDeleteWorkshop(workshop)} disabled={isMutating}>
-                        <Trash2 className="h-4 w-4 text-destructive" />
-                        </Button>
-                    </TableCell>
-                    </TableRow>
-                ))}
-                </TableBody>
-            </Table>
+                        </TableRow>
+                    ))}
+                    </TableBody>
+                </Table>
+                {(isMutating) && (
+                    <div className="absolute inset-0 bg-background/80 flex items-center justify-center">
+                        <div className="flex flex-col items-center gap-2">
+                            <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+                            <span className="text-muted-foreground">Saving data...</span>
+                        </div>
+                    </div>
+                )}
+            </div>
           </ScrollArea>
       </CardContent>
       <Dialog open={isWorkshopDialogOpen} onOpenChange={setIsWorkshopDialogOpen}>

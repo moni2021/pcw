@@ -97,6 +97,7 @@ export default function PmsChargesManagementPage() {
     if (!currentCharge) return;
     
     setIsMutating(true);
+    setIsChargeDialogOpen(false);
     const chargeToSave = { ...currentCharge, basicAmt: Number(currentCharge.basicAmt || 0) };
 
     const existing = allData.pmsCharges.find(p => p.id === chargeToSave.id);
@@ -109,7 +110,6 @@ export default function PmsChargesManagementPage() {
         setAllData(prev => ({...prev, pmsCharges: [...prev.pmsCharges, chargeToSave]}));
       }
       toast({ title: 'Success', description: 'PMS charge saved.' });
-      setIsChargeDialogOpen(false);
     } else {
       toast({ variant: 'destructive', title: 'Error', description: result.error });
     }
@@ -165,45 +165,55 @@ export default function PmsChargesManagementPage() {
           </div>
 
           <ScrollArea className="h-[60vh] relative">
-            <Table>
-                <TableHeader>
-                <TableRow>
-                    <TableHead>Service Interval</TableHead>
-                    <TableHead className="text-right">Charge (₹)</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
-                </TableRow>
-                </TableHeader>
-                <TableBody>
-                 {isLoading ? (
+            <div className="relative">
+                <Table>
+                    <TableHeader>
                     <TableRow>
-                        <TableCell colSpan={3} className="h-48 text-center">
-                             <div className="flex flex-col items-center gap-2">
-                                <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-                                <span className="text-muted-foreground">Loading PMS data...</span>
-                            </div>
-                        </TableCell>
+                        <TableHead>Service Interval</TableHead>
+                        <TableHead className="text-right">Charge (₹)</TableHead>
+                        <TableHead className="text-right">Actions</TableHead>
                     </TableRow>
-                 ) : (!selectedWorkshop || !selectedModel) ? (
-                     <TableRow>
-                        <TableCell colSpan={3} className="h-24 text-center text-muted-foreground">
-                            Please select a workshop and model to view charges.
-                        </TableCell>
-                    </TableRow>
-                 ) : (
-                    displayedCharges.map(({ labourDesc, basicAmt, existingCharge }) => (
-                      <TableRow key={labourDesc}>
-                        <TableCell className="font-medium">{labourDesc}</TableCell>
-                        <TableCell className="text-right">{basicAmt !== undefined ? `₹${basicAmt.toFixed(2)}` : 'Not set'}</TableCell>
-                        <TableCell className="text-right">
-                          <Button variant="ghost" size="icon" onClick={() => handleEditCharge(labourDesc, existingCharge)}>
-                            <Pencil className="h-4 w-4" />
-                          </Button>
-                        </TableCell>
-                      </TableRow>
-                    ))
-                 )}
-                </TableBody>
-            </Table>
+                    </TableHeader>
+                    <TableBody>
+                    {isLoading ? (
+                        <TableRow>
+                            <TableCell colSpan={3} className="h-48 text-center">
+                                <div className="flex flex-col items-center gap-2">
+                                    <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+                                    <span className="text-muted-foreground">Loading PMS data...</span>
+                                </div>
+                            </TableCell>
+                        </TableRow>
+                    ) : (!selectedWorkshop || !selectedModel) ? (
+                        <TableRow>
+                            <TableCell colSpan={3} className="h-24 text-center text-muted-foreground">
+                                Please select a workshop and model to view charges.
+                            </TableCell>
+                        </TableRow>
+                    ) : (
+                        displayedCharges.map(({ labourDesc, basicAmt, existingCharge }) => (
+                        <TableRow key={labourDesc}>
+                            <TableCell className="font-medium">{labourDesc}</TableCell>
+                            <TableCell className="text-right">{basicAmt !== undefined ? `₹${basicAmt.toFixed(2)}` : 'Not set'}</TableCell>
+                            <TableCell className="text-right">
+                            <Button variant="ghost" size="icon" onClick={() => handleEditCharge(labourDesc, existingCharge)}>
+                                <Pencil className="h-4 w-4" />
+                            </Button>
+                            </TableCell>
+                        </TableRow>
+                        ))
+                    )}
+                    </TableBody>
+                </Table>
+                {(isMutating) && (
+                    <div className="absolute inset-0 bg-background/80 flex items-center justify-center">
+                        <div className="flex flex-col items-center gap-2">
+                            <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+                            <span className="text-muted-foreground">Saving data...</span>
+                        </div>
+                    </div>
+                )}
+            </div>
           </ScrollArea>
       </CardContent>
 

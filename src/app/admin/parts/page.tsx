@@ -76,6 +76,7 @@ export default function PartsManagementPage() {
         return;
     }
     setIsMutating(true);
+    setIsPartsDialogOpen(false);
 
     const newPart: Part = {
         name: currentPart.name,
@@ -87,7 +88,6 @@ export default function PartsManagementPage() {
         if (result.success) {
             setAllParts(prev => prev.map(p => p.name === newPart.name ? newPart : p));
             toast({ title: 'Success', description: 'Part updated.' });
-            setIsPartsDialogOpen(false);
         } else {
             toast({ variant: 'destructive', title: 'Error', description: result.error });
         }
@@ -101,7 +101,6 @@ export default function PartsManagementPage() {
         if (result.success) {
             setAllParts(prev => [...prev, newPart].sort((a,b) => a.name.localeCompare(b.name)));
             toast({ title: 'Success', description: 'New part added.' });
-            setIsPartsDialogOpen(false);
         } else {
             toast({ variant: 'destructive', title: 'Error', description: result.error });
         }
@@ -143,40 +142,50 @@ export default function PartsManagementPage() {
         </CardHeader>
         <CardContent>
         <ScrollArea className="h-[70vh] relative">
-            <Table>
-                <TableHeader>
-                <TableRow>
-                    <TableHead>Part Name</TableHead>
-                    <TableHead className="text-right">Price (₹)</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
-                </TableRow>
-                </TableHeader>
-                <TableBody>
-                {isLoading ? (
+            <div className="relative">
+                <Table>
+                    <TableHeader>
                     <TableRow>
-                        <TableCell colSpan={3} className="h-48 text-center">
-                            <div className="flex flex-col items-center gap-2">
-                                <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-                                <span className="text-muted-foreground">Loading parts data...</span>
-                            </div>
+                        <TableHead>Part Name</TableHead>
+                        <TableHead className="text-right">Price (₹)</TableHead>
+                        <TableHead className="text-right">Actions</TableHead>
+                    </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                    {isLoading ? (
+                        <TableRow>
+                            <TableCell colSpan={3} className="h-48 text-center">
+                                <div className="flex flex-col items-center gap-2">
+                                    <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+                                    <span className="text-muted-foreground">Loading parts data...</span>
+                                </div>
+                            </TableCell>
+                        </TableRow>
+                    ) : filteredParts.map((part) => (
+                        <TableRow key={part.name}>
+                        <TableCell className="font-medium">{part.name}</TableCell>
+                        <TableCell className="text-right">{part.price.toFixed(2)}</TableCell>
+                        <TableCell className="text-right">
+                            <Button variant="ghost" size="icon" onClick={() => handleEditPart(part)} disabled={isMutating}>
+                            <Pencil className="h-4 w-4" />
+                            </Button>
+                            <Button variant="ghost" size="icon" onClick={() => handleDeletePart(part)} disabled={isMutating}>
+                            <Trash2 className="h-4 w-4 text-destructive" />
+                            </Button>
                         </TableCell>
-                    </TableRow>
-                ) : filteredParts.map((part) => (
-                    <TableRow key={part.name}>
-                    <TableCell className="font-medium">{part.name}</TableCell>
-                    <TableCell className="text-right">{part.price.toFixed(2)}</TableCell>
-                    <TableCell className="text-right">
-                        <Button variant="ghost" size="icon" onClick={() => handleEditPart(part)} disabled={isMutating}>
-                        <Pencil className="h-4 w-4" />
-                        </Button>
-                        <Button variant="ghost" size="icon" onClick={() => handleDeletePart(part)} disabled={isMutating}>
-                        <Trash2 className="h-4 w-4 text-destructive" />
-                        </Button>
-                    </TableCell>
-                    </TableRow>
-                ))}
-                </TableBody>
-            </Table>
+                        </TableRow>
+                    ))}
+                    </TableBody>
+                </Table>
+                {(isMutating) && (
+                    <div className="absolute inset-0 bg-background/80 flex items-center justify-center">
+                        <div className="flex flex-col items-center gap-2">
+                            <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+                            <span className="text-muted-foreground">Saving data...</span>
+                        </div>
+                    </div>
+                )}
+            </div>
         </ScrollArea>
         </CardContent>
         <Dialog open={isPartsDialogOpen} onOpenChange={setIsPartsDialogOpen}>

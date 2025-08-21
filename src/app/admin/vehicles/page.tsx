@@ -78,6 +78,7 @@ export default function VehicleManagementPage() {
         return;
     }
     setIsMutating(true);
+    setIsVehicleDialogOpen(false);
     
     const fuelTypesArray = typeof currentVehicle.fuelTypes === 'string' 
         ? (currentVehicle.fuelTypes as string).split(',').map(s => s.trim()).filter(Boolean)
@@ -103,7 +104,6 @@ export default function VehicleManagementPage() {
         if (result.success) {
             setVehicles(prev => prev.map(v => v.model === currentVehicle.model_original ? newVehicle : v));
             toast({ title: 'Success', description: 'Vehicle updated.' });
-            setIsVehicleDialogOpen(false);
         } else {
             toast({ variant: 'destructive', title: 'Error', description: result.error });
         }
@@ -117,7 +117,6 @@ export default function VehicleManagementPage() {
         if (result.success) {
             setVehicles(prev => [...prev, newVehicle]);
             toast({ title: 'Success', description: 'New vehicle added.' });
-            setIsVehicleDialogOpen(false);
         } else {
             toast({ variant: 'destructive', title: 'Error', description: result.error });
         }
@@ -179,48 +178,58 @@ export default function VehicleManagementPage() {
         </CardHeader>
         <CardContent>
             <ScrollArea className="h-[70vh] relative">
-            <Table>
-                <TableHeader>
-                <TableRow>
-                    <TableHead>Model</TableHead>
-                    <TableHead>Brand</TableHead>
-                    <TableHead>Category</TableHead>
-                    <TableHead>Engine Oil</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
-                </TableRow>
-                </TableHeader>
-                <TableBody>
-                {isLoading ? (
+            <div className="relative">
+                <Table>
+                    <TableHeader>
                     <TableRow>
-                        <TableCell colSpan={5} className="h-48 text-center">
-                            <div className="flex flex-col items-center gap-2">
-                                <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-                                <span className="text-muted-foreground">Loading vehicle data...</span>
-                            </div>
+                        <TableHead>Model</TableHead>
+                        <TableHead>Brand</TableHead>
+                        <TableHead>Category</TableHead>
+                        <TableHead>Engine Oil</TableHead>
+                        <TableHead className="text-right">Actions</TableHead>
+                    </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                    {isLoading ? (
+                        <TableRow>
+                            <TableCell colSpan={5} className="h-48 text-center">
+                                <div className="flex flex-col items-center gap-2">
+                                    <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+                                    <span className="text-muted-foreground">Loading vehicle data...</span>
+                                </div>
+                            </TableCell>
+                        </TableRow>
+                    ) : sortedAndFilteredVehicles.map((vehicle) => (
+                        <TableRow key={vehicle.model}>
+                        <TableCell className="font-medium">{vehicle.model}</TableCell>
+                        <TableCell>
+                            <Badge variant={vehicle.brand === 'Nexa' ? 'default' : 'secondary'}>
+                            {vehicle.brand}
+                            </Badge>
                         </TableCell>
-                    </TableRow>
-                ) : sortedAndFilteredVehicles.map((vehicle) => (
-                    <TableRow key={vehicle.model}>
-                    <TableCell className="font-medium">{vehicle.model}</TableCell>
-                    <TableCell>
-                        <Badge variant={vehicle.brand === 'Nexa' ? 'default' : 'secondary'}>
-                        {vehicle.brand}
-                        </Badge>
-                    </TableCell>
-                    <TableCell>{vehicle.category}</TableCell>
-                    <TableCell>{vehicle.engineOilQuantity || 'N/A'}</TableCell>
-                    <TableCell className="text-right">
-                        <Button variant="ghost" size="icon" onClick={() => handleEditVehicle(vehicle)} disabled={isMutating}>
-                            <Pencil className="h-4 w-4" />
-                        </Button>
-                        <Button variant="ghost" size="icon" onClick={() => handleDeleteVehicle(vehicle)} disabled={isMutating}>
-                            <Trash2 className="h-4 w-4 text-destructive" />
-                        </Button>
-                    </TableCell>
-                    </TableRow>
-                ))}
-                </TableBody>
-            </Table>
+                        <TableCell>{vehicle.category}</TableCell>
+                        <TableCell>{vehicle.engineOilQuantity || 'N/A'}</TableCell>
+                        <TableCell className="text-right">
+                            <Button variant="ghost" size="icon" onClick={() => handleEditVehicle(vehicle)} disabled={isMutating}>
+                                <Pencil className="h-4 w-4" />
+                            </Button>
+                            <Button variant="ghost" size="icon" onClick={() => handleDeleteVehicle(vehicle)} disabled={isMutating}>
+                                <Trash2 className="h-4 w-4 text-destructive" />
+                            </Button>
+                        </TableCell>
+                        </TableRow>
+                    ))}
+                    </TableBody>
+                </Table>
+                {(isMutating) && (
+                    <div className="absolute inset-0 bg-background/80 flex items-center justify-center">
+                        <div className="flex flex-col items-center gap-2">
+                            <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+                            <span className="text-muted-foreground">Saving data...</span>
+                        </div>
+                    </div>
+                )}
+            </div>
             </ScrollArea>
         </CardContent>
         <Dialog open={isVehicleDialogOpen} onOpenChange={setIsVehicleDialogOpen}>

@@ -93,6 +93,7 @@ export default function LabourManagementPage() {
         return;
     }
     setIsMutating(true);
+    setIsLaborDialogOpen(false);
 
     const newLabor: CustomLabor = {
         name: currentLabor.name,
@@ -116,7 +117,6 @@ export default function LabourManagementPage() {
                     return [...filtered, newLabor].sort((a,b) => a.name.localeCompare(b.name));
                 });
                 toast({ title: 'Success', description: 'Labour charge updated.' });
-                setIsLaborDialogOpen(false);
             } else {
                 toast({ variant: 'destructive', title: 'Update Failed', description: addResult.error });
                 // Attempt to add the original back
@@ -135,7 +135,6 @@ export default function LabourManagementPage() {
         if (result.success) {
             setCustomLabor(prev => [...prev, newLabor].sort((a,b) => a.name.localeCompare(b.name)));
             toast({ title: 'Success', description: 'New labour charge added.' });
-            setIsLaborDialogOpen(false);
         } else {
             toast({ variant: 'destructive', title: 'Error', description: result.error });
         }
@@ -184,44 +183,54 @@ export default function LabourManagementPage() {
       </CardHeader>
       <CardContent>
           <ScrollArea className="h-[70vh] relative">
-            <Table>
-                <TableHeader>
-                <TableRow>
-                    <TableHead>Labour Name</TableHead>
-                    <TableHead>Model</TableHead>
-                    <TableHead>Workshop</TableHead>
-                    <TableHead className="text-right">Charge (₹)</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
-                </TableRow>
-                </TableHeader>
-                <TableBody>
-                 {isLoading ? (
-                    <TableRow>
-                        <TableCell colSpan={5} className="h-48 text-center">
-                            <div className="flex flex-col items-center gap-2">
-                                <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-                                <span className="text-muted-foreground">Loading labour data...</span>
-                            </div>
-                        </TableCell>
-                    </TableRow>
-                ) : filteredLabor.map((labor, index) => (
-                    <TableRow key={`${labor.workshopId}-${labor.model}-${labor.name}-${index}`}>
-                    <TableCell className="font-medium">{labor.name}</TableCell>
-                    <TableCell>{labor.model}</TableCell>
-                    <TableCell>{workshops.find(w => w.id === labor.workshopId)?.name || labor.workshopId}</TableCell>
-                    <TableCell className="text-right">{labor.charge.toFixed(2)}</TableCell>
-                        <TableCell className="text-right">
-                        <Button variant="ghost" size="icon" onClick={() => handleEditLabor(labor)} disabled={isMutating}>
-                        <Pencil className="h-4 w-4" />
-                        </Button>
-                        <Button variant="ghost" size="icon" onClick={() => handleDeleteLabor(labor)} disabled={isMutating}>
-                        <Trash2 className="h-4 w-4 text-destructive" />
-                        </Button>
-                    </TableCell>
-                    </TableRow>
-                ))}
-                </TableBody>
-            </Table>
+            <div className="relative">
+              <Table>
+                  <TableHeader>
+                  <TableRow>
+                      <TableHead>Labour Name</TableHead>
+                      <TableHead>Model</TableHead>
+                      <TableHead>Workshop</TableHead>
+                      <TableHead className="text-right">Charge (₹)</TableHead>
+                      <TableHead className="text-right">Actions</TableHead>
+                  </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                  {isLoading ? (
+                      <TableRow>
+                          <TableCell colSpan={5} className="h-48 text-center">
+                              <div className="flex flex-col items-center gap-2">
+                                  <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+                                  <span className="text-muted-foreground">Loading labour data...</span>
+                              </div>
+                          </TableCell>
+                      </TableRow>
+                  ) : filteredLabor.map((labor, index) => (
+                      <TableRow key={`${labor.workshopId}-${labor.model}-${labor.name}-${index}`}>
+                      <TableCell className="font-medium">{labor.name}</TableCell>
+                      <TableCell>{labor.model}</TableCell>
+                      <TableCell>{workshops.find(w => w.id === labor.workshopId)?.name || labor.workshopId}</TableCell>
+                      <TableCell className="text-right">{labor.charge.toFixed(2)}</TableCell>
+                          <TableCell className="text-right">
+                          <Button variant="ghost" size="icon" onClick={() => handleEditLabor(labor)} disabled={isMutating}>
+                          <Pencil className="h-4 w-4" />
+                          </Button>
+                          <Button variant="ghost" size="icon" onClick={() => handleDeleteLabor(labor)} disabled={isMutating}>
+                          <Trash2 className="h-4 w-4 text-destructive" />
+                          </Button>
+                      </TableCell>
+                      </TableRow>
+                  ))}
+                  </TableBody>
+              </Table>
+              {(isMutating) && (
+                  <div className="absolute inset-0 bg-background/80 flex items-center justify-center">
+                      <div className="flex flex-col items-center gap-2">
+                          <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+                          <span className="text-muted-foreground">Saving data...</span>
+                      </div>
+                  </div>
+              )}
+            </div>
           </ScrollArea>
       </CardContent>
       <Dialog open={isLaborDialogOpen} onOpenChange={setIsLaborDialogOpen}>
