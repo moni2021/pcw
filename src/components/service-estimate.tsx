@@ -58,7 +58,7 @@ export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
   const [selectedOptional, setSelectedOptional] = useState<Labor[]>([]);
   const [customLabor, setCustomLabor] = useState<Labor[]>([]);
   const [finalTotal, setFinalTotal] = useState(0);
-  const [showRecommended, setShowRecommended] = useState(false);
+  const [showRecommended, setShowRecommended] = useState(true);
   const [showOptional, setShowOptional] = useState(false);
   const [isGeneratingScript, setIsGeneratingScript] = useState(false);
   const [customerScript, setCustomerScript] = useState('');
@@ -397,10 +397,9 @@ export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
           )}
 
         <div className="no-print">
-            {availableCustomLabor.length > 0 && (
             <div className="space-y-4 rounded-lg border border-dashed p-4 mt-4">
               <h3 className="text-lg font-semibold mb-2 flex items-center gap-2 text-primary"><Wrench className="h-5 w-5"/> Custom Labor</h3>
-              <p className="text-sm text-muted-foreground">Add custom labor charges for this vehicle.</p>
+              <p className="text-sm text-muted-foreground">Add miscellaneous labor charges not included in standard recommendations.</p>
               <div className="flex flex-col gap-4">
                   <Select onValueChange={handleCustomLaborAdd}>
                       <SelectTrigger>
@@ -443,17 +442,16 @@ export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
                   )}
               </div>
             </div>
-            )}
             
           {recommendedLabor && recommendedLabor.length > 0 && (
-             <div className="space-y-4 rounded-lg border border-dashed p-4">
+             <div className="space-y-4 rounded-lg border border-dashed p-4 mt-4">
                 <Button variant="link" onClick={() => setShowRecommended(!showRecommended)} className="p-0 h-auto text-lg font-semibold mb-2 flex items-center gap-2 text-primary">
                     <PlusCircle className="h-5 w-5"/> Recommended Services
                     {showRecommended ? <ChevronUp className="h-5 w-5" /> : <ChevronDown className="h-5 w-5" />}
                 </Button>
                 {showRecommended && (
                   <div className="animate-accordion-down">
-                    <p className="text-sm text-muted-foreground mb-4">Select any additional services you would like to include.</p>
+                    <p className="text-sm text-muted-foreground mb-4">Select any additional services recommended for this specific service interval.</p>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         {recommendedLabor.map((job, index) => (
                             <div key={index} className="flex items-center space-x-3 rounded-md bg-muted/30 p-3">
@@ -478,7 +476,7 @@ export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
           )}
 
           {optionalServices && optionalServices.length > 0 && (
-             <div className="space-y-4 rounded-lg border border-dashed p-4 border-primary/50 bg-primary/5">
+             <div className="space-y-4 rounded-lg border border-dashed p-4 border-primary/50 bg-primary/5 mt-4">
                 <Button variant="link" onClick={() => setShowOptional(!showOptional)} className="p-0 h-auto text-lg font-semibold mb-2 flex items-center gap-2 text-primary">
                     <Sparkles className="h-5 w-5"/> 3M Optional Services
                     {showOptional ? <ChevronUp className="h-5 w-5" /> : <ChevronDown className="h-5 w-5" />}

@@ -1,12 +1,9 @@
+
 import type { PmsCharge, CustomLabor, Workshop, ServiceEstimateData } from './types';
 import { threeMCareData } from './data/3m';
 import pmsChargesArena from './data/workshops/arena-bijoynagar/pms-charges';
 import customLaborArena from './data/workshops/arena-bijoynagar/custom-labor';
-// import pmsChargesSow from './data/workshops/sow-azara/pms-charges';
-// import customLaborSow from './data/workshops/sow-azara/custom-labor';
-// import pmsChargesNexa from './data/workshops/nexa-bijoynagar/pms-charges';
-// import customLaborNexa from './data/workshops/nexa-bijoynagar/custom-labor';
-
+import { recommendedLaborSchedule } from './data/recommended-labor';
 
 interface WorkshopData {
     pmsCharges: PmsCharge[];
@@ -19,14 +16,6 @@ const workshopDataMap: { [key: string]: WorkshopData } = {
         pmsCharges: pmsChargesArena.map(p => ({...p, workshopId: 'arena-bijoynagar'})),
         customLabor: customLaborArena.map(c => ({...c, workshopId: 'arena-bijoynagar'})),
     },
-    // 'sow-azara': {
-    //     pmsCharges: pmsChargesSow.map(p => ({...p, workshopId: 'sow-azara'})),
-    //     customLabor: customLaborSow.map(c => ({...c, workshopId: 'sow-azara'})),
-    // },
-    // 'nexa-bijoynagar': {
-    //     pmsCharges: pmsChargesNexa.map(p => ({...p, workshopId: 'nexa-bijoynagar'})),
-    //     customLabor: customLaborNexa.map(c => ({...c, workshopId: 'nexa-bijoynagar'})),
-    // },
 };
 
 // Combine all custom labor and pms charges for admin pages
@@ -36,7 +25,6 @@ export const workshopData = {
     customLabor: allCustomLabor,
     pmsCharges: allPmsCharges,
 };
-
 
 const commonServices = [
     { name: 'NITROGEN GAS FILLING', charge: 200 },
@@ -65,25 +53,37 @@ export function getPmsLabor(model: string, serviceType: string, workshopId: stri
 export function getRecommendedLabor(model: string, workshopId: string, serviceType: string): { name: string; charge: number }[] {
     const data = workshopDataMap[workshopId];
     if (!data) return [];
-
-    let recommendedServices = [...commonServices];
     
-    recommendedServices.push({ name: 'STRUT GREASING', charge: 1650 });
+    const serviceKmRaw = serviceType.match(/\(([\d,]+)\s*km\)/)?.[1].replace(/,/g, '');
+    if (!serviceKmRaw) return [];
+    
+    const serviceKm = parseInt(serviceKmRaw, 10) / 1000; // Convert to thousands
 
-    let wheelBalancing = data.customLabor.find(l => l.model === model && l.name === 'WHEEL BALANCING - 5 WHEEL');
-    if (!wheelBalancing) {
-        wheelBalancing = data.customLabor.find(l => l.model === model && l.name === 'WHEEL BALANCING - 4 WHEEL');
-    }
-    if (wheelBalancing) {
-        recommendedServices.push({ name: wheelBalancing.name, charge: wheelBalancing.charge });
-    }
+    let recommendedServices: { name: string; charge: number }[] = [];
 
-    const wheelAlignment = data.customLabor.find(l => l.model === model && l.name === 'WHEEL ALIGNMENT (4 HEAD)');
-    if (wheelAlignment) {
-        recommendedServices.push({ name: wheelAlignment.name, charge: wheelAlignment.charge });
+    for (const [laborName, kmIntervals] of Object.entries(recommendedLaborSchedule)) {
+        let shouldRecommend = false;
+        if (kmIntervals === 'all_paid' && serviceType.startsWith('Paid Service')) {
+            shouldRecommend = true;
+        } else if (Array.isArray(kmIntervals) && kmIntervals.includes(serviceKm)) {
+            shouldRecommend = true;
+        }
+        
+        if (shouldRecommend) {
+             const laborData = data.customLabor.find(l => l.model === model && l.name === laborName);
+             if (laborData) {
+                 recommendedServices.push({ name: laborData.name, charge: laborData.charge });
+             } else {
+                // Fallback for services like wheel balancing that have two names
+                if (laborName === 'WHEEL BALANCING - 5 WHEEL') {
+                    const fallbackLabor = data.customLabor.find(l => l.model === model && l.name === 'WHEEL BALANCING - 4 WHEEL');
+                    if(fallbackLabor) recommendedServices.push({ name: fallbackLabor.name, charge: fallbackLabor.charge });
+                }
+             }
+        }
     }
     
-    return recommendedServices;
+    return recommendedServices.sort((a,b) => a.name.localeCompare(b.name));
 }
 
 
@@ -93,18 +93,13 @@ export function getOptionalServices(model: string, workshopId: string) {
 
 
 export function getAvailableCustomLabor(model: string, workshopId: string) {
-     const data = workshopDataMap[workshopId];
+    const data = workshopDataMap[workshopId];
     if (!data) return [];
     
-    const specialRecommendedServices = [
-        "WHEEL ALIGNMENT (4 HEAD)", 
-        "WHEEL BALANCING - 4 WHEEL", 
-        "WHEEL BALANCING - 5 WHEEL", 
-        "STRUT GREASING",
-        "HEADLAMP FOCUSSING"
-    ];
+    // Exclude services that are now automatically recommended
+    const recommendedNames = Object.keys(recommendedLaborSchedule);
 
     return data.customLabor.filter(item => 
-        item.model === model && !specialRecommendedServices.includes(item.name)
+        item.model === model && !recommendedNames.includes(item.name)
     );
 }
