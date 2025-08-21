@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Separator } from '@/components/ui/separator';
-import { Percent, PlusCircle, Sparkles, Wrench, Package, Hammer, MinusCircle, ChevronDown, ChevronUp, Printer, Bot } from 'lucide-react';
+import { Percent, PlusCircle, Sparkles, Wrench, Package, Hammer, MinusCircle, ChevronDown, ChevronUp, Printer, Bot, AlertCircle } from 'lucide-react';
 import type { ServiceEstimateData, Labor, Part } from '@/lib/types';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
@@ -20,6 +20,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Textarea } from './ui/textarea';
 import { Skeleton } from './ui/skeleton';
 import { getAvailableCustomLabor } from '@/lib/workshop-data-loader';
+import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 
 
 interface ServiceEstimateProps {
@@ -215,6 +216,8 @@ export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
     }
   }
 
+  const isPmsPriceMissing = labor.length === 0 && serviceType.startsWith('Paid Service');
+
   return (
     <div>
         <CardHeader>
@@ -333,9 +336,15 @@ export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
               </div>
           )}
 
-           {labor.length > 0 && (
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold mb-2 flex items-center gap-2"><Hammer className="h-5 w-5"/> Scheduled Service Labor</h3>
+           <div className="space-y-4">
+            <h3 className="text-lg font-semibold mb-2 flex items-center gap-2"><Hammer className="h-5 w-5"/> Scheduled Service Labor</h3>
+            {isPmsPriceMissing ? (
+                 <Alert variant="destructive">
+                    <AlertCircle className="h-4 w-4" />
+                    <AlertTitle>PMS Labor Price Not Set</AlertTitle>
+                    <AlertDescription>The labor charge for this service has not been defined for this workshop. The total estimate will be inaccurate.</AlertDescription>
+                </Alert>
+            ) : labor.length > 0 ? (
                 <div className="overflow-x-auto">
                     <Table>
                       <TableHeader>
@@ -354,8 +363,8 @@ export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
                       </TableBody>
                     </Table>
                 </div>
-              </div>
-          )}
+            ) : null}
+          </div>
           
           {[...customLabor, ...selectedRecommended, ...selectedOptional].length > 0 && (
               <div>

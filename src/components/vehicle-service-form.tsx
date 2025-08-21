@@ -113,11 +113,13 @@ export function VehicleServiceForm() {
   }
   
   const handleYearChange = (yearStr: string) => {
-      const year = parseInt(yearStr, 10);
       setSelectedYear(yearStr);
       setEstimate(null);
       setError('');
 
+      if (!yearStr) return;
+
+      const year = parseInt(yearStr, 10);
       const currentYear = new Date().getFullYear();
       const vehicleAge = currentYear - year;
       
@@ -144,7 +146,6 @@ export function VehicleServiceForm() {
           });
           suggestedService = closestService;
       }
-      setSelectedServiceType(suggestedService);
       handleServiceTypeChange(suggestedService, true);
   }
 
@@ -156,9 +157,12 @@ export function VehicleServiceForm() {
     const checklist = pmsChecklists[serviceType];
     if (checklist) {
         setChecklistData(checklist);
+        // Show checklist dialog immediately unless it was auto-selected by the year change
         if (!fromYearChange) {
             setIsChecklistOpen(true);
         }
+    } else {
+        setChecklistData(null);
     }
   }
 
@@ -190,10 +194,6 @@ export function VehicleServiceForm() {
       const recommendedServices = getRecommendedLabor(selectedModel, selectedWorkshop);
       const optionalServices = getOptionalServices(selectedModel, selectedWorkshop);
       
-      if (pmsLabor.length === 0 && selectedServiceType.startsWith('Paid Service')) {
-          setError(`Warning: PMS labor charge is not set for "${selectedModel}" for this service at the selected workshop. The total estimate will be inaccurate.`);
-      }
-
       const newEstimate: ServiceEstimateData = {
         workshopId: selectedWorkshop,
         vehicle: {
@@ -363,6 +363,11 @@ export function VehicleServiceForm() {
                 ))}
               </SelectContent>
             </Select>
+             {checklistData && (
+                <Button variant="link" className="p-0 h-auto text-sm" onClick={() => setIsChecklistOpen(true)}>
+                    <Info className="mr-1 h-4 w-4" /> View service checklist
+                </Button>
+            )}
           </div>
           
           {error && (
@@ -403,5 +408,3 @@ export function VehicleServiceForm() {
     </>
   );
 }
-
-    
