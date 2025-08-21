@@ -4,6 +4,8 @@ import pmsChargesArena from './data/workshops/arena-bijoynagar/pms-charges';
 import customLaborArena from './data/workshops/arena-bijoynagar/custom-labor';
 import pmsChargesSow from './data/workshops/sow-azara/pms-charges';
 import customLaborSow from './data/workshops/sow-azara/custom-labor';
+import pmsChargesNexa from './data/workshops/nexa-bijoynagar/pms-charges';
+import customLaborNexa from './data/workshops/nexa-bijoynagar/custom-labor';
 
 
 interface WorkshopData {
@@ -12,7 +14,6 @@ interface WorkshopData {
 }
 
 // Statically import all workshop data
-// In a real-world scenario with many workshops, this could be done dynamically
 const workshopDataMap: { [key: string]: WorkshopData } = {
     'arena-bijoynagar': {
         pmsCharges: pmsChargesArena.map(p => ({...p, workshopId: 'arena-bijoynagar'})),
@@ -22,7 +23,10 @@ const workshopDataMap: { [key: string]: WorkshopData } = {
         pmsCharges: pmsChargesSow.map(p => ({...p, workshopId: 'sow-azara'})),
         customLabor: customLaborSow.map(c => ({...c, workshopId: 'sow-azara'})),
     },
-    // 'nexa-bijoynagar': { pmsCharges: nexaPms, customLabor: nexaCustom },
+    'nexa-bijoynagar': {
+        pmsCharges: pmsChargesNexa.map(p => ({...p, workshopId: 'nexa-bijoynagar'})),
+        customLabor: customLaborNexa.map(c => ({...c, workshopId: 'nexa-bijoynagar'})),
+    },
 };
 
 // Combine all custom labor and pms charges for admin pages
