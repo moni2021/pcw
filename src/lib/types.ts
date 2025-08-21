@@ -4,6 +4,7 @@ import { z } from 'zod';
 export const WorkshopSchema = z.object({
   id: z.string(),
   name: z.string(),
+  city: z.string().optional(),
 });
 export type Workshop = z.infer<typeof WorkshopSchema>;
 

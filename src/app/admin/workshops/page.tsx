@@ -29,6 +29,7 @@ export default function WorkshopManagementPage() {
   const [currentWorkshop, setCurrentWorkshop] = useState<Partial<Workshop> | null>(null);
   const [workshopPrefix, setWorkshopPrefix] = useState('');
   const [workshopName, setWorkshopName] = useState('');
+  const [workshopCity, setWorkshopCity] = useState('');
   const [isEditing, setIsEditing] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const { toast } = useToast();
@@ -53,12 +54,14 @@ export default function WorkshopManagementPage() {
     setCurrentWorkshop({});
     setWorkshopPrefix('');
     setWorkshopName('');
+    setWorkshopCity('');
     setIsWorkshopDialogOpen(true);
   };
 
   const handleEditWorkshop = (workshop: Workshop) => {
     setIsEditing(true);
     setCurrentWorkshop({ ...workshop });
+    setWorkshopCity(workshop.city || '');
     
     const parts = workshop.name.split(' - ');
     if (parts.length > 1 && ['SOW', 'ARENA', 'NEXA'].includes(parts[0])) {
@@ -86,8 +89,8 @@ export default function WorkshopManagementPage() {
 
   const handleSaveWorkshop = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!workshopName || (!isEditing && !workshopPrefix)) {
-        toast({ variant: 'destructive', title: 'Error', description: 'Please select a type and enter a workshop name.' });
+    if (!workshopName || !workshopCity || (!isEditing && !workshopPrefix)) {
+        toast({ variant: 'destructive', title: 'Error', description: 'Please select a type, enter a name, and a city.' });
         return;
     }
     setIsMutating(true);
@@ -95,7 +98,7 @@ export default function WorkshopManagementPage() {
     const finalName = workshopPrefix ? `${workshopPrefix} - ${workshopName}` : workshopName;
     
     if (isEditing && currentWorkshop) {
-        const updatedWorkshop = { ...currentWorkshop, name: finalName } as Workshop;
+        const updatedWorkshop: Workshop = { ...currentWorkshop, name: finalName, city: workshopCity } as Workshop;
         if (workshops.some(w => w.name.toLowerCase() === finalName.toLowerCase() && w.id !== updatedWorkshop.id)) {
              toast({ variant: 'destructive', title: 'Error', description: 'A workshop with this name already exists.' });
              setIsMutating(false);
@@ -111,7 +114,7 @@ export default function WorkshopManagementPage() {
         }
     } else {
         const newWorkshopId = finalName.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
-        const newWorkshop: Workshop = { id: newWorkshopId, name: finalName };
+        const newWorkshop: Workshop = { id: newWorkshopId, name: finalName, city: workshopCity };
         if (workshops.some(w => w.id === newWorkshop.id || w.name.toLowerCase() === newWorkshop.name.toLowerCase())) {
             toast({ variant: 'destructive', title: 'Error', description: 'A workshop with this name or ID already exists.' });
             setIsMutating(false);
@@ -132,7 +135,8 @@ export default function WorkshopManagementPage() {
   
   const filteredWorkshops = workshops.filter(workshop => 
     workshop.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    workshop.id.toLowerCase().includes(searchTerm.toLowerCase())
+    workshop.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (workshop.city || '').toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
@@ -147,7 +151,7 @@ export default function WorkshopManagementPage() {
                   <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                   <Input
                       type="search"
-                      placeholder="Search by name or ID..."
+                      placeholder="Search by name, ID, city..."
                       className="pl-8"
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
@@ -165,13 +169,14 @@ export default function WorkshopManagementPage() {
                 <TableRow>
                     <TableHead>Workshop ID</TableHead>
                     <TableHead>Workshop Name</TableHead>
+                    <TableHead>Dealer City</TableHead>
                     <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
                 </TableHeader>
                 <TableBody>
                 {isLoading ? (
                     <TableRow>
-                        <TableCell colSpan={3} className="text-center h-24">
+                        <TableCell colSpan={4} className="text-center h-24">
                             <Loader2 className="h-6 w-6 animate-spin mx-auto" />
                         </TableCell>
                     </TableRow>
@@ -179,6 +184,7 @@ export default function WorkshopManagementPage() {
                     <TableRow key={workshop.id}>
                     <TableCell className="font-mono">{workshop.id}</TableCell>
                     <TableCell className="font-medium">{workshop.name}</TableCell>
+                    <TableCell>{workshop.city || 'N/A'}</TableCell>
                         <TableCell className="text-right">
                         <Button variant="ghost" size="icon" onClick={() => handleEditWorkshop(workshop)} disabled={isMutating}>
                         <Pencil className="h-4 w-4" />
@@ -219,6 +225,10 @@ export default function WorkshopManagementPage() {
                     <div className="grid grid-cols-4 items-center gap-4">
                         <Label htmlFor="name" className="text-right">Name</Label>
                         <Input id="name" name="name" value={workshopName} onChange={(e) => setWorkshopName(e.target.value)} className="col-span-3" required placeholder="e.g., Downtown Service Center" />
+                    </div>
+                     <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="city" className="text-right">City</Label>
+                        <Input id="city" name="city" value={workshopCity} onChange={(e) => setWorkshopCity(e.target.value)} className="col-span-3" required placeholder="e.g., BIJOYNAGAR" />
                     </div>
                 </div>
                 <DialogFooter>
