@@ -14,6 +14,7 @@ import {
   Car,
   Database,
   Building,
+  Banknote,
 } from 'lucide-react';
 
 import {
@@ -80,6 +81,14 @@ export default function AdminLayout({
                     <SidebarMenuButton isActive={pathname === '/admin/labour'}>
                       <Wrench />
                       Labour Management
+                    </SidebarMenuButton>
+                </Link>
+              </SidebarMenuItem>
+               <SidebarMenuItem>
+                <Link href="/admin/pms-charges" passHref>
+                    <SidebarMenuButton isActive={pathname.startsWith('/admin/pms-charges')}>
+                      <Banknote />
+                      PMS Charges
                     </SidebarMenuButton>
                 </Link>
               </SidebarMenuItem>

@@ -195,17 +195,17 @@ async function updateArrayInFirebase(dataType: DataType, item: DataObjectType, o
 }
 
 // Individual item actions
-export const addWorkshop = async (item: Workshop) => updateArrayInFirebase('workshops', item, 'add', 'id');
-export const updateWorkshop = async (item: Workshop) => updateArrayInFirebase('workshops', item, 'update', 'id');
-export const deleteWorkshop = async (item: Workshop) => updateArrayInFirebase('workshops', item, 'delete', 'id');
+export async function addWorkshop(item: Workshop) { return updateArrayInFirebase('workshops', item, 'add', 'id'); }
+export async function updateWorkshop(item: Workshop) { return updateArrayInFirebase('workshops', item, 'update', 'id'); }
+export async function deleteWorkshop(item: Workshop) { return updateArrayInFirebase('workshops', item, 'delete', 'id'); }
 
-export const addPart = async (item: Part) => updateArrayInFirebase('parts', item, 'add', 'name');
-export const updatePart = async (item: Part) => updateArrayInFirebase('parts', item, 'update', 'name');
-export const deletePart = async (item: Part) => updateArrayInFirebase('parts', item, 'delete', 'name');
+export async function addPart(item: Part) { return updateArrayInFirebase('parts', item, 'add', 'name'); }
+export async function updatePart(item: Part) { return updateArrayInFirebase('parts', item, 'update', 'name'); }
+export async function deletePart(item: Part) { return updateArrayInFirebase('parts', item, 'delete', 'name'); }
 
-export const addVehicle = async (item: Vehicle) => updateArrayInFirebase('vehicles', item, 'add', 'model');
-export const updateVehicle = async (item: Vehicle) => updateArrayInFirebase('vehicles', item, 'update', 'model');
-export const deleteVehicle = async (item: Vehicle) => updateArrayInFirebase('vehicles', item, 'delete', 'model');
+export async function addVehicle(item: Vehicle) { return updateArrayInFirebase('vehicles', item, 'add', 'model'); }
+export async function updateVehicle(item: Vehicle) { return updateArrayInFirebase('vehicles', item, 'update', 'model'); }
+export async function deleteVehicle(item: Vehicle) { return updateArrayInFirebase('vehicles', item, 'delete', 'model'); }
 
 // Custom labor needs a composite key for identification, but for simplicity we'll just match all fields for deletion.
 // A more robust solution might add a unique ID to each custom labor entry.
@@ -241,6 +241,17 @@ async function updateCustomLaborArray(item: CustomLabor, operation: 'add' | 'upd
     }
 }
 
-export const addCustomLabor = async (item: CustomLabor) => updateCustomLaborArray(item, 'add');
-export const updateCustomLabor = async (item: CustomLabor) => updateCustomLaborArray(item, 'update');
-export const deleteCustomLabor = async (item: CustomLabor) => updateCustomLaborArray(item, 'delete');
+export async function addCustomLabor(item: CustomLabor) { return updateCustomLaborArray(item, 'add'); }
+export async function updateCustomLabor(item: CustomLabor) { return updateCustomLaborArray(item, 'update'); }
+export async function deleteCustomLabor(item: CustomLabor) { return updateCustomLaborArray(item, 'delete'); }
+
+// PMS Charges Actions
+export async function addPmsCharge(item: PmsCharge) {
+    return updateArrayInFirebase('pmsCharges', item, 'add', 'id');
+}
+export async function updatePmsCharge(item: PmsCharge) {
+    return updateArrayInFirebase('pmsCharges', item, 'update', 'id');
+}
+export async function deletePmsCharge(item: PmsCharge) {
+    return updateArrayInFirebase('pmsCharges', item, 'delete', 'id');
+}

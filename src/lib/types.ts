@@ -44,6 +44,7 @@ export const CustomLaborSchema = z.object({
 export type CustomLabor = z.infer<typeof CustomLaborSchema>;
 
 export const PmsChargeSchema = z.object({
+  id: z.string().describe("A unique ID, typically a combination of workshop-model-service."),
   workshopId: z.string(),
   model: z.string(),
   labourDesc: z.string(),

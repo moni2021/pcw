@@ -1,7 +1,8 @@
+
 import type { PmsCharge } from '../../../types';
 
 // --- PMS CHARGES for sow-azara ---
-const pmsCharges: Omit<PmsCharge, 'workshopId'>[] = [
+const pmsChargesRaw: Omit<PmsCharge, 'workshopId' | 'id'>[] = [
   // Paid Service (10,000 km) - This is the 3rd Free Service
   { model: "NEW SWIFT PETROL", labourCode: "PMS-3FS-10K", labourDesc: "3rd Free Service (10,000 km)", basicAmt: 0 },
   { model: "EPIC NEW SWIFT", labourCode: "PMS-3FS-10K", labourDesc: "3rd Free Service (10,000 km)", basicAmt: 0 },
@@ -103,5 +104,12 @@ const pmsCharges: Omit<PmsCharge, 'workshopId'>[] = [
   { model: "Fronx Domestic P74", labourCode: "PMS-MULTI-1", labourDesc: "Paid Service (20,000 km)", basicAmt: 1500 },
   { model: "NEW ERTIGA PETROL", labourCode: "PMS-MULTI-1", labourDesc: "Paid Service (20,000 km)", basicAmt: 1700 },
 ];
+
+const workshopId = 'sow-azara';
+const pmsCharges: Omit<PmsCharge, 'workshopId'>[] = pmsChargesRaw.map(charge => ({
+    ...charge,
+    id: `${workshopId}-${charge.model}-${charge.labourDesc}`.toLowerCase().replace(/[^a-z0-9-]/g, '')
+}));
+
 
 export default pmsCharges;
