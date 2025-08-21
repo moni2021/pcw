@@ -157,7 +157,7 @@ export default function PartsManagementPage() {
                             <TableCell colSpan={3} className="h-48 text-center">
                                 <div className="flex flex-col items-center gap-2">
                                     <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-                                    <span className="text-muted-foreground">Loading parts data...</span>
+                                    <span className="text-muted-foreground">Loading Poddar Car World...</span>
                                 </div>
                             </TableCell>
                         </TableRow>
@@ -181,7 +181,7 @@ export default function PartsManagementPage() {
                     <div className="absolute inset-0 bg-background/80 flex items-center justify-center">
                         <div className="flex flex-col items-center gap-2">
                             <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-                            <span className="text-muted-foreground">Saving data...</span>
+                            <span className="text-muted-foreground">Updating Poddar Car World...</span>
                         </div>
                     </div>
                 )}
