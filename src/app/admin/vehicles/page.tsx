@@ -115,7 +115,7 @@ export default function VehicleManagementPage() {
         }
         const result = await addVehicle(newVehicle);
         if (result.success) {
-            setVehicles(prev => [...prev, newVehicle]);
+            setVehicles(prev => [...prev, newVehicle].sort((a, b) => a.model.localeCompare(b.model)));
             toast({ title: 'Success', description: 'New vehicle added.' });
         } else {
             toast({ variant: 'destructive', title: 'Error', description: result.error });
