@@ -9,8 +9,8 @@ import { Label } from '@/components/ui/label';
 import { vehicles, serviceDataLookup } from '@/lib/data';
 import { ServiceEstimate } from './service-estimate';
 import type { ServiceEstimateData } from '@/lib/types';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Loader2, Car, Tag, Building2, Droplets, Info, Check, ChevronsUpDown } from 'lucide-react';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Loader2, Car, Tag, Building2, Droplets, Info, Check, ChevronsUpDown, AlertCircle } from 'lucide-react';
 import { Separator } from './ui/separator';
 import { Badge } from '@/components/ui/badge';
 import { useTheme } from '@/context/ThemeContext';
@@ -38,6 +38,16 @@ const serviceTypes = [
   'Paid Service (100,000 km)',
   'Paid Service (110,000 km)',
   'Paid Service (120,000 km)',
+  'Paid Service (130,000 km)',
+  'Paid Service (140,000 km)',
+  'Paid Service (150,000 km)',
+  'Paid Service (160,000 km)',
+  'Paid Service (170,000 km)',
+  'Paid Service (180,000 km)',
+  'Paid Service (190,000 km)',
+  'Paid Service (200,000 km)',
+  'Paid Service (210,000 km)',
+  'Paid Service (220,000 km)',
 ];
 
 export function VehicleServiceForm() {
@@ -146,7 +156,9 @@ export function VehicleServiceForm() {
     const checklist = pmsChecklists[serviceType];
     if (checklist) {
         setChecklistData(checklist);
-        setIsChecklistOpen(true);
+        if (!fromYearChange) {
+            setIsChecklistOpen(true);
+        }
     }
   }
 
@@ -177,6 +189,10 @@ export function VehicleServiceForm() {
       const pmsLabor = getPmsLabor(selectedModel, selectedServiceType, selectedWorkshop);
       const recommendedServices = getRecommendedLabor(selectedModel, selectedWorkshop);
       const optionalServices = getOptionalServices(selectedModel, selectedWorkshop);
+      
+      if (pmsLabor.length === 0 && selectedServiceType.startsWith('Paid Service')) {
+          setError(`Warning: PMS labor charge is not set for "${selectedModel}" for this service at the selected workshop. The total estimate will be inaccurate.`);
+      }
 
       const newEstimate: ServiceEstimateData = {
         workshopId: selectedWorkshop,
@@ -349,7 +365,13 @@ export function VehicleServiceForm() {
             </Select>
           </div>
           
-          {error && <Alert variant="destructive"><AlertDescription>{error}</AlertDescription></Alert>}
+          {error && (
+            <Alert variant="destructive">
+                <AlertCircle className="h-4 w-4" />
+                <AlertTitle>Heads up!</AlertTitle>
+                <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          )}
         </CardContent>
         <CardFooter>
           <Button onClick={handleSearch} className="w-full" disabled={isLoading || !selectedServiceType}>
@@ -381,3 +403,5 @@ export function VehicleServiceForm() {
     </>
   );
 }
+
+    
