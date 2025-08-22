@@ -1,7 +1,7 @@
 
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -35,9 +35,6 @@ type JsonFormatType = 'workshops' | 'vehicles' | 'parts' | 'customLabor' | 'pmsC
 
 export default function DataManagementPage() {
     const { toast } = useToast();
-    const [isAuthenticated, setIsAuthenticated] = useState(false);
-    const [password, setPassword] = useState('');
-    const [isPasswordDialogOpen, setIsPasswordDialogOpen] = useState(true);
     const [isSyncing, setIsSyncing] = useState(false);
     const [isUploading, setIsUploading] = useState<{ [key in DataType]?: boolean }>({});
     const [selectedFile, setSelectedFile] = useState<{ [key in DataType]?: File | null }>({});
@@ -49,30 +46,6 @@ export default function DataManagementPage() {
     const [convertedJson, setConvertedJson] = useState('');
     const [isConverting, setIsConverting] = useState(false);
     const [converterWorkshop, setConverterWorkshop] = useState('');
-
-    useEffect(() => {
-        setIsAuthenticated(false);
-        setIsPasswordDialogOpen(true);
-    }, []);
-
-    const handlePasswordSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
-        // This is a simple client-side check. For real security, use proper authentication.
-        if (password === 'Hiru@2025') {
-            setIsAuthenticated(true);
-            setIsPasswordDialogOpen(false);
-            toast({
-                title: 'Access Granted',
-                description: 'Welcome to the Data Management section.',
-            });
-        } else {
-            toast({
-                variant: 'destructive',
-                title: 'Access Denied',
-                description: 'The password you entered is incorrect.',
-            });
-        }
-    };
 
     const allData = {
         workshops,
@@ -242,46 +215,6 @@ export default function DataManagementPage() {
         reader.readAsText(serviceAccountFile);
     };
 
-    if (!isAuthenticated) {
-        return (
-            <Dialog open={isPasswordDialogOpen} onOpenChange={setIsPasswordDialogOpen}>
-                <DialogContent className="sm:max-w-[425px]">
-                    <form onSubmit={handlePasswordSubmit}>
-                        <DialogHeader>
-                            <DialogTitle className="flex items-center gap-2">
-                                <ShieldCheck /> Authentication Required
-                            </DialogTitle>
-                            <DialogDescription>
-                                Please enter the password to access the data management section.
-                            </DialogDescription>
-                        </DialogHeader>
-                        <div className="grid gap-4 py-4">
-                            <div className="grid grid-cols-4 items-center gap-4">
-                                <Label htmlFor="password-input" className="text-right">
-                                    Password
-                                </Label>
-                                <Input
-                                    id="password-input"
-                                    type="password"
-                                    value={password}
-                                    onChange={(e) => setPassword(e.target.value)}
-                                    className="col-span-3"
-                                    required
-                                />
-                            </div>
-                        </div>
-                        <DialogFooter>
-                            <Button type="submit">
-                                <KeyRound className="mr-2 h-4 w-4" />
-                                Unlock
-                            </Button>
-                        </DialogFooter>
-                    </form>
-                </DialogContent>
-            </Dialog>
-        );
-    }
-    
     const renderUploadTab = (dataType: DataType, title: string, description: string, icon: React.ReactNode) => (
         <Card>
             <CardHeader>
@@ -492,5 +425,3 @@ export default function DataManagementPage() {
         </div>
     );
 }
-
-    
