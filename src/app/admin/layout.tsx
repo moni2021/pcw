@@ -15,6 +15,7 @@ import {
   Database,
   Building,
   Banknote,
+  GitCompareArrows,
 } from 'lucide-react';
 
 import {
@@ -105,6 +106,14 @@ export default function AdminLayout({
                     <SidebarMenuButton isActive={pathname === '/admin/data'}>
                       <Database />
                       Data Management
+                    </SidebarMenuButton>
+                </Link>
+              </SidebarMenuItem>
+               <SidebarMenuItem>
+                <Link href="/admin/compare" passHref>
+                    <SidebarMenuButton isActive={pathname === '/admin/compare'}>
+                      <GitCompareArrows />
+                      Price Comparison
                     </SidebarMenuButton>
                 </Link>
               </SidebarMenuItem>
