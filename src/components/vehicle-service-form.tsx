@@ -22,6 +22,7 @@ import { ServiceChecklistDialog } from './service-checklist-dialog';
 import type { ChecklistCategory } from '@/lib/pms-checklists';
 import { pmsChecklists } from '@/lib/pms-checklists';
 import { Input } from './ui/input';
+import { workshops } from '@/lib/data/workshops';
 
 const serviceTypes = [
   '1st Free Service (1,000 km)',
@@ -52,7 +53,7 @@ const serviceTypes = [
 
 export function VehicleServiceForm() {
   const { setTheme } = useTheme();
-  const [selectedWorkshop, setSelectedWorkshop] = useState<string>('arena-bijoynagar');
+  const [selectedWorkshop, setSelectedWorkshop] = useState<string>('');
   const [selectedModel, setSelectedModel] = useState<string>('');
   const [selectedFuelType, setSelectedFuelType] = useState<string>('');
   const [selectedYear, setSelectedYear] = useState<string>('');
@@ -63,6 +64,12 @@ export function VehicleServiceForm() {
   const [isModelPopoverOpen, setIsModelPopoverOpen] = useState(false);
   const [isChecklistOpen, setIsChecklistOpen] = useState(false);
   const [checklistData, setChecklistData] = useState<ChecklistCategory[] | null>(null);
+
+  useEffect(() => {
+    if (workshops.length > 0) {
+      setSelectedWorkshop(workshops[0].id);
+    }
+  }, []);
 
   const currentVehicle = useMemo(() => {
     return vehicles.find(v => v.model === selectedModel);
@@ -222,10 +229,16 @@ export function VehicleServiceForm() {
         <CardContent className="space-y-6">
             <div className="space-y-2">
                 <Label htmlFor="workshop">Workshop</Label>
-                <Input id="workshop" value="ARENA - BIJOYNAGAR (KAMRUP)" disabled />
-                 <p className="text-xs text-muted-foreground">
-                    This application is under review. Access to other locations will be enabled upon approval.
-                 </p>
+                <Select value={selectedWorkshop} onValueChange={setSelectedWorkshop}>
+                  <SelectTrigger id="workshop">
+                    <SelectValue placeholder="Select a workshop" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {workshops.map(w => (
+                      <SelectItem key={w.id} value={w.id}>{w.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
             </div>
 
           <div className="space-y-2">
