@@ -5,15 +5,15 @@ import { vehicles } from '@/lib/data';
 // It includes model-specific pricing for wheel services and a function for common services.
 
 const modelSpecificCharges: { [model: string]: { name: string; charge: number }[] } = {
-    // Wheel Alignment
-    'S-Cross': [{ name: 'WHEEL ALIGNMENT (4 HEAD)', charge: 400 }, { name: 'WHEEL ALIGNMENT', charge: 505 }],
-    'Super Carry': [{ name: 'WHEEL ALIGNMENT (4 HEAD)', charge: 400 }, { name: 'WHEEL ALIGNMENT', charge: 130 }],
-    'Wagon R': [{ name: 'WHEEL ALIGNMENT (4 HEAD)', charge: 400 }, { name: 'WHEEL ALIGNMENT', charge: 375 }],
-    'S-Presso': [{ name: 'WHEEL ALIGNMENT (4 HEAD)', charge: 400 }, { name: 'WHEEL ALIGNMENT', charge: 330 }],
-    'Alto 800': [{ name: 'WHEEL ALIGNMENT (4 HEAD)', charge: 400 }, { name: 'WHEEL ALIGNMENT', charge: 330 }],
-    'Dzire': [{ name: 'WHEEL ALIGNMENT (4 HEAD)', charge: 400 }, { name: 'WHEEL ALIGNMENT', charge: 375 }],
-    'Swift': [{ name: 'WHEEL ALIGNMENT (4 HEAD)', charge: 400 }, { name: 'WHEEL ALIGNMENT', charge: 375 }],
-    'Ertiga': [{ name: 'WHEEL ALIGNMENT (4 HEAD)', charge: 400 }, { name: 'WHEEL ALIGNMENT', charge: 375 }],
+    // Wheel Alignment from the provided image
+    'S-Cross': [{ name: 'WHEEL ALIGNMENT', charge: 505 }],
+    'Super Carry': [{ name: 'WHEEL ALIGNMENT', charge: 130 }],
+    'Wagon R': [{ name: 'WHEEL ALIGNMENT', charge: 375 }, { name: 'WHEEL ALIGNMENT (4 HEAD)', charge: 400 }],
+    'S-Presso': [{ name: 'WHEEL ALIGNMENT', charge: 330 }, { name: 'WHEEL ALIGNMENT (4 HEAD)', charge: 400 }],
+    'Alto 800': [{ name: 'WHEEL ALIGNMENT', charge: 330 }, { name: 'WHEEL ALIGNMENT (4 HEAD)', charge: 400 }],
+    'Dzire': [{ name: 'WHEEL ALIGNMENT', charge: 375 }, { name: 'WHEEL ALIGNMENT (4 HEAD)', charge: 400 }],
+    'Swift': [{ name: 'WHEEL ALIGNMENT', charge: 375 }, { name: 'WHEEL ALIGNMENT (4 HEAD)', charge: 400 }],
+    'Ertiga': [{ name: 'WHEEL ALIGNMENT', charge: 375 }, { name: 'WHEEL ALIGNMENT (4 HEAD)', charge: 400 }],
     'Alto K10': [{ name: 'WHEEL ALIGNMENT (4 HEAD)', charge: 400 }],
     'Brezza': [{ name: 'WHEEL ALIGNMENT (4 HEAD)', charge: 400 }],
     'Celerio': [{ name: 'WHEEL ALIGNMENT (4 HEAD)', charge: 400 }],
@@ -27,26 +27,49 @@ const modelSpecificCharges: { [model: string]: { name: string; charge: number }[
     'Ciaz': [{ name: 'WHEEL ALIGNMENT (4 HEAD)', charge: 400 }],
     'Ritz': [{ name: 'WHEEL ALIGNMENT (4 HEAD)', charge: 400 }],
 
-    // Wheel Balancing
-    'S-Cross': [{ name: 'WHEEL BALANCING - 4 WHEEL', charge: 380 }],
-    'Swift': [{ name: 'WHEEL BALANCING - 4 WHEEL', charge: 320 }, { name: 'WHEEL BALANCING - 5 WHEEL', charge: 400 }],
-    'Brezza': [{ name: 'WHEEL BALANCING - 4 WHEEL', charge: 340 }, { name: 'WHEEL BALANCING - 5 WHEEL', charge: 400 }],
-    'Wagon R': [{ name: 'WHEEL BALANCING - 4 WHEEL', charge: 320 }, { name: 'WHEEL BALANCING - 5 WHEEL', charge: 350 }],
-    'Ertiga': [{ name: 'WHEEL BALANCING - 4 WHEEL', charge: 320 }, { name: 'WHEEL BALANCING - 5 WHEEL', charge: 400 }],
-    'Ciaz': [{ name: 'WHEEL BALANCING - 4 WHEEL', charge: 340 }, { name: 'WHEEL BALANCING - 5 WHEEL', charge: 425 }],
-    'Celerio': [{ name: 'WHEEL BALANCING - 5 WHEEL', charge: 350 }],
-    'Baleno': [{ name: 'WHEEL BALANCING - 5 WHEEL', charge: 400 }],
-    'S-Presso': [{ name: 'WHEEL BALANCING - 5 WHEEL', charge: 350 }],
-    'Dzire': [{ name: 'WHEEL BALANCING - 5 WHEEL', charge: 400 }],
-    'Alto 800': [{ name: 'WHEEL BALANCING - 5 WHEEL', charge: 350 }],
-    'Eeco': [{ name: 'WHEEL BALANCING - 5 WHEEL', charge: 325 }],
-    'Ignis': [{ name: 'WHEEL BALANCING - 5 WHEEL', charge: 400 }],
-    'Alto K10': [{ name: 'WHEEL BALANCING - 5 WHEEL', charge: 350 }],
-    'Fronx': [{ name: 'WHEEL BALANCING - 5 WHEEL', charge: 400 }],
-    'Grand Vitara': [{ name: 'WHEEL BALANCING - 5 WHEEL', charge: 400 }],
-    'Super Carry': [{ name: 'WHEEL BALANCING - 5 WHEEL', charge: 175 }],
-    'Ritz': [{ name: 'WHEEL BALANCING - 5 WHEEL', charge: 400 }],
-    'XL6': [{ name: 'WHEEL BALANCING - 5 WHEEL', charge: 400 }],
+    // Wheel Balancing (retained from old data, can be updated)
+    'Swift': [
+        { name: 'WHEEL ALIGNMENT', charge: 375 }, { name: 'WHEEL ALIGNMENT (4 HEAD)', charge: 400 },
+        { name: 'WHEEL BALANCING - 4 WHEEL', charge: 320 }, { name: 'WHEEL BALANCING - 5 WHEEL', charge: 400 }
+    ],
+    'Brezza': [
+        { name: 'WHEEL ALIGNMENT (4 HEAD)', charge: 400 },
+        { name: 'WHEEL BALANCING - 4 WHEEL', charge: 340 }, { name: 'WHEEL BALANCING - 5 WHEEL', charge: 400 }
+    ],
+    'Wagon R': [
+        { name: 'WHEEL ALIGNMENT', charge: 375 }, { name: 'WHEEL ALIGNMENT (4 HEAD)', charge: 400 },
+        { name: 'WHEEL BALANCING - 4 WHEEL', charge: 320 }, { name: 'WHEEL BALANCING - 5 WHEEL', charge: 350 }
+    ],
+    'Ertiga': [
+        { name: 'WHEEL ALIGNMENT', charge: 375 }, { name: 'WHEEL ALIGNMENT (4 HEAD)', charge: 400 },
+        { name: 'WHEEL BALANCING - 4 WHEEL', charge: 320 }, { name: 'WHEEL BALANCING - 5 WHEEL', charge: 400 }
+    ],
+    'Ciaz': [
+        { name: 'WHEEL ALIGNMENT (4 HEAD)', charge: 400 },
+        { name: 'WHEEL BALANCING - 4 WHEEL', charge: 340 }, { name: 'WHEEL BALANCING - 5 WHEEL', charge: 425 }
+    ],
+    'Celerio': [ { name: 'WHEEL ALIGNMENT (4 HEAD)', charge: 400 }, { name: 'WHEEL BALANCING - 5 WHEEL', charge: 350 }],
+    'Baleno': [ { name: 'WHEEL ALIGNMENT (4 HEAD)', charge: 400 }, { name: 'WHEEL BALANCING - 5 WHEEL', charge: 400 }],
+    'S-Presso': [
+        { name: 'WHEEL ALIGNMENT', charge: 330 }, { name: 'WHEEL ALIGNMENT (4 HEAD)', charge: 400 },
+        { name: 'WHEEL BALANCING - 5 WHEEL', charge: 350 }
+    ],
+    'Dzire': [
+        { name: 'WHEEL ALIGNMENT', charge: 375 }, { name: 'WHEEL ALIGNMENT (4 HEAD)', charge: 400 },
+        { name: 'WHEEL BALANCING - 5 WHEEL', charge: 400 }
+    ],
+    'Alto 800': [
+        { name: 'WHEEL ALIGNMENT', charge: 330 }, { name: 'WHEEL ALIGNMENT (4 HEAD)', charge: 400 },
+        { name: 'WHEEL BALANCING - 5 WHEEL', charge: 350 }
+    ],
+    'Eeco': [{ name: 'WHEEL ALIGNMENT (4 HEAD)', charge: 400 }, { name: 'WHEEL BALANCING - 5 WHEEL', charge: 325 }],
+    'Ignis': [{ name: 'WHEEL ALIGNMENT (4 HEAD)', charge: 400 }, { name: 'WHEEL BALANCING - 5 WHEEL', charge: 400 }],
+    'Alto K10': [{ name: 'WHEEL ALIGNMENT (4 HEAD)', charge: 400 }, { name: 'WHEEL BALANCING - 5 WHEEL', charge: 350 }],
+    'Fronx': [{ name: 'WHEEL ALIGNMENT (4 HEAD)', charge: 400 }, { name: 'WHEEL BALANCING - 5 WHEEL', charge: 400 }],
+    'Grand Vitara': [{ name: 'WHEEL ALIGNMENT (4 HEAD)', charge: 400 }, { name: 'WHEEL BALANCING - 5 WHEEL', charge: 400 }],
+    'Super Carry': [{ name: 'WHEEL ALIGNMENT', charge: 130 }, { name: 'WHEEL BALANCING - 5 WHEEL', charge: 175 }],
+    'Ritz': [{ name: 'WHEEL ALIGNMENT (4 HEAD)', charge: 400 }, { name: 'WHEEL BALANCING - 5 WHEEL', charge: 400 }],
+    'XL6': [{ name: 'WHEEL ALIGNMENT (4 HEAD)', charge: 400 }, { name: 'WHEEL BALANCING - 5 WHEEL', charge: 400 }],
 };
 
 const customLabor: Omit<CustomLabor, 'workshopId'>[] = vehicles.flatMap(vehicle => {
@@ -60,4 +83,8 @@ const customLabor: Omit<CustomLabor, 'workshopId'>[] = vehicles.flatMap(vehicle 
     }));
 });
 
-export default customLabor;
+// Remove duplicates, giving model-specific charges higher priority
+const uniqueLabor = Array.from(new Map(customLabor.map(item => [`${item.model}-${item.name}`, item])).values());
+
+
+export default uniqueLabor;
