@@ -84,7 +84,7 @@ const pmsChargesRaw: Omit<PmsCharge, 'workshopId' | 'id'>[] = [
         { model: "Alto 800", labourCode: "PMS-IMG-2P", labourDesc: service, basicAmt: 1410 },
         { model: "Swift", labourCode: "PMS-IMG-2P", labourDesc: service, basicAmt: 1465 }, // NEW SWIFT
         { model: "Brezza", labourCode: "PMS-IMG-2P", labourDesc: service, basicAmt: 1455 }, // NEW BREZZ
-        { model: "Swift", labourCode: "PMS-IMG-2P", labourDesc: service, basicAmt: 1275 }, // NEW SWIFT
+        { model: "Swift", labourCode: "PMS-IMG-2P", labourDesc: service, basicAmt: 1275 }, // SWIFT NEW
         { model: "Dzire", labourCode: "PMS-IMG-2P", labourDesc: service, basicAmt: 1465 }, // New Dzire
         { model: "Alto K10", labourCode: "PMS-IMG-2P", labourDesc: service, basicAmt: 1410 }, // ALTO K10C
         { model: "Wagon R", labourCode: "PMS-IMG-2P", labourDesc: service, basicAmt: 1410 }, // NEW WAGO
