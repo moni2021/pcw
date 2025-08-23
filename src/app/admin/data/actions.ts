@@ -255,3 +255,5 @@ export async function updatePmsCharge(item: PmsCharge) {
 export async function deletePmsCharge(item: PmsCharge) {
     return updateArrayInFirebase('pmsCharges', item, 'delete', 'id');
 }
+
+    
