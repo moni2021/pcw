@@ -38,7 +38,7 @@ export default function LabourManagementPage() {
   const [isEditing, setIsEditing] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [isModelPopoverOpen, setIsModelPopoverOpen] = useState(false);
-  const [isTableOpen, setIsTableOpen] = useState(false);
+  const [isTableOpen, setIsTableOpen] = useState(true);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -106,27 +106,19 @@ export default function LabourManagementPage() {
     };
 
     if (isEditing && originalLabor) {
-        // Since we don't have a unique ID, we delete the old one and add the new one to simulate an update.
-        const deleteResult = await deleteCustomLabor(originalLabor);
-        if (deleteResult.success) {
-            const addResult = await addCustomLabor(newLabor);
-            if (addResult.success) {
-                setCustomLabor(prev => {
-                    const filtered = prev.filter(l => 
-                        !(l.workshopId === originalLabor.workshopId && 
-                          l.name === originalLabor.name && 
-                          l.model === originalLabor.model)
-                    );
-                    return [...filtered, newLabor].sort((a,b) => a.name.localeCompare(b.name));
-                });
-                toast({ title: 'Success', description: 'Labour charge updated.' });
-            } else {
-                toast({ variant: 'destructive', title: 'Update Failed', description: addResult.error });
-                // Attempt to add the original back
-                await addCustomLabor(originalLabor);
-            }
+        const result = await updateCustomLabor(originalLabor, newLabor);
+        if (result.success) {
+            setCustomLabor(prev => {
+                const filtered = prev.filter(l => 
+                    !(l.workshopId === originalLabor.workshopId && 
+                        l.name === originalLabor.name && 
+                        l.model === originalLabor.model)
+                );
+                return [...filtered, newLabor].sort((a,b) => a.name.localeCompare(b.name));
+            });
+            toast({ title: 'Success', description: 'Labour charge updated.' });
         } else {
-             toast({ variant: 'destructive', title: 'Update Failed', description: deleteResult.error });
+             toast({ variant: 'destructive', title: 'Update Failed', description: result.error });
         }
     } else {
         if (customLabor.some(l => l.name.toLowerCase() === newLabor.name.toLowerCase() && l.model === newLabor.model && l.workshopId === newLabor.workshopId)) {
@@ -211,7 +203,7 @@ export default function LabourManagementPage() {
                             <TableCell colSpan={5} className="h-48 text-center">
                                 <div className="flex flex-col items-center gap-2">
                                     <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-                                    <span className="text-muted-foreground">Loading Poddar Car World...</span>
+                                    <span className="text-muted-foreground">Loading Labour Data...</span>
                                 </div>
                             </TableCell>
                         </TableRow>
@@ -237,11 +229,11 @@ export default function LabourManagementPage() {
                     ))}
                     </TableBody>
                 </Table>
-                {(isMutating) && (
+                {(isMutating || isLoading) && (
                     <div className="absolute inset-0 bg-background/80 flex items-center justify-center">
                         <div className="flex flex-col items-center gap-2">
                             <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-                            <span className="text-muted-foreground">Updating Poddar Car World...</span>
+                           <span className="text-muted-foreground">{isLoading ? 'Loading...' : 'Updating...'}</span>
                         </div>
                     </div>
                 )}

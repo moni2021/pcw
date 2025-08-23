@@ -144,15 +144,22 @@ export async function getFullDataFromFirebase() {
         return localData;
     }
     
-    const docRef = db.collection('config').doc('app_data');
-    const docSnap = await docRef.get();
-    
-    if (docSnap.exists()) {
-        return docSnap.data() as any; // Cast as any to simplify usage on client
-    } else {
-        // If no data in Firestore, perform the initial sync and return local data.
-        console.warn("No data in Firestore. Performing initial sync and returning local data.");
-        await syncToFirebase();
+    try {
+        const docRef = db.collection('config').doc('app_data');
+        const docSnap = await docRef.get();
+        
+        if (docSnap.exists()) {
+            return docSnap.data() as any; // Cast as any to simplify usage on client
+        } else {
+            // If no data in Firestore, perform the initial sync and return local data.
+            console.warn("No data in Firestore. Performing initial sync and returning local data.");
+            await syncToFirebase();
+            return localData;
+        }
+    } catch (error: any) {
+        console.error("Error fetching data from Firebase: ", error);
+        // Fallback to local data if there is an error fetching from firebase
+        console.warn("Returning local fallback data due to Firebase fetch error.");
         return localData;
     }
 }
@@ -216,7 +223,7 @@ async function updateCustomLaborArray(item: CustomLabor, operation: 'add' | 'upd
             const doc = await transaction.get(docRef);
             if (!doc.exists) throw new Error("Data document does not exist!");
             
-            const currentArray = doc.data()?.customLabor || [];
+            const currentArray: CustomLabor[] = doc.data()?.customLabor || [];
             let newArray;
 
             if (operation === 'add') {
@@ -239,7 +246,11 @@ async function updateCustomLaborArray(item: CustomLabor, operation: 'add' | 'upd
 }
 
 export async function addCustomLabor(item: CustomLabor) { return updateCustomLaborArray(item, 'add'); }
-export async function updateCustomLabor(item: CustomLabor) { return updateCustomLaborArray(item, 'update'); }
+export async function updateCustomLabor(originalItem: CustomLabor, updatedItem: CustomLabor) {
+    const deleteResult = await deleteCustomLabor(originalItem);
+    if (!deleteResult.success) return deleteResult;
+    return await addCustomLabor(updatedItem);
+}
 export async function deleteCustomLabor(item: CustomLabor) { return updateCustomLaborArray(item, 'delete'); }
 
 // PMS Charges Actions

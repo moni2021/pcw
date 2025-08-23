@@ -50,7 +50,7 @@ export default function PmsChargesManagementPage() {
 
   const [isChargeDialogOpen, setIsChargeDialogOpen] = useState(false);
   const [currentCharge, setCurrentCharge] = useState<PmsCharge | null>(null);
-  const [isTableOpen, setIsTableOpen] = useState(false);
+  const [isTableOpen, setIsTableOpen] = useState(true);
 
   const { toast } = useToast();
 
@@ -190,7 +190,7 @@ export default function PmsChargesManagementPage() {
                                 <TableCell colSpan={3} className="h-48 text-center">
                                     <div className="flex flex-col items-center gap-2">
                                         <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-                                        <span className="text-muted-foreground">Loading Poddar Car World...</span>
+                                        <span className="text-muted-foreground">Loading PMS Data...</span>
                                     </div>
                                 </TableCell>
                             </TableRow>
@@ -215,11 +215,11 @@ export default function PmsChargesManagementPage() {
                         )}
                         </TableBody>
                     </Table>
-                    {(isMutating) && (
+                    {(isMutating || isLoading) && (
                         <div className="absolute inset-0 bg-background/80 flex items-center justify-center">
                             <div className="flex flex-col items-center gap-2">
                                 <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-                                <span className="text-muted-foreground">Updating Poddar Car World...</span>
+                                <span className="text-muted-foreground">{isLoading ? 'Loading...' : 'Updating...'}</span>
                             </div>
                         </div>
                     )}

@@ -32,7 +32,7 @@ export default function VehicleManagementPage() {
   const [currentVehicle, setCurrentVehicle] = useState<Partial<Vehicle> & { model_original?: string } | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
-  const [isTableOpen, setIsTableOpen] = useState(false);
+  const [isTableOpen, setIsTableOpen] = useState(true);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -206,7 +206,7 @@ export default function VehicleManagementPage() {
                                         <TableCell colSpan={5} className="h-48 text-center">
                                             <div className="flex flex-col items-center gap-2">
                                                 <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-                                                <span className="text-muted-foreground">Loading Poddar Car World...</span>
+                                                <span className="text-muted-foreground">Loading Vehicle Data...</span>
                                             </div>
                                         </TableCell>
                                     </TableRow>
@@ -236,11 +236,11 @@ export default function VehicleManagementPage() {
                                 ))}
                                 </TableBody>
                             </Table>
-                            {(isMutating) && (
+                            {(isMutating || isLoading) && (
                                 <div className="absolute inset-0 bg-background/80 flex items-center justify-center">
                                     <div className="flex flex-col items-center gap-2">
                                         <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-                                        <span className="text-muted-foreground">Updating Poddar Car World...</span>
+                                        <span className="text-muted-foreground">{isLoading ? 'Loading...' : 'Updating...'}</span>
                                     </div>
                                 </div>
                             )}
