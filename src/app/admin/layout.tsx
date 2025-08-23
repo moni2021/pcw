@@ -16,6 +16,7 @@ import {
   Building,
   Banknote,
   GitCompareArrows,
+  FileWarning,
 } from 'lucide-react';
 
 import {
@@ -114,6 +115,14 @@ export default function AdminLayout({
                     <SidebarMenuButton isActive={pathname === '/admin/compare'}>
                       <GitCompareArrows />
                       Price Comparison
+                    </SidebarMenuButton>
+                </Link>
+              </SidebarMenuItem>
+               <SidebarMenuItem>
+                <Link href="/admin/pms-gaps" passHref>
+                    <SidebarMenuButton isActive={pathname === '/admin/pms-gaps'}>
+                      <FileWarning />
+                      PMS Gaps
                     </SidebarMenuButton>
                 </Link>
               </SidebarMenuItem>
