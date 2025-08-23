@@ -1,7 +1,7 @@
 
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -46,6 +46,7 @@ export default function DataManagementPage() {
     const [convertedJson, setConvertedJson] = useState('');
     const [isConverting, setIsConverting] = useState(false);
     const [converterWorkshop, setConverterWorkshop] = useState('');
+    const setupCardRef = useRef<HTMLDivElement>(null);
 
     const allData = {
         workshops,
@@ -117,7 +118,16 @@ export default function DataManagementPage() {
                     description: 'All local data has been successfully synced to Firebase.',
                 });
             } else {
-                throw new Error(result.error || 'An unknown error occurred.');
+                 if (result.error?.includes("Service account key is not configured")) {
+                    toast({
+                        variant: "destructive",
+                        title: 'Action Required',
+                        description: "Please upload your Firebase service account key to enable syncing.",
+                    });
+                    setupCardRef.current?.scrollIntoView({ behavior: 'smooth' });
+                } else {
+                    throw new Error(result.error || 'An unknown error occurred.');
+                }
             }
         } catch (error: any) {
              console.error("Failed to sync data with Firebase:", error);
@@ -155,7 +165,16 @@ export default function DataManagementPage() {
                     });
                      setSelectedFile(prev => ({...prev, [dataType]: null})); 
                 } else {
-                    throw new Error(result.error || `An unknown error occurred during ${dataType} upload.`);
+                     if (result.error?.includes("Service account key is not configured")) {
+                        toast({
+                            variant: "destructive",
+                            title: 'Action Required',
+                            description: "Please upload your Firebase service account key first.",
+                        });
+                        setupCardRef.current?.scrollIntoView({ behavior: 'smooth' });
+                    } else {
+                        throw new Error(result.error || `An unknown error occurred during ${dataType} upload.`);
+                    }
                 }
             } catch (error: any) {
                  toast({
@@ -322,7 +341,7 @@ export default function DataManagementPage() {
                 </DialogContent>
             </Dialog>
 
-            <Card className="border-destructive">
+            <Card className="border-destructive" ref={setupCardRef}>
                 <CardHeader>
                     <CardTitle className="flex items-center gap-2 text-destructive">
                         <AlertCircle /> Action Required: Firebase Setup
@@ -425,3 +444,5 @@ export default function DataManagementPage() {
         </div>
     );
 }
+
+    
