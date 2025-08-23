@@ -16,6 +16,7 @@ const pmsChargesRaw: Omit<PmsCharge, 'workshopId' | 'id'>[] = [
         { model: "Ertiga", labourCode: "PMS-GROUP-1", labourDesc: service, basicAmt: 1720 },
         { model: "Brezza", labourCode: "PMS-GROUP-1", labourDesc: service, basicAmt: 1675 },
         { model: "Eeco", labourCode: "PMS-GROUP-1", labourDesc: service, basicAmt: 1340 },
+        { model: "Eeco Cargo", labourCode: "PMS-GROUP-1", labourDesc: service, basicAmt: 1340 },
         { model: "Baleno", labourCode: "PMS-GROUP-1", labourDesc: service, basicAmt: 1520 },
         { model: "Celerio", labourCode: "PMS-GROUP-1", labourDesc: service, basicAmt: 1480 },
         { model: "Ignis", labourCode: "PMS-GROUP-1", labourDesc: service, basicAmt: 1535 },
@@ -29,6 +30,7 @@ const pmsChargesRaw: Omit<PmsCharge, 'workshopId' | 'id'>[] = [
         { model: "Dzire", labourCode: "PMS-GROUP-2", labourDesc: service, basicAmt: 1515 },
         { model: "Swift", labourCode: "PMS-GROUP-2", labourDesc: service, basicAmt: 1515 },
         { model: "Eeco", labourCode: "PMS-GROUP-2", labourDesc: service, basicAmt: 1320 },
+        { model: "Eeco Cargo", labourCode: "PMS-GROUP-2", labourDesc: service, basicAmt: 1320 },
         { model: "Alto K10", labourCode: "PMS-GROUP-2", labourDesc: service, basicAmt: 1460 },
         { model: "Alto 800", labourCode: "PMS-GROUP-2", labourDesc: service, basicAmt: 1460 },
         { model: "Wagon R", labourCode: "PMS-GROUP-2", labourDesc: service, basicAmt: 1460 },
@@ -51,6 +53,7 @@ const pmsChargesRaw: Omit<PmsCharge, 'workshopId' | 'id'>[] = [
         { model: "Grand Vitara", labourCode: "PMS-IMG-1P", labourDesc: service, basicAmt: 1530 }, // MARUTI GR
         { model: "Alto 800", labourCode: "PMS-IMG-1P", labourDesc: service, basicAmt: 1335 }, // ALTO
         { model: "Eeco", labourCode: "PMS-IMG-1P", labourDesc: service, basicAmt: 1180 }, // OMNI
+        { model: "Eeco Cargo", labourCode: "PMS-IMG-1P", labourDesc: service, basicAmt: 1180 }, // OMNI
         { model: "Dzire", labourCode: "PMS-IMG-1P", labourDesc: service, basicAmt: 1410 }, // SWIFT DZIR
         { model: "Ritz", labourCode: "PMS-IMG-1P", labourDesc: service, basicAmt: 1215 }, // A-STAR
         { model: "S-Cross", labourCode: "PMS-IMG-1P", labourDesc: service, basicAmt: 1605 }, // MARUTI S-C
@@ -59,10 +62,12 @@ const pmsChargesRaw: Omit<PmsCharge, 'workshopId' | 'id'>[] = [
         { model: "Wagon R", labourCode: "PMS-IMG-1P", labourDesc: service, basicAmt: 1335 },
         { model: "Ritz", labourCode: "PMS-IMG-1P", labourDesc: service, basicAmt: 1320 },
         { model: "Eeco", labourCode: "PMS-IMG-1P", labourDesc: service, basicAmt: 1180 },
+        { model: "Eeco Cargo", labourCode: "PMS-IMG-1P", labourDesc: service, basicAmt: 1180 },
         { model: "Alto K10", labourCode: "PMS-IMG-1P", labourDesc: service, basicAmt: 1335 }, // ALTO K10C
         { model: "Celerio", labourCode: "PMS-IMG-1P", labourDesc: service, basicAmt: 1335 }, // CELERIO CN
         { model: "Celerio", labourCode: "PMS-IMG-1P", labourDesc: service, basicAmt: 1335 }, // NEW CELER
         { model: "Eeco", labourCode: "PMS-IMG-1P", labourDesc: service, basicAmt: 1180 }, // EECO K12N
+        { model: "Eeco Cargo", labourCode: "PMS-IMG-1P", labourDesc: service, basicAmt: 1180 }, // EECO K12N
         { model: "Baleno", labourCode: "PMS-IMG-1P", labourDesc: service, basicAmt: 1400 }, // NEW BALEN
         { model: "Brezza", labourCode: "PMS-IMG-1P", labourDesc: service, basicAmt: 1530 }, // NEW BREZZ
         { model: "Wagon R", labourCode: "PMS-IMG-1P", labourDesc: service, basicAmt: 1335 }, // NEW WAGO
@@ -71,6 +76,7 @@ const pmsChargesRaw: Omit<PmsCharge, 'workshopId' | 'id'>[] = [
         { model: "S-Presso", labourCode: "PMS-IMG-1P", labourDesc: service, basicAmt: 1335 },
         { model: "Ignis", labourCode: "PMS-IMG-1P", labourDesc: service, basicAmt: 1410 }, // IGNIS-PETR
         { model: "Eeco", labourCode: "PMS-IMG-1P", labourDesc: service, basicAmt: 1180 }, // MARUTI EE(CO)
+        { model: "Eeco Cargo", labourCode: "PMS-IMG-1P", labourDesc: service, basicAmt: 1180 }, // MARUTI EE(CO)
         { model: "Baleno", labourCode: "PMS-IMG-1P", labourDesc: service, basicAmt: 1400 }, // MARUTI BA
         { model: "Ertiga", labourCode: "PMS-IMG-1P", labourDesc: service, basicAmt: 1605 }, // NEW ERTIG
         { model: "Super Carry", labourCode: "PMS-IMG-1P", labourDesc: service, basicAmt: 370 }, // SUPER CARI
@@ -96,7 +102,9 @@ const pmsChargesRaw: Omit<PmsCharge, 'workshopId' | 'id'>[] = [
         { model: "Fronx", labourCode: "PMS-IMG-2P", labourDesc: service, basicAmt: 1455 }, // Fronx Dom
         { model: "S-Presso", labourCode: "PMS-IMG-2P", labourDesc: service, basicAmt: 1410 },
         { model: "Eeco", labourCode: "PMS-IMG-2P", labourDesc: service, basicAmt: 1275 }, // MARUTI EE(CO)
+        { model: "Eeco Cargo", labourCode: "PMS-IMG-2P", labourDesc: service, basicAmt: 1275 }, // MARUTI EE(CO)
         { model: "Eeco", labourCode: "PMS-IMG-2P", labourDesc: service, basicAmt: 1275 }, // EECO K12N
+        { model: "Eeco Cargo", labourCode: "PMS-IMG-2P", labourDesc: service, basicAmt: 1275 }, // EECO K12N
         { model: "XL6", labourCode: "PMS-IMG-2P", labourDesc: service, basicAmt: 1660 },
     ]),
 ];
