@@ -105,14 +105,20 @@ const segmentCharges = [
     // All Models
     { name: "NITROGEN GAS FILLING", segment: 'ALL', charge: 200 },
     { name: "DOOR GLASS/ ADJUST/ L", segment: 'ALL', charge: 320 },
+    { name: "STRUT GREASING", segment: 'ALL', charge: 1650 },
+    { name: "HEADLAMP FOCUSSING", segment: 'ALL', charge: 400 },
+    { name: "ENGINE ROOM PAINTING", segment: 'ALL', charge: 400 },
+
     // Small Segment
     { name: "AC GAS TOP-UP", segment: 'SMALL', charge: 850 },
     { name: "AC GAS CHARGING", segment: 'SMALL', charge: 1000 },
     { name: "A/C SERVICING", segment: 'SMALL', charge: 1000 },
+
     // Medium Segment
     { name: "AC GAS TOP-UP", segment: 'MEDIUM', charge: 1200 },
     { name: "AC GAS CHARGING", segment: 'MEDIUM', charge: 1250 },
     { name: "A/C SERVICING", segment: 'MEDIUM', charge: 1250 },
+
     // Large Segment
     { name: "AC GAS TOP-UP", segment: 'LARGE', charge: 1450 },
     { name: "AC GAS CHARGING", segment: 'LARGE', charge: 1600 },
@@ -163,4 +169,4 @@ const customLabor = [...flattenedModelSpecificCharges, ...generatedCharges];
 const uniqueLabor = Array.from(new Map(customLabor.map(item => [`${item.model}-${item.name}`, item])).values());
 
 
-export default uniqueLabor;
+export const masterCustomLabor: Omit<CustomLabor, 'workshopId'>[] = uniqueLabor;

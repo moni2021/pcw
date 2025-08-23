@@ -1,8 +1,3 @@
-import type { CustomLabor } from '../../../types';
-
-// This file is ready for you to add custom labor charges specific to the NEXA Bijoynagar workshop.
-const customLabor: Omit<CustomLabor, 'workshopId'>[] = [
-  // Example: { name: 'A/C SERVICING', model: 'Baleno', charge: 2000 },
-];
-
-export default customLabor;
+// This file is intentionally blank.
+// All custom labor charges are now loaded from the master list in src/lib/data/workshops/arena-bijoynagar/custom-labor.ts
+// and applied dynamically based on vehicle segment.
