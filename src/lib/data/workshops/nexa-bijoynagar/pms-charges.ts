@@ -43,6 +43,7 @@ const pmsChargesRaw: Omit<PmsCharge, 'workshopId' | 'id'>[] = [
     // --- PMS 20/30/40/60/80/90 ---
     ...["Paid Service (20,000 km)", "Paid Service (30,000 km)", "Paid Service (40,000 km)", "Paid Service (60,000 km)", "Paid Service (80,000 km)", "Paid Service (90,000 km)"].flatMap(service => [
         { model: "Eeco", labourCode: "PMS-MIXED-A", labourDesc: service, basicAmt: 1595 },
+        { model: "Eeco Cargo", labourCode: "PMS-MIXED-A", labourDesc: service, basicAmt: 1595 },
         { model: "Fronx", labourCode: "PMS-MIXED-A", labourDesc: service, basicAmt: 1810 },
         { model: "Wagon R", labourCode: "PMS-MIXED-A", labourDesc: service, basicAmt: 1765 },
         { model: "Baleno", labourCode: "PMS-MIXED-A", labourDesc: service, basicAmt: 1810 },
@@ -61,6 +62,7 @@ const pmsChargesRaw: Omit<PmsCharge, 'workshopId' | 'id'>[] = [
     { model: "Alto K10", labourCode: "PMS-2P-30K", labourDesc: "Paid Service (30,000 km)", basicAmt: 1705 },
     { model: "Ertiga", labourCode: "PMS-2P-30K", labourDesc: "Paid Service (30,000 km)", basicAmt: 2005 },
     { model: "Eeco", labourCode: "PMS-2P-30K", labourDesc: "Paid Service (30,000 km)", basicAmt: 1540 }, // OMNI mapped to EECO
+    { model: "Eeco Cargo", labourCode: "PMS-2P-30K", labourDesc: "Paid Service (30,000 km)", basicAmt: 1540 },
     { model: "Fronx", labourCode: "PMS-2P-30K", labourDesc: "Paid Service (30,000 km)", basicAmt: 1755 },
     { model: "Baleno", labourCode: "PMS-2P-30K", labourDesc: "Paid Service (30,000 km)", basicAmt: 1755 },
     { model: "Alto 800", labourCode: "PMS-2P-30K", labourDesc: "Paid Service (30,000 km)", basicAmt: 1705 },
