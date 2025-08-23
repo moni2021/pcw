@@ -1,5 +1,6 @@
 import type { CustomLabor } from '../../../types';
 import { vehicles } from '@/lib/data';
+import { vehicleCategories } from '@/lib/vehicle-categories';
 
 // This file now contains custom labor charges for the ARENA - BIJOYNAGAR workshop.
 // It includes model-specific pricing for wheel services and a function for common services.
@@ -100,16 +101,63 @@ const modelSpecificCharges: { [model: string]: { name: string; charge: number }[
     ],
 };
 
-const customLabor: Omit<CustomLabor, 'workshopId'>[] = vehicles.flatMap(vehicle => {
-    const model = vehicle.model;
-    const charges = modelSpecificCharges[model] || [];
-    // Map the found charges to the CustomLabor format
+const segmentCharges = [
+    // All Models
+    { name: "NITROGEN GAS FILLING", segment: 'ALL', charge: 200 },
+    { name: "DOOR GLASS/ ADJUST/ L", segment: 'ALL', charge: 320 },
+    // Small Segment
+    { name: "AC GAS TOP-UP", segment: 'SMALL', charge: 850 },
+    { name: "AC GAS CHARGING", segment: 'SMALL', charge: 1000 },
+    { name: "A/C SERVICING", segment: 'SMALL', charge: 1000 },
+    // Medium Segment
+    { name: "AC GAS TOP-UP", segment: 'MEDIUM', charge: 1200 },
+    { name: "AC GAS CHARGING", segment: 'MEDIUM', charge: 1250 },
+    { name: "A/C SERVICING", segment: 'MEDIUM', charge: 1250 },
+    // Large Segment
+    { name: "AC GAS TOP-UP", segment: 'LARGE', charge: 1450 },
+    { name: "AC GAS CHARGING", segment: 'LARGE', charge: 1600 },
+    { name: "A/C SERVICING", segment: 'LARGE', charge: 1600 },
+];
+
+const allModels = vehicles.map(v => v.model);
+
+// Generate charges based on segments
+const generatedCharges: Omit<CustomLabor, 'workshopId'>[] = segmentCharges.flatMap(sc => {
+    let targetModels: string[] = [];
+
+    if (sc.segment === 'ALL') {
+        targetModels = allModels;
+    } else {
+        // Find vehicle models that are in the specified segment
+        const modelsInSegment = vehicles.filter(v => 
+            vehicleCategories[sc.segment as keyof typeof vehicleCategories]?.some(catModel => 
+                v.model.toUpperCase().includes(catModel) || catModel.includes(v.model.toUpperCase())
+            )
+        ).map(v => v.model);
+        targetModels = modelsInSegment;
+    }
+
+    return targetModels.map(model => ({
+        name: sc.name,
+        model: model,
+        charge: sc.charge
+    }));
+});
+
+
+// Flatten the model-specific charges from the existing object
+const flattenedModelSpecificCharges: Omit<CustomLabor, 'workshopId'>[] = Object.entries(modelSpecificCharges).flatMap(([model, charges]) => {
     return charges.map(charge => ({
         name: charge.name,
         model: model,
         charge: charge.charge
     }));
 });
+
+
+// Combine all charges
+const customLabor = [...flattenedModelSpecificCharges, ...generatedCharges];
+
 
 // Remove duplicates, giving model-specific charges higher priority
 const uniqueLabor = Array.from(new Map(customLabor.map(item => [`${item.model}-${item.name}`, item])).values());
