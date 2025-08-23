@@ -78,15 +78,17 @@ async function writeDataToFirebase(data: any, merge: boolean = false): Promise<{
     }
 }
 
-export async function syncToFirebase(data: any): Promise<{ success: boolean, error?: string }> {
-    const fullData = {
-        workshops,
-        vehicles,
-        parts: allParts,
-        customLabor: allCustomLabor,
-        pmsCharges: allPmsCharges,
-        threeMCare: threeMCareData,
-    };
+const getFullLocalData = () => ({
+    workshops,
+    vehicles,
+    parts: allParts,
+    customLabor: allCustomLabor,
+    pmsCharges: allPmsCharges,
+    threeMCare: threeMCareData,
+});
+
+export async function syncToFirebase(): Promise<{ success: boolean, error?: string }> {
+    const fullData = getFullLocalData();
     return writeDataToFirebase(fullData, false);
 }
 
@@ -117,7 +119,7 @@ export async function downloadMasterJson(dataType: DataType): Promise<string> {
     if (!db) {
       // Fallback to local data if DB not connected
       console.warn("Firebase not connected. Falling back to local data for download.");
-      const localData = { workshops, vehicles, parts: allParts, customLabor: allCustomLabor, pmsCharges: allPmsCharges, threeMCare: threeMCareData };
+      const localData = getFullLocalData();
       return JSON.stringify(localData[dataType] || {}, null, 2);
     }
 
@@ -135,17 +137,11 @@ export async function downloadMasterJson(dataType: DataType): Promise<string> {
 
 export async function getFullDataFromFirebase() {
     const db = getDb();
+    const localData = getFullLocalData();
     if (!db) {
         // Fallback to local data if DB isn't connected
         console.warn("Firebase not connected, returning local fallback data.");
-        return {
-            workshops,
-            vehicles,
-            parts: allParts,
-            customLabor: allCustomLabor,
-            pmsCharges: allPmsCharges,
-            threeMCare: threeMCareData,
-        };
+        return localData;
     }
     
     const docRef = db.collection('config').doc('app_data');
@@ -154,9 +150,10 @@ export async function getFullDataFromFirebase() {
     if (docSnap.exists()) {
         return docSnap.data() as any; // Cast as any to simplify usage on client
     } else {
-        // If no data in Firestore, return local data as a default
-        console.warn("No data in Firestore, returning local fallback data.");
-         return { workshops, vehicles, parts: allParts, customLabor: allCustomLabor, pmsCharges: allPmsCharges, threeMCare: threeMCareData, };
+        // If no data in Firestore, perform the initial sync and return local data.
+        console.warn("No data in Firestore. Performing initial sync and returning local data.");
+        await syncToFirebase();
+        return localData;
     }
 }
 
@@ -255,5 +252,3 @@ export async function updatePmsCharge(item: PmsCharge) {
 export async function deletePmsCharge(item: PmsCharge) {
     return updateArrayInFirebase('pmsCharges', item, 'delete', 'id');
 }
-
-    

@@ -48,15 +48,6 @@ export default function DataManagementPage() {
     const [converterWorkshop, setConverterWorkshop] = useState('');
     const setupCardRef = useRef<HTMLDivElement>(null);
 
-    const allData = {
-        workshops,
-        vehicles,
-        parts: allParts,
-        customLabor: allCustomLabor,
-        pmsCharges: allPmsCharges,
-        threeMCare: threeMCareData,
-    };
-
     const handleMasterDownload = async (dataType: DataType) => {
         try {
             const jsonString = await downloadMasterJson(dataType);
@@ -111,7 +102,7 @@ export default function DataManagementPage() {
     const handleSync = async () => {
         setIsSyncing(true);
         try {
-            const result = await syncToFirebase(allData);
+            const result = await syncToFirebase();
             if (result.success) {
                 toast({
                     title: 'Sync Successful',
