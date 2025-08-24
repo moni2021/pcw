@@ -41,7 +41,6 @@ export function LiveFeedbackTicker() {
     }
     
     // We render two lists side-by-side to create the seamless loop.
-    // The key difference is giving the cloned list a unique key.
     return (
       <>
         <div className="flex animate-marquee space-x-8">
@@ -72,3 +71,4 @@ export function LiveFeedbackTicker() {
     </div>
   );
 }
+
