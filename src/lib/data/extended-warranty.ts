@@ -2,7 +2,7 @@
 // This file defines the extended warranty coverage for various parts.
 
 export interface WarrantyPlan {
-    key: 'platinum' | 'royal_platinum' | 'solitaire';
+    key: 'platinum' | 'royal_platinum' | 'solitaire' | 'standard';
     name: string;
     years: number;
     kms: number;
@@ -17,6 +17,7 @@ export type WarrantyCoverage = {
 };
 
 export const warrantyPlans: WarrantyPlan[] = [
+    { key: 'standard', name: 'Standard Warranty', years: 2, kms: 40000 },
     { key: 'platinum', name: 'Platinum Plan', years: 4, kms: 120000 },
     { key: 'royal_platinum', name: 'Royal Platinum Plan', years: 5, kms: 140000 },
     { key: 'solitaire', name: 'Solitaire Plan', years: 6, kms: 160000 },
@@ -96,12 +97,18 @@ export function getWarrantyCoverage(model: string, planKey?: WarrantyPlan['key']
         : defaultCoveredParts;
 
     const selectedPlan = planKey ? warrantyPlans.find(p => p.key === planKey) : undefined;
+    
+    let conditionsText = 'Extended Warranty covers the cost of specified parts and associated labor for mechanical and electrical failures up to the selected plan\'s duration and mileage, whichever comes first.';
+    if (selectedPlan?.key === 'standard') {
+        conditionsText = 'Standard Manufacturer Warranty covers the repair or replacement of parts found to be defective due to manufacturing faults. It does not cover parts replaced during scheduled maintenance.';
+    }
+
 
     return {
         plan: selectedPlan,
         coveredParts: parts,
         conditions: {
-            text: 'Extended Warranty covers the cost of specified parts and associated labor for mechanical and electrical failures up to the selected plan\'s duration and mileage, whichever comes first.'
+            text: conditionsText,
         },
     };
 }

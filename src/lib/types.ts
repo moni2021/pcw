@@ -54,7 +54,7 @@ export const PmsChargeSchema = z.object({
 export type PmsCharge = z.infer<typeof PmsChargeSchema>;
 
 export const WarrantyPlanSchema = z.object({
-    key: z.enum(['platinum', 'royal_platinum', 'solitaire']),
+    key: z.enum(['platinum', 'royal_platinum', 'solitaire', 'standard']),
     name: z.string(),
     years: z.number(),
     kms: z.number(),

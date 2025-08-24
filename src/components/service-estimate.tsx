@@ -71,7 +71,7 @@ export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
     return getWarrantyCoverage(vehicle.model, warrantyPlanKey);
   }, [warrantyPlanKey, vehicle.model]);
 
-  const hasExtendedWarranty = !!warrantyPlanKey;
+  const isExtendedWarranty = warrantyPlanKey && warrantyPlanKey !== 'standard';
   
   useEffect(() => {
     let partsWithCorrectEngineOil = [...initialParts];
@@ -112,7 +112,8 @@ export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
   const pmsLaborCharge = useMemo(() => labor.reduce((sum, job) => sum + job.charge, 0), [labor]);
   
   const calculatePartPrice = (part: Part) => {
-    if (hasExtendedWarranty && warrantyCoverage.coveredParts.includes(part.name)) {
+    // Only apply extended warranty discount, not standard warranty
+    if (isExtendedWarranty && warrantyCoverage.coveredParts.includes(part.name)) {
         return 0; // Covered by warranty
     }
     const isEngineOil = allEngineOilParts.some(eo => eo.name === part.name);
@@ -122,7 +123,7 @@ export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
     return part.price;
   };
 
-  const partsTotal = useMemo(() => currentParts.reduce((sum, part) => sum + calculatePartPrice(part), 0), [currentParts, vehicle.engineOilLiters, hasExtendedWarranty, warrantyCoverage]);
+  const partsTotal = useMemo(() => currentParts.reduce((sum, part) => sum + calculatePartPrice(part), 0), [currentParts, vehicle.engineOilLiters, isExtendedWarranty, warrantyCoverage]);
   
   const recommendedLaborCharge = useMemo(() => selectedRecommended.reduce((sum, job) => sum + job.charge, 0), [selectedRecommended]);
   const optionalServiceCharge = useMemo(() => selectedOptional.reduce((sum, job) => sum + job.charge, 0), [selectedOptional]);
@@ -236,9 +237,9 @@ export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
         <Dialog open={isWarrantyDialogOpen} onOpenChange={setIsWarrantyDialogOpen}>
             <DialogContent className="max-w-md">
                 <DialogHeader>
-                    <DialogTitle>Extended Warranty Covered Parts</DialogTitle>
+                    <DialogTitle>Warranty Covered Parts</DialogTitle>
                     <DialogDescription>
-                        The following parts are generally covered under the {warrantyCoverage.plan?.name || 'Extended Warranty'} program for the {vehicle.model}. Final coverage is subject to verification.
+                        The following parts are generally covered under the {warrantyCoverage.plan?.name || 'Warranty'} program for the {vehicle.model}. Final coverage is subject to verification.
                     </DialogDescription>
                 </DialogHeader>
                 <ScrollArea className="max-h-[50vh] pr-4">
@@ -286,7 +287,7 @@ export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
           </div>
         </div>
 
-        {hasExtendedWarranty && warrantyCoverage.plan && (
+        {warrantyCoverage.plan && (
             <Alert variant="default" className="mb-4 bg-blue-500/10 border-blue-500/50">
                 <ShieldCheck className="h-4 w-4 text-blue-500" />
                  <div className="flex justify-between items-start">
@@ -296,7 +297,7 @@ export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
                             <p>{warrantyCoverage.conditions.text}</p>
                              <ul className="list-disc pl-5 mt-2 text-xs">
                                 <li>Coverage is subject to verification of warranty terms and vehicle inspection.</li>
-                                <li>Labor charges for covered parts are also waived. Consumables and non-covered items are chargeable.</li>
+                                {isExtendedWarranty && <li>Labor charges for covered parts are also waived. Consumables and non-covered items are chargeable.</li>}
                             </ul>
                         </AlertDescription>
                     </div>
@@ -328,7 +329,7 @@ export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
                            const isCoolant = allCoolantParts.some(c => c.name === part.name);
                            const isDiesel = vehicle.fuelType === 'Diesel';
                            const finalPrice = calculatePartPrice(part);
-                           const isCovered = finalPrice === 0 && hasExtendedWarranty;
+                           const isCovered = finalPrice === 0 && isExtendedWarranty;
 
                            const renderCellContent = () => {
                             if (isEngineOil && !isDiesel) {
