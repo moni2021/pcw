@@ -95,6 +95,7 @@ const pmsChargesRaw: Omit<PmsCharge, 'workshopId' | 'id'>[] = [
   { model: "Fronx", labourCode: "PMS-2P-30K", labourDesc: "Paid Service (30,000 km)", basicAmt: 1455 },
   { model: "Swift", labourCode: "PMS-2P-30K", labourDesc: "Paid Service (30,000 km)", basicAmt: 1465 }, // EPIC NEW SWIFT
   { model: "Swift", labourCode: "PMS-3FS-10K", labourDesc: "3rd Free Service (10,000 km)", basicAmt: 0 },
+  { model: "Brezza", labourCode: "PMS-120K", labourDesc: "Paid Service (120,000 km)", basicAmt: 1530 },
 ];
 
 const pmsCharges: Omit<PmsCharge, 'workshopId'>[] = pmsChargesRaw.map(charge => ({
