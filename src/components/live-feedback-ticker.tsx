@@ -28,11 +28,10 @@ export function LiveFeedbackTicker() {
   const enableMarquee = tickets.length >= 4;
 
   const marqueeTickets = useMemo(() => {
-    if (!enableMarquee) return tickets.map(t => ({ ...t, uniqueId: t.id }));
+    if (!enableMarquee) return tickets;
     
-    const original = tickets.map(ticket => ({ ...ticket, uniqueId: ticket.id }));
-    const cloned = tickets.map(ticket => ({ ...ticket, uniqueId: `${ticket.id}-clone` }));
-    return [...original, ...cloned];
+    // Duplicate the list for a seamless marquee effect
+    return [...tickets, ...tickets];
   }, [tickets, enableMarquee]);
 
   const renderContent = () => {
@@ -52,8 +51,8 @@ export function LiveFeedbackTicker() {
     
     return (
         <div className={cn("flex space-x-8", enableMarquee && "animate-marquee")}>
-            {marqueeTickets.map((ticket) => (
-                <div key={ticket.uniqueId} className="flex items-center space-x-2 whitespace-nowrap">
+            {marqueeTickets.map((ticket, index) => (
+                <div key={`${ticket.id}-${index}`} className="flex items-center space-x-2 whitespace-nowrap">
                     <MessageSquareDashed className="h-4 w-4 text-primary" />
                     <p className="font-semibold">{ticket.id}:</p>
                     <p className="text-muted-foreground">{ticket.feedback}</p>
