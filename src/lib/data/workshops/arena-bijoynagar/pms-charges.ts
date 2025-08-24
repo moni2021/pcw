@@ -1,10 +1,10 @@
 
 import type { PmsCharge } from '../../../types';
+import { vehicles } from '@/lib/data';
 
 const workshopId = 'arena-bijoynagar';
 
-// --- PMS CHARGES for arena-bijoynagar ---
-const pmsChargesRaw: Omit<PmsCharge, 'workshopId' | 'id'>[] = [
+const baseCharges: Omit<PmsCharge, 'workshopId' | 'id'>[] = [
     // --- Paid Service Group (30k, 50k, 70k, 90k, 100k, 110k, etc.) ---
     ...["Paid Service (30,000 km)", "Paid Service (50,000 km)", "Paid Service (70,000 km)", "Paid Service (90,000 km)", "Paid Service (100,000 km)", "Paid Service (110,000 km)", "Paid Service (130,000 km)", "Paid Service (150,000 km)", "Paid Service (170,000 km)", "Paid Service (190,000 km)", "Paid Service (210,000 km)"].flatMap(service => [
         { model: "Wagon R", labourCode: "PMS-GROUP-1", labourDesc: service, basicAmt: 1480 },
@@ -113,12 +113,51 @@ const pmsChargesRaw: Omit<PmsCharge, 'workshopId' | 'id'>[] = [
     ]),
 ];
 
+// --- LOGIC TO BACKFILL MISSING PRICES ---
+
+const allModels = vehicles.map(v => v.model);
+const pmsChargesMap = new Map<string, Omit<PmsCharge, 'workshopId' | 'id'>>();
+
+// Prefill map, last one wins
+baseCharges.forEach(charge => {
+    const key = `${charge.model}-${charge.labourDesc}`;
+    pmsChargesMap.set(key, charge);
+});
+
+allModels.forEach(model => {
+    // Handle 20k pattern
+    const price20k = pmsChargesMap.get(`${model}-Paid Service (20,000 km)`)?.basicAmt;
+    if (price20k !== undefined) {
+        const services20k = ["Paid Service (40,000 km)", "Paid Service (60,000 km)", "Paid Service (80,000 km)", "Paid Service (120,000 km)", "Paid Service (140,000 km)", "Paid Service (160,000 km)", "Paid Service (180,000 km)", "Paid Service (200,000 km)", "Paid Service (220,000 km)"];
+        services20k.forEach(service => {
+            const key = `${model}-${service}`;
+            if (!pmsChargesMap.has(key)) {
+                pmsChargesMap.set(key, { model, labourDesc: service, labourCode: `PMS-AUTO-20K`, basicAmt: price20k });
+            }
+        });
+    }
+
+    // Handle 30k pattern
+    const price30k = pmsChargesMap.get(`${model}-Paid Service (30,000 km)`)?.basicAmt;
+    if (price30k !== undefined) {
+        const services30k = ["Paid Service (50,000 km)", "Paid Service (70,000 km)", "Paid Service (90,000 km)", "Paid Service (100,000 km)", "Paid Service (110,000 km)", "Paid Service (130,000 km)", "Paid Service (150,000 km)", "Paid Service (170,000 km)", "Paid Service (190,000 km)", "Paid Service (210,000 km)"];
+        services30k.forEach(service => {
+            const key = `${model}-${service}`;
+            if (!pmsChargesMap.has(key)) {
+                pmsChargesMap.set(key, { model, labourDesc: service, labourCode: `PMS-AUTO-30K`, basicAmt: price30k });
+            }
+        });
+    }
+});
+
+
+const pmsChargesRaw = Array.from(pmsChargesMap.values());
+
 const pmsCharges: Omit<PmsCharge, 'workshopId'>[] = pmsChargesRaw.map(charge => ({
     ...charge,
     id: `${workshopId}-${charge.model}-${charge.labourDesc}`.toLowerCase().replace(/[^a-z0-9-]/g, '')
 }));
 
-// Remove duplicates, giving preference to the last entry for a given id
 const uniquePmsCharges = Array.from(new Map(pmsCharges.map(item => [item.id, item])).values());
 
 export default uniquePmsCharges;
