@@ -76,7 +76,7 @@ const getFullLocalData = () => ({
 
 // --- Admin-Only Actions (use Admin SDK) ---
 
-async function writeDataToFirebase(collection: string, docId: string, data: any, merge: boolean = false): Promise<{ success: boolean, error?: string }> {
+async function writeDataToFirebase(collectionName: string, docId: string, data: any, merge: boolean = false): Promise<{ success: boolean, error?: string }> {
      const db = getAdminDb();
      if (!db) {
         const errorMessage = "Service account key is not configured. Cannot sync with Firebase.";
@@ -85,9 +85,9 @@ async function writeDataToFirebase(collection: string, docId: string, data: any,
     }
     
     try {
-        const docRef = db.collection(collection).doc(docId);
+        const docRef = db.collection(collectionName).doc(docId);
         await docRef.set(data, { merge });
-        console.log(`Data successfully written to Firebase Firestore in ${collection}/${docId}.`);
+        console.log(`Data successfully written to Firebase Firestore in ${collectionName}/${docId}.`);
         return { success: true };
     } catch (error: any) {
         console.error('Error writing data to Firebase:', error);
@@ -256,12 +256,12 @@ export async function updateCustomLabor(originalItem: CustomLabor, updatedItem: 
 }
 export async function deleteCustomLabor(item: CustomLabor) { return updateCustomLaborArray(item, 'delete'); }
 
-export async function addPmsCharge(item: PmsCharge) { return updateArrayInFirebase('pmsCharges', item, 'id'); }
+export async function addPmsCharge(item: PmsCharge) { return updateArrayInFirebase('pmsCharges', item, 'add', 'id'); }
 export async function updatePmsCharge(item: PmsCharge) { return updateArrayInFirebase('pmsCharges', item, 'update', 'id'); }
 export async function deletePmsCharge(item: PmsCharge) { return updateArrayInFirebase('pmsCharges', item, 'delete', 'id'); }
 
 
-// --- Public-Facing Actions (use Client SDK) ---
+// --- Public-Facing Actions (use Client SDK for read/write, Admin for privileged ops) ---
 
 export async function addFeedback(data: Omit<Feedback, 'id' | 'createdAt' | 'status'>): Promise<{ success: boolean; id?: string; error?: string }> {
     try {
@@ -292,7 +292,6 @@ export async function getFeedback(): Promise<{ success: boolean, data?: Feedback
 
         const feedbackList: Feedback[] = snapshot.docs.map(doc => {
             const data = doc.data();
-            // Convert Firestore Timestamp to Date object for client-side usage
             const createdAt = data.createdAt?.toDate ? data.createdAt.toDate() : new Date();
             return { ...data, createdAt } as Feedback;
         });
@@ -304,16 +303,17 @@ export async function getFeedback(): Promise<{ success: boolean, data?: Feedback
     }
 }
 
-export async function updateFeedbackStatus(docId: string, status: 'Open' | 'Resolved'): Promise<{ success: boolean; error?: string }> {
+export async function updateFeedbackStatus(ticketId: string, status: 'Open' | 'Resolved'): Promise<{ success: boolean; error?: string }> {
     const db = getAdminDb(); // Use Admin SDK for this to ensure only admins can do it
-    if (!db) return { success: false, error: 'Database not connected.' };
+    if (!db) return { success: false, error: 'Database not connected. Please configure service account key.' };
 
     try {
-        const q = db.collection('feedback').where('id', '==', docId).limit(1);
+        // Since the user-friendly ID is `id`, we query by it to find the actual document ID.
+        const q = db.collection('feedback').where('id', '==', ticketId).limit(1);
         const querySnapshot = await q.get();
 
         if (querySnapshot.empty) {
-            return { success: false, error: 'Feedback ticket not found.' };
+            return { success: false, error: `Feedback ticket with ID ${ticketId} not found.` };
         }
         
         const docToUpdate = querySnapshot.docs[0].ref;
