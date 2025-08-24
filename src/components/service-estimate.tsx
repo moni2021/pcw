@@ -301,7 +301,7 @@ export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
           </div>
 
           <div className="space-y-2 mb-4">
-              {isUnderStandardWarranty && (
+              {isUnderStandardWarranty && standardWarrantyCoverage.plan && (
                   <Tooltip>
                       <TooltipTrigger asChild>
                           <div onClick={() => handleWarrantyClick(standardWarrantyCoverage)} className="cursor-pointer">

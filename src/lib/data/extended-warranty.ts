@@ -142,11 +142,14 @@ export function getWarrantyCoverage(model: string, planKey?: WarrantyPlan['key']
 
     const selectedPlan = planKey ? warrantyPlans.find(p => p.key === planKey) : undefined;
     
-    let conditionsText = 'Extended Warranty covers the cost of specified parts and associated labor for mechanical and electrical failures up to the selected plan\'s duration and mileage, whichever comes first.';
-    if (selectedPlan?.key === 'standard') {
-        conditionsText = 'Standard Manufacturer Warranty covers the repair or replacement of parts found to be defective due to manufacturing faults. It does not cover parts replaced during scheduled maintenance.';
+    let conditionsText = "No warranty selected.";
+    if (selectedPlan) {
+        if (selectedPlan.key === 'standard') {
+            conditionsText = `Covers manufacturing defects up to ${selectedPlan.years} years or ${selectedPlan.kms.toLocaleString()} km, whichever comes first. Excludes consumables.`;
+        } else {
+            conditionsText = `Covers specified parts and labor up to ${selectedPlan.years} years or ${selectedPlan.kms.toLocaleString()} km, whichever comes first. Excludes consumables and accident damage.`;
+        }
     }
-
 
     return {
         plan: selectedPlan,
