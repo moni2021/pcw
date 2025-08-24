@@ -25,62 +25,108 @@ export const warrantyPlans: WarrantyPlan[] = [
 
 // Define default warranty coverage (parts list)
 const defaultCoveredParts: string[] = [
-    // Engine Components
-    'Engine Control Module (ECM)',
-    'Fuel Injectors',
-    'Turbocharger Assembly',
-    'Alternator Assembly',
-    'Starter Motor Assembly',
+    // --- Engine ---
+    'Engine Cylinder Head',
+    'Cylinder Block/Liner',
+    'Crankshaft & Bearings',
+    'Camshaft & Valve Train',
+    'Pistons, Piston Rings & Pins',
+    'Connecting Rods & Bearings',
+    'Engine Oil Pump Assembly',
+    'Timing Belt/Chain & Tensioner',
+    'Flywheel/Flexplate',
+    'Engine Mounts',
     'Water Pump Assembly',
-    'Ignition Coils',
+    'Thermostat & Housing',
+    'Turbocharger/Supercharger Assembly',
+    'Engine Control Module (ECM)',
     'Crankshaft Position Sensor',
     'Camshaft Position Sensor',
-    'Oxygen Sensor',
+    'Knock Sensor',
+    'Oxygen (O2) Sensor',
+    'Mass Airflow (MAF) Sensor',
     
-    // Transmission Components
+    // --- Fuel System ---
+    'Fuel Pump (In-tank)',
+    'Fuel Injectors',
+    'Fuel Rail & Pressure Regulator',
+    
+    // --- Transmission ---
+    'Transmission Case & All Internal Parts',
+    'Torque Converter',
     'Transmission Control Module (TCM)',
+    'Automatic Transmission Solenoids',
     'Clutch Master Cylinder',
     'Clutch Slave Cylinder',
-    'Automatic Transmission Solenoids',
+    'Driveshafts & CV Joints',
+    'Propeller Shaft & U-Joints',
 
-    // Steering & Suspension
-    'Power Steering Module',
+    // --- Steering System ---
     'Steering Rack and Pinion Assembly',
-    'Front Strut Assembly',
-    'Rear Shock Absorber',
+    'Power Steering Pump',
+    'Power Steering Module',
+    'Steering Column & Shaft',
 
-    // Braking System
+    // --- Suspension System ---
+    'Front Strut Assembly (MacPherson)',
+    'Rear Shock Absorber',
+    'Control Arms & Bushings',
+    'Ball Joints',
+    'Stabilizer Bar, Links & Bushings',
+
+    // --- Braking System ---
     'ABS Actuator and Control Unit',
     'Brake Master Cylinder',
+    'Brake Booster',
+    'Wheel Speed Sensors',
 
-    // Electricals
+    // --- Electrical System ---
+    'Alternator Assembly',
+    'Starter Motor Assembly',
+    'Ignition Coils',
     'Body Control Module (BCM)',
-    'Power Window Motors',
-    'Wiper Motor Assembly',
-    
-    // Fluids related to covered repairs
+    'Power Window Motors & Regulators',
+    'Wiper Motor Assembly (Front & Rear)',
+    'Instrument Cluster',
+    'Airbag Module & Crash Sensors (excluding deployment)',
+
+    // --- Air Conditioning ---
+    'A/C Compressor & Clutch',
+    'Evaporator Core',
+    'Condenser',
+    'Heater Core',
+
+    // --- Fluids ---
+    // Fluids are covered only when required as part of a covered repair
     'Transmission Fluid',
     'Transfer Case Oil',
     'Differential Oil',
     'Hybrid Transaxle Fluid',
+    'Engine Coolant',
+    'Power Steering Fluid',
 ];
 
-// Define model-specific overrides if any
+// Define model-specific additions or overrides
 const warrantyByModel: { [model: string]: { coveredParts: string[] } } = {
     "Grand Vitara": {
         coveredParts: [
-            ...defaultCoveredParts,
-            'Hybrid Transaxle Fluid',
             'Hybrid Battery Assembly',
-            'Inverter with Converter Assembly'
+            'Inverter with Converter Assembly',
+            'Electric Water Pump (for Hybrid system)',
+        ],
+    },
+    "Invicto": {
+        coveredParts: [
+            'Hybrid Battery Assembly',
+            'Inverter with Converter Assembly',
+            'Electric Water Pump (for Hybrid system)',
         ],
     },
     "Jimny": {
         coveredParts: [
-            ...defaultCoveredParts,
-            'Transfer Case Oil',
-            'Differential Oil',
-            '4WD Controller'
+            'Transfer Case Assembly & All Internal Parts',
+            'Differential Assembly (Front & Rear)',
+            '4WD Controller/Module',
         ]
     }
 };
@@ -91,10 +137,8 @@ const warrantyByModel: { [model: string]: { coveredParts: string[] } } = {
  * @returns The applicable warranty coverage.
  */
 export function getWarrantyCoverage(model: string, planKey?: WarrantyPlan['key']): WarrantyCoverage {
-    const modelSpecificParts = warrantyByModel[model]?.coveredParts;
-    const parts = modelSpecificParts 
-        ? Array.from(new Set([...defaultCoveredParts, ...modelSpecificParts])).sort()
-        : defaultCoveredParts;
+    const modelSpecificParts = warrantyByModel[model]?.coveredParts || [];
+    const parts = Array.from(new Set([...defaultCoveredParts, ...modelSpecificParts])).sort();
 
     const selectedPlan = planKey ? warrantyPlans.find(p => p.key === planKey) : undefined;
     
