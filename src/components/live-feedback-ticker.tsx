@@ -55,7 +55,8 @@ export function LiveFeedbackTicker() {
                 <div key={`${ticket.id}-${index}`} className="flex items-center space-x-2 whitespace-nowrap">
                     <MessageSquareDashed className="h-4 w-4 text-primary" />
                     <p className="font-semibold">{ticket.id}:</p>
-                    <p className="text-muted-foreground">{ticket.feedback}</p>
+                    <p className="text-muted-foreground truncate max-w-xs">"{ticket.feedback}"</p>
+                    <p className="text-xs text-muted-foreground/80">- {ticket.name}</p>
                 </div>
             ))}
         </div>
