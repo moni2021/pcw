@@ -11,7 +11,7 @@ import { ServiceEstimate } from './service-estimate';
 import type { ServiceEstimateData, WarrantyPlan } from '@/lib/types';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Loader2, Car, Tag, Building2, Droplets, Info, Check, ChevronsUpDown, AlertCircle, ShieldCheck } from 'lucide-react';
-import { Separator } from './ui/separator';
+import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 import { useTheme } from '@/context/ThemeContext';
 import { getPmsLabor, getRecommendedLabor, getOptionalServices } from '@/lib/workshop-data-loader';
@@ -210,12 +210,6 @@ export function VehicleServiceForm() {
       const pmsLabor = getPmsLabor(selectedModel, selectedServiceType, selectedWorkshop);
       const recommendedServices = getRecommendedLabor(selectedModel, selectedWorkshop, selectedServiceType);
       const optionalServices = getOptionalServices(selectedModel, selectedWorkshop);
-      
-      let finalWarrantyKey = selectedWarranty;
-      // If no extended warranty is selected but the vehicle is under standard warranty, set the key.
-      if (selectedWarranty === 'none' && isUnderStandardWarranty) {
-          finalWarrantyKey = 'standard';
-      }
 
       const newEstimate: ServiceEstimateData = {
         workshopId: selectedWorkshop,
@@ -230,7 +224,8 @@ export function VehicleServiceForm() {
           engineOilQuantity: vehicleInfo.engineOilQuantity,
         },
         serviceType: selectedServiceType,
-        warrantyPlanKey: finalWarrantyKey === 'none' ? undefined : finalWarrantyKey,
+        warrantyPlanKey: selectedWarranty === 'none' ? undefined : selectedWarranty,
+        isUnderStandardWarranty: isUnderStandardWarranty,
         parts: serviceDetails?.parts || [],
         labor: pmsLabor,
         recommendedLabor: recommendedServices,
@@ -393,7 +388,7 @@ export function VehicleServiceForm() {
             )}
           </div>
           
-           {isWarrantyOptionVisible && !isUnderStandardWarranty && (
+           {isWarrantyOptionVisible && (
                <div className="space-y-2">
                     <Label htmlFor="extended-warranty">Extended Warranty Plan</Label>
                     <Select value={selectedWarranty} onValueChange={(value) => setSelectedWarranty(value as any)}>
@@ -401,21 +396,14 @@ export function VehicleServiceForm() {
                         <SelectValue placeholder="Select a warranty plan" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="none">No Warranty</SelectItem>
+                        <SelectItem value="none">No Extended Warranty</SelectItem>
                         {warrantyPlans.filter(p => p.key !== 'standard').map(plan => (
-                          <SelectItem key={plan.key} value={plan.key}>{plan.name} ({plan.years}Y/{plan.kms/1000}k km)</SelectItem>
+                          <SelectItem key={plan.key} value={plan.key} disabled={isUnderStandardWarranty && plan.key !=='none'}>{plan.name} ({plan.years}Y/{plan.kms/1000}k km)</SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
+                    {isUnderStandardWarranty && <p className="text-xs text-muted-foreground">Extended warranty can be selected after the standard warranty period.</p>}
                 </div>
-            )}
-            
-            {isUnderStandardWarranty && (
-                <Alert variant="default" className="bg-green-500/10 border-green-500/50">
-                    <ShieldCheck className="h-4 w-4 text-green-600" />
-                    <AlertTitle className="text-green-700">Standard Warranty Active</AlertTitle>
-                    <AlertDescription className="text-green-700/80">This vehicle is within the standard 2-year manufacturer warranty period.</AlertDescription>
-                </Alert>
             )}
 
           {error && (

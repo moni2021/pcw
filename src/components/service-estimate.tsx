@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/componen
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Separator } from '@/components/ui/separator';
 import { Percent, PlusCircle, Sparkles, Wrench, Package, Hammer, MinusCircle, ChevronDown, ChevronUp, Printer, Bot, AlertCircle, ShieldCheck, View } from 'lucide-react';
-import type { ServiceEstimateData, Labor, Part, WarrantyPlan } from '@/lib/types';
+import type { ServiceEstimateData, Labor, Part, WarrantyPlan, WarrantyCoverage } from '@/lib/types';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Input } from '@/components/ui/input';
@@ -24,6 +24,7 @@ import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 import { getWarrantyCoverage } from '@/lib/data/extended-warranty';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { ScrollArea } from './ui/scroll-area';
+import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip';
 
 
 interface ServiceEstimateProps {
@@ -50,7 +51,7 @@ const allCoolantParts = allParts.filter(part => part.name.toLowerCase().includes
 
 export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
   const { toast } = useToast();
-  const { vehicle, serviceType, parts: initialParts, labor, recommendedLabor, optionalServices, workshopId, warrantyPlanKey } = estimate;
+  const { vehicle, serviceType, parts: initialParts, labor, recommendedLabor, optionalServices, workshopId, warrantyPlanKey, isUnderStandardWarranty } = estimate;
   const GST_RATE = 0.18;
 
   const [currentParts, setCurrentParts] = useState<Part[]>(initialParts);
@@ -65,13 +66,19 @@ export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
   const [showOptional, setShowOptional] = useState(false);
   const [isGeneratingScript, setIsGeneratingScript] = useState(false);
   const [customerScript, setCustomerScript] = useState('');
-  const [isWarrantyDialogOpen, setIsWarrantyDialogOpen] = useState(false);
   
-  const warrantyCoverage = useMemo(() => {
+  const [isWarrantyDialogOpen, setIsWarrantyDialogOpen] = useState(false);
+  const [warrantyDialogContent, setWarrantyDialogContent] = useState<WarrantyCoverage | null>(null);
+
+  const standardWarrantyCoverage = useMemo(() => {
+    return getWarrantyCoverage(vehicle.model, 'standard');
+  }, [vehicle.model]);
+
+  const extendedWarrantyCoverage = useMemo(() => {
     return getWarrantyCoverage(vehicle.model, warrantyPlanKey);
   }, [warrantyPlanKey, vehicle.model]);
 
-  const isExtendedWarranty = warrantyPlanKey && warrantyPlanKey !== 'standard';
+  const isExtendedWarrantyActive = !!extendedWarrantyCoverage.plan;
   
   useEffect(() => {
     let partsWithCorrectEngineOil = [...initialParts];
@@ -113,7 +120,7 @@ export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
   
   const calculatePartPrice = (part: Part) => {
     // Only apply extended warranty discount, not standard warranty
-    if (isExtendedWarranty && warrantyCoverage.coveredParts.includes(part.name)) {
+    if (isExtendedWarrantyActive && extendedWarrantyCoverage.coveredParts.includes(part.name)) {
         return 0; // Covered by warranty
     }
     const isEngineOil = allEngineOilParts.some(eo => eo.name === part.name);
@@ -123,7 +130,7 @@ export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
     return part.price;
   };
 
-  const partsTotal = useMemo(() => currentParts.reduce((sum, part) => sum + calculatePartPrice(part), 0), [currentParts, vehicle.engineOilLiters, isExtendedWarranty, warrantyCoverage]);
+  const partsTotal = useMemo(() => currentParts.reduce((sum, part) => sum + calculatePartPrice(part), 0), [currentParts, vehicle.engineOilLiters, isExtendedWarrantyActive, extendedWarrantyCoverage]);
   
   const recommendedLaborCharge = useMemo(() => selectedRecommended.reduce((sum, job) => sum + job.charge, 0), [selectedRecommended]);
   const optionalServiceCharge = useMemo(() => selectedOptional.reduce((sum, job) => sum + job.charge, 0), [selectedOptional]);
@@ -230,6 +237,11 @@ export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
     }
   }
 
+  const handleWarrantyClick = (coverage: WarrantyCoverage) => {
+      setWarrantyDialogContent(coverage);
+      setIsWarrantyDialogOpen(true);
+  }
+
   const isPmsPriceMissing = labor.length === 0 && serviceType.startsWith('Paid Service');
 
   return (
@@ -237,14 +249,14 @@ export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
         <Dialog open={isWarrantyDialogOpen} onOpenChange={setIsWarrantyDialogOpen}>
             <DialogContent className="max-w-md">
                 <DialogHeader>
-                    <DialogTitle>Warranty Covered Parts</DialogTitle>
+                    <DialogTitle>{warrantyDialogContent?.plan?.name || 'Warranty'} Coverage</DialogTitle>
                     <DialogDescription>
-                        The following parts are generally covered under the {warrantyCoverage.plan?.name || 'Warranty'} program for the {vehicle.model}. Final coverage is subject to verification.
+                        The following parts are generally covered under this program for the {vehicle.model}. Final coverage is subject to verification.
                     </DialogDescription>
                 </DialogHeader>
                 <ScrollArea className="max-h-[50vh] pr-4">
                     <ul className="list-disc list-inside space-y-2 text-sm text-muted-foreground">
-                        {warrantyCoverage.coveredParts.map((part, index) => (
+                        {warrantyDialogContent?.coveredParts.map((part, index) => (
                             <li key={index}>{part}</li>
                         ))}
                     </ul>
@@ -287,26 +299,41 @@ export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
           </div>
         </div>
 
-        {warrantyCoverage.plan && (
-            <Alert variant="default" className="mb-4 bg-blue-500/10 border-blue-500/50">
-                <ShieldCheck className="h-4 w-4 text-blue-500" />
-                 <div className="flex justify-between items-start">
-                    <div>
-                        <AlertTitle className="text-blue-700">{warrantyCoverage.plan.name} Active</AlertTitle>
-                        <AlertDescription className="text-blue-700/80">
-                            <p>{warrantyCoverage.conditions.text}</p>
-                             <ul className="list-disc pl-5 mt-2 text-xs">
-                                <li>Coverage is subject to verification of warranty terms and vehicle inspection.</li>
-                                {isExtendedWarranty && <li>Labor charges for covered parts are also waived. Consumables and non-covered items are chargeable.</li>}
-                            </ul>
-                        </AlertDescription>
-                    </div>
-                    <Button variant="outline" size="sm" onClick={() => setIsWarrantyDialogOpen(true)} className="ml-4 shrink-0">
-                        <View className="mr-2 h-4 w-4" /> View Covered Parts
-                    </Button>
-                </div>
-            </Alert>
-        )}
+        <div className="space-y-2 mb-4">
+            {isUnderStandardWarranty && (
+                <Tooltip>
+                    <TooltipTrigger asChild>
+                        <div onClick={() => handleWarrantyClick(standardWarrantyCoverage)} className="cursor-pointer">
+                            <Alert variant="default" className="bg-green-500/10 border-green-500/50">
+                                <ShieldCheck className="h-4 w-4 text-green-500" />
+                                <AlertTitle className="text-green-700">Standard Warranty Active</AlertTitle>
+                                <AlertDescription className="text-green-700/80">This vehicle is within its standard warranty period. Click to see covered parts.</AlertDescription>
+                            </Alert>
+                        </div>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                        <p>{standardWarrantyCoverage.conditions.text}</p>
+                    </TooltipContent>
+                </Tooltip>
+            )}
+
+            {isExtendedWarrantyActive && (
+                 <Tooltip>
+                    <TooltipTrigger asChild>
+                        <div onClick={() => handleWarrantyClick(extendedWarrantyCoverage)} className="cursor-pointer">
+                            <Alert variant="default" className="bg-blue-500/10 border-blue-500/50">
+                                <ShieldCheck className="h-4 w-4 text-blue-500" />
+                                <AlertTitle className="text-blue-700">{extendedWarrantyCoverage.plan?.name} Active</AlertTitle>
+                                <AlertDescription className="text-blue-700/80">This vehicle is covered under an extended warranty plan. Click to see details.</AlertDescription>
+                            </Alert>
+                        </div>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                         <p>{extendedWarrantyCoverage.conditions.text}</p>
+                    </TooltipContent>
+                </Tooltip>
+            )}
+        </div>
 
         <Separator className="my-4" />
 
@@ -329,7 +356,7 @@ export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
                            const isCoolant = allCoolantParts.some(c => c.name === part.name);
                            const isDiesel = vehicle.fuelType === 'Diesel';
                            const finalPrice = calculatePartPrice(part);
-                           const isCovered = finalPrice === 0 && isExtendedWarranty;
+                           const isCovered = finalPrice === 0 && isExtendedWarrantyActive;
 
                            const renderCellContent = () => {
                             if (isEngineOil && !isDiesel) {
@@ -385,11 +412,11 @@ export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
                            }
 
                            return (
-                               <TableRow key={`part-${index}`} className={isCovered ? 'bg-green-500/10' : ''}>
+                               <TableRow key={`part-${index}`} className={isCovered ? 'bg-blue-500/10' : ''}>
                                    <TableCell>
                                        <div className="flex flex-col">
                                             {renderCellContent()}
-                                            {isCovered && <Badge variant="outline" className="mt-1 w-fit border-green-500 text-green-600"><ShieldCheck className="mr-1 h-3 w-3" /> Covered by Warranty</Badge>}
+                                            {isCovered && <Badge variant="outline" className="mt-1 w-fit border-blue-500 text-blue-600"><ShieldCheck className="mr-1 h-3 w-3" /> Covered by Warranty</Badge>}
                                        </div>
                                    </TableCell>
                                    <TableCell className="text-right font-mono">

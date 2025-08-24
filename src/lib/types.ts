@@ -61,6 +61,15 @@ export const WarrantyPlanSchema = z.object({
 });
 export type WarrantyPlan = z.infer<typeof WarrantyPlanSchema>;
 
+export const WarrantyCoverageSchema = z.object({
+    plan: WarrantyPlanSchema.optional(),
+    coveredParts: z.array(z.string()),
+    conditions: z.object({
+        text: z.string(),
+    }),
+});
+export type WarrantyCoverage = z.infer<typeof WarrantyCoverageSchema>;
+
 export type DataObjectType = Workshop | Part | Vehicle | CustomLabor | PmsCharge | Feedback;
 
 export const ServiceSchema = z.object({
@@ -89,6 +98,7 @@ export const ServiceEstimateDataSchema = z.object({
     }),
     serviceType: z.string(),
     warrantyPlanKey: WarrantyPlanSchema.shape.key.optional(),
+    isUnderStandardWarranty: z.boolean(),
     parts: z.array(PartSchema),
     labor: z.array(LaborSchema),
     recommendedLabor: z.array(LaborSchema).optional(),
