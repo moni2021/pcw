@@ -144,10 +144,13 @@ export function getWarrantyCoverage(model: string, planKey?: WarrantyPlan['key']
     
     let conditionsText = "No warranty selected.";
     if (selectedPlan) {
+        const baseText = `Covers specified parts up to ${selectedPlan.years} years or ${selectedPlan.kms.toLocaleString()} km, whichever comes first.`;
+        const exclusions = `Excludes consumables, accident damage, and issues from improper maintenance. Regular servicing as per the schedule is required to keep the warranty valid.`;
+        
         if (selectedPlan.key === 'standard') {
-            conditionsText = `Covers manufacturing defects up to ${selectedPlan.years} years or ${selectedPlan.kms.toLocaleString()} km, whichever comes first. Excludes consumables.`;
+             conditionsText = `Covers manufacturing defects up to ${selectedPlan.years} years or ${selectedPlan.kms.toLocaleString()} km, whichever comes first. Regular servicing is mandatory to keep the warranty active.`;
         } else {
-            conditionsText = `Covers specified parts and labor up to ${selectedPlan.years} years or ${selectedPlan.kms.toLocaleString()} km, whichever comes first. Excludes consumables and accident damage.`;
+             conditionsText = `${baseText} ${exclusions}`;
         }
     }
 
