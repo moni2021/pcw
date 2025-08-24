@@ -19,9 +19,12 @@ const pmsChargesRaw: Omit<PmsCharge, 'workshopId' | 'id'>[] = [
         { model: "Ritz", labourCode: "PMS-1P-MULTI", labourDesc: service, basicAmt: 1215 }, // A-STAR mapped to Ritz
         { model: "Ignis", labourCode: "PMS-1P-MULTI", labourDesc: service, basicAmt: 1705 },
         { model: "Alto K10", labourCode: "PMS-1P-MULTI", labourDesc: service, basicAmt: 1610 },
+        { model: "Brezza", labourCode: "PMS-1P-MULTI", labourDesc: service, basicAmt: 1880 },
+        { model: "S-Cross", labourCode: "PMS-1P-MULTI", labourDesc: service, basicAmt: 1985 },
+        { model: "Ertiga", labourCode: "PMS-1P-MULTI", labourDesc: service, basicAmt: 2005 },
     ]),
     // --- PMS-2P 20K/40K/60K/80K ---
-    ...["Paid Service (20,000 km)", "Paid Service (40,000 km)", "Paid Service (60,000 km)", "Paid Service (80,000 km)"].flatMap(service => [
+    ...["Paid Service (20,000 km)", "Paid Service (40,000 km)", "Paid Service (60,000 km)", "Paid Service (80,000 km)", "Paid Service (120,000 km)", "Paid Service (140,000 km)", "Paid Service (160,000 km)", "Paid Service (180,000 km)", "Paid Service (200,000 km)", "Paid Service (220,000 km)"].flatMap(service => [
         { model: "Jimny", labourCode: "PMS-2P-MULTI", labourDesc: service, basicAmt: 1970 },
         { model: "Celerio", labourCode: "PMS-2P-MULTI", labourDesc: service, basicAmt: 1735 },
         { model: "Dzire", labourCode: "PMS-2P-MULTI", labourDesc: service, basicAmt: 1800 },
@@ -34,6 +37,8 @@ const pmsChargesRaw: Omit<PmsCharge, 'workshopId' | 'id'>[] = [
         { model: "Ignis", labourCode: "PMS-2P-MULTI", labourDesc: service, basicAmt: 1800 },
         { model: "XL6", labourCode: "PMS-2P-MULTI", labourDesc: service, basicAmt: 2025 },
         { model: "Grand Vitara", labourCode: "PMS-2P-MULTI", labourDesc: service, basicAmt: 1970 },
+        { model: "Ciaz", labourCode: "PMS-2P-MULTI", labourDesc: service, basicAmt: 1870 },
+        { model: "Ertiga", labourCode: "PMS-2P-MULTI", labourDesc: service, basicAmt: 2025 },
     ]),
     // --- PMS-1D 20K/40K/50K/70K/80K/100K/110K ---
     ...["Paid Service (20,000 km)", "Paid Service (40,000 km)", "Paid Service (50,000 km)", "Paid Service (70,000 km)", "Paid Service (80,000 km)", "Paid Service (100,000 km)", "Paid Service (110,000 km)"].flatMap(service => [

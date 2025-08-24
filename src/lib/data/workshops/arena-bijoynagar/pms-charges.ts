@@ -44,6 +44,10 @@ const pmsChargesRaw: Omit<PmsCharge, 'workshopId' | 'id'>[] = [
         { model: "Ciaz", labourCode: "PMS-GROUP-2", labourDesc: service, basicAmt: 1615 },
         { model: "XL6", labourCode: "PMS-GROUP-2", labourDesc: service, basicAmt: 1700 },
         { model: "Super Carry", labourCode: "PMS-GROUP-2", labourDesc: service, basicAmt: 600 },
+        { model: "Ritz", labourCode: "PMS-GROUP-2", labourDesc: service, basicAmt: 1515 },
+        { model: "S-Cross", labourCode: "PMS-GROUP-2", labourDesc: service, basicAmt: 1615 },
+        { model: "Grand Vitara", labourCode: "PMS-GROUP-2", labourDesc: service, basicAmt: 1500 },
+        { model: "Jimny", labourCode: "PMS-GROUP-2", labourDesc: service, basicAmt: 1515 },
     ]),
      // --- PMS-1P 30K/50K/70K/90K/100K/110K from image ---
     ...["Paid Service (30,000 km)", "Paid Service (50,000 km)", "Paid Service (70,000 km)", "Paid Service (90,000 km)", "Paid Service (100,000 km)", "Paid Service (110,000 km)"].flatMap(service => [

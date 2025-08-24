@@ -19,7 +19,7 @@ const pmsChargesRaw: Omit<PmsCharge, 'workshopId' | 'id'>[] = [
     { model: "Alto K10", labourCode: "PMS-1P-MULTI", labourDesc: service, basicAmt: 1335 },
     { model: "Baleno", labourCode: "PMS-1P-MULTI", labourDesc: service, basicAmt: 1400 },
     { model: "Eeco", labourCode: "PMS-1P-MULTI", labourDesc: service, basicAmt: 1180 }, // OMNI mapped to EECO
-    { model: "EecoCargo", labourCode: "PMS-1P-MULTI", labourDesc: service, basicAmt: 1180 }, // OMNI mapped to EECO
+    { model: "Eeco Cargo", labourCode: "PMS-1P-MULTI", labourDesc: service, basicAmt: 1180 }, // OMNI mapped to EECO
     { model: "Baleno", labourCode: "PMS-1P-MULTI", labourDesc: service, basicAmt: 1400 }, // Baleno RS mapped to Baleno
     { model: "Alto K10", labourCode: "PMS-1P-MULTI", labourDesc: service, basicAmt: 1335 }, // ALTO K10C mapped to Alto K10
     { model: "Ertiga", labourCode: "PMS-1P-MULTI", labourDesc: service, basicAmt: 1605 },
@@ -30,7 +30,7 @@ const pmsChargesRaw: Omit<PmsCharge, 'workshopId' | 'id'>[] = [
     { model: "Eeco Cargo", labourCode: "PMS-1P-MULTI", labourDesc: service, basicAmt: 1180 },
   ]),
   // --- 2nd Paid Service Group (20k, 40k, 60k, 80k) ---
-  ...["Paid Service (20,000 km)", "Paid Service (40,000 km)", "Paid Service (60,000 km)", "Paid Service (80,000 km)"].flatMap(service => [
+  ...["Paid Service (20,000 km)", "Paid Service (40,000 km)", "Paid Service (60,000 km)", "Paid Service (80,000 km)", "Paid Service (120,000 km)", "Paid Service (140,000 km)", "Paid Service (160,000 km)", "Paid Service (180,000 km)", "Paid Service (200,000 km)", "Paid Service (220,000 km)"].flatMap(service => [
     { model: "Wagon R", labourCode: "PMS-2P-MULTI", labourDesc: service, basicAmt: 1435 },
     { model: "Celerio", labourCode: "PMS-2P-MULTI", labourDesc: service, basicAmt: 1435 },
     { model: "Brezza", labourCode: "PMS-2P-MULTI", labourDesc: service, basicAmt: 1630 },
@@ -47,10 +47,21 @@ const pmsChargesRaw: Omit<PmsCharge, 'workshopId' | 'id'>[] = [
     { model: "Alto 800", labourCode: "PMS-2P-MULTI", labourDesc: service, basicAmt: 1160 }, // M 800 mapped to Alto 800
     { model: "Ciaz", labourCode: "PMS-2P-MULTI", labourDesc: service, basicAmt: 1590 },
     { model: "S-Presso", labourCode: "PMS-2P-MULTI", labourDesc: service, basicAmt: 1435 },
+    { model: "Ignis", labourCode: "PMS-2P-MULTI", labourDesc: service, basicAmt: 1490 },
+    { model: "Fronx", labourCode: "PMS-2P-MULTI", labourDesc: service, basicAmt: 1475 },
+    { model: "Jimny", labourCode: "PMS-2P-MULTI", labourDesc: service, basicAmt: 1630 },
+    { model: "XL6", labourCode: "PMS-2P-MULTI", labourDesc: service, basicAmt: 1675 },
+    { model: "Grand Vitara", labourCode: "PMS-2P-MULTI", labourDesc: service, basicAmt: 1630 },
+    { model: "Ritz", labourCode: "PMS-2P-MULTI", labourDesc: service, basicAmt: 1490 },
+    { model: "S-Cross", labourCode: "PMS-2P-MULTI", labourDesc: service, basicAmt: 1590 },
   ]),
   // --- Diesel Paid Service Group (30k, 60k, 90k) ---
   ...["Paid Service (30,000 km)", "Paid Service (60,000 km)", "Paid Service (90,000 km)"].flatMap(service => [
     { model: "Dzire", labourCode: "PMS-2D-MULTI", labourDesc: service, basicAmt: 1850 },
+    { model: "Swift", labourCode: "PMS-2D-MULTI", labourDesc: service, basicAmt: 1850 },
+    { model: "Ciaz", labourCode: "PMS-2D-MULTI", labourDesc: service, basicAmt: 1850 },
+    { model: "Brezza", labourCode: "PMS-2D-MULTI", labourDesc: service, basicAmt: 1850 },
+    { model: "S-Cross", labourCode: "PMS-2D-MULTI", labourDesc: service, basicAmt: 1850 },
   ]),
   // --- Mixed Service Group (20,30,40,60,80,90) ---
   ...["Paid Service (20,000 km)", "Paid Service (30,000 km)", "Paid Service (40,000 km)", "Paid Service (60,000 km)", "Paid Service (80,000 km)", "Paid Service (90,000 km)"].flatMap(service => [
@@ -95,7 +106,7 @@ const pmsChargesRaw: Omit<PmsCharge, 'workshopId' | 'id'>[] = [
   { model: "Fronx", labourCode: "PMS-2P-30K", labourDesc: "Paid Service (30,000 km)", basicAmt: 1455 },
   { model: "Swift", labourCode: "PMS-2P-30K", labourDesc: "Paid Service (30,000 km)", basicAmt: 1465 }, // EPIC NEW SWIFT
   { model: "Swift", labourCode: "PMS-3FS-10K", labourDesc: "3rd Free Service (10,000 km)", basicAmt: 0 },
-  { model: "Brezza", labourCode: "PMS-120K", labourDesc: "Paid Service (120,000 km)", basicAmt: 1530 },
+  { model: "Brezza", labourCode: "PMS-120K", labourDesc: "Paid Service (120,000 km)", basicAmt: 1655 },
 ];
 
 const pmsCharges: Omit<PmsCharge, 'workshopId'>[] = pmsChargesRaw.map(charge => ({
@@ -103,5 +114,7 @@ const pmsCharges: Omit<PmsCharge, 'workshopId'>[] = pmsChargesRaw.map(charge => 
     id: `${workshopId}-${charge.model}-${charge.labourDesc}`.toLowerCase().replace(/[^a-z0-9-]/g, '')
 }));
 
+// Remove duplicates, giving preference to the last entry for a given id
+const uniquePmsCharges = Array.from(new Map(pmsCharges.map(item => [item.id, item])).values());
 
-export default pmsCharges;
+export default uniquePmsCharges;
