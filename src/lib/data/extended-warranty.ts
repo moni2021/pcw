@@ -13,11 +13,44 @@ type WarrantyCoverage = {
 // Define default warranty coverage
 const defaultCoverage: WarrantyCoverage = {
     coveredParts: [
+        // Engine Components
+        'Engine Control Module (ECM)',
+        'Fuel Injectors',
+        'Turbocharger Assembly',
+        'Alternator Assembly',
+        'Starter Motor Assembly',
+        'Water Pump Assembly',
+        'Ignition Coils',
+        'Crankshaft Position Sensor',
+        'Camshaft Position Sensor',
+        'Oxygen Sensor',
+        
+        // Transmission Components
+        'Transmission Control Module (TCM)',
+        'Clutch Master Cylinder',
+        'Clutch Slave Cylinder',
+        'Automatic Transmission Solenoids',
+
+        // Steering & Suspension
+        'Power Steering Module',
+        'Steering Rack and Pinion Assembly',
+        'Front Strut Assembly',
+        'Rear Shock Absorber',
+
+        // Braking System
+        'ABS Actuator and Control Unit',
+        'Brake Master Cylinder',
+
+        // Electricals
+        'Body Control Module (BCM)',
+        'Power Window Motors',
+        'Wiper Motor Assembly',
+        
+        // Fluids related to covered repairs
         'Transmission Fluid',
         'Transfer Case Oil',
         'Differential Oil',
         'Hybrid Transaxle Fluid',
-        // Add other major non-consumable parts that might be replaced during a high-mileage service
     ],
     conditions: {
         years: 5,
@@ -33,6 +66,8 @@ const warrantyByModel: { [model: string]: Partial<WarrantyCoverage> } = {
         coveredParts: [
             ...defaultCoverage.coveredParts,
             'Hybrid Transaxle Fluid', // Example of a specific part
+            'Hybrid Battery Assembly',
+            'Inverter with Converter Assembly'
         ],
     },
     "Jimny": {
@@ -40,6 +75,7 @@ const warrantyByModel: { [model: string]: Partial<WarrantyCoverage> } = {
             ...defaultCoverage.coveredParts,
             'Transfer Case Oil',
             'Differential Oil',
+            '4WD Controller'
         ]
     }
 };
@@ -56,8 +92,10 @@ export function getWarrantyCoverage(model: string): WarrantyCoverage {
             ...defaultCoverage,
             ...modelSpecific,
             // Deep merge covered parts if necessary, preventing duplicates
-            coveredParts: Array.from(new Set([...defaultCoverage.coveredParts, ...(modelSpecific.coveredParts || [])])),
+            coveredParts: Array.from(new Set([...defaultCoverage.coveredParts, ...(modelSpecific.coveredParts || [])])).sort(),
         };
     }
     return defaultCoverage;
 }
+
+    

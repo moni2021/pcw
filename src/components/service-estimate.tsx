@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Separator } from '@/components/ui/separator';
-import { Percent, PlusCircle, Sparkles, Wrench, Package, Hammer, MinusCircle, ChevronDown, ChevronUp, Printer, Bot, AlertCircle, ShieldCheck } from 'lucide-react';
+import { Percent, PlusCircle, Sparkles, Wrench, Package, Hammer, MinusCircle, ChevronDown, ChevronUp, Printer, Bot, AlertCircle, ShieldCheck, View } from 'lucide-react';
 import type { ServiceEstimateData, Labor, Part } from '@/lib/types';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
@@ -22,6 +22,8 @@ import { Skeleton } from './ui/skeleton';
 import { getAvailableCustomLabor } from '@/lib/workshop-data-loader';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 import { getWarrantyCoverage } from '@/lib/data/extended-warranty';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { ScrollArea } from './ui/scroll-area';
 
 
 interface ServiceEstimateProps {
@@ -63,6 +65,7 @@ export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
   const [showOptional, setShowOptional] = useState(false);
   const [isGeneratingScript, setIsGeneratingScript] = useState(false);
   const [customerScript, setCustomerScript] = useState('');
+  const [isWarrantyDialogOpen, setIsWarrantyDialogOpen] = useState(false);
   
   const warrantyCoverage = useMemo(() => {
     if (!hasExtendedWarranty) return { coveredParts: [], conditions: null };
@@ -229,6 +232,26 @@ export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
 
   return (
     <div>
+        <Dialog open={isWarrantyDialogOpen} onOpenChange={setIsWarrantyDialogOpen}>
+            <DialogContent className="max-w-md">
+                <DialogHeader>
+                    <DialogTitle>Extended Warranty Covered Parts</DialogTitle>
+                    <DialogDescription>
+                        The following parts are generally covered under the Extended Warranty program for the {vehicle.model}. Final coverage is subject to verification.
+                    </DialogDescription>
+                </DialogHeader>
+                <ScrollArea className="max-h-[50vh] pr-4">
+                    <ul className="list-disc list-inside space-y-2 text-sm text-muted-foreground">
+                        {warrantyCoverage.coveredParts.map((part, index) => (
+                            <li key={index}>{part}</li>
+                        ))}
+                    </ul>
+                </ScrollArea>
+                <DialogFooter>
+                    <Button onClick={() => setIsWarrantyDialogOpen(false)}>Close</Button>
+                </DialogFooter>
+            </DialogContent>
+        </Dialog>
         <CardHeader>
             <CardTitle>Service Estimate</CardTitle>
         </CardHeader>
@@ -265,14 +288,21 @@ export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
         {hasExtendedWarranty && warrantyCoverage.conditions && (
             <Alert variant="default" className="mb-4 bg-blue-500/10 border-blue-500/50">
                 <ShieldCheck className="h-4 w-4 text-blue-500" />
-                <AlertTitle className="text-blue-700">Extended Warranty Coverage Active</AlertTitle>
-                <AlertDescription className="text-blue-700/80">
-                    <p>{warrantyCoverage.conditions.text}</p>
-                    <ul className="list-disc pl-5 mt-2 text-xs">
-                        <li>Coverage is subject to verification of warranty terms and vehicle inspection.</li>
-                        <li>Labor charges for covered parts are also waived. Consumables and non-covered items are chargeable.</li>
-                    </ul>
-                </AlertDescription>
+                 <div className="flex justify-between items-start">
+                    <div>
+                        <AlertTitle className="text-blue-700">Extended Warranty Coverage Active</AlertTitle>
+                        <AlertDescription className="text-blue-700/80">
+                            <p>{warrantyCoverage.conditions.text}</p>
+                             <ul className="list-disc pl-5 mt-2 text-xs">
+                                <li>Coverage is subject to verification of warranty terms and vehicle inspection.</li>
+                                <li>Labor charges for covered parts are also waived. Consumables and non-covered items are chargeable.</li>
+                            </ul>
+                        </AlertDescription>
+                    </div>
+                    <Button variant="outline" size="sm" onClick={() => setIsWarrantyDialogOpen(true)} className="ml-4 shrink-0">
+                        <View className="mr-2 h-4 w-4" /> View Covered Parts
+                    </Button>
+                </div>
             </Alert>
         )}
 
@@ -634,3 +664,5 @@ export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
     </div>
   );
 }
+
+    
