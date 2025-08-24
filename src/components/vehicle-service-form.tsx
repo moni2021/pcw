@@ -105,7 +105,7 @@ export function VehicleServiceForm() {
         setIsUnderStandardWarranty(false);
         setSelectedWarranty('none');
     }
-  }, [selectedYear, selectedModel]);
+  }, [selectedYear]);
   
   const handleModelChange = (model: string) => {
     const vehicle = vehicles.find(v => v.model === model);
@@ -398,11 +398,10 @@ export function VehicleServiceForm() {
                       <SelectContent>
                         <SelectItem value="none">No Extended Warranty</SelectItem>
                         {warrantyPlans.filter(p => p.key !== 'standard').map(plan => (
-                          <SelectItem key={plan.key} value={plan.key} disabled={isUnderStandardWarranty && plan.key !=='none'}>{plan.name} ({plan.years}Y/{plan.kms/1000}k km)</SelectItem>
+                          <SelectItem key={plan.key} value={plan.key}>{plan.name} ({plan.years}Y/{plan.kms/1000}k km)</SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
-                    {isUnderStandardWarranty && <p className="text-xs text-muted-foreground">Extended warranty can be selected after the standard warranty period.</p>}
                 </div>
             )}
 
@@ -444,3 +443,4 @@ export function VehicleServiceForm() {
     </>
   );
 }
+
