@@ -35,6 +35,9 @@ type JsonFormatType = 'workshops' | 'vehicles' | 'parts' | 'customLabor' | 'pmsC
 
 export default function DataManagementPage() {
     const { toast } = useToast();
+    const [isAuthenticated, setIsAuthenticated] = useState(false);
+    const [password, setPassword] = useState('');
+    const [isPasswordDialogOpen, setIsPasswordDialogOpen] = useState(true);
     const [isKeyConfigured, setIsKeyConfigured] = useState(false);
     const [isSyncing, setIsSyncing] = useState(false);
     const [isUploading, setIsUploading] = useState<{ [key in DataType]?: boolean }>({});
@@ -53,9 +56,27 @@ export default function DataManagementPage() {
         // This check runs on the client, but the env var is read on the server during the action.
         // We'll use this to guide the user, but the real check is in the server action.
         // Let's assume it's not configured initially, and update after upload.
-        // The server action will be the source of truth for errors.
         setIsKeyConfigured(false); // Default to not configured to always show the setup card initially
     }, []);
+
+    const handlePasswordSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        // This is a simple client-side check. For real security, use proper authentication.
+        if (password === 'HIRUMANIDALOI') {
+            setIsAuthenticated(true);
+            setIsPasswordDialogOpen(false);
+            toast({
+                title: 'Access Granted',
+                description: 'Welcome to the Data Management section.',
+            });
+        } else {
+            toast({
+                variant: 'destructive',
+                title: 'Access Denied',
+                description: 'The password you entered is incorrect.',
+            });
+        }
+    };
 
     const handleMasterDownload = async (dataType: DataType) => {
         try {
@@ -269,6 +290,46 @@ export default function DataManagementPage() {
             </CardContent>
         </Card>
     );
+
+    if (!isAuthenticated) {
+        return (
+            <Dialog open={isPasswordDialogOpen} onOpenChange={setIsPasswordDialogOpen}>
+                <DialogContent className="sm:max-w-[425px]">
+                    <form onSubmit={handlePasswordSubmit}>
+                        <DialogHeader>
+                            <DialogTitle className="flex items-center gap-2">
+                                <ShieldCheck /> Authentication Required
+                            </DialogTitle>
+                            <DialogDescription>
+                                Please enter the password to access the data management section.
+                            </DialogDescription>
+                        </DialogHeader>
+                        <div className="grid gap-4 py-4">
+                            <div className="grid grid-cols-4 items-center gap-4">
+                                <Label htmlFor="password-input" className="text-right">
+                                    Password
+                                </Label>
+                                <Input
+                                    id="password-input"
+                                    type="password"
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
+                                    className="col-span-3"
+                                    required
+                                />
+                            </div>
+                        </div>
+                        <DialogFooter>
+                            <Button type="submit">
+                                <KeyRound className="mr-2 h-4 w-4" />
+                                Unlock
+                            </Button>
+                        </DialogFooter>
+                    </form>
+                </DialogContent>
+            </Dialog>
+        );
+    }
 
     return (
         <div className="space-y-6">
