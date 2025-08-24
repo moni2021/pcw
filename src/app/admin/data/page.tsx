@@ -20,14 +20,8 @@ import { convertToJson } from '@/ai/flows/json-converter-flow';
 
 
 // Import all data sources for the "Master" sync
-import { workshops } from '@/lib/data/workshops';
-import { vehicles } from '@/lib/data';
-import { allParts } from '@/lib/data/parts';
-import { threeMCareData } from '@/lib/data/3m';
 import { workshopData } from '@/lib/workshop-data-loader';
-
-const allCustomLabor = [...workshopData.customLabor];
-const allPmsCharges = [...workshopData.pmsCharges];
+import { workshops } from '@/lib/data/workshops';
 
 type DataType = 'workshops' | 'vehicles' | 'parts' | 'customLabor' | 'pmsCharges' | 'threeMCare';
 type JsonFormatType = 'workshops' | 'vehicles' | 'parts' | 'customLabor' | 'pmsCharges' | 'threeMCare';
@@ -449,7 +443,7 @@ export default function DataManagementPage() {
                 </CardContent>
             </Card>
             
-            {isKeyConfigured && (
+            {(isKeyConfigured || process.env.NODE_ENV === 'development') && (
               <>
                 <Card>
                     <CardHeader>

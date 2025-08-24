@@ -33,7 +33,6 @@ export function FeedbackForm() {
     }
 
     setIsLoading(true);
-    setSubmittedTicketId(null);
 
     const result = await addFeedback({ name, email, mobile, feedback });
 
@@ -66,33 +65,33 @@ export function FeedbackForm() {
           <Alert variant="default" className="bg-green-500/10 border-green-500/50">
             <AlertTitle className="text-green-700">Submission Successful!</AlertTitle>
             <AlertDescription className="text-green-700/80">
-              Your ticket ID is <strong>{submittedTicketId}</strong>. The developers have been notified.
+              Your ticket ID is <strong>{submittedTicketId}</strong>. The developers have been notified. You can close this page now.
             </AlertDescription>
           </Alert>
         )}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="space-y-2">
             <Label htmlFor="name">Name</Label>
-            <Input id="name" placeholder="Your Name" value={name} onChange={(e) => setName(e.target.value)} required />
+            <Input id="name" placeholder="Your Name" value={name} onChange={(e) => setName(e.target.value)} required disabled={!!submittedTicketId} />
           </div>
           <div className="space-y-2">
             <Label htmlFor="mobile">Mobile Number</Label>
-            <Input id="mobile" placeholder="Your Mobile Number" value={mobile} onChange={(e) => setMobile(e.target.value)} required />
+            <Input id="mobile" placeholder="Your Mobile Number" value={mobile} onChange={(e) => setMobile(e.target.value)} required disabled={!!submittedTicketId}/>
           </div>
         </div>
         <div className="space-y-2">
             <Label htmlFor="email">Email</Label>
-            <Input id="email" type="email" placeholder="Your Email Address" value={email} onChange={(e) => setEmail(e.target.value)} required />
+            <Input id="email" type="email" placeholder="Your Email Address" value={email} onChange={(e) => setEmail(e.target.value)} required disabled={!!submittedTicketId} />
         </div>
         <div className="space-y-2">
           <Label htmlFor="feedback">Feedback / Suggestion</Label>
-          <Textarea id="feedback" placeholder="Tell us how we can improve..." value={feedback} onChange={(e) => setFeedback(e.target.value)} required />
+          <Textarea id="feedback" placeholder="Tell us how we can improve..." value={feedback} onChange={(e) => setFeedback(e.target.value)} required disabled={!!submittedTicketId} />
         </div>
       </CardContent>
       <CardFooter>
-        <Button type="submit" className="w-full" disabled={isLoading}>
+        <Button type="submit" className="w-full" disabled={isLoading || !!submittedTicketId}>
           {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Send className="mr-2 h-4 w-4" />}
-          Submit Feedback
+          {submittedTicketId ? 'Submitted' : 'Submit Feedback'}
         </Button>
       </CardFooter>
     </form>
