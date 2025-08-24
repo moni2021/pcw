@@ -277,7 +277,7 @@ export default function DataManagementPage() {
                     <DialogHeader>
                         <DialogTitle className="flex items-center gap-2"><BrainCircuit /> AI JSON Converter</DialogTitle>
                         <DialogDescription>
-                            Paste unstructured text (e.g., from a spreadsheet) and convert it to structured JSON for upload.
+                            Paste unstructured text (e.g., from a spreadsheet) and convert it to structured JSON for upload. Requires a Google AI API Key.
                         </DialogDescription>
                     </DialogHeader>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -345,28 +345,31 @@ export default function DataManagementPage() {
             <Card className="border-destructive" ref={setupCardRef}>
                 <CardHeader>
                     <CardTitle className="flex items-center gap-2 text-destructive">
-                        <AlertCircle /> Action Required: Firebase Setup
+                        <AlertCircle /> Action Required: API Key Setup
                     </CardTitle>
                     <CardDescription>
-                        To enable live data synchronization with Firebase, you must provide your project's service account key.
+                        To enable all features, you must provide your project's API keys in the `.env.local` file.
                     </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                    <Alert>
-                        <AlertTitle>Two Ways to Authenticate</AlertTitle>
+                        <AlertTitle>Two Keys Required</AlertTitle>
                        <AlertDescription>
                             <ol className="list-decimal list-inside space-y-2">
                                 <li>
-                                    <strong>For this Session Only:</strong> Use the uploader below. The connection will work until you restart the server. Good for a quick test.
+                                    <strong>Firebase Service Account Key:</strong> For saving data to the database from the admin panel. Set this in `SERVICE_ACCOUNT_KEY`.
                                 </li>
                                 <li>
-                                    <strong>Permanent Solution:</strong> Create a `.env.local` file in the project's root folder and add your key there. This is the recommended approach for development.
+                                    <strong>Google AI (Gemini) API Key:</strong> For using AI features like the JSON converter and script generator. Set this in `GOOGLE_GENAI_API_KEY`.
+                                </li>
+                                 <li>
+                                    After adding keys to `.env.local`, you must **restart the server** for changes to apply.
                                 </li>
                             </ol>
                         </AlertDescription>
                    </Alert>
                    <div className="space-y-2">
-                       <Label htmlFor="service-account-file">1. Upload Key for Current Session</Label>
+                       <Label htmlFor="service-account-file">Or: Upload Firebase Key for Current Session Only</Label>
                         <Input 
                            id="service-account-file"
                            type="file"
@@ -380,7 +383,7 @@ export default function DataManagementPage() {
                         ) : (
                             <UploadCloud className="mr-2 h-4 w-4" />
                         )}
-                        Upload & Configure Key
+                        Upload & Configure Firebase Key
                     </Button>
                 </CardContent>
             </Card>
