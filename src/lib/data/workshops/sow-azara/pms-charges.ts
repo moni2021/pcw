@@ -87,6 +87,10 @@ const baseCharges: Omit<PmsCharge, 'workshopId' | 'id'>[] = [
     { model: "Eeco Cargo", labourCode: "PMS-MIXED-2", labourDesc: service, basicAmt: 1340 },
     { model: "Alto K10", labourCode: "PMS-MIXED-2", labourDesc: service, basicAmt: 1480 },
   ]),
+  // --- Super Carry ---
+  ...["Paid Service (20,000 km)", "Paid Service (30,000 km)", "Paid Service (40,000 km)", "Paid Service (50,000 km)", "Paid Service (60,000 km)", "Paid Service (70,000 km)", "Paid Service (80,000 km)", "Paid Service (90,000 km)", "Paid Service (100,000 km)", "Paid Service (110,000 km)", "Paid Service (120,000 km)", "Paid Service (130,000 km)", "Paid Service (140,000 km)", "Paid Service (150,000 km)", "Paid Service (160,000 km)", "Paid Service (170,000 km)", "Paid Service (180,000 km)", "Paid Service (190,000 km)", "Paid Service (200,000 km)", "Paid Service (210,000 km)", "Paid Service (220,000 km)"].flatMap(service => [
+      { model: "Super Carry", labourCode: "PMS-SC-PAID", labourDesc: service, basicAmt: 370 },
+  ]),
   // --- Individual Services ---
   { model: "Swift", labourCode: "PMS-1P-20K", labourDesc: "Paid Service (20,000 km)", basicAmt: 1440 },
   { model: "Alto K10", labourCode: "PMS-1P-20K", labourDesc: "Paid Service (20,000 km)", basicAmt: 1385 },
