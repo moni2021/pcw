@@ -54,11 +54,11 @@ const allCustomLabor = [...workshopData.customLabor];
 const allPmsCharges = [...workshopData.pmsCharges];
 
 const dataSchemas = {
+  workshops: z.array(WorkshopSchema),
   vehicles: z.array(VehicleSchema),
   parts: z.array(PartSchema),
   customLabor: z.array(CustomLaborSchema),
   pmsCharges: z.array(PmsChargeSchema),
-  workshops: z.array(WorkshopSchema),
   threeMCare: ThreeMCareSchema,
   feedback: z.array(FeedbackSchema),
 };
