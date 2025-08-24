@@ -39,40 +39,36 @@ export function LiveFeedbackTicker() {
     if (tickets.length === 0) {
       return <p>Be the first to give feedback! All open tickets will be displayed here.</p>;
     }
-
+    
+    // We render two lists side-by-side to create the seamless loop.
+    // The key difference is giving the cloned list a unique key.
     return (
-      <div className="flex animate-marquee space-x-8">
-        {tickets.map((ticket) => (
-          <div key={ticket.id} className="flex items-center space-x-2">
-            <MessageSquareDashed className="h-4 w-4 text-primary" />
-            <p className="font-semibold">{ticket.id}:</p>
-            <p className="text-muted-foreground">{ticket.feedback}</p>
-          </div>
-        ))}
-      </div>
-    );
-  };
-  
-  // Double the content for a seamless loop if there are tickets
-  const marqueeContent = tickets.length > 0 ? (
-    <>
-        {renderContent()}
-        <div className="absolute top-0 flex animate-marquee space-x-8 pl-8">
+      <>
+        <div className="flex animate-marquee space-x-8">
             {tickets.map((ticket) => (
-            <div key={`${ticket.id}-clone`} className="flex items-center space-x-2">
-                <MessageSquareDashed className="h-4 w-4 text-primary" />
-                <p className="font-semibold">{ticket.id}:</p>
-                <p className="text-muted-foreground">{ticket.feedback}</p>
-            </div>
+                <div key={ticket.id} className="flex items-center space-x-2 whitespace-nowrap">
+                    <MessageSquareDashed className="h-4 w-4 text-primary" />
+                    <p className="font-semibold">{ticket.id}:</p>
+                    <p className="text-muted-foreground">{ticket.feedback}</p>
+                </div>
             ))}
         </div>
-    </>
-  ) : renderContent();
-
+        <div className="absolute top-0 flex animate-marquee2 space-x-8 pl-8">
+             {tickets.map((ticket) => (
+                <div key={`${ticket.id}-clone`} className="flex items-center space-x-2 whitespace-nowrap">
+                    <MessageSquareDashed className="h-4 w-4 text-primary" />
+                    <p className="font-semibold">{ticket.id}:</p>
+                    <p className="text-muted-foreground">{ticket.feedback}</p>
+                </div>
+            ))}
+        </div>
+      </>
+    );
+  };
 
   return (
     <div className="relative flex w-full overflow-x-hidden rounded-lg border bg-muted/30 p-4">
-        {marqueeContent}
+        {renderContent()}
     </div>
   );
 }
