@@ -1,7 +1,7 @@
 
 "use client";
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -35,6 +35,7 @@ type JsonFormatType = 'workshops' | 'vehicles' | 'parts' | 'customLabor' | 'pmsC
 
 export default function DataManagementPage() {
     const { toast } = useToast();
+    const [isKeyConfigured, setIsKeyConfigured] = useState(false);
     const [isSyncing, setIsSyncing] = useState(false);
     const [isUploading, setIsUploading] = useState<{ [key in DataType]?: boolean }>({});
     const [selectedFile, setSelectedFile] = useState<{ [key in DataType]?: File | null }>({});
@@ -47,6 +48,14 @@ export default function DataManagementPage() {
     const [isConverting, setIsConverting] = useState(false);
     const [converterWorkshop, setConverterWorkshop] = useState('');
     const setupCardRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        // This check runs on the client, but the env var is read on the server during the action.
+        // We'll use this to guide the user, but the real check is in the server action.
+        // Let's assume it's not configured initially, and update after upload.
+        // The server action will be the source of truth for errors.
+        setIsKeyConfigured(false); // Default to not configured to always show the setup card initially
+    }, []);
 
     const handleMasterDownload = async (dataType: DataType) => {
         try {
@@ -209,6 +218,7 @@ export default function DataManagementPage() {
                         description: 'Configuration updated. You can now sync your data.',
                     });
                     setServiceAccountFile(null);
+                    setIsKeyConfigured(true); // Update state to show other cards
                 } else {
                     throw new Error(result.error || 'An unknown error occurred.');
                 }
@@ -374,76 +384,78 @@ export default function DataManagementPage() {
                     </Button>
                 </CardContent>
             </Card>
+            
+            {isKeyConfigured && (
+              <>
+                <Card>
+                    <CardHeader>
+                        <CardTitle className="flex items-center gap-2">
+                            <Database /> Master Data Sync
+                        </CardTitle>
+                        <CardDescription>
+                           Push all data modified in the admin panels (Parts, Labour, etc.) to your live Firebase database. This overwrites the existing data in Firebase.
+                        </CardDescription>
+                    </CardHeader>
+                    <CardContent className="flex flex-col sm:flex-row gap-2">
+                         <Button onClick={handleSync} disabled={isSyncing}>
+                            {isSyncing ? (
+                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                            ) : (
+                                <UploadCloud className="mr-2 h-4 w-4" />
+                            )}
+                            Sync All Local Data to Firebase
+                        </Button>
+                         <Button onClick={() => setIsConverterOpen(true)} variant="outline">
+                            <BrainCircuit className="mr-2 h-4 w-4" />
+                            AI JSON Converter
+                        </Button>
+                    </CardContent>
+                </Card>
 
-            <Card>
-                <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                        <Database /> Master Data Sync
-                    </CardTitle>
-                    <CardDescription>
-                       Push all data modified in the admin panels (Parts, Labour, etc.) to your live Firebase database. This overwrites the existing data in Firebase.
-                    </CardDescription>
-                </CardHeader>
-                <CardContent className="flex flex-col sm:flex-row gap-2">
-                     <Button onClick={handleSync} disabled={isSyncing}>
-                        {isSyncing ? (
-                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        ) : (
-                            <UploadCloud className="mr-2 h-4 w-4" />
-                        )}
-                        Sync All Local Data to Firebase
-                    </Button>
-                     <Button onClick={() => setIsConverterOpen(true)} variant="outline">
-                        <BrainCircuit className="mr-2 h-4 w-4" />
-                        AI JSON Converter
-                    </Button>
-                </CardContent>
-            </Card>
+                <Separator />
 
-            <Separator />
-
-             <Card>
-                <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                        <Upload /> Individual Data Upload
-                    </CardTitle>
-                    <CardDescription>
-                       Upload a JSON file for a specific data type to update it in Firebase. This is useful for migrating data from another system.
-                    </CardDescription>
-                </CardHeader>
-                <CardContent>
-                    <Tabs defaultValue="workshops">
-                        <TabsList className="grid w-full grid-cols-3 md:grid-cols-6">
-                            <TabsTrigger value="workshops">Workshops</TabsTrigger>
-                            <TabsTrigger value="vehicles">Vehicles</TabsTrigger>
-                            <TabsTrigger value="parts">Parts</TabsTrigger>
-                            <TabsTrigger value="customLabor">Custom Labour</TabsTrigger>
-                            <TabsTrigger value="pmsCharges">PMS Charges</TabsTrigger>
-                            <TabsTrigger value="threeMCare">3M Care</TabsTrigger>
-                        </TabsList>
-                        <TabsContent value="workshops" className="pt-4">
-                           {renderUploadTab('workshops', 'Workshops Data', 'Upload a JSON file with the list of all workshops.', <Building />)}
-                        </TabsContent>
-                        <TabsContent value="vehicles" className="pt-4">
-                           {renderUploadTab('vehicles', 'Vehicle Models Data', 'Upload a JSON file containing the list of all vehicle models and their properties.', <FileJson />)}
-                        </TabsContent>
-                         <TabsContent value="parts" className="pt-4">
-                           {renderUploadTab('parts', 'Parts Data', 'Upload a JSON file with the master list of all parts and their prices.', <FileJson />)}
-                        </TabsContent>
-                         <TabsContent value="customLabor" className="pt-4">
-                            {renderUploadTab('customLabor', 'Custom Labour Data', 'Upload a JSON file with all custom labour charges specific to vehicle models and workshops.', <FileJson />)}
-                        </TabsContent>
-                          <TabsContent value="pmsCharges" className="pt-4">
-                           {renderUploadTab('pmsCharges', 'PMS Charges Data', 'Upload a JSON file defining the periodic maintenance service (PMS) labour charges per workshop.', <FileJson />)}
-                        </TabsContent>
-                        <TabsContent value="threeMCare" className="pt-4">
-                           {renderUploadTab('threeMCare', '3M Care Data', 'Upload a JSON file with the 3M care services and prices per model.', <Sparkles />)}
-                        </TabsContent>
-                    </Tabs>
-                </CardContent>
-            </Card>
+                 <Card>
+                    <CardHeader>
+                        <CardTitle className="flex items-center gap-2">
+                            <Upload /> Individual Data Upload
+                        </CardTitle>
+                        <CardDescription>
+                           Upload a JSON file for a specific data type to update it in Firebase. This is useful for migrating data from another system.
+                        </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <Tabs defaultValue="workshops">
+                            <TabsList className="grid w-full grid-cols-3 md:grid-cols-6">
+                                <TabsTrigger value="workshops">Workshops</TabsTrigger>
+                                <TabsTrigger value="vehicles">Vehicles</TabsTrigger>
+                                <TabsTrigger value="parts">Parts</TabsTrigger>
+                                <TabsTrigger value="customLabor">Custom Labour</TabsTrigger>
+                                <TabsTrigger value="pmsCharges">PMS Charges</TabsTrigger>
+                                <TabsTrigger value="threeMCare">3M Care</TabsTrigger>
+                            </TabsList>
+                            <TabsContent value="workshops" className="pt-4">
+                               {renderUploadTab('workshops', 'Workshops Data', 'Upload a JSON file with the list of all workshops.', <Building />)}
+                            </TabsContent>
+                            <TabsContent value="vehicles" className="pt-4">
+                               {renderUploadTab('vehicles', 'Vehicle Models Data', 'Upload a JSON file containing the list of all vehicle models and their properties.', <FileJson />)}
+                            </TabsContent>
+                             <TabsContent value="parts" className="pt-4">
+                               {renderUploadTab('parts', 'Parts Data', 'Upload a JSON file with the master list of all parts and their prices.', <FileJson />)}
+                            </TabsContent>
+                             <TabsContent value="customLabor" className="pt-4">
+                                {renderUploadTab('customLabor', 'Custom Labour Data', 'Upload a JSON file with all custom labour charges specific to vehicle models and workshops.', <FileJson />)}
+                            </TabsContent>
+                              <TabsContent value="pmsCharges" className="pt-4">
+                               {renderUploadTab('pmsCharges', 'PMS Charges Data', 'Upload a JSON file defining the periodic maintenance service (PMS) labour charges per workshop.', <FileJson />)}
+                            </TabsContent>
+                            <TabsContent value="threeMCare" className="pt-4">
+                               {renderUploadTab('threeMCare', '3M Care Data', 'Upload a JSON file with the 3M care services and prices per model.', <Sparkles />)}
+                            </TabsContent>
+                        </Tabs>
+                    </CardContent>
+                </Card>
+              </>
+            )}
         </div>
     );
 }
-
-    
