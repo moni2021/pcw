@@ -17,6 +17,7 @@ import {
   Banknote,
   GitCompareArrows,
   FileWarning,
+  MessageSquareHeart,
 } from 'lucide-react';
 
 import {
@@ -99,6 +100,14 @@ export default function AdminLayout({
                     <SidebarMenuButton isActive={pathname === '/admin/vehicles'}>
                       <Car />
                       Vehicle Management
+                    </SidebarMenuButton>
+                </Link>
+              </SidebarMenuItem>
+               <SidebarMenuItem>
+                <Link href="/admin/feedback" passHref>
+                    <SidebarMenuButton isActive={pathname === '/admin/feedback'}>
+                      <MessageSquareHeart />
+                      Feedback
                     </SidebarMenuButton>
                 </Link>
               </SidebarMenuItem>

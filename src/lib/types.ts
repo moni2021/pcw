@@ -87,3 +87,14 @@ export const ServiceEstimateDataSchema = z.object({
     totalPrice: z.number(),
 });
 export type ServiceEstimateData = z.infer<typeof ServiceEstimateDataSchema>;
+
+export const FeedbackSchema = z.object({
+  id: z.string().describe("The unique ticket ID."),
+  name: z.string(),
+  email: z.string().email(),
+  mobile: z.string(),
+  feedback: z.string(),
+  status: z.enum(['Open', 'Resolved']),
+  createdAt: z.any().describe("Timestamp from Firestore"),
+});
+export type Feedback = z.infer<typeof FeedbackSchema>;

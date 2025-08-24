@@ -5,6 +5,9 @@ import { VehicleServiceForm } from '@/components/vehicle-service-form';
 import { Card } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 import { Header } from '@/components/header';
+import { Separator } from '@/components/ui/separator';
+import { FeedbackForm } from '@/components/feedback-form';
+import { LiveFeedbackTicker } from '@/components/live-feedback-ticker';
 
 export default function EstimatorPage() {
 
@@ -28,9 +31,30 @@ export default function EstimatorPage() {
                   <VehicleServiceForm />
                 </Card>
             </div>
-
           </div>
         </section>
+
+        <Separator className="my-8 no-print" />
+
+        <section className="w-full pb-12 md:pb-24 lg:pb-32 no-print">
+          <div className="container px-4 md:px-6">
+            <div className="flex flex-col items-center justify-center space-y-4 text-center">
+                <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl">Feedback & Suggestions</h2>
+                <p className="mx-auto max-w-[700px] text-muted-foreground md:text-xl">
+                    Have a suggestion or found an issue? Let us know! Your feedback helps us improve.
+                </p>
+            </div>
+            <div className="mx-auto w-full max-w-2xl pt-10">
+                <Card>
+                    <FeedbackForm />
+                </Card>
+            </div>
+            <div className="mt-12">
+              <LiveFeedbackTicker />
+            </div>
+          </div>
+        </section>
+
       </main>
       <footer className="flex py-6 w-full shrink-0 items-center justify-center px-4 md:px-6 border-t no-print overflow-hidden">
         <div className="relative w-full">
