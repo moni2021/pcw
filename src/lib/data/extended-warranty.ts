@@ -1,78 +1,82 @@
 
 // This file defines the extended warranty coverage for various parts.
 
-type WarrantyCoverage = {
+export interface WarrantyPlan {
+    key: 'platinum' | 'royal_platinum' | 'solitaire';
+    name: string;
+    years: number;
+    kms: number;
+}
+
+export type WarrantyCoverage = {
+    plan?: WarrantyPlan;
     coveredParts: string[];
     conditions: {
-        years: number;
-        kms: number;
         text: string;
     };
 };
 
-// Define default warranty coverage
-const defaultCoverage: WarrantyCoverage = {
-    coveredParts: [
-        // Engine Components
-        'Engine Control Module (ECM)',
-        'Fuel Injectors',
-        'Turbocharger Assembly',
-        'Alternator Assembly',
-        'Starter Motor Assembly',
-        'Water Pump Assembly',
-        'Ignition Coils',
-        'Crankshaft Position Sensor',
-        'Camshaft Position Sensor',
-        'Oxygen Sensor',
-        
-        // Transmission Components
-        'Transmission Control Module (TCM)',
-        'Clutch Master Cylinder',
-        'Clutch Slave Cylinder',
-        'Automatic Transmission Solenoids',
+export const warrantyPlans: WarrantyPlan[] = [
+    { key: 'platinum', name: 'Platinum Plan', years: 4, kms: 120000 },
+    { key: 'royal_platinum', name: 'Royal Platinum Plan', years: 5, kms: 140000 },
+    { key: 'solitaire', name: 'Solitaire Plan', years: 6, kms: 160000 },
+];
 
-        // Steering & Suspension
-        'Power Steering Module',
-        'Steering Rack and Pinion Assembly',
-        'Front Strut Assembly',
-        'Rear Shock Absorber',
+// Define default warranty coverage (parts list)
+const defaultCoveredParts: string[] = [
+    // Engine Components
+    'Engine Control Module (ECM)',
+    'Fuel Injectors',
+    'Turbocharger Assembly',
+    'Alternator Assembly',
+    'Starter Motor Assembly',
+    'Water Pump Assembly',
+    'Ignition Coils',
+    'Crankshaft Position Sensor',
+    'Camshaft Position Sensor',
+    'Oxygen Sensor',
+    
+    // Transmission Components
+    'Transmission Control Module (TCM)',
+    'Clutch Master Cylinder',
+    'Clutch Slave Cylinder',
+    'Automatic Transmission Solenoids',
 
-        // Braking System
-        'ABS Actuator and Control Unit',
-        'Brake Master Cylinder',
+    // Steering & Suspension
+    'Power Steering Module',
+    'Steering Rack and Pinion Assembly',
+    'Front Strut Assembly',
+    'Rear Shock Absorber',
 
-        // Electricals
-        'Body Control Module (BCM)',
-        'Power Window Motors',
-        'Wiper Motor Assembly',
-        
-        // Fluids related to covered repairs
-        'Transmission Fluid',
-        'Transfer Case Oil',
-        'Differential Oil',
-        'Hybrid Transaxle Fluid',
-    ],
-    conditions: {
-        years: 5,
-        kms: 100000,
-        text: 'Extended Warranty covers the cost of specified parts and associated labor for mechanical and electrical failures up to 5 years or 1,00,000 km, whichever comes first.'
-    },
-};
+    // Braking System
+    'ABS Actuator and Control Unit',
+    'Brake Master Cylinder',
+
+    // Electricals
+    'Body Control Module (BCM)',
+    'Power Window Motors',
+    'Wiper Motor Assembly',
+    
+    // Fluids related to covered repairs
+    'Transmission Fluid',
+    'Transfer Case Oil',
+    'Differential Oil',
+    'Hybrid Transaxle Fluid',
+];
 
 // Define model-specific overrides if any
-const warrantyByModel: { [model: string]: Partial<WarrantyCoverage> } = {
+const warrantyByModel: { [model: string]: { coveredParts: string[] } } = {
     "Grand Vitara": {
-        // Grand Vitara might have special coverage for its hybrid system
         coveredParts: [
-            ...defaultCoverage.coveredParts,
-            'Hybrid Transaxle Fluid', // Example of a specific part
+            ...defaultCoveredParts,
+            'Hybrid Transaxle Fluid',
             'Hybrid Battery Assembly',
             'Inverter with Converter Assembly'
         ],
     },
     "Jimny": {
         coveredParts: [
-            ...defaultCoverage.coveredParts,
+            ...defaultCoveredParts,
             'Transfer Case Oil',
             'Differential Oil',
             '4WD Controller'
@@ -85,17 +89,19 @@ const warrantyByModel: { [model: string]: Partial<WarrantyCoverage> } = {
  * @param model The model of the vehicle.
  * @returns The applicable warranty coverage.
  */
-export function getWarrantyCoverage(model: string): WarrantyCoverage {
-    const modelSpecific = warrantyByModel[model];
-    if (modelSpecific) {
-        return {
-            ...defaultCoverage,
-            ...modelSpecific,
-            // Deep merge covered parts if necessary, preventing duplicates
-            coveredParts: Array.from(new Set([...defaultCoverage.coveredParts, ...(modelSpecific.coveredParts || [])])).sort(),
-        };
-    }
-    return defaultCoverage;
-}
+export function getWarrantyCoverage(model: string, planKey?: WarrantyPlan['key']): WarrantyCoverage {
+    const modelSpecificParts = warrantyByModel[model]?.coveredParts;
+    const parts = modelSpecificParts 
+        ? Array.from(new Set([...defaultCoveredParts, ...modelSpecificParts])).sort()
+        : defaultCoveredParts;
 
-    
+    const selectedPlan = planKey ? warrantyPlans.find(p => p.key === planKey) : undefined;
+
+    return {
+        plan: selectedPlan,
+        coveredParts: parts,
+        conditions: {
+            text: 'Extended Warranty covers the cost of specified parts and associated labor for mechanical and electrical failures up to the selected plan\'s duration and mileage, whichever comes first.'
+        },
+    };
+}

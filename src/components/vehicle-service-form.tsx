@@ -8,7 +8,7 @@ import { CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from 
 import { Label } from '@/components/ui/label';
 import { vehicles, serviceDataLookup } from '@/lib/data';
 import { ServiceEstimate } from './service-estimate';
-import type { ServiceEstimateData } from '@/lib/types';
+import type { ServiceEstimateData, WarrantyPlan } from '@/lib/types';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Loader2, Car, Tag, Building2, Droplets, Info, Check, ChevronsUpDown, AlertCircle, ShieldCheck } from 'lucide-react';
 import { Separator } from './ui/separator';
@@ -24,7 +24,7 @@ import { pmsChecklists } from '@/lib/pms-checklists';
 import { Input } from './ui/input';
 import { workshops } from '@/lib/data/workshops';
 import { Checkbox } from './ui/checkbox';
-import { getWarrantyCoverage } from '@/lib/data/extended-warranty';
+import { warrantyPlans } from '@/lib/data/extended-warranty';
 
 const serviceTypes = [
   '1st Free Service (1,000 km)',
@@ -60,7 +60,7 @@ export function VehicleServiceForm() {
   const [selectedFuelType, setSelectedFuelType] = useState<string>('');
   const [selectedYear, setSelectedYear] = useState<string>('');
   const [selectedServiceType, setSelectedServiceType] = useState<string>('');
-  const [hasExtendedWarranty, setHasExtendedWarranty] = useState(false);
+  const [selectedWarranty, setSelectedWarranty] = useState<WarrantyPlan['key'] | 'none'>('none');
   const [estimate, setEstimate] = useState<ServiceEstimateData | null>(null);
   const [error, setError] = useState<string>('');
   const [isLoading, setIsLoading] = useState(false);
@@ -88,16 +88,16 @@ export function VehicleServiceForm() {
   }, [currentVehicle, setTheme]);
 
   useEffect(() => {
-    if (selectedYear && selectedModel) {
+    if (selectedYear) {
         const vehicleAge = new Date().getFullYear() - parseInt(selectedYear, 10);
-        const warrantyDuration = getWarrantyCoverage(selectedModel).conditions.years;
-        setIsWarrantyOptionVisible(vehicleAge <= warrantyDuration);
-        if (vehicleAge > warrantyDuration) {
-          setHasExtendedWarranty(false); // Reset if year changes to out of warranty
+        const maxWarrantyYears = Math.max(...warrantyPlans.map(p => p.years));
+        setIsWarrantyOptionVisible(vehicleAge <= maxWarrantyYears);
+        if (vehicleAge > maxWarrantyYears) {
+          setSelectedWarranty('none');
         }
     } else {
         setIsWarrantyOptionVisible(false);
-        setHasExtendedWarranty(false);
+        setSelectedWarranty('none');
     }
   }, [selectedYear, selectedModel]);
   
@@ -218,7 +218,7 @@ export function VehicleServiceForm() {
           engineOilQuantity: vehicleInfo.engineOilQuantity,
         },
         serviceType: selectedServiceType,
-        hasExtendedWarranty: hasExtendedWarranty,
+        warrantyPlanKey: selectedWarranty === 'none' ? undefined : selectedWarranty,
         parts: serviceDetails?.parts || [],
         labor: pmsLabor,
         recommendedLabor: recommendedServices,
@@ -383,13 +383,18 @@ export function VehicleServiceForm() {
           
            {isWarrantyOptionVisible && (
                <div className="space-y-2">
-                    <div className="flex items-center space-x-2">
-                        <Checkbox id="extended-warranty" checked={hasExtendedWarranty} onCheckedChange={(checked) => setHasExtendedWarranty(Boolean(checked))} />
-                        <Label htmlFor="extended-warranty" className="flex items-center gap-2">
-                            <ShieldCheck className="text-primary h-4 w-4"/>
-                            Customer has Extended Warranty
-                        </Label>
-                    </div>
+                    <Label htmlFor="extended-warranty">Extended Warranty Plan</Label>
+                    <Select value={selectedWarranty} onValueChange={(value) => setSelectedWarranty(value as any)}>
+                      <SelectTrigger id="extended-warranty">
+                        <SelectValue placeholder="Select a warranty plan" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="none">No Warranty</SelectItem>
+                        {warrantyPlans.map(plan => (
+                          <SelectItem key={plan.key} value={plan.key}>{plan.name} ({plan.years}Y/{plan.kms/1000}k km)</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                 </div>
             )}
 

@@ -53,6 +53,14 @@ export const PmsChargeSchema = z.object({
 });
 export type PmsCharge = z.infer<typeof PmsChargeSchema>;
 
+export const WarrantyPlanSchema = z.object({
+    key: z.enum(['platinum', 'royal_platinum', 'solitaire']),
+    name: z.string(),
+    years: z.number(),
+    kms: z.number(),
+});
+export type WarrantyPlan = z.infer<typeof WarrantyPlanSchema>;
+
 export type DataObjectType = Workshop | Part | Vehicle | CustomLabor | PmsCharge | Feedback;
 
 export const ServiceSchema = z.object({
@@ -80,7 +88,7 @@ export const ServiceEstimateDataSchema = z.object({
         engineOilQuantity: z.string().optional(),
     }),
     serviceType: z.string(),
-    hasExtendedWarranty: z.boolean(),
+    warrantyPlanKey: WarrantyPlanSchema.shape.key.optional(),
     parts: z.array(PartSchema),
     labor: z.array(LaborSchema),
     recommendedLabor: z.array(LaborSchema).optional(),
