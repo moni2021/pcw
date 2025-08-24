@@ -89,50 +89,44 @@ export default function AdminLayout({
                 </SidebarMenuItem>
                 <SidebarMenuSub>
                   <SidebarMenuSubItem>
-                    <Link href="/admin/workshops">
-                      <SidebarMenuSubButton isActive={pathname.startsWith('/admin/workshops')}>
-                        <Building />
-                        Workshops
+                    <Link href="/admin/workshops" passHref>
+                      <SidebarMenuSubButton asChild isActive={pathname.startsWith('/admin/workshops')}>
+                        <div><Building />Workshops</div>
                       </SidebarMenuSubButton>
                     </Link>
                   </SidebarMenuSubItem>
                   <SidebarMenuSubItem>
-                    <Link href="/admin/parts">
-                      <SidebarMenuSubButton isActive={pathname.startsWith('/admin/parts')}>
-                        <Package />
-                        Parts
+                    <Link href="/admin/parts" passHref>
+                      <SidebarMenuSubButton asChild isActive={pathname.startsWith('/admin/parts')}>
+                        <div><Package />Parts</div>
                       </SidebarMenuSubButton>
                     </Link>
                   </SidebarMenuSubItem>
                   <SidebarMenuSubItem>
-                    <Link href="/admin/labour">
-                      <SidebarMenuSubButton isActive={pathname.startsWith('/admin/labour')}>
-                        <Wrench />
-                        Labour
+                    <Link href="/admin/labour" passHref>
+                      <SidebarMenuSubButton asChild isActive={pathname.startsWith('/admin/labour')}>
+                        <div><Wrench />Labour</div>
                       </SidebarMenuSubButton>
                     </Link>
                   </SidebarMenuSubItem>
                   <SidebarMenuSubItem>
-                    <Link href="/admin/pms-charges">
-                      <SidebarMenuSubButton isActive={pathname.startsWith('/admin/pms-charges')}>
-                        <Banknote />
-                        PMS Charges
+                    <Link href="/admin/pms-charges" passHref>
+                      <SidebarMenuSubButton asChild isActive={pathname.startsWith('/admin/pms-charges')}>
+                        <div><Banknote />PMS Charges</div>
                       </SidebarMenuSubButton>
                     </Link>
                   </SidebarMenuSubItem>
                   <SidebarMenuSubItem>
-                    <Link href="/admin/vehicles">
-                      <SidebarMenuSubButton isActive={pathname.startsWith('/admin/vehicles')}>
-                        <Car />
-                        Vehicles
+                    <Link href="/admin/vehicles" passHref>
+                      <SidebarMenuSubButton asChild isActive={pathname.startsWith('/admin/vehicles')}>
+                        <div><Car />Vehicles</div>
                       </SidebarMenuSubButton>
                     </Link>
                   </SidebarMenuSubItem>
                   <SidebarMenuSubItem>
-                    <Link href="/admin/data">
-                      <SidebarMenuSubButton isActive={pathname.startsWith('/admin/data')}>
-                        <Settings />
-                        Sync & Upload
+                    <Link href="/admin/data" passHref>
+                      <SidebarMenuSubButton asChild isActive={pathname.startsWith('/admin/data')}>
+                        <div><Settings />Sync & Upload</div>
                       </SidebarMenuSubButton>
                     </Link>
                   </SidebarMenuSubItem>
@@ -148,18 +142,16 @@ export default function AdminLayout({
                 </SidebarMenuItem>
                 <SidebarMenuSub>
                   <SidebarMenuSubItem>
-                    <Link href="/admin/compare">
-                      <SidebarMenuSubButton isActive={pathname.startsWith('/admin/compare')}>
-                        <GitCompareArrows />
-                        Price Comparison
+                    <Link href="/admin/compare" passHref>
+                      <SidebarMenuSubButton asChild isActive={pathname.startsWith('/admin/compare')}>
+                        <div><GitCompareArrows />Price Comparison</div>
                       </SidebarMenuSubButton>
                     </Link>
                   </SidebarMenuSubItem>
                    <SidebarMenuSubItem>
-                    <Link href="/admin/pms-gaps">
-                      <SidebarMenuSubButton isActive={pathname.startsWith('/admin/pms-gaps')}>
-                        <FileWarning />
-                        PMS Gaps
+                    <Link href="/admin/pms-gaps" passHref>
+                      <SidebarMenuSubButton asChild isActive={pathname.startsWith('/admin/pms-gaps')}>
+                        <div><FileWarning />PMS Gaps</div>
                       </SidebarMenuSubButton>
                     </Link>
                   </SidebarMenuSubItem>
