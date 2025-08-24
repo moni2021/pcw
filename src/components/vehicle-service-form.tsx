@@ -10,7 +10,7 @@ import { vehicles, serviceDataLookup } from '@/lib/data';
 import { ServiceEstimate } from './service-estimate';
 import type { ServiceEstimateData } from '@/lib/types';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Loader2, Car, Tag, Building2, Droplets, Info, Check, ChevronsUpDown, AlertCircle } from 'lucide-react';
+import { Loader2, Car, Tag, Building2, Droplets, Info, Check, ChevronsUpDown, AlertCircle, ShieldCheck } from 'lucide-react';
 import { Separator } from './ui/separator';
 import { Badge } from '@/components/ui/badge';
 import { useTheme } from '@/context/ThemeContext';
@@ -23,6 +23,7 @@ import type { ChecklistCategory } from '@/lib/pms-checklists';
 import { pmsChecklists } from '@/lib/pms-checklists';
 import { Input } from './ui/input';
 import { workshops } from '@/lib/data/workshops';
+import { Checkbox } from './ui/checkbox';
 
 const serviceTypes = [
   '1st Free Service (1,000 km)',
@@ -58,6 +59,7 @@ export function VehicleServiceForm() {
   const [selectedFuelType, setSelectedFuelType] = useState<string>('');
   const [selectedYear, setSelectedYear] = useState<string>('');
   const [selectedServiceType, setSelectedServiceType] = useState<string>('');
+  const [hasExtendedWarranty, setHasExtendedWarranty] = useState(false);
   const [estimate, setEstimate] = useState<ServiceEstimateData | null>(null);
   const [error, setError] = useState<string>('');
   const [isLoading, setIsLoading] = useState(false);
@@ -200,6 +202,7 @@ export function VehicleServiceForm() {
           engineOilQuantity: vehicleInfo.engineOilQuantity,
         },
         serviceType: selectedServiceType,
+        hasExtendedWarranty: hasExtendedWarranty,
         parts: serviceDetails?.parts || [],
         labor: pmsLabor,
         recommendedLabor: recommendedServices,
@@ -362,6 +365,14 @@ export function VehicleServiceForm() {
             )}
           </div>
           
+          <div className="flex items-center space-x-2">
+            <Checkbox id="extended-warranty" checked={hasExtendedWarranty} onCheckedChange={(checked) => setHasExtendedWarranty(Boolean(checked))} />
+            <Label htmlFor="extended-warranty" className="flex items-center gap-2">
+              <ShieldCheck className="text-primary h-4 w-4"/>
+              Customer has Extended Warranty
+            </Label>
+          </div>
+
           {error && (
             <Alert variant="destructive">
                 <AlertCircle className="h-4 w-4" />

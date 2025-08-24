@@ -79,6 +79,7 @@ export const ServiceEstimateDataSchema = z.object({
         engineOilQuantity: z.string().optional(),
     }),
     serviceType: z.string(),
+    hasExtendedWarranty: z.boolean(),
     parts: z.array(PartSchema),
     labor: z.array(LaborSchema),
     recommendedLabor: z.array(LaborSchema).optional(),

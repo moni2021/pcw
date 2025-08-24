@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Separator } from '@/components/ui/separator';
-import { Percent, PlusCircle, Sparkles, Wrench, Package, Hammer, MinusCircle, ChevronDown, ChevronUp, Printer, Bot, AlertCircle } from 'lucide-react';
+import { Percent, PlusCircle, Sparkles, Wrench, Package, Hammer, MinusCircle, ChevronDown, ChevronUp, Printer, Bot, AlertCircle, ShieldCheck } from 'lucide-react';
 import type { ServiceEstimateData, Labor, Part } from '@/lib/types';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
@@ -21,6 +21,7 @@ import { Textarea } from './ui/textarea';
 import { Skeleton } from './ui/skeleton';
 import { getAvailableCustomLabor } from '@/lib/workshop-data-loader';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
+import { getWarrantyCoverage } from '@/lib/data/extended-warranty';
 
 
 interface ServiceEstimateProps {
@@ -47,7 +48,7 @@ const allCoolantParts = allParts.filter(part => part.name.toLowerCase().includes
 
 export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
   const { toast } = useToast();
-  const { vehicle, serviceType, parts: initialParts, labor, recommendedLabor, optionalServices, workshopId } = estimate;
+  const { vehicle, serviceType, parts: initialParts, labor, recommendedLabor, optionalServices, workshopId, hasExtendedWarranty } = estimate;
   const GST_RATE = 0.18;
 
   const [currentParts, setCurrentParts] = useState<Part[]>(initialParts);
@@ -62,6 +63,11 @@ export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
   const [showOptional, setShowOptional] = useState(false);
   const [isGeneratingScript, setIsGeneratingScript] = useState(false);
   const [customerScript, setCustomerScript] = useState('');
+  
+  const warrantyCoverage = useMemo(() => {
+    if (!hasExtendedWarranty) return { coveredParts: [], conditions: null };
+    return getWarrantyCoverage(vehicle.model);
+  }, [hasExtendedWarranty, vehicle.model]);
   
   useEffect(() => {
     let partsWithCorrectEngineOil = [...initialParts];
@@ -102,6 +108,9 @@ export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
   const pmsLaborCharge = useMemo(() => labor.reduce((sum, job) => sum + job.charge, 0), [labor]);
   
   const calculatePartPrice = (part: Part) => {
+    if (hasExtendedWarranty && warrantyCoverage.coveredParts.includes(part.name)) {
+        return 0; // Covered by warranty
+    }
     const isEngineOil = allEngineOilParts.some(eo => eo.name === part.name);
     if (isEngineOil && vehicle.engineOilLiters) {
         return part.price * vehicle.engineOilLiters;
@@ -109,7 +118,7 @@ export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
     return part.price;
   };
 
-  const partsTotal = useMemo(() => currentParts.reduce((sum, part) => sum + calculatePartPrice(part), 0), [currentParts, vehicle.engineOilLiters]);
+  const partsTotal = useMemo(() => currentParts.reduce((sum, part) => sum + calculatePartPrice(part), 0), [currentParts, vehicle.engineOilLiters, hasExtendedWarranty, warrantyCoverage]);
   
   const recommendedLaborCharge = useMemo(() => selectedRecommended.reduce((sum, job) => sum + job.charge, 0), [selectedRecommended]);
   const optionalServiceCharge = useMemo(() => selectedOptional.reduce((sum, job) => sum + job.charge, 0), [selectedOptional]);
@@ -253,6 +262,20 @@ export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
           </div>
         </div>
 
+        {hasExtendedWarranty && warrantyCoverage.conditions && (
+            <Alert variant="default" className="mb-4 bg-blue-500/10 border-blue-500/50">
+                <ShieldCheck className="h-4 w-4 text-blue-500" />
+                <AlertTitle className="text-blue-700">Extended Warranty Coverage Active</AlertTitle>
+                <AlertDescription className="text-blue-700/80">
+                    <p>{warrantyCoverage.conditions.text}</p>
+                    <ul className="list-disc pl-5 mt-2 text-xs">
+                        <li>Coverage is subject to verification of warranty terms and vehicle inspection.</li>
+                        <li>Labor charges for covered parts are also waived. Consumables and non-covered items are chargeable.</li>
+                    </ul>
+                </AlertDescription>
+            </Alert>
+        )}
+
         <Separator className="my-4" />
 
         <div className="space-y-4">
@@ -274,67 +297,74 @@ export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
                            const isCoolant = allCoolantParts.some(c => c.name === part.name);
                            const isDiesel = vehicle.fuelType === 'Diesel';
                            const finalPrice = calculatePartPrice(part);
+                           const isCovered = finalPrice === 0 && hasExtendedWarranty;
 
-                           if (isEngineOil && !isDiesel) {
-                            return (
-                               <TableRow key={`part-${index}`}>
-                                <TableCell className="font-medium">
-                                    <Select value={part.name} onValueChange={handleEngineOilChange}>
-                                        <SelectTrigger className="w-full sm:w-[300px]">
-                                            <SelectValue placeholder="Select Engine Oil" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            {petrolEngineOils.map(oil => (
-                                                <SelectItem key={oil.name} value={oil.name}>
-                                                    {oil.name}
-                                                </SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
-                                    <p className="text-xs text-muted-foreground mt-1">
-                                        {vehicle.engineOilLiters} L @ ₹{part.price.toFixed(2)}/L
-                                    </p>
-                                </TableCell>
-                                <TableCell className="text-right">{finalPrice.toFixed(2)}</TableCell>
-                            </TableRow>
-                            )
-                          }
-                          
-                          if (isCoolant) {
-                             return (
-                               <TableRow key={`part-${index}`}>
-                                <TableCell className="font-medium">
-                                     <Select value={part.name} onValueChange={handleCoolantChange}>
-                                        <SelectTrigger className="w-full sm:w-[300px]">
-                                            <SelectValue placeholder="Select Coolant" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            {allCoolantParts.map(coolant => (
-                                                <SelectItem key={coolant.name} value={coolant.name}>
-                                                    {coolant.name}
-                                                </SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
-                                </TableCell>
-                                <TableCell className="text-right">{part.price.toFixed(2)}</TableCell>
-                               </TableRow>
-                             )
-                          }
-
-                          return (
-                            <TableRow key={`part-${index}`}>
-                                <TableCell className="font-medium">
+                           const renderCellContent = () => {
+                            if (isEngineOil && !isDiesel) {
+                                return (
+                                   <div className="font-medium">
+                                       <Select value={part.name} onValueChange={handleEngineOilChange}>
+                                           <SelectTrigger className="w-full sm:w-[300px]">
+                                               <SelectValue placeholder="Select Engine Oil" />
+                                           </SelectTrigger>
+                                           <SelectContent>
+                                               {petrolEngineOils.map(oil => (
+                                                   <SelectItem key={oil.name} value={oil.name}>
+                                                       {oil.name}
+                                                   </SelectItem>
+                                               ))}
+                                           </SelectContent>
+                                       </Select>
+                                       <p className="text-xs text-muted-foreground mt-1">
+                                           {vehicle.engineOilLiters} L @ ₹{part.price.toFixed(2)}/L
+                                       </p>
+                                   </div>
+                                )
+                              }
+                              
+                              if (isCoolant) {
+                                 return (
+                                   <div className="font-medium">
+                                        <Select value={part.name} onValueChange={handleCoolantChange}>
+                                           <SelectTrigger className="w-full sm:w-[300px]">
+                                               <SelectValue placeholder="Select Coolant" />
+                                           </SelectTrigger>
+                                           <SelectContent>
+                                               {allCoolantParts.map(coolant => (
+                                                   <SelectItem key={coolant.name} value={coolant.name}>
+                                                       {coolant.name}
+                                                   </SelectItem>
+                                               ))}
+                                           </SelectContent>
+                                       </Select>
+                                   </div>
+                                 )
+                              }
+                              return (
+                                <div className="font-medium">
                                     {part.name}
                                     {isEngineOil && (
                                         <p className="text-xs text-muted-foreground mt-1">
                                             {vehicle.engineOilLiters} L @ ₹{part.price.toFixed(2)}/L
                                         </p>
                                     )}
-                                </TableCell>
-                                <TableCell className="text-right">{finalPrice.toFixed(2)}</TableCell>
-                            </TableRow>
-                          )
+                                </div>
+                              )
+                           }
+
+                           return (
+                               <TableRow key={`part-${index}`} className={isCovered ? 'bg-green-500/10' : ''}>
+                                   <TableCell>
+                                       <div className="flex flex-col">
+                                            {renderCellContent()}
+                                            {isCovered && <Badge variant="outline" className="mt-1 w-fit border-green-500 text-green-600"><ShieldCheck className="mr-1 h-3 w-3" /> Covered by Warranty</Badge>}
+                                       </div>
+                                   </TableCell>
+                                   <TableCell className="text-right font-mono">
+                                       {isCovered ? '0.00' : finalPrice.toFixed(2)}
+                                   </TableCell>
+                               </TableRow>
+                           )
                         })}
                       </TableBody>
                     </Table>
