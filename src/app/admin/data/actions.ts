@@ -1,50 +1,49 @@
 
 'use server';
 
-import { initializeApp, getApps, cert } from 'firebase-admin/app';
-import { getFirestore, FieldValue, Timestamp } from 'firebase-admin/firestore';
+import { initializeApp as initializeAdminApp, getApps as getAdminApps, cert } from 'firebase-admin/app';
+import { getFirestore as getAdminFirestore, FieldValue, Timestamp } from 'firebase-admin/firestore';
+import { getFirestore as getClientFirestore, collection, addDoc, serverTimestamp, getDocs, query, orderBy, where, getDoc, limit, updateDoc, doc } from 'firebase/firestore';
+
 import { z } from 'zod';
-import { VehicleSchema, PartSchema, CustomLaborSchema, WorkshopSchema, PmsChargeSchema, FeedbackSchema, Feedback } from '@/lib/types';
+import { VehicleSchema, PartSchema, CustomLaborSchema, WorkshopSchema, PmsChargeSchema, FeedbackSchema, Feedback, DataObjectType, Workshop, Part, Vehicle, CustomLabor, PmsCharge } from '@/lib/types';
+import { db as clientDb } from '@/lib/firebase'; // Client-side DB for public actions
 
 
-// This function ensures Firebase is initialized only once.
-const getDb = () => {
-    // Check if the app is already initialized
-    if (getApps().length) {
-        return getFirestore();
+// --- Admin SDK Initialization (for secure backend operations) ---
+const getAdminDb = () => {
+    if (getAdminApps().length) {
+        return getAdminFirestore();
     }
 
-    // Attempt to initialize from the service account key environment variable
     const serviceAccountJson = process.env.SERVICE_ACCOUNT_KEY;
     if (serviceAccountJson) {
         try {
             const serviceAccount = JSON.parse(serviceAccountJson);
-            initializeApp({
+            initializeAdminApp({
                 credential: cert(serviceAccount),
                 databaseURL: `https://${process.env.GCLOUD_PROJECT || serviceAccount.project_id}.firebaseio.com`
             });
             console.log("Firebase Admin SDK initialized successfully.");
-            return getFirestore();
+            return getAdminFirestore();
         } catch (error: any) {
             console.error('Firebase Admin SDK initialization error:', error.message);
-            // If initialization fails, we fall through and return null.
         }
     } else {
         console.warn("Firebase Admin SDK not initialized. SERVICE_ACCOUNT_KEY is missing.");
     }
     
-    // Return null if initialization was not possible.
     return null;
 };
 
+
+// --- Schemas and Local Data (remains the same) ---
 const ThreeMCareServiceSchema = z.object({
   name: z.string(),
   charge: z.number(),
 });
-
 const ThreeMCareSchema = z.record(z.array(ThreeMCareServiceSchema));
 
-// Import all local data sources for initial sync or as a fallback.
 import { workshopData } from '@/lib/workshop-data-loader';
 import { workshops } from '@/lib/data/workshops';
 import { vehicles } from '@/lib/data';
@@ -65,11 +64,20 @@ const dataSchemas = {
 };
 
 type DataType = keyof typeof dataSchemas;
-type DataObjectType = Workshop | Part | Vehicle | CustomLabor | PmsCharge | Feedback;
 
+const getFullLocalData = () => ({
+    workshops,
+    vehicles,
+    parts: allParts,
+    customLabor: allCustomLabor,
+    pmsCharges: allPmsCharges,
+    threeMCare: threeMCareData,
+});
+
+// --- Admin-Only Actions (use Admin SDK) ---
 
 async function writeDataToFirebase(collection: string, docId: string, data: any, merge: boolean = false): Promise<{ success: boolean, error?: string }> {
-     const db = getDb();
+     const db = getAdminDb();
      if (!db) {
         const errorMessage = "Service account key is not configured. Cannot sync with Firebase.";
         console.error(errorMessage);
@@ -86,15 +94,6 @@ async function writeDataToFirebase(collection: string, docId: string, data: any,
         return { success: false, error: error.message || 'An unknown error occurred during Firebase write.' };
     }
 }
-
-const getFullLocalData = () => ({
-    workshops,
-    vehicles,
-    parts: allParts,
-    customLabor: allCustomLabor,
-    pmsCharges: allPmsCharges,
-    threeMCare: threeMCareData,
-});
 
 export async function syncToFirebase(): Promise<{ success: boolean, error?: string }> {
     const fullData = getFullLocalData();
@@ -124,9 +123,8 @@ export async function uploadAndSyncToFirebase(jsonString: string, dataType: Data
 }
 
 export async function downloadMasterJson(dataType: DataType): Promise<string> {
-    const db = getDb();
+    const db = getAdminDb();
     if (!db) {
-      // Fallback to local data if DB not connected
       console.warn("Firebase not connected. Falling back to local data for download.");
       const localData = getFullLocalData();
       return JSON.stringify(localData[dataType] || {}, null, 2);
@@ -142,13 +140,10 @@ export async function downloadMasterJson(dataType: DataType): Promise<string> {
     return JSON.stringify({}, null, 2);
 }
 
-// ---- Live Data Fetching and Mutation Actions ----
-
 export async function getFullDataFromFirebase() {
-    const db = getDb();
+    const db = getAdminDb();
     const localData = getFullLocalData();
     if (!db) {
-        // Fallback to local data if DB isn't connected
         console.warn("Firebase not connected, returning local fallback data.");
         return localData;
     }
@@ -158,28 +153,25 @@ export async function getFullDataFromFirebase() {
         const docSnap = await docRef.get();
         
         if (docSnap.exists()) {
-            // Combine Firestore data with local data as a fallback for missing fields
             const firestoreData = docSnap.data()?.appData;
             return {
                 ...localData,
                 ...firestoreData
             };
         } else {
-            // If no data in Firestore, perform the initial sync and return local data.
             console.warn("No data in Firestore. Performing initial sync and returning local data.");
             await syncToFirebase();
             return localData;
         }
     } catch (error: any) {
         console.error("Error fetching data from Firebase: ", error);
-        // Fallback to local data if there is an error fetching from firebase
         console.warn("Returning local fallback data due to Firebase fetch error.");
         return localData;
     }
 }
 
 async function updateArrayInFirebase(dataType: keyof (ReturnType<typeof getFullLocalData>), item: DataObjectType, operation: 'add' | 'update' | 'delete', identifierKey: keyof DataObjectType) {
-    const db = getDb();
+    const db = getAdminDb();
     if (!db) return { success: false, error: "Database not connected." };
     const docRef = db.collection('config').doc('app_data');
 
@@ -212,7 +204,6 @@ async function updateArrayInFirebase(dataType: keyof (ReturnType<typeof getFullL
     }
 }
 
-// Individual item actions
 export async function addWorkshop(item: Workshop) { return updateArrayInFirebase('workshops', item, 'add', 'id'); }
 export async function updateWorkshop(item: Workshop) { return updateArrayInFirebase('workshops', item, 'update', 'id'); }
 export async function deleteWorkshop(item: Workshop) { return updateArrayInFirebase('workshops', item, 'delete', 'id'); }
@@ -225,10 +216,8 @@ export async function addVehicle(item: Vehicle) { return updateArrayInFirebase('
 export async function updateVehicle(item: Vehicle) { return updateArrayInFirebase('vehicles', item, 'update', 'model'); }
 export async function deleteVehicle(item: Vehicle) { return updateArrayInFirebase('vehicles', item, 'delete', 'model'); }
 
-// Custom labor needs a composite key for identification, but for simplicity we'll just match all fields for deletion.
-// A more robust solution might add a unique ID to each custom labor entry.
 async function updateCustomLaborArray(item: CustomLabor, operation: 'add' | 'update' | 'delete') {
-    const db = getDb();
+    const db = getAdminDb();
     if (!db) return { success: false, error: "Database not connected." };
     const docRef = db.collection('config').doc('app_data');
 
@@ -267,55 +256,47 @@ export async function updateCustomLabor(originalItem: CustomLabor, updatedItem: 
 }
 export async function deleteCustomLabor(item: CustomLabor) { return updateCustomLaborArray(item, 'delete'); }
 
-// PMS Charges Actions
-export async function addPmsCharge(item: PmsCharge) {
-    return updateArrayInFirebase('pmsCharges', item, 'add', 'id');
-}
-export async function updatePmsCharge(item: PmsCharge) {
-    return updateArrayInFirebase('pmsCharges', item, 'update', 'id');
-}
-export async function deletePmsCharge(item: PmsCharge) {
-    return updateArrayInFirebase('pmsCharges', item, 'delete', 'id');
-}
+export async function addPmsCharge(item: PmsCharge) { return updateArrayInFirebase('pmsCharges', item, 'id'); }
+export async function updatePmsCharge(item: PmsCharge) { return updateArrayInFirebase('pmsCharges', item, 'update', 'id'); }
+export async function deletePmsCharge(item: PmsCharge) { return updateArrayInFirebase('pmsCharges', item, 'delete', 'id'); }
 
-// ---- Feedback Actions ----
+
+// --- Public-Facing Actions (use Client SDK) ---
 
 export async function addFeedback(data: Omit<Feedback, 'id' | 'createdAt' | 'status'>): Promise<{ success: boolean; id?: string; error?: string }> {
-    const db = getDb();
-    if (!db) return { success: false, error: 'Database not connected.' };
-    
     try {
-        const docRef = db.collection('feedback').doc();
-        const ticketId = `TKT-${docRef.id.substring(0, 6).toUpperCase()}`;
-        
-        const newFeedback: Omit<Feedback, 'createdAt'> & { createdAt: FieldValue } = {
+        const feedbackCollection = collection(clientDb, 'feedback');
+        const docRef = await addDoc(feedbackCollection, {
             ...data,
-            id: ticketId,
             status: 'Open',
-            createdAt: FieldValue.serverTimestamp(),
-        };
+            createdAt: serverTimestamp(),
+        });
 
-        await docRef.set(newFeedback);
+        // Create a user-friendly ticket ID and update the document
+        const ticketId = `TKT-${docRef.id.substring(0, 6).toUpperCase()}`;
+        await updateDoc(doc(clientDb, 'feedback', docRef.id), { id: ticketId });
+
         return { success: true, id: ticketId };
 
-    } catch(e: any) {
+    } catch (e: any) {
         console.error("Error adding feedback:", e);
         return { success: false, error: e.message };
     }
 }
 
 export async function getFeedback(): Promise<{ success: boolean, data?: Feedback[], error?: string }> {
-     const db = getDb();
-    if (!db) return { success: false, error: 'Database not connected.' };
-
     try {
-        const snapshot = await db.collection('feedback').orderBy('createdAt', 'desc').get();
+        const feedbackCollection = collection(clientDb, 'feedback');
+        const q = query(feedbackCollection, orderBy('createdAt', 'desc'));
+        const snapshot = await getDocs(q);
+
         const feedbackList: Feedback[] = snapshot.docs.map(doc => {
             const data = doc.data();
             // Convert Firestore Timestamp to Date object for client-side usage
-            const createdAt = data.createdAt instanceof Timestamp ? data.createdAt.toDate() : new Date();
+            const createdAt = data.createdAt?.toDate ? data.createdAt.toDate() : new Date();
             return { ...data, createdAt } as Feedback;
         });
+
         return { success: true, data: feedbackList };
     } catch (e: any) {
         console.error("Error fetching feedback:", e);
@@ -323,19 +304,21 @@ export async function getFeedback(): Promise<{ success: boolean, data?: Feedback
     }
 }
 
-
 export async function updateFeedbackStatus(docId: string, status: 'Open' | 'Resolved'): Promise<{ success: boolean; error?: string }> {
-    const db = getDb();
+    const db = getAdminDb(); // Use Admin SDK for this to ensure only admins can do it
     if (!db) return { success: false, error: 'Database not connected.' };
 
     try {
-        // Find the document with the matching custom ticket ID
-        const querySnapshot = await db.collection('feedback').where('id', '==', docId).limit(1).get();
+        const q = db.collection('feedback').where('id', '==', docId).limit(1);
+        const querySnapshot = await q.get();
+
         if (querySnapshot.empty) {
             return { success: false, error: 'Feedback ticket not found.' };
         }
+        
         const docToUpdate = querySnapshot.docs[0].ref;
         await docToUpdate.update({ status });
+        
         return { success: true };
     } catch (e: any) {
         console.error("Error updating feedback status:", e);

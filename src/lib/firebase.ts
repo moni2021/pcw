@@ -1,20 +1,25 @@
 
 // Import the functions you need from the SDKs you need
-import { initializeApp } from "firebase/app";
-import { getAuth } from "firebase/auth";
+import { initializeApp, getApps } from "firebase/app";
+import { getFirestore } from "firebase/firestore";
 
 // Your web app's Firebase configuration
-// IMPORTANT: Replace this with the configuration from your new Firebase project.
-// You can find this in your Firebase project settings under "General".
+// This is safe to be public.
 const firebaseConfig = {
-  apiKey: "AIzaSyDKK6PfyXL3ybdk5maFovqpIuVa4G72F6M",
-  authDomain: "maruti-service-estimator.firebaseapp.com",
+  apiKey: "YOUR_API_KEY", // Replace with your actual API key
+  authDomain: "YOUR_AUTH_DOMAIN", // Replace with your actual auth domain
   projectId: "maruti-service-estimator",
-  storageBucket: "maruti-service-estimator.appspot.com",
-  messagingSenderId: "672968598920",
-  appId: "1:672968598920:web:436ff605b78db96db6463d"
+  storageBucket: "YOUR_STORAGE_BUCKET", // Replace with your actual storage bucket
+  messagingSenderId: "YOUR_MESSAGING_SENDER_ID", // Replace
+  appId: "YOUR_APP_ID" // Replace
 };
 
 // Initialize Firebase
-const app = initializeApp(firebaseConfig);
-export const auth = getAuth(app);
+let app;
+if (!getApps().length) {
+    app = initializeApp(firebaseConfig);
+} else {
+    app = getApps()[0];
+}
+
+export const db = getFirestore(app);

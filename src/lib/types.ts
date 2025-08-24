@@ -53,6 +53,7 @@ export const PmsChargeSchema = z.object({
 });
 export type PmsCharge = z.infer<typeof PmsChargeSchema>;
 
+export type DataObjectType = Workshop | Part | Vehicle | CustomLabor | PmsCharge | Feedback;
 
 export const ServiceSchema = z.object({
   parts: z.array(PartSchema),

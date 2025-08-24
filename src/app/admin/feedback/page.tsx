@@ -55,6 +55,11 @@ export default function FeedbackManagementPage() {
   }, [loadFeedback]);
 
   const handleResolve = async (ticketId: string) => {
+    if (!ticketId) {
+        toast({ variant: 'destructive', title: 'Error', description: 'Invalid ticket ID.' });
+        return;
+    }
+
     setIsMutating(true);
     const result = await updateFeedbackStatus(ticketId, 'Resolved');
     if (result.success) {
@@ -121,8 +126,8 @@ export default function FeedbackManagementPage() {
                 ) : (
                   feedbackList.map((feedback) => (
                     <TableRow key={feedback.id} className={feedback.status === 'Resolved' ? 'bg-muted/50' : ''}>
-                      <TableCell className="font-mono">{feedback.id}</TableCell>
-                      <TableCell>{formatDistanceToNow(new Date(feedback.createdAt), { addSuffix: true })}</TableCell>
+                      <TableCell className="font-mono">{feedback.id || 'N/A'}</TableCell>
+                      <TableCell>{feedback.createdAt ? formatDistanceToNow(new Date(feedback.createdAt), { addSuffix: true }) : 'Just now'}</TableCell>
                       <TableCell>{feedback.name}</TableCell>
                       <TableCell>
                         <Badge variant={feedback.status === 'Resolved' ? 'secondary' : 'default'}>
@@ -163,7 +168,7 @@ export default function FeedbackManagementPage() {
                     <Ticket /> Feedback Details: {selectedFeedback.id}
                   </DialogTitle>
                   <DialogDescription>
-                    Submitted {formatDistanceToNow(new Date(selectedFeedback.createdAt), { addSuffix: true })}
+                    Submitted {selectedFeedback.createdAt ? formatDistanceToNow(new Date(selectedFeedback.createdAt), { addSuffix: true }) : 'just now'}
                   </DialogDescription>
                 </DialogHeader>
                 <div className="space-y-4 py-4 text-sm">
