@@ -3,7 +3,7 @@
 
 import { initializeApp as initializeAdminApp, getApps as getAdminApps, cert } from 'firebase-admin/app';
 import { getFirestore as getAdminFirestore, FieldValue, Timestamp } from 'firebase-admin/firestore';
-import { getFirestore as getClientFirestore, collection, addDoc, serverTimestamp, getDocs, query, orderBy, where, getDoc, limit, updateDoc, doc } from 'firebase/firestore';
+import { getFirestore as getClientFirestore, collection, addDoc, serverTimestamp, getDocs, query, orderBy, where, getDoc, limit, updateDoc, doc, setDoc } from 'firebase/firestore';
 
 import { z } from 'zod';
 import { VehicleSchema, PartSchema, CustomLaborSchema, WorkshopSchema, PmsChargeSchema, FeedbackSchema, Feedback, DataObjectType, Workshop, Part, Vehicle, CustomLabor, PmsCharge } from '@/lib/types';
@@ -265,16 +265,22 @@ export async function deletePmsCharge(item: PmsCharge) { return updateArrayInFir
 
 export async function addFeedback(data: Omit<Feedback, 'id' | 'createdAt' | 'status'>): Promise<{ success: boolean; id?: string; error?: string }> {
     try {
-        const feedbackCollection = collection(clientDb, 'feedback');
-        const docRef = await addDoc(feedbackCollection, {
+        // Generate a new document reference first to get a unique ID
+        const newFeedbackRef = doc(collection(clientDb, 'feedback'));
+        
+        // Create the user-friendly ticket ID from the document's unique ID
+        const ticketId = `TKT-${newFeedbackRef.id.substring(0, 6).toUpperCase()}`;
+
+        // Create the full feedback object
+        const feedbackData: Feedback = {
             ...data,
+            id: ticketId,
             status: 'Open',
             createdAt: serverTimestamp(),
-        });
+        };
 
-        // Create a user-friendly ticket ID and update the document
-        const ticketId = `TKT-${docRef.id.substring(0, 6).toUpperCase()}`;
-        await updateDoc(doc(clientDb, 'feedback', docRef.id), { id: ticketId });
+        // Set the document with the full data in a single operation
+        await setDoc(newFeedbackRef, feedbackData);
 
         return { success: true, id: ticketId };
 
