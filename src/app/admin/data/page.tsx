@@ -338,15 +338,25 @@ export default function DataManagementPage() {
                         <AlertCircle /> Action Required: Firebase Setup
                     </CardTitle>
                     <CardDescription>
-                        To enable live data synchronization with Firebase, you must first upload your project's service account key.
+                        To enable live data synchronization with Firebase, you must provide your project's service account key.
                     </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                   <AlertDescription>
-                        Download the key from your Firebase project settings (Service Accounts tab), then upload it here. This is a one-time setup step.
-                   </AlertDescription>
+                   <Alert>
+                        <AlertTitle>Two Ways to Authenticate</AlertTitle>
+                       <AlertDescription>
+                            <ol className="list-decimal list-inside space-y-2">
+                                <li>
+                                    <strong>For this Session Only:</strong> Use the uploader below. The connection will work until you restart the server. Good for a quick test.
+                                </li>
+                                <li>
+                                    <strong>Permanent Solution:</strong> Create a `.env.local` file in the project's root folder and add your key there. This is the recommended approach for development.
+                                </li>
+                            </ol>
+                        </AlertDescription>
+                   </Alert>
                    <div className="space-y-2">
-                       <Label htmlFor="service-account-file">Service Account JSON File</Label>
+                       <Label htmlFor="service-account-file">1. Upload Key for Current Session</Label>
                         <Input 
                            id="service-account-file"
                            type="file"

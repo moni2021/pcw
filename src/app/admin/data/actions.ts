@@ -7,26 +7,34 @@ import { z } from 'zod';
 import { VehicleSchema, PartSchema, CustomLaborSchema, WorkshopSchema, PmsChargeSchema } from '@/lib/types';
 
 
+// This function ensures Firebase is initialized only once.
 const getDb = () => {
-    if (!getApps().length) {
-        const serviceAccount = process.env.SERVICE_ACCOUNT_KEY
-          ? JSON.parse(process.env.SERVICE_ACCOUNT_KEY)
-          : null;
-        if (serviceAccount) {
-            try {
-                initializeApp({
-                    credential: cert(serviceAccount),
-                    databaseURL: `https://${process.env.GCLOUD_PROJECT}.firebaseio.com`
-                });
-            } catch (error: any) {
-                console.error('Firebase Admin SDK initialization error:', error.message);
-            }
-        } else {
-            console.warn("Firebase Admin SDK not initialized. SERVICE_ACCOUNT_KEY is missing.");
-        }
+    // Check if the app is already initialized
+    if (getApps().length) {
+        return getFirestore();
     }
-    // Only return getFirestore() if an app has been initialized
-    return getApps().length > 0 ? getFirestore() : null;
+
+    // Attempt to initialize from the service account key environment variable
+    const serviceAccountJson = process.env.SERVICE_ACCOUNT_KEY;
+    if (serviceAccountJson) {
+        try {
+            const serviceAccount = JSON.parse(serviceAccountJson);
+            initializeApp({
+                credential: cert(serviceAccount),
+                databaseURL: `https://${process.env.GCLOUD_PROJECT || serviceAccount.project_id}.firebaseio.com`
+            });
+            console.log("Firebase Admin SDK initialized successfully.");
+            return getFirestore();
+        } catch (error: any) {
+            console.error('Firebase Admin SDK initialization error:', error.message);
+            // If initialization fails, we fall through and return null.
+        }
+    } else {
+        console.warn("Firebase Admin SDK not initialized. SERVICE_ACCOUNT_KEY is missing.");
+    }
+    
+    // Return null if initialization was not possible.
+    return null;
 };
 
 const ThreeMCareServiceSchema = z.object({
@@ -149,7 +157,12 @@ export async function getFullDataFromFirebase() {
         const docSnap = await docRef.get();
         
         if (docSnap.exists()) {
-            return docSnap.data() as any; // Cast as any to simplify usage on client
+            // Combine Firestore data with local data as a fallback for missing fields
+            const firestoreData = docSnap.data();
+            return {
+                ...localData,
+                ...firestoreData
+            };
         } else {
             // If no data in Firestore, perform the initial sync and return local data.
             console.warn("No data in Firestore. Performing initial sync and returning local data.");
