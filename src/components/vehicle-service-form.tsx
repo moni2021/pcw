@@ -24,6 +24,7 @@ import { pmsChecklists } from '@/lib/pms-checklists';
 import { Input } from './ui/input';
 import { workshops } from '@/lib/data/workshops';
 import { Checkbox } from './ui/checkbox';
+import { getWarrantyCoverage } from '@/lib/data/extended-warranty';
 
 const serviceTypes = [
   '1st Free Service (1,000 km)',
@@ -66,6 +67,7 @@ export function VehicleServiceForm() {
   const [isModelPopoverOpen, setIsModelPopoverOpen] = useState(false);
   const [isChecklistOpen, setIsChecklistOpen] = useState(false);
   const [checklistData, setChecklistData] = useState<ChecklistCategory[] | null>(null);
+  const [showWarrantyExpiredAlert, setShowWarrantyExpiredAlert] = useState(false);
 
   useEffect(() => {
     if (workshops.length > 0) {
@@ -84,6 +86,20 @@ export function VehicleServiceForm() {
       setTheme('default');
     }
   }, [currentVehicle, setTheme]);
+
+  useEffect(() => {
+    if (hasExtendedWarranty && selectedYear && selectedModel) {
+        const vehicleAge = new Date().getFullYear() - parseInt(selectedYear, 10);
+        const warrantyDuration = getWarrantyCoverage(selectedModel).conditions.years;
+        if (vehicleAge > warrantyDuration) {
+            setShowWarrantyExpiredAlert(true);
+        } else {
+            setShowWarrantyExpiredAlert(false);
+        }
+    } else {
+        setShowWarrantyExpiredAlert(false);
+    }
+  }, [hasExtendedWarranty, selectedYear, selectedModel]);
   
   const handleModelChange = (model: string) => {
     const vehicle = vehicles.find(v => v.model === model);
@@ -365,13 +381,24 @@ export function VehicleServiceForm() {
             )}
           </div>
           
-          <div className="flex items-center space-x-2">
-            <Checkbox id="extended-warranty" checked={hasExtendedWarranty} onCheckedChange={(checked) => setHasExtendedWarranty(Boolean(checked))} />
-            <Label htmlFor="extended-warranty" className="flex items-center gap-2">
-              <ShieldCheck className="text-primary h-4 w-4"/>
-              Customer has Extended Warranty
-            </Label>
-          </div>
+           <div className="space-y-2">
+                <div className="flex items-center space-x-2">
+                    <Checkbox id="extended-warranty" checked={hasExtendedWarranty} onCheckedChange={(checked) => setHasExtendedWarranty(Boolean(checked))} />
+                    <Label htmlFor="extended-warranty" className="flex items-center gap-2">
+                        <ShieldCheck className="text-primary h-4 w-4"/>
+                        Customer has Extended Warranty
+                    </Label>
+                </div>
+                 {showWarrantyExpiredAlert && (
+                    <Alert variant="destructive" className="mt-2">
+                        <AlertCircle className="h-4 w-4" />
+                        <AlertTitle>Warranty May Be Expired</AlertTitle>
+                        <AlertDescription>
+                            This vehicle is more than {getWarrantyCoverage(selectedModel).conditions.years} years old. The extended warranty may no longer be valid. Please verify with the vehicle's purchase date and mileage.
+                        </AlertDescription>
+                    </Alert>
+                )}
+            </div>
 
           {error && (
             <Alert variant="destructive">
