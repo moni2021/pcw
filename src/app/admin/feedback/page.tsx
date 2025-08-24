@@ -109,7 +109,7 @@ export default function FeedbackManagementPage() {
               </TableHeader>
               <TableBody>
                 {isLoading ? (
-                  <TableRow>
+                  <TableRow key="loading">
                     <TableCell colSpan={5} className="h-48 text-center">
                       <div className="flex flex-col items-center gap-2">
                         <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
@@ -118,7 +118,7 @@ export default function FeedbackManagementPage() {
                     </TableCell>
                   </TableRow>
                 ) : feedbackList.length === 0 ? (
-                  <TableRow>
+                  <TableRow key="empty">
                     <TableCell colSpan={5} className="h-24 text-center">
                       No feedback submitted yet.
                     </TableCell>
