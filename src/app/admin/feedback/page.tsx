@@ -124,8 +124,8 @@ export default function FeedbackManagementPage() {
                     </TableCell>
                   </TableRow>
                 ) : (
-                  feedbackList.map((feedback) => (
-                    <TableRow key={feedback.id} className={feedback.status === 'Resolved' ? 'bg-muted/50' : ''}>
+                  feedbackList.map((feedback, index) => (
+                    <TableRow key={`${feedback.id}-${index}`} className={feedback.status === 'Resolved' ? 'bg-muted/50' : ''}>
                       <TableCell className="font-mono">{feedback.id || 'N/A'}</TableCell>
                       <TableCell>{feedback.createdAt ? formatDistanceToNow(new Date(feedback.createdAt), { addSuffix: true }) : 'Just now'}</TableCell>
                       <TableCell>{feedback.name}</TableCell>
