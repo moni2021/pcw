@@ -25,6 +25,7 @@ export type Vehicle = z.infer<typeof VehicleSchema>;
 export const PartSchema = z.object({
   name: z.string(),
   price: z.number(), // For engine oil, this will be price per liter
+  workshopId: z.string().optional(),
 });
 export type Part = z.infer<typeof PartSchema>;
 
@@ -117,5 +118,3 @@ export const FeedbackSchema = z.object({
   createdAt: z.any().describe("Timestamp from Firestore"),
 });
 export type Feedback = z.infer<typeof FeedbackSchema>;
-
-    
