@@ -80,6 +80,13 @@ export function VehicleServiceForm() {
     return vehicles.find(v => v.model === selectedModel);
   }, [selectedModel]);
 
+  const commercialVehicleNexaAlert = useMemo(() => {
+    if (!currentVehicle || !selectedWorkshop) return false;
+    const workshop = workshops.find(w => w.id === selectedWorkshop);
+    return currentVehicle.brand === 'Commercial' && workshop?.name.includes('NEXA');
+  }, [currentVehicle, selectedWorkshop]);
+
+
   useEffect(() => {
     if (currentVehicle && currentVehicle.brand) {
       setTheme(currentVehicle.brand.toLowerCase() as 'arena' | 'nexa');
@@ -331,6 +338,14 @@ export function VehicleServiceForm() {
                     </Badge>
                   )}
                </div>
+          )}
+
+          {commercialVehicleNexaAlert && (
+             <Alert variant="destructive">
+                <AlertCircle className="h-4 w-4" />
+                <AlertTitle>Workshop-Vehicle Mismatch</AlertTitle>
+                <AlertDescription>Commercial vehicles are typically serviced at ARENA or SOW workshops, not NEXA. The estimate may be inaccurate.</AlertDescription>
+            </Alert>
           )}
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
