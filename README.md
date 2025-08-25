@@ -5,4 +5,4 @@ This is a NextJS starter .
 To get started, take a look at src/app/page.tsx.
 
 
-updated version 0.7
+updated version 0.8

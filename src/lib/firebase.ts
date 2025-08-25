@@ -6,12 +6,12 @@ import { getFirestore } from "firebase/firestore";
 // Your web app's Firebase configuration
 // This is safe to be public.
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY", // Replace with your actual API key
-  authDomain: "YOUR_AUTH_DOMAIN", // Replace with your actual auth domain
-  projectId: "maruti-service-estimator",
-  storageBucket: "YOUR_STORAGE_BUCKET", // Replace with your actual storage bucket
-  messagingSenderId: "YOUR_MESSAGING_SENDER_ID", // Replace
-  appId: "YOUR_APP_ID" // Replace
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
+  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID
 };
 
 // Initialize Firebase

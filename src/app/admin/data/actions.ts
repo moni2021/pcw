@@ -12,22 +12,24 @@ import { db as clientDb } from '@/lib/firebase'; // Client-side DB for public ac
 
 // --- Admin SDK Initialization (for secure backend operations) ---
 const getAdminDb = () => {
-    if (getAdminApps().length) {
-        return getAdminFirestore();
+    const adminApps = getAdminApps();
+    if (adminApps.length > 0) {
+        return getAdminFirestore(adminApps[0]);
     }
 
     const serviceAccountJson = process.env.SERVICE_ACCOUNT_KEY;
     if (serviceAccountJson) {
         try {
             const serviceAccount = JSON.parse(serviceAccountJson);
-            initializeAdminApp({
+            const app = initializeAdminApp({
                 credential: cert(serviceAccount),
                 databaseURL: `https://${process.env.GCLOUD_PROJECT || serviceAccount.project_id}.firebaseio.com`
             });
             console.log("Firebase Admin SDK initialized successfully.");
-            return getAdminFirestore();
+            return getAdminFirestore(app);
         } catch (error: any) {
             console.error('Firebase Admin SDK initialization error:', error.message);
+            // Fall through to return null
         }
     } else {
         console.warn("Firebase Admin SDK not initialized. SERVICE_ACCOUNT_KEY is missing.");
