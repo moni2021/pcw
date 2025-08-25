@@ -71,10 +71,15 @@ const customerScriptFlow = ai.defineFlow(
     outputSchema: CustomerScriptOutputSchema,
   },
   async (input) => {
-    const { output } = await customerScriptPrompt(input);
+    const llmResponse = await customerScriptPrompt(input);
+    const output = llmResponse.output;
+
     if (!output) {
-      throw new Error("Failed to get a structured response from the model.");
+      // Fallback in case the model does not return a structured object.
+      // We take the raw text and wrap it in the expected output format.
+      return { script: llmResponse.text };
     }
+    
     return output;
   }
 );
