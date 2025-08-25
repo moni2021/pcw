@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Separator } from '@/components/ui/separator';
-import { Percent, PlusCircle, Sparkles, Wrench, Package, Hammer, MinusCircle, ChevronDown, ChevronUp, Printer, Bot, AlertCircle, ShieldCheck, View, Info } from 'lucide-react';
+import { Percent, PlusCircle, Sparkles, Wrench, Package, Hammer, MinusCircle, ChevronDown, ChevronUp, Printer, Bot, AlertCircle, ShieldCheck, View, Info, ThumbsUp, Wallet } from 'lucide-react';
 import type { ServiceEstimateData, Labor, Part, WarrantyPlan, WarrantyCoverage } from '@/lib/types';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
@@ -121,9 +121,10 @@ export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
   const pmsLaborCharge = useMemo(() => labor.reduce((sum, job) => sum + job.charge, 0), [labor]);
   
   const calculatePartPrice = (part: Part) => {
-    // Only apply extended warranty discount, not standard warranty
+    // Standard warranty doesn't cover parts in a regular service, only manufacturing defects.
+    // So we only check for extended warranty coverage here.
     if (isExtendedWarrantyActive && extendedWarrantyCoverage.coveredParts.includes(part.name)) {
-        return 0; // Covered by warranty
+        return 0; // Covered by extended warranty
     }
     const isEngineOil = allEngineOilParts.some(eo => eo.name === part.name);
     if (isEngineOil && vehicle.engineOilLiters) {
@@ -132,7 +133,22 @@ export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
     return part.price;
   };
 
-  const partsTotal = useMemo(() => currentParts.reduce((sum, part) => sum + calculatePartPrice(part), 0), [currentParts, vehicle.engineOilLiters, isExtendedWarrantyActive, extendedWarrantyCoverage]);
+  const { coveredParts, billableParts } = useMemo(() => {
+    const covered: Part[] = [];
+    const billable: Part[] = [];
+    currentParts.forEach(part => {
+        const price = calculatePartPrice(part);
+        if (price === 0 && isExtendedWarrantyActive) {
+            covered.push(part);
+        } else {
+            billable.push(part);
+        }
+    });
+    return { coveredParts: covered, billableParts: billable };
+  }, [currentParts, vehicle.engineOilLiters, isExtendedWarrantyActive, extendedWarrantyCoverage]);
+
+
+  const partsTotal = useMemo(() => billableParts.reduce((sum, part) => sum + calculatePartPrice(part), 0), [billableParts, vehicle.engineOilLiters]);
   
   const recommendedLaborCharge = useMemo(() => selectedRecommended.reduce((sum, job) => sum + job.charge, 0), [selectedRecommended]);
   const optionalServiceCharge = useMemo(() => selectedOptional.reduce((sum, job) => sum + job.charge, 0), [selectedOptional]);
@@ -246,6 +262,80 @@ export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
 
   const isPmsPriceMissing = labor.length === 0 && serviceType.startsWith('Paid Service');
 
+  const renderPartRow = (part: Part, index: number, isCovered: boolean) => {
+      const isEngineOil = allEngineOilParts.some(eo => eo.name === part.name);
+      const isCoolant = allCoolantParts.some(c => c.name === part.name);
+      const isDiesel = vehicle.fuelType === 'Diesel';
+      const finalPrice = calculatePartPrice(part);
+
+      const renderCellContent = () => {
+          if (isEngineOil && !isDiesel) {
+              return (
+                  <div className="font-medium">
+                      <Select value={part.name} onValueChange={handleEngineOilChange}>
+                          <SelectTrigger className="w-full sm:w-[300px]">
+                              <SelectValue placeholder="Select Engine Oil" />
+                          </SelectTrigger>
+                          <SelectContent>
+                              {petrolEngineOils.map(oil => (
+                                  <SelectItem key={oil.name} value={oil.name}>
+                                      {oil.name}
+                                  </SelectItem>
+                              ))}
+                          </SelectContent>
+                      </Select>
+                      <p className="text-xs text-muted-foreground mt-1">
+                          {vehicle.engineOilLiters} L @ ₹{part.price.toFixed(2)}/L
+                      </p>
+                  </div>
+              )
+          }
+          
+          if (isCoolant) {
+              return (
+                  <div className="font-medium">
+                      <Select value={part.name} onValueChange={handleCoolantChange}>
+                          <SelectTrigger className="w-full sm:w-[300px]">
+                              <SelectValue placeholder="Select Coolant" />
+                          </SelectTrigger>
+                          <SelectContent>
+                              {allCoolantParts.map(coolant => (
+                                  <SelectItem key={coolant.name} value={coolant.name}>
+                                      {coolant.name}
+                                  </SelectItem>
+                              ))}
+                          </SelectContent>
+                      </Select>
+                  </div>
+              )
+          }
+          return (
+              <div className="font-medium">
+                  {part.name}
+                  {isEngineOil && (
+                      <p className="text-xs text-muted-foreground mt-1">
+                          {vehicle.engineOilLiters} L @ ₹{part.price.toFixed(2)}/L
+                      </p>
+                  )}
+              </div>
+          )
+      }
+
+      return (
+          <TableRow key={`part-${index}-${part.name}`} className={isCovered ? 'bg-blue-500/10' : ''}>
+              <TableCell>
+                  <div className="flex flex-col">
+                      {renderCellContent()}
+                  </div>
+              </TableCell>
+              <TableCell className="text-right font-mono">
+                  {finalPrice.toFixed(2)}
+              </TableCell>
+          </TableRow>
+      )
+  };
+
+
   return (
     <TooltipProvider>
       <WarrantyInfoDialog isOpen={isWarrantyInfoDialogOpen} onOpenChange={setIsWarrantyInfoDialogOpen} />
@@ -255,7 +345,7 @@ export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
                   <DialogHeader>
                       <DialogTitle>{warrantyDialogContent?.plan?.name || 'Warranty'} Coverage</DialogTitle>
                       <DialogDescription>
-                          The following parts are generally covered under this program for the {vehicle.model}. Final coverage is subject to verification.
+                          The following parts are generally covered under this program for the {vehicle.model}. Final coverage is subject to verification and terms.
                       </DialogDescription>
                   </DialogHeader>
                   <ScrollArea className="max-h-[50vh] pr-4">
@@ -351,10 +441,10 @@ export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
           <Separator className="my-4" />
 
           <div className="space-y-4">
-
-             {currentParts.length > 0 && (
+              
+             {coveredParts.length > 0 && (
                 <div className="space-y-4">
-                  <h3 className="text-lg font-semibold mb-2 flex items-center gap-2"><Package className="h-5 w-5"/> Scheduled Service Parts</h3>
+                  <h3 className="text-lg font-semibold mb-2 flex items-center gap-2"><ThumbsUp className="h-5 w-5 text-blue-500"/> Warranty Covered Parts</h3>
                   <div className="overflow-x-auto">
                       <Table>
                         <TableHeader>
@@ -364,80 +454,26 @@ export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
                           </TableRow>
                         </TableHeader>
                         <TableBody>
-                          {currentParts.map((part, index) => {
-                             const isEngineOil = allEngineOilParts.some(eo => eo.name === part.name);
-                             const isCoolant = allCoolantParts.some(c => c.name === part.name);
-                             const isDiesel = vehicle.fuelType === 'Diesel';
-                             const finalPrice = calculatePartPrice(part);
-                             const isCovered = finalPrice === 0 && isExtendedWarrantyActive;
-
-                             const renderCellContent = () => {
-                              if (isEngineOil && !isDiesel) {
-                                  return (
-                                     <div className="font-medium">
-                                         <Select value={part.name} onValueChange={handleEngineOilChange}>
-                                             <SelectTrigger className="w-full sm:w-[300px]">
-                                                 <SelectValue placeholder="Select Engine Oil" />
-                                             </SelectTrigger>
-                                             <SelectContent>
-                                                 {petrolEngineOils.map(oil => (
-                                                     <SelectItem key={oil.name} value={oil.name}>
-                                                         {oil.name}
-                                                     </SelectItem>
-                                                 ))}
-                                             </SelectContent>
-                                         </Select>
-                                         <p className="text-xs text-muted-foreground mt-1">
-                                             {vehicle.engineOilLiters} L @ ₹{part.price.toFixed(2)}/L
-                                         </p>
-                                     </div>
-                                  )
-                                }
-                                
-                                if (isCoolant) {
-                                   return (
-                                     <div className="font-medium">
-                                          <Select value={part.name} onValueChange={handleCoolantChange}>
-                                             <SelectTrigger className="w-full sm:w-[300px]">
-                                                 <SelectValue placeholder="Select Coolant" />
-                                             </SelectTrigger>
-                                             <SelectContent>
-                                                 {allCoolantParts.map(coolant => (
-                                                     <SelectItem key={coolant.name} value={coolant.name}>
-                                                         {coolant.name}
-                                                     </SelectItem>
-                                                 ))}
-                                             </SelectContent>
-                                         </Select>
-                                     </div>
-                                   )
-                                }
-                                return (
-                                  <div className="font-medium">
-                                      {part.name}
-                                      {isEngineOil && (
-                                          <p className="text-xs text-muted-foreground mt-1">
-                                              {vehicle.engineOilLiters} L @ ₹{part.price.toFixed(2)}/L
-                                          </p>
-                                      )}
-                                  </div>
-                                )
-                             }
-
-                             return (
-                                 <TableRow key={`part-${index}`} className={isCovered ? 'bg-blue-500/10' : ''}>
-                                     <TableCell>
-                                         <div className="flex flex-col">
-                                              {renderCellContent()}
-                                              {isCovered && <Badge variant="outline" className="mt-1 w-fit border-blue-500 text-blue-600"><ShieldCheck className="mr-1 h-3 w-3" /> Covered by Warranty</Badge>}
-                                         </div>
-                                     </TableCell>
-                                     <TableCell className="text-right font-mono">
-                                         {isCovered ? '0.00' : finalPrice.toFixed(2)}
-                                     </TableCell>
-                                 </TableRow>
-                             )
-                          })}
+                          {coveredParts.map((part, index) => renderPartRow(part, index, true))}
+                        </TableBody>
+                      </Table>
+                  </div>
+                </div>
+            )}
+              
+             {billableParts.length > 0 && (
+                <div className="space-y-4">
+                  <h3 className="text-lg font-semibold mb-2 flex items-center gap-2"><Wallet className="h-5 w-5 text-green-600"/> Billable Parts</h3>
+                  <div className="overflow-x-auto">
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead>Part Description</TableHead>
+                            <TableHead className="text-right">Price (₹)</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {billableParts.map((part, index) => renderPartRow(part, index, false))}
                         </TableBody>
                       </Table>
                   </div>
@@ -707,5 +743,3 @@ export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
     </TooltipProvider>
   );
 }
-
-    
