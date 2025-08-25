@@ -2,7 +2,7 @@
 // This file defines the extended warranty coverage for various parts.
 
 export interface WarrantyPlan {
-    key: 'platinum' | 'royal_platinum' | 'solitaire' | 'standard';
+    key: 'gold' | 'platinum' | 'royal_platinum' | 'solitaire' | 'standard';
     name: string;
     years: number;
     kms: number;
@@ -18,9 +18,10 @@ export type WarrantyCoverage = {
 
 export const warrantyPlans: WarrantyPlan[] = [
     { key: 'standard', name: 'Standard Warranty', years: 2, kms: 40000 },
-    { key: 'platinum', name: 'Platinum Plan', years: 4, kms: 120000 },
-    { key: 'royal_platinum', name: 'Royal Platinum Plan', years: 5, kms: 140000 },
-    { key: 'solitaire', name: 'Solitaire Plan', years: 6, kms: 160000 },
+    { key: 'gold', name: 'Gold Plan', years: 3, kms: 60000 },
+    { key: 'platinum', name: 'Platinum Plan', years: 4, kms: 80000 },
+    { key: 'royal_platinum', name: 'Royal Platinum Plan', years: 5, kms: 100000 },
+    { key: 'solitaire', name: 'Solitaire Plan', years: 6, kms: 160000 }, // Kept for logic, but might not be selectable
 ];
 
 // Define default warranty coverage (parts list)
@@ -145,7 +146,7 @@ export function getWarrantyCoverage(model: string, planKey?: WarrantyPlan['key']
     let conditionsText = "No warranty selected.";
     if (selectedPlan) {
         const baseText = `Covers specified parts up to ${selectedPlan.years} years or ${selectedPlan.kms.toLocaleString()} km, whichever comes first.`;
-        const exclusions = `Excludes consumables, accident damage, and issues from improper maintenance. Regular servicing as per the schedule is required to keep the warranty valid.`;
+        const exclusions = `Excludes consumables, accident damage, and issues from improper maintenance. Regular servicing as per the manufacturer's schedule is required to keep the warranty valid.`;
         
         if (selectedPlan.key === 'standard') {
              conditionsText = `Covers manufacturing defects up to ${selectedPlan.years} years or ${selectedPlan.kms.toLocaleString()} km, whichever comes first. Regular servicing is mandatory to keep the warranty active.`;
@@ -162,3 +163,5 @@ export function getWarrantyCoverage(model: string, planKey?: WarrantyPlan['key']
         },
     };
 }
+
+    

@@ -412,7 +412,7 @@ export function VehicleServiceForm() {
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="none">No Extended Warranty</SelectItem>
-                        {warrantyPlans.filter(p => p.key !== 'standard').map(plan => (
+                        {warrantyPlans.filter(p => p.key !== 'standard' && p.key !== 'solitaire').map(plan => (
                           <SelectItem key={plan.key} value={plan.key}>{plan.name} ({plan.years}Y/{plan.kms/1000}k km)</SelectItem>
                         ))}
                       </SelectContent>
@@ -458,3 +458,5 @@ export function VehicleServiceForm() {
     </>
   );
 }
+
+    

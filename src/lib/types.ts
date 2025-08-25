@@ -54,7 +54,7 @@ export const PmsChargeSchema = z.object({
 export type PmsCharge = z.infer<typeof PmsChargeSchema>;
 
 export const WarrantyPlanSchema = z.object({
-    key: z.enum(['platinum', 'royal_platinum', 'solitaire', 'standard']),
+    key: z.enum(['gold', 'platinum', 'royal_platinum', 'solitaire', 'standard']),
     name: z.string(),
     years: z.number(),
     kms: z.number(),
@@ -117,3 +117,5 @@ export const FeedbackSchema = z.object({
   createdAt: z.any().describe("Timestamp from Firestore"),
 });
 export type Feedback = z.infer<typeof FeedbackSchema>;
+
+    

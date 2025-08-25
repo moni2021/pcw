@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Separator } from '@/components/ui/separator';
-import { Percent, PlusCircle, Sparkles, Wrench, Package, Hammer, MinusCircle, ChevronDown, ChevronUp, Printer, Bot, AlertCircle, ShieldCheck, View } from 'lucide-react';
+import { Percent, PlusCircle, Sparkles, Wrench, Package, Hammer, MinusCircle, ChevronDown, ChevronUp, Printer, Bot, AlertCircle, ShieldCheck, View, Info } from 'lucide-react';
 import type { ServiceEstimateData, Labor, Part, WarrantyPlan, WarrantyCoverage } from '@/lib/types';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
@@ -25,6 +25,7 @@ import { getWarrantyCoverage } from '@/lib/data/extended-warranty';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { ScrollArea } from './ui/scroll-area';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './ui/tooltip';
+import { WarrantyInfoDialog } from './warranty-info-dialog';
 
 
 interface ServiceEstimateProps {
@@ -68,6 +69,7 @@ export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
   const [customerScript, setCustomerScript] = useState('');
   
   const [isWarrantyDialogOpen, setIsWarrantyDialogOpen] = useState(false);
+  const [isWarrantyInfoDialogOpen, setIsWarrantyInfoDialogOpen] = useState(false);
   const [warrantyDialogContent, setWarrantyDialogContent] = useState<WarrantyCoverage | null>(null);
 
   const standardWarrantyCoverage = useMemo(() => {
@@ -246,6 +248,7 @@ export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
 
   return (
     <TooltipProvider>
+      <WarrantyInfoDialog isOpen={isWarrantyInfoDialogOpen} onOpenChange={setIsWarrantyInfoDialogOpen} />
       <div>
           <Dialog open={isWarrantyDialogOpen} onOpenChange={setIsWarrantyDialogOpen}>
               <DialogContent className="max-w-md">
@@ -313,7 +316,7 @@ export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
                           </div>
                       </TooltipTrigger>
                       <TooltipContent>
-                          <p>{standardWarrantyCoverage.conditions.text}</p>
+                          <p className="max-w-xs">{standardWarrantyCoverage.conditions.text}</p>
                       </TooltipContent>
                   </Tooltip>
               )}
@@ -330,9 +333,18 @@ export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
                           </div>
                       </TooltipTrigger>
                       <TooltipContent>
-                           <p>{extendedWarrantyCoverage.conditions.text}</p>
+                           <p className="max-w-xs">{extendedWarrantyCoverage.conditions.text}</p>
                       </TooltipContent>
                   </Tooltip>
+              )}
+
+              {(isUnderStandardWarranty || isExtendedWarrantyActive) && (
+                <div className="text-right">
+                    <Button variant="link" size="sm" onClick={() => setIsWarrantyInfoDialogOpen(true)}>
+                        <Info className="mr-2 h-4 w-4" />
+                        Detailed Warranty Information
+                    </Button>
+                </div>
               )}
           </div>
 
@@ -695,3 +707,5 @@ export function ServiceEstimate({ estimate }: ServiceEstimateProps) {
     </TooltipProvider>
   );
 }
+
+    
