@@ -17,8 +17,8 @@ export function LiveFeedbackTicker() {
       setIsLoading(true);
       const result = await getFeedback();
       if (result.success && result.data) {
-        const openTickets = result.data.filter(t => t.status === 'Open');
-        setTickets(openTickets);
+        // Show all tickets, not just open ones
+        setTickets(result.data);
       }
       setIsLoading(false);
     }

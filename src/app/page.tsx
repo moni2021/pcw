@@ -1,6 +1,7 @@
 
 "use client";
 
+import React, { useState } from 'react';
 import { VehicleServiceForm } from '@/components/vehicle-service-form';
 import { Card } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
@@ -8,8 +9,12 @@ import { Header } from '@/components/header';
 import { Separator } from '@/components/ui/separator';
 import { FeedbackForm } from '@/components/feedback-form';
 import { LiveFeedbackTicker } from '@/components/live-feedback-ticker';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { Button } from '@/components/ui/button';
+import { ChevronDown } from 'lucide-react';
 
 export default function EstimatorPage() {
+  const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
 
   return (
     <div className={cn("flex min-h-screen w-full flex-col bg-background transition-colors duration-500")}>
@@ -38,17 +43,28 @@ export default function EstimatorPage() {
 
         <section className="w-full pb-12 md:pb-24 lg:pb-32 no-print">
           <div className="container px-4 md:px-6">
-            <div className="flex flex-col items-center justify-center space-y-4 text-center">
-                <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl">Feedback & Suggestions</h2>
-                <p className="mx-auto max-w-[700px] text-muted-foreground md:text-xl">
-                    Have a suggestion or found an issue? Let us know! Your feedback helps us improve.
-                </p>
-            </div>
-            <div className="mx-auto w-full max-w-2xl pt-10">
-                <Card>
-                    <FeedbackForm />
-                </Card>
-            </div>
+            <Collapsible open={isFeedbackOpen} onOpenChange={setIsFeedbackOpen}>
+                <div className="flex flex-col items-center justify-center space-y-4 text-center">
+                    <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl">Feedback & Suggestions</h2>
+                    <p className="mx-auto max-w-[700px] text-muted-foreground md:text-xl">
+                        Have a suggestion or found an issue? Let us know! Your feedback helps us improve.
+                    </p>
+                    <CollapsibleTrigger asChild>
+                        <Button variant="outline">
+                            {isFeedbackOpen ? 'Hide Form' : 'Provide Feedback'}
+                            <ChevronDown className={cn("ml-2 h-4 w-4 transition-transform", isFeedbackOpen && "rotate-180")} />
+                        </Button>
+                    </CollapsibleTrigger>
+                </div>
+                <CollapsibleContent>
+                    <div className="mx-auto w-full max-w-2xl pt-10">
+                        <Card>
+                            <FeedbackForm />
+                        </Card>
+                    </div>
+                </CollapsibleContent>
+            </Collapsible>
+
             <div className="mt-12">
               <LiveFeedbackTicker />
             </div>
