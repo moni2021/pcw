@@ -232,7 +232,7 @@ export function VehicleServiceForm() {
         },
         serviceType: selectedServiceType,
         warrantyPlanKey: selectedWarranty === 'none' ? undefined : selectedWarranty,
-        isUnderStandardWarranty: isUnderStandardWarranty,
+        isUnderStandardWarranty,
         parts: serviceDetails?.parts || [],
         labor: pmsLabor,
         recommendedLabor: recommendedServices,
