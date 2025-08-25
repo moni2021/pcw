@@ -1,6 +1,5 @@
 import type { CustomLabor } from '../../../types';
 import { vehicles } from '@/lib/data';
-import { vehicleCategories } from '@/lib/vehicle-categories';
 
 // This file now contains custom labor charges for the ARENA - BIJOYNAGAR workshop.
 // It includes model-specific pricing for wheel services and a function for common services.
@@ -127,27 +126,33 @@ const segmentCharges = [
 
 const allModels = vehicles.map(v => v.model);
 
+// A helper function to find which segment a model belongs to
+const getModelSegment = (modelName: string): string => {
+    // This is a simplified lookup. A real implementation might be more complex.
+    const upperCaseModel = modelName.toUpperCase();
+    if (["Alto 800", "Alto K10", "S-Presso", "Celerio", "Wagon R", "Ignis", "Ritz"].some(m => m.toUpperCase() === upperCaseModel)) return 'SMALL';
+    if (["Swift", "Dzire", "Baleno", "Eeco"].some(m => m.toUpperCase() === upperCaseModel)) return 'MEDIUM';
+    if (["Ertiga", "XL6", "Brezza", "S-Cross", "Ciaz", "Grand Vitara", "Jimny"].some(m => m.toUpperCase() === upperCaseModel)) return 'LARGE';
+    return 'MEDIUM'; // Default fallback
+}
+
+
 // Generate charges based on segments
-const generatedCharges: Omit<CustomLabor, 'workshopId'>[] = segmentCharges.flatMap(sc => {
-    let targetModels: string[] = [];
+const generatedCharges: Omit<CustomLabor, 'workshopId'>[] = allModels.flatMap(model => {
+    const segment = getModelSegment(model);
+    const chargesForModel: Omit<CustomLabor, 'workshopId'>[] = [];
 
-    if (sc.segment === 'ALL') {
-        targetModels = allModels;
-    } else {
-        // Find vehicle models that are in the specified segment
-        const modelsInSegment = vehicles.filter(v => 
-            vehicleCategories[sc.segment as keyof typeof vehicleCategories]?.some(catModel => 
-                v.model.toUpperCase().includes(catModel) || catModel.includes(v.model.toUpperCase())
-            )
-        ).map(v => v.model);
-        targetModels = modelsInSegment;
-    }
-
-    return targetModels.map(model => ({
-        name: sc.name,
-        model: model,
-        charge: sc.charge
-    }));
+    segmentCharges.forEach(sc => {
+        if (sc.segment === 'ALL' || sc.segment === segment) {
+            chargesForModel.push({
+                name: sc.name,
+                model: model,
+                charge: sc.charge
+            });
+        }
+    });
+    
+    return chargesForModel;
 });
 
 
