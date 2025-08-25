@@ -5,7 +5,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Download, Database, KeyRound, Save, UploadCloud, ShieldCheck, Loader2, Upload, FileJson, AlertCircle, Building, Sparkles, BrainCircuit } from 'lucide-react';
+import { Download, Database, KeyRound, Save, UploadCloud, ShieldCheck, Loader2, Upload, FileJson, AlertCircle, Building, Sparkles, BrainCircuit, Github } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
@@ -17,6 +17,7 @@ import { uploadServiceAccountKey } from '@/ai/flows/secure-key-uploader';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { convertToJson } from '@/ai/flows/json-converter-flow';
+import Link from 'next/link';
 
 
 // Import all data sources for the "Master" sync
@@ -32,7 +33,6 @@ export default function DataManagementPage() {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [password, setPassword] = useState('');
     const [isPasswordDialogOpen, setIsPasswordDialogOpen] = useState(true);
-    const [isKeyConfigured, setIsKeyConfigured] = useState(false);
     const [isSyncing, setIsSyncing] = useState(false);
     const [isUploading, setIsUploading] = useState<{ [key in DataType]?: boolean }>({});
     const [selectedFile, setSelectedFile] = useState<{ [key in DataType]?: File | null }>({});
@@ -45,13 +45,6 @@ export default function DataManagementPage() {
     const [isConverting, setIsConverting] = useState(false);
     const [converterWorkshop, setConverterWorkshop] = useState('');
     const setupCardRef = useRef<HTMLDivElement>(null);
-
-    useEffect(() => {
-        // This check runs on the client, but the env var is read on the server during the action.
-        // We'll use this to guide the user, but the real check is in the server action.
-        // Let's assume it's not configured initially, and update after upload.
-        setIsKeyConfigured(false); // Default to not configured to always show the setup card initially
-    }, []);
 
     const handlePasswordSubmit = (e: React.FormEvent) => {
         e.preventDefault();
@@ -230,10 +223,9 @@ export default function DataManagementPage() {
                 if (result.success) {
                     toast({
                         title: 'Service Account Key Uploaded',
-                        description: 'Configuration updated. You can now sync your data.',
+                        description: 'Configuration updated for this session only. Redeploy for permanent changes.',
                     });
                     setServiceAccountFile(null);
-                    setIsKeyConfigured(true); // Update state to show other cards
                 } else {
                     throw new Error(result.error || 'An unknown error occurred.');
                 }
@@ -408,14 +400,17 @@ export default function DataManagementPage() {
                 </CardHeader>
                 <CardContent className="space-y-4">
                    <Alert>
-                        <AlertTitle>How to Set Up Keys in a `.env.local` file</AlertTitle>
+                        <AlertTitle>How to Set Up Keys for Deployment (e.g., Vercel)</AlertTitle>
                        <AlertDescription>
                             <ol className="list-decimal list-inside space-y-4">
                                 <li>
-                                    <strong>Create a file named `.env.local`</strong> in your project's root folder (next to `package.json`). This file is secure and will not be pushed to GitHub.
+                                    <strong>For Local Development:</strong> Create a file named `.env.local` in your project's root folder and add your keys there. This file is secure and will not be pushed to GitHub.
                                 </li>
                                 <li>
-                                    <strong>Add API Keys to the file:</strong> You need two keys. Paste the following into your `.env.local` file and replace the placeholder text with your actual keys.
+                                    <strong>For Production/Live Site:</strong> You must add the keys to your hosting provider's (e.g., Vercel, Firebase App Hosting) Environment Variables settings in their dashboard.
+                                </li>
+                                <li>
+                                    <strong>Required Keys:</strong> You need two keys.
                                     <div className="my-2 p-2 bg-muted rounded-md text-xs overflow-x-auto font-mono">
                                         <p>GOOGLE_GENAI_API_KEY="YOUR_GEMINI_API_KEY_HERE"</p>
                                         <p>SERVICE_ACCOUNT_KEY='&#123;"type": "service_account", ...&#125;'</p>
@@ -430,7 +425,7 @@ export default function DataManagementPage() {
                                     </ul>
                                 </li>
                                  <li>
-                                    <strong>Restart the Server:</strong> After saving the `.env.local` file, you must **stop and restart the local development server** for the changes to take effect.
+                                    <strong>Restart or Redeploy:</strong> After setting your keys, you must **restart the local server** or **redeploy your live site** for the changes to take effect.
                                 </li>
                             </ol>
                         </AlertDescription>
@@ -438,7 +433,7 @@ export default function DataManagementPage() {
                    <Separator />
                    <div className="space-y-2">
                        <Label htmlFor="service-account-file" className="font-semibold">Or: Upload Firebase Key for Current Session Only</Label>
-                       <p className="text-sm text-muted-foreground">If you don't want to set up the `.env.local` file, you can upload the Firebase Service Account JSON file here. This will only work for your current session and will be forgotten when the server restarts.</p>
+                       <p className="text-sm text-muted-foreground">If you cannot set environment variables, you can upload the Firebase Service Account JSON file here. This will only work for your current browser session and will be forgotten when the server restarts.</p>
                         <Input 
                            id="service-account-file"
                            type="file"
@@ -452,82 +447,84 @@ export default function DataManagementPage() {
                         ) : (
                             <UploadCloud className="mr-2 h-4 w-4" />
                         )}
-                        Upload & Configure Firebase Key
+                        Upload Firebase Key for Session
                     </Button>
                 </CardContent>
             </Card>
             
-            {(isKeyConfigured || process.env.NODE_ENV === 'development') && (
-              <>
-                <Card>
-                    <CardHeader>
-                        <CardTitle className="flex items-center gap-2">
-                            <Database /> Master Data Sync
-                        </CardTitle>
-                        <CardDescription>
-                           Push all data modified in the admin panels (Parts, Labour, etc.) to your live Firebase database. This overwrites the existing data in Firebase.
-                        </CardDescription>
-                    </CardHeader>
-                    <CardContent className="flex flex-col sm:flex-row gap-2">
-                         <Button onClick={handleSync} disabled={isSyncing}>
-                            {isSyncing ? (
-                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                            ) : (
-                                <UploadCloud className="mr-2 h-4 w-4" />
-                            )}
-                            Sync All Local Data to Firebase
-                        </Button>
-                         <Button onClick={() => setIsConverterOpen(true)} variant="outline">
-                            <BrainCircuit className="mr-2 h-4 w-4" />
-                            AI JSON Converter
-                        </Button>
-                    </CardContent>
-                </Card>
+            <Card>
+                <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                        <Database /> Master Data Sync
+                    </CardTitle>
+                    <CardDescription>
+                       Push all local data (from `/src/lib/data`) to your live Firebase database. This is a one-time action to initialize the database. Subsequent changes should be made via the admin panels below.
+                    </CardDescription>
+                </CardHeader>
+                <CardContent className="flex flex-col sm:flex-row gap-2">
+                     <Button onClick={handleSync} disabled={isSyncing}>
+                        {isSyncing ? (
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        ) : (
+                            <UploadCloud className="mr-2 h-4 w-4" />
+                        )}
+                        Sync All Local Data to Firebase
+                    </Button>
+                     <Button onClick={() => setIsConverterOpen(true)} variant="outline">
+                        <BrainCircuit className="mr-2 h-4 w-4" />
+                        AI JSON Converter
+                    </Button>
+                    <Button variant="secondary" asChild>
+                        <a href="/HOW_TO_PUSH_TO_GITHUB.md" target="_blank" rel="noopener noreferrer">
+                            <Github className="mr-2 h-4 w-4" />
+                            How to Deploy
+                        </a>
+                    </Button>
+                </CardContent>
+            </Card>
 
-                <Separator />
+            <Separator />
 
-                 <Card>
-                    <CardHeader>
-                        <CardTitle className="flex items-center gap-2">
-                            <Upload /> Individual Data Upload
-                        </CardTitle>
-                        <CardDescription>
-                           Upload a JSON file for a specific data type to update it in Firebase. This is useful for migrating data from another system.
-                        </CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                        <Tabs defaultValue="workshops">
-                            <TabsList className="grid w-full grid-cols-3 md:grid-cols-6">
-                                <TabsTrigger value="workshops">Workshops</TabsTrigger>
-                                <TabsTrigger value="vehicles">Vehicles</TabsTrigger>
-                                <TabsTrigger value="parts">Parts</TabsTrigger>
-                                <TabsTrigger value="customLabor">Custom Labour</TabsTrigger>
-                                <TabsTrigger value="pmsCharges">PMS Charges</TabsTrigger>
-                                <TabsTrigger value="threeMCare">3M Care</TabsTrigger>
-                            </TabsList>
-                            <TabsContent value="workshops" className="pt-4">
-                               {renderUploadTab('workshops', 'Workshops Data', 'Upload a JSON file with the list of all workshops.', <Building />)}
-                            </TabsContent>
-                            <TabsContent value="vehicles" className="pt-4">
-                               {renderUploadTab('vehicles', 'Vehicle Models Data', 'Upload a JSON file containing the list of all vehicle models and their properties.', <FileJson />)}
-                            </TabsContent>
-                             <TabsContent value="parts" className="pt-4">
-                               {renderUploadTab('parts', 'Parts Data', 'Upload a JSON file with the master list of all parts and their prices.', <FileJson />)}
-                            </TabsContent>
-                             <TabsContent value="customLabor" className="pt-4">
-                                {renderUploadTab('customLabor', 'Custom Labour Data', 'Upload a JSON file with all custom labour charges specific to vehicle models and workshops.', <FileJson />)}
-                            </TabsContent>
-                              <TabsContent value="pmsCharges" className="pt-4">
-                               {renderUploadTab('pmsCharges', 'PMS Charges Data', 'Upload a JSON file defining the periodic maintenance service (PMS) labour charges per workshop.', <FileJson />)}
-                            </TabsContent>
-                            <TabsContent value="threeMCare" className="pt-4">
-                               {renderUploadTab('threeMCare', '3M Care Data', 'Upload a JSON file with the 3M care services and prices per model.', <Sparkles />)}
-                            </TabsContent>
-                        </Tabs>
-                    </CardContent>
-                </Card>
-              </>
-            )}
+             <Card>
+                <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                        <Upload /> Individual Data Upload
+                    </CardTitle>
+                    <CardDescription>
+                       Upload a JSON file for a specific data type to update it in Firebase. This is useful for migrating data from another system.
+                    </CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <Tabs defaultValue="workshops">
+                        <TabsList className="grid w-full grid-cols-3 md:grid-cols-6">
+                            <TabsTrigger value="workshops">Workshops</TabsTrigger>
+                            <TabsTrigger value="vehicles">Vehicles</TabsTrigger>
+                            <TabsTrigger value="parts">Parts</TabsTrigger>
+                            <TabsTrigger value="customLabor">Custom Labour</TabsTrigger>
+                            <TabsTrigger value="pmsCharges">PMS Charges</TabsTrigger>
+                            <TabsTrigger value="threeMCare">3M Care</TabsTrigger>
+                        </TabsList>
+                        <TabsContent value="workshops" className="pt-4">
+                           {renderUploadTab('workshops', 'Workshops Data', 'Upload a JSON file with the list of all workshops.', <Building />)}
+                        </TabsContent>
+                        <TabsContent value="vehicles" className="pt-4">
+                           {renderUploadTab('vehicles', 'Vehicle Models Data', 'Upload a JSON file containing the list of all vehicle models and their properties.', <FileJson />)}
+                        </TabsContent>
+                         <TabsContent value="parts" className="pt-4">
+                           {renderUploadTab('parts', 'Parts Data', 'Upload a JSON file with the master list of all parts and their prices.', <FileJson />)}
+                        </TabsContent>
+                         <TabsContent value="customLabor" className="pt-4">
+                            {renderUploadTab('customLabor', 'Custom Labour Data', 'Upload a JSON file with all custom labour charges specific to vehicle models and workshops.', <FileJson />)}
+                        </TabsContent>
+                          <TabsContent value="pmsCharges" className="pt-4">
+                           {renderUploadTab('pmsCharges', 'PMS Charges Data', 'Upload a JSON file defining the periodic maintenance service (PMS) labour charges per workshop.', <FileJson />)}
+                        </TabsContent>
+                        <TabsContent value="threeMCare" className="pt-4">
+                           {renderUploadTab('threeMCare', '3M Care Data', 'Upload a JSON file with the 3M care services and prices per model.', <Sparkles />)}
+                        </TabsContent>
+                    </Tabs>
+                </CardContent>
+            </Card>
         </div>
     );
 }
