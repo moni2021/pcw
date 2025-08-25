@@ -403,28 +403,37 @@ export default function DataManagementPage() {
                         <AlertCircle /> Action Required: API Key Setup
                     </CardTitle>
                     <CardDescription>
-                        To enable all features, you must provide your project's API keys in the `.env.local` file.
+                        To enable all admin features like syncing to the database, you must provide your project's API keys.
                     </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                    <Alert>
-                        <AlertTitle>Two Keys Required</AlertTitle>
+                        <AlertTitle>How to Set Up Keys</AlertTitle>
                        <AlertDescription>
-                            <ol className="list-decimal list-inside space-y-2">
+                            <ol className="list-decimal list-inside space-y-3">
                                 <li>
-                                    <strong>Firebase Service Account Key:</strong> For saving data to the database from the admin panel. Set this in `SERVICE_ACCOUNT_KEY`.
+                                    <strong>Create a `.env.local` file:</strong> In your project's root folder (next to `package.json`), create a new file named `.env.local`.
                                 </li>
                                 <li>
-                                    <strong>Google AI (Gemini) API Key:</strong> For using AI features like the JSON converter and script generator. Set this in `GOOGLE_GENAI_API_KEY`.
+                                    <strong>Add API Keys to the file:</strong> You need two keys. Paste the following into your `.env.local` file and replace the placeholder text with your actual keys.
+                                    <pre className="mt-2 p-2 bg-muted rounded-md text-xs overflow-x-auto">
+                                        <code>{`GOOGLE_GENAI_API_KEY="YOUR_GEMINI_API_KEY_HERE"\nSERVICE_ACCOUNT_KEY='{"type": "service_account", ...}'`}</code>
+                                    </pre>
+                                    <ul className="list-disc list-inside pl-4 mt-2 text-xs">
+                                        <li>Get your **Gemini API Key** from <a href="https://aistudio.google.com/app/keys" target="_blank" rel="noopener noreferrer" className="underline">Google AI Studio</a>.</li>
+                                        <li>Get your **Service Account Key** (a JSON file) from your Firebase project settings under "Service accounts". Paste the entire JSON content.</li>
+                                    </ul>
                                 </li>
                                  <li>
-                                    After adding keys to `.env.local`, you must **restart the server** for changes to apply.
+                                    <strong>Restart the Server:</strong> After saving the file, you must **stop and restart the local server** for the changes to take effect.
                                 </li>
                             </ol>
                         </AlertDescription>
                    </Alert>
+                   <Separator />
                    <div className="space-y-2">
-                       <Label htmlFor="service-account-file">Or: Upload Firebase Key for Current Session Only</Label>
+                       <Label htmlFor="service-account-file" className="font-semibold">Or: Upload Firebase Key for Current Session Only</Label>
+                       <p className="text-sm text-muted-foreground">If you don't want to set up the `.env.local` file, you can upload the Firebase Service Account JSON file here. This will only work for your current session and will be forgotten when the server restarts.</p>
                         <Input 
                            id="service-account-file"
                            type="file"
