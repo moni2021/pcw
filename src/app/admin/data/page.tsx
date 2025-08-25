@@ -403,29 +403,34 @@ export default function DataManagementPage() {
                         <AlertCircle /> Action Required: API Key Setup
                     </CardTitle>
                     <CardDescription>
-                        To enable all admin features like syncing to the database, you must provide your project's API keys.
+                        To enable all admin features like AI tools and syncing to the database, you must provide your project's API keys.
                     </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                    <Alert>
-                        <AlertTitle>How to Set Up Keys</AlertTitle>
+                        <AlertTitle>How to Set Up Keys in a `.env.local` file</AlertTitle>
                        <AlertDescription>
-                            <ol className="list-decimal list-inside space-y-3">
+                            <ol className="list-decimal list-inside space-y-4">
                                 <li>
-                                    <strong>Create a `.env.local` file:</strong> In your project's root folder (next to `package.json`), create a new file named `.env.local`.
+                                    <strong>Create a file named `.env.local`</strong> in your project's root folder (next to `package.json`). This file is secure and will not be pushed to GitHub.
                                 </li>
                                 <li>
                                     <strong>Add API Keys to the file:</strong> You need two keys. Paste the following into your `.env.local` file and replace the placeholder text with your actual keys.
-                                    <pre className="mt-2 p-2 bg-muted rounded-md text-xs overflow-x-auto">
-                                        <code>{`GOOGLE_GENAI_API_KEY="YOUR_GEMINI_API_KEY_HERE"\nSERVICE_ACCOUNT_KEY='{"type": "service_account", ...}'`}</code>
-                                    </pre>
-                                    <ul className="list-disc list-inside pl-4 mt-2 text-xs">
-                                        <li>Get your **Gemini API Key** from <a href="https://aistudio.google.com/app/keys" target="_blank" rel="noopener noreferrer" className="underline">Google AI Studio</a>.</li>
-                                        <li>Get your **Service Account Key** (a JSON file) from your Firebase project settings under "Service accounts". Paste the entire JSON content.</li>
+                                    <div className="my-2 p-2 bg-muted rounded-md text-xs overflow-x-auto font-mono">
+                                        <p>GOOGLE_GENAI_API_KEY="YOUR_GEMINI_API_KEY_HERE"</p>
+                                        <p>SERVICE_ACCOUNT_KEY='&#123;"type": "service_account", ...&#125;'</p>
+                                    </div>
+                                    <ul className="list-disc list-inside pl-4 mt-2 text-sm space-y-2">
+                                        <li>
+                                            Get your <strong>Google AI (Gemini) API Key</strong> from <a href="https://aistudio.google.com/app/keys" target="_blank" rel="noopener noreferrer" className="underline font-semibold">Google AI Studio</a>. This enables AI features.
+                                        </li>
+                                        <li>
+                                            Get your <strong>Firebase Service Account Key</strong> from your <a href="https://console.firebase.google.com/" target="_blank" rel="noopener noreferrer" className="underline font-semibold">Firebase project</a> settings under `Project settings &gt; Service accounts &gt; Generate new private key`. This allows the admin panel to write data to your database. **Paste the entire content of the downloaded JSON file**.
+                                        </li>
                                     </ul>
                                 </li>
                                  <li>
-                                    <strong>Restart the Server:</strong> After saving the file, you must **stop and restart the local server** for the changes to take effect.
+                                    <strong>Restart the Server:</strong> After saving the `.env.local` file, you must **stop and restart the local development server** for the changes to take effect.
                                 </li>
                             </ol>
                         </AlertDescription>
