@@ -43,7 +43,7 @@ You can change the message `"Initial commit"` to anything descriptive.
 
 1.  Go to [GitHub](https://github.com) and log in.
 2.  In the top-right corner, click the **+** icon, and then select **New repository**.
-3.  Give your repository a name (e.g., `my-service-estimator`).
+3.  Give your repository a name (e.g., `estimatortest`).
 4.  You can add an optional description.
 5.  Make sure the repository is set to **Public** or **Private**, depending on your needs.
 6.  **Important**: Do **not** initialize the repository with a `README`, `.gitignore`, or `license` file, as your project already contains these.
@@ -54,10 +54,15 @@ You can change the message `"Initial commit"` to anything descriptive.
 GitHub will show you a page with some commands. You need the one that starts with `git remote add origin`. Copy that command and run it in your terminal. It will look like this:
 
 ```bash
-git remote add origin https://github.com/YOUR_USERNAME/YOUR_REPOSITORY_NAME.git
+git remote add origin https://github.com/moni2021/estimatortest.git
 ```
 
-Replace `YOUR_USERNAME` and `YOUR_REPOSITORY_NAME` with your actual GitHub username and repository name. This command links your local Git repository to the remote one on GitHub.
+If you have already set a remote URL and need to change it, you can use this command instead:
+```bash
+git remote set-url origin https://github.com/moni2021/estimatortest.git
+```
+
+This command links your local Git repository to the remote one on GitHub.
 
 ### Step 6: Push Your Code to GitHub
 
