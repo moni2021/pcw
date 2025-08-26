@@ -48,6 +48,7 @@ export function getPmsLabor(model: string, serviceType: string, workshopId: stri
     
     let pmsLabor: { name: string; charge: number }[] = [];
 
+    // Add main PMS labor charge
     if (serviceType.startsWith('Paid Service') || serviceType.startsWith('3rd Free')) {
         const pmsCharge = data.find(p => 
             p.model === model && p.labourDesc === serviceType
@@ -58,6 +59,12 @@ export function getPmsLabor(model: string, serviceType: string, workshopId: stri
         }
     }
     
+    // Automatically add Diagnostic Charges if available for the model
+    const diagnosticCharge = masterCustomLabor.find(l => l.model === model && l.name === 'DIAGNOSTIC CHARGES');
+    if (diagnosticCharge) {
+        pmsLabor.push({ name: diagnosticCharge.name, charge: diagnosticCharge.charge });
+    }
+
     return pmsLabor;
 }
 
@@ -104,8 +111,8 @@ export function getOptionalServices(model: string, workshopId: string) {
 export function getAvailableCustomLabor(model: string, workshopId: string) {
     const allLaborForModel = getAllLaborForModel(model, workshopId);
     
-    // Exclude services that are now automatically recommended
-    const recommendedNames = Object.keys(recommendedLaborSchedule);
+    // Exclude services that are now automatically recommended or are diagnostic charges
+    const excludedNames = [...Object.keys(recommendedLaborSchedule), 'DIAGNOSTIC CHARGES'];
 
-    return allLaborForModel.filter(item => !recommendedNames.includes(item.name));
+    return allLaborForModel.filter(item => !excludedNames.includes(item.name));
 }

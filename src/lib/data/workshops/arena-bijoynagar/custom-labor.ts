@@ -5,11 +5,11 @@ import { vehicles } from '@/lib/data';
 // It includes model-specific pricing for wheel services and a function for common services.
 
 const modelSpecificCharges: { [model: string]: { name: string; charge: number }[] } = {
-    // Wheel Alignment from the provided image
     'S-Cross': [
         { name: 'WHEEL ALIGNMENT', charge: 505 },
         { name: 'WHEEL BALANCING - 4 WHEEL', charge: 380 },
         { name: 'WHEEL BALANCING - 5 WHEEL', charge: 425 },
+        { name: 'DIAGNOSTIC CHARGES', charge: 940 },
     ],
     'Super Carry': [
         { name: 'WHEEL ALIGNMENT', charge: 130 },
@@ -20,51 +20,61 @@ const modelSpecificCharges: { [model: string]: { name: string; charge: number }[
         { name: 'WHEEL ALIGNMENT (4 HEAD)', charge: 400 },
         { name: 'WHEEL BALANCING - 4 WHEEL', charge: 320 },
         { name: 'WHEEL BALANCING - 5 WHEEL', charge: 350 },
+        { name: 'DIAGNOSTIC CHARGES', charge: 770 },
     ],
     'S-Presso': [
         { name: 'WHEEL ALIGNMENT', charge: 330 },
         { name: 'WHEEL ALIGNMENT (4 HEAD)', charge: 400 },
         { name: 'WHEEL BALANCING - 5 WHEEL', charge: 350 },
+        { name: 'DIAGNOSTIC CHARGES', charge: 470 },
     ],
     'Alto 800': [
         { name: 'WHEEL ALIGNMENT', charge: 330 },
         { name: 'WHEEL ALIGNMENT (4 HEAD)', charge: 400 },
         { name: 'WHEEL BALANCING - 5 WHEEL', charge: 350 },
+        { name: 'DIAGNOSTIC CHARGES', charge: 430 },
     ],
     'Dzire': [
         { name: 'WHEEL ALIGNMENT', charge: 375 },
         { name: 'WHEEL ALIGNMENT (4 HEAD)', charge: 400 },
         { name: 'WHEEL BALANCING - 4 WHEEL', charge: 320 },
         { name: 'WHEEL BALANCING - 5 WHEEL', charge: 400 },
+        { name: 'DIAGNOSTIC CHARGES', charge: 520 },
     ],
     'Swift': [
         { name: 'WHEEL ALIGNMENT', charge: 375 },
         { name: 'WHEEL ALIGNMENT (4 HEAD)', charge: 400 },
         { name: 'WHEEL BALANCING - 4 WHEEL', charge: 320 },
         { name: 'WHEEL BALANCING - 5 WHEEL', charge: 400 },
+        { name: 'DIAGNOSTIC CHARGES', charge: 520 },
     ],
     'Ertiga': [
         { name: 'WHEEL ALIGNMENT', charge: 375 },
         { name: 'WHEEL ALIGNMENT (4 HEAD)', charge: 400 },
         { name: 'WHEEL BALANCING - 4 WHEEL', charge: 320 },
         { name: 'WHEEL BALANCING - 5 WHEEL', charge: 400 },
+        { name: 'DIAGNOSTIC CHARGES', charge: 940 },
     ],
     'Alto K10': [
         { name: 'WHEEL ALIGNMENT (4 HEAD)', charge: 400 },
         { name: 'WHEEL BALANCING - 5 WHEEL', charge: 350 },
+        { name: 'DIAGNOSTIC CHARGES', charge: 430 },
     ],
     'Brezza': [
         { name: 'WHEEL ALIGNMENT (4 HEAD)', charge: 400 },
         { name: 'WHEEL BALANCING - 4 WHEEL', charge: 340 },
         { name: 'WHEEL BALANCING - 5 WHEEL', charge: 400 },
+        { name: 'DIAGNOSTIC CHARGES', charge: 930 },
     ],
     'Celerio': [
         { name: 'WHEEL ALIGNMENT (4 HEAD)', charge: 400 },
         { name: 'WHEEL BALANCING - 5 WHEEL', charge: 350 },
+        { name: 'DIAGNOSTIC CHARGES', charge: 770 },
     ],
     'Baleno': [
         { name: 'WHEEL ALIGNMENT (4 HEAD)', charge: 400 },
         { name: 'WHEEL BALANCING - 5 WHEEL', charge: 400 },
+        { name: 'DIAGNOSTIC CHARGES', charge: 520 },
     ],
     'Ignis': [
         { name: 'WHEEL ALIGNMENT (4 HEAD)', charge: 400 },
@@ -73,10 +83,12 @@ const modelSpecificCharges: { [model: string]: { name: string; charge: number }[
     'Fronx': [
         { name: 'WHEEL ALIGNMENT (4 HEAD)', charge: 400 },
         { name: 'WHEEL BALANCING - 5 WHEEL', charge: 400 },
+        { name: 'DIAGNOSTIC CHARGES', charge: 520 },
     ],
     'Eeco': [
         { name: 'WHEEL ALIGNMENT (4 HEAD)', charge: 400 },
         { name: 'WHEEL BALANCING - 5 WHEEL', charge: 325 },
+        { name: 'DIAGNOSTIC CHARGES', charge: 398 },
     ],
     'Grand Vitara': [
         { name: 'WHEEL ALIGNMENT (4 HEAD)', charge: 400 },
@@ -85,6 +97,7 @@ const modelSpecificCharges: { [model: string]: { name: string; charge: number }[
     'XL6': [
         { name: 'WHEEL ALIGNMENT (4 HEAD)', charge: 400 },
         { name: 'WHEEL BALANCING - 5 WHEEL', charge: 400 },
+        { name: 'DIAGNOSTIC CHARGES', charge: 940 },
     ],
     'Jimny': [
         { name: 'WHEEL ALIGNMENT (4 HEAD)', charge: 400 }
@@ -93,6 +106,7 @@ const modelSpecificCharges: { [model: string]: { name: string; charge: number }[
         { name: 'WHEEL ALIGNMENT (4 HEAD)', charge: 400 },
         { name: 'WHEEL BALANCING - 4 WHEEL', charge: 340 },
         { name: 'WHEEL BALANCING - 5 WHEEL', charge: 425 },
+        { name: 'DIAGNOSTIC CHARGES', charge: 570 },
     ],
     'Ritz': [
         { name: 'WHEEL ALIGNMENT (4 HEAD)', charge: 400 },
