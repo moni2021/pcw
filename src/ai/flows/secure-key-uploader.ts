@@ -13,7 +13,6 @@ import { z } from 'zod';
 // In a real environment, this would be managed by a secrets manager.
 // For this context, we simulate the action, but the actual environment variable
 // would need to be set on the hosting platform (e.g., App Hosting for Firebase).
-// The `ai.defineSecret` function from older Genkit versions is no longer used.
 
 const UploadKeyInputSchema = z.object({
   jsonContent: z.string().describe('The full JSON content of the service account key file.'),
@@ -48,19 +47,19 @@ const serviceAccountUploaderFlow = ai.defineFlow(
       // 2. In a real-world scenario, you would use a secure method to set this
       //    environment variable on your hosting provider. For this tool, we will
       //    log a success message and instruct the user on the manual step if needed.
-      //    Example: await setEnvironmentVariable('SERVICE_ACCOUNT_KEY', jsonContent);
       
       console.log('Successfully received and validated service account key.');
       console.log('In a real deployment, this key would be stored as a secret/environment variable.');
       
       // We set the process environment variable for the current session.
       // This allows the user to use the app immediately without restarting the server.
+      // This will NOT persist after a server restart or redeployment.
       process.env.SERVICE_ACCOUNT_KEY = jsonContent;
 
 
       return {
         success: true,
-        message: 'Service account key validated. The environment is now configured for this session. You may need to redeploy for the change to persist.',
+        message: 'Service account key validated. The environment is now configured for this session. You must redeploy with the key set as an environment variable for the change to persist.',
       };
     } catch (error: any) {
       console.error('Failed to process service account key:', error);

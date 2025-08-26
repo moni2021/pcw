@@ -57,7 +57,7 @@ export default function PmsGapsPage() {
   }, [toast]);
   
   useEffect(() => {
-    if (allData.workshops.length > 0 && allData.vehicles.length > 0) {
+    if (allData.workshops.length > 0 && allData.vehicles.length > 0 && allData.pmsCharges.length > 0) {
       const findMissing = () => {
         const missing: MissingPmsCharge[] = [];
         allData.workshops.forEach(workshop => {
@@ -87,8 +87,11 @@ export default function PmsGapsPage() {
         setIsLoading(false);
       };
       findMissing();
+    } else if (!isLoading && allData.pmsCharges.length === 0) {
+        // Handle case where data loaded but pmsCharges is empty
+        setIsLoading(false);
     }
-  }, [allData]);
+  }, [allData, isLoading]);
   
   const filteredAndGroupedData = useMemo(() => {
     const filtered = missingCharges.filter(item => 

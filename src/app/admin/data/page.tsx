@@ -18,13 +18,9 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { convertToJson } from '@/ai/flows/json-converter-flow';
 import Link from 'next/link';
-
-
-// Import all data sources for the "Master" sync
-import { workshopData } from '@/lib/workshop-data-loader';
 import { workshops } from '@/lib/data/workshops';
 
-type DataType = 'workshops' | 'vehicles' | 'parts' | 'customLabor' | 'pmsCharges' | 'threeMCare';
+type DataType = 'workshops' | 'vehicles' | 'parts' | 'customLabor' | 'pmsCharges' | 'threeMCare' | 'feedback';
 type JsonFormatType = 'workshops' | 'vehicles' | 'parts' | 'customLabor' | 'pmsCharges' | 'threeMCare';
 
 
@@ -475,10 +471,10 @@ export default function DataManagementPage() {
                         AI JSON Converter
                     </Button>
                     <Button variant="secondary" asChild>
-                        <a href="/HOW_TO_PUSH_TO_GITHUB.md" target="_blank" rel="noopener noreferrer">
+                        <Link href="/HOW_TO_PUSH_TO_GITHUB.md" target="_blank" rel="noopener noreferrer">
                             <Github className="mr-2 h-4 w-4" />
                             How to Deploy
-                        </a>
+                        </Link>
                     </Button>
                 </CardContent>
             </Card>

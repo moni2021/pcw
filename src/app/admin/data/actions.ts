@@ -65,7 +65,9 @@ const dataSchemas = {
   feedback: z.array(FeedbackSchema),
 };
 
-type DataType = keyof typeof dataSchemas;
+type FullLocalDataType = ReturnType<typeof getFullLocalData>;
+type DataType = keyof FullLocalDataType;
+
 
 const getFullLocalData = () => ({
     workshops,
@@ -102,7 +104,7 @@ export async function syncToFirebase(): Promise<{ success: boolean, error?: stri
     return writeDataToFirebase('config', 'app_data', { appData: fullData }, false);
 }
 
-export async function uploadAndSyncToFirebase(jsonString: string, dataType: DataType): Promise<{ success: boolean, error?: string }> {
+export async function uploadAndSyncToFirebase(jsonString: string, dataType: keyof typeof dataSchemas): Promise<{ success: boolean, error?: string }> {
     let data;
     try {
         data = JSON.parse(jsonString);

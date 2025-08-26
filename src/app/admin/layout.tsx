@@ -52,8 +52,7 @@ export default function AdminLayout({
                        pathname.startsWith('/admin/parts') ||
                        pathname.startsWith('/admin/labour') ||
                        pathname.startsWith('/admin/pms-charges') ||
-                       pathname.startsWith('/admin/vehicles') ||
-                       pathname.startsWith('/admin/data');
+                       pathname.startsWith('/admin/vehicles');
 
   const isReportsActive = pathname.startsWith('/admin/compare') ||
                           pathname.startsWith('/admin/pms-gaps');
@@ -123,13 +122,6 @@ export default function AdminLayout({
                       </SidebarMenuSubButton>
                     </Link>
                   </SidebarMenuSubItem>
-                  <SidebarMenuSubItem>
-                    <Link href="/admin/data" passHref>
-                      <SidebarMenuSubButton asChild isActive={pathname.startsWith('/admin/data')}>
-                        <div><Settings />Sync & Upload</div>
-                      </SidebarMenuSubButton>
-                    </Link>
-                  </SidebarMenuSubItem>
                 </SidebarMenuSub>
               </SidebarGroup>
               
@@ -177,6 +169,18 @@ export default function AdminLayout({
               </SidebarMenuItem>
             </SidebarMenu>
           </SidebarContent>
+           <SidebarFooter>
+              <SidebarMenu>
+                 <SidebarMenuItem>
+                   <Link href="/admin/data" passHref>
+                      <SidebarMenuButton isActive={pathname === '/admin/data'}>
+                        <Settings />
+                        Setup & Sync
+                      </SidebarMenuButton>
+                  </Link>
+                </SidebarMenuItem>
+              </SidebarMenu>
+            </SidebarFooter>
         </Sidebar>
         <SidebarInset>
             <header className="flex h-14 items-center gap-4 border-b bg-background px-4 lg:h-[60px] lg:px-6">
