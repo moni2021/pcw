@@ -8,6 +8,7 @@ import { getFirestore as getClientFirestore, collection, addDoc, serverTimestamp
 import { z } from 'zod';
 import { VehicleSchema, PartSchema, CustomLaborSchema, WorkshopSchema, PmsChargeSchema, FeedbackSchema, Feedback, DataObjectType, Workshop, Part, Vehicle, CustomLabor, PmsCharge } from '@/lib/types';
 import { db as clientDb } from '@/lib/firebase'; // Client-side DB for public actions
+import { isEqual, sortBy } from 'lodash';
 
 
 // --- Admin SDK Initialization (for secure backend operations) ---
@@ -104,6 +105,105 @@ export async function syncToFirebase(): Promise<{ success: boolean, error?: stri
     return writeDataToFirebase('config', 'app_data', { appData: fullData }, false);
 }
 
+
+export type ComparisonResult = {
+    [key in DataType]?: {
+        added: any[];
+        updated: { local: any; remote: any }[];
+        unchanged: number;
+        removed: any[];
+    }
+};
+
+export async function compareLocalAndFirebaseData(): Promise<{ success: boolean; data?: ComparisonResult; error?: string }> {
+    const db = getAdminDb();
+    if (!db) {
+        return { success: false, error: "Service account key is not configured. Cannot connect to Firebase." };
+    }
+
+    try {
+        const localData = getFullLocalData();
+        const firebaseData = await getFullDataFromFirebase();
+        const comparison: ComparisonResult = {};
+        
+        const dataKeys = Object.keys(localData) as DataType[];
+
+        for (const key of dataKeys) {
+            const localItems = localData[key];
+            const remoteItems = firebaseData[key];
+            
+            comparison[key] = { added: [], updated: [], unchanged: 0, removed: [] };
+
+            if (Array.isArray(localItems) && Array.isArray(remoteItems)) {
+                const localMap = new Map(localItems.map(item => [item.id || item.name, item]));
+                const remoteMap = new Map(remoteItems.map(item => [item.id || item.name, item]));
+
+                // Check for added and updated items
+                for (const [id, localItem] of localMap.entries()) {
+                    if (!remoteMap.has(id)) {
+                        comparison[key]?.added.push(localItem);
+                    } else {
+                        const remoteItem = remoteMap.get(id)!;
+                        // Use lodash isEqual for deep comparison, ignoring order in nested arrays by sorting them
+                        const sortedLocal = sortObjectArrays(localItem);
+                        const sortedRemote = sortObjectArrays(remoteItem);
+
+                        if (!isEqual(sortedLocal, sortedRemote)) {
+                            comparison[key]?.updated.push({ local: localItem, remote: remoteItem });
+                        } else {
+                            comparison[key]!.unchanged++;
+                        }
+                    }
+                }
+
+                // Check for removed items
+                for (const [id, remoteItem] of remoteMap.entries()) {
+                    if (!localMap.has(id)) {
+                        comparison[key]?.removed.push(remoteItem);
+                    }
+                }
+            } else if (typeof localItems === 'object' && localItems !== null && typeof remoteItems === 'object' && remoteItems !== null) {
+                // Handle object comparison (for 3M Care)
+                if (!isEqual(localItems, remoteItems)) {
+                    comparison[key]!.updated.push({ local: localItems, remote: remoteItems });
+                } else {
+                    comparison[key]!.unchanged++;
+                }
+            }
+        }
+        
+        return { success: true, data: comparison };
+    } catch (error: any) {
+        return { success: false, error: error.message };
+    }
+}
+
+// Helper to sort arrays within an object for consistent comparison
+function sortObjectArrays(obj: any) {
+    if (obj === null || typeof obj !== 'object') return obj;
+    const newObj: { [key: string]: any } = {};
+    for (const key in obj) {
+        if (Array.isArray(obj[key])) {
+            // Check if array elements are objects with a sortable key
+            if (obj[key].length > 0 && typeof obj[key][0] === 'object' && obj[key][0] !== null) {
+                if ('name' in obj[key][0]) {
+                    newObj[key] = sortBy(obj[key], 'name');
+                } else if ('id' in obj[key][0]) {
+                     newObj[key] = sortBy(obj[key], 'id');
+                } else {
+                    newObj[key] = obj[key]; // Cannot sort reliably
+                }
+            } else {
+                 newObj[key] = [...obj[key]].sort();
+            }
+        } else {
+            newObj[key] = obj[key];
+        }
+    }
+    return newObj;
+}
+
+
 export async function uploadAndSyncToFirebase(jsonString: string, dataType: keyof typeof dataSchemas): Promise<{ success: boolean, error?: string }> {
     let data;
     try {
@@ -144,7 +244,7 @@ export async function downloadMasterJson(dataType: DataType): Promise<string> {
     return JSON.stringify({}, null, 2);
 }
 
-export async function getFullDataFromFirebase() {
+export async function getFullDataFromFirebase(): Promise<FullLocalDataType> {
     const db = getAdminDb();
     const localData = getFullLocalData();
     if (!db) {
@@ -335,5 +435,3 @@ export async function updateFeedbackStatus(ticketId: string, status: 'Open' | 'R
         return { success: false, error: e.message };
     }
 }
-
-    

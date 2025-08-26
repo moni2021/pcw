@@ -1,16 +1,16 @@
 
 "use client";
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, Fragment } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Download, Database, KeyRound, Save, UploadCloud, ShieldCheck, Loader2, Upload, FileJson, AlertCircle, Building, Sparkles, BrainCircuit, Github } from 'lucide-react';
+import { Download, Database, KeyRound, Save, UploadCloud, ShieldCheck, Loader2, Upload, FileJson, AlertCircle, Building, Sparkles, BrainCircuit, Github, GitCompareArrows, CircleAlert, CircleCheck, CirclePlus, Pencil, Trash2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { syncToFirebase, uploadAndSyncToFirebase, downloadMasterJson } from './actions';
+import { syncToFirebase, uploadAndSyncToFirebase, downloadMasterJson, compareLocalAndFirebaseData, ComparisonResult } from './actions';
 import { Separator } from '@/components/ui/separator';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 import { uploadServiceAccountKey } from '@/ai/flows/secure-key-uploader';
@@ -19,6 +19,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { convertToJson } from '@/ai/flows/json-converter-flow';
 import Link from 'next/link';
 import { workshops } from '@/lib/data/workshops';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import { Badge } from '@/components/ui/badge';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 type DataType = 'workshops' | 'vehicles' | 'parts' | 'customLabor' | 'pmsCharges' | 'threeMCare' | 'feedback';
 type JsonFormatType = 'workshops' | 'vehicles' | 'parts' | 'customLabor' | 'pmsCharges' | 'threeMCare';
@@ -30,6 +33,8 @@ export default function DataManagementPage() {
     const [password, setPassword] = useState('');
     const [isPasswordDialogOpen, setIsPasswordDialogOpen] = useState(true);
     const [isSyncing, setIsSyncing] = useState(false);
+    const [isComparing, setIsComparing] = useState(false);
+    const [comparisonData, setComparisonData] = useState<ComparisonResult | null>(null);
     const [isUploading, setIsUploading] = useState<{ [key in DataType]?: boolean }>({});
     const [selectedFile, setSelectedFile] = useState<{ [key in DataType]?: File | null }>({});
     const [isUploadingKey, setIsUploadingKey] = useState(false);
@@ -111,6 +116,32 @@ export default function DataManagementPage() {
         }
     };
 
+    const handleCompare = async () => {
+        setIsComparing(true);
+        setComparisonData(null);
+        try {
+            const result = await compareLocalAndFirebaseData();
+            if (result.success && result.data) {
+                setComparisonData(result.data);
+                 toast({ title: 'Comparison Complete', description: 'Review the changes below before syncing.' });
+            } else {
+                 toast({
+                    variant: "destructive",
+                    title: 'Comparison Failed',
+                    description: result.error || 'An unknown error occurred.',
+                });
+            }
+        } catch (error: any) {
+            toast({
+                variant: "destructive",
+                title: 'Comparison Failed',
+                description: error.message,
+            });
+        } finally {
+            setIsComparing(false);
+        }
+    }
+
 
     const handleSync = async () => {
         setIsSyncing(true);
@@ -121,6 +152,7 @@ export default function DataManagementPage() {
                     title: 'Sync Successful',
                     description: 'All local data has been successfully synced to Firebase.',
                 });
+                setComparisonData(null); // Reset comparison view
             } else {
                  if (result.error?.includes("Service account key is not configured")) {
                     toast({
@@ -256,7 +288,7 @@ export default function DataManagementPage() {
                     />
                  </div>
                   <div className="flex flex-col sm:flex-row gap-2">
-                     <Button onClick={() => handleFileUpload(dataType)} disabled={isUploading[dataType] || !selectedFile[dataType]}>
+                     <Button onClick={() => handleFileUpload(dataType as any)} disabled={isUploading[dataType] || !selectedFile[dataType]}>
                         {isUploading[dataType] ? (
                             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                         ) : (
@@ -312,6 +344,9 @@ export default function DataManagementPage() {
             </Dialog>
         );
     }
+    
+    const hasChanges = comparisonData && Object.values(comparisonData).some(v => v.added.length > 0 || v.updated.length > 0 || v.removed.length > 0);
+
 
     return (
         <div className="space-y-6">
@@ -454,29 +489,108 @@ export default function DataManagementPage() {
                         <Database /> Master Data Sync
                     </CardTitle>
                     <CardDescription>
-                       Push all local data (from `/src/lib/data`) to your live Firebase database. This is a one-time action to initialize the database. Subsequent changes should be made via the admin panels below.
+                       Push local data changes to Firebase. It is highly recommended to compare data first to see what will change.
                     </CardDescription>
                 </CardHeader>
                 <CardContent className="flex flex-col sm:flex-row gap-2">
-                     <Button onClick={handleSync} disabled={isSyncing}>
-                        {isSyncing ? (
+                     <Button onClick={handleCompare} disabled={isComparing || isSyncing}>
+                        {isComparing ? (
                             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                         ) : (
-                            <UploadCloud className="mr-2 h-4 w-4" />
+                            <GitCompareArrows className="mr-2 h-4 w-4" />
                         )}
-                        Sync All Local Data to Firebase
+                        Compare Local & Firebase Data
                     </Button>
                      <Button onClick={() => setIsConverterOpen(true)} variant="outline">
                         <BrainCircuit className="mr-2 h-4 w-4" />
                         AI JSON Converter
                     </Button>
-                    <Button variant="secondary" asChild>
-                        <Link href="https://github.com/moni2021/pcw25/blob/main/HOW_TO_PUSH_TO_GITHUB.md" target="_blank" rel="noopener noreferrer">
-                            <Github className="mr-2 h-4 w-4" />
-                            How to Deploy
-                        </Link>
+                     <Button variant="secondary" asChild>
+                       <Link href="https://github.com/moni2021/estimatortest/blob/main/HOW_TO_PUSH_TO_GITHUB.md" target="_blank" rel="noopener noreferrer">
+                           <Github className="mr-2 h-4 w-4" /> How to Deploy
+                       </Link>
                     </Button>
                 </CardContent>
+
+                {isComparing && (
+                     <CardFooter className="flex items-center justify-center p-6">
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin"/> Comparing data...
+                     </CardFooter>
+                )}
+
+                {comparisonData && (
+                     <CardFooter className="flex-col items-start p-6 space-y-4">
+                        <Separator />
+                        <h3 className="text-lg font-semibold">Comparison Results</h3>
+                        {hasChanges ? (
+                            <Alert>
+                                <CircleAlert className="h-4 w-4" />
+                                <AlertTitle>Changes Detected!</AlertTitle>
+                                <AlertDescription>
+                                    There are differences between your local data and the data in Firebase. Review the changes below. Once you are ready, you can push the changes to Firebase.
+                                </AlertDescription>
+                            </Alert>
+                        ) : (
+                             <Alert variant="default" className="bg-green-500/10 border-green-500/50">
+                                <CircleCheck className="h-4 w-4 text-green-500" />
+                                <AlertTitle className="text-green-700">Data is in Sync</AlertTitle>
+                                <AlertDescription className="text-green-700/80">
+                                   Your local data files and Firebase data are identical. No action is needed.
+                                </AlertDescription>
+                            </Alert>
+                        )}
+                        <ScrollArea className="h-[40vh] w-full">
+                          <Accordion type="multiple" className="w-full">
+                            {Object.entries(comparisonData).map(([key, value]) => {
+                                const totalChanges = value.added.length + value.updated.length + value.removed.length;
+                                if (totalChanges === 0 && value.unchanged === 0) return null;
+
+                                return (
+                                <AccordionItem value={key} key={key}>
+                                    <AccordionTrigger>
+                                        <div className="flex items-center gap-2">
+                                            <span className="capitalize font-semibold">{key.replace(/([A-Z])/g, ' $1')}</span>
+                                            <Badge variant={totalChanges > 0 ? "destructive" : "secondary"}>{totalChanges} changes</Badge>
+                                        </div>
+                                    </AccordionTrigger>
+                                    <AccordionContent className="space-y-2 text-sm">
+                                        <div className="flex items-center gap-2 text-green-600">
+                                            <CirclePlus className="h-4 w-4"/> {value.added.length} Added
+                                        </div>
+                                        {value.added.length > 0 && 
+                                            <pre className="p-2 bg-muted rounded-md text-xs max-h-40 overflow-auto">{JSON.stringify(value.added, null, 2)}</pre>
+                                        }
+                                         <div className="flex items-center gap-2 text-yellow-600">
+                                            <Pencil className="h-4 w-4"/> {value.updated.length} Updated
+                                        </div>
+                                        {value.updated.length > 0 && 
+                                            <pre className="p-2 bg-muted rounded-md text-xs max-h-40 overflow-auto">{JSON.stringify(value.updated.map(u => ({ id: u.local.id || u.local.name, local: u.local, remote: u.remote })), null, 2)}</pre>
+                                        }
+                                         <div className="flex items-center gap-2 text-red-600">
+                                            <Trash2 className="h-4 w-4"/> {value.removed.length} Removed (will be added back from local)
+                                        </div>
+                                         <div className="flex items-center gap-2 text-gray-500">
+                                            <CircleCheck className="h-4 w-4"/> {value.unchanged} Unchanged
+                                        </div>
+                                    </AccordionContent>
+                                </AccordionItem>
+                                )
+                            })}
+                          </Accordion>
+                        </ScrollArea>
+
+                        <div className="pt-4">
+                             <Button onClick={handleSync} disabled={isSyncing}>
+                                {isSyncing ? (
+                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                ) : (
+                                    <UploadCloud className="mr-2 h-4 w-4" />
+                                )}
+                                Confirm and Push Changes to Firebase
+                            </Button>
+                        </div>
+                    </CardFooter>
+                )}
             </Card>
 
             <Separator />
@@ -487,7 +601,7 @@ export default function DataManagementPage() {
                         <Upload /> Individual Data Upload
                     </CardTitle>
                     <CardDescription>
-                       Upload a JSON file for a specific data type to update it in Firebase. This is useful for migrating data from another system.
+                       Upload a JSON file for a specific data type to update it in Firebase. This is useful for migrating data from another system. This will bypass the comparison check.
                     </CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -510,13 +624,13 @@ export default function DataManagementPage() {
                            {renderUploadTab('parts', 'Parts Data', 'Upload a JSON file with the master list of all parts and their prices.', <FileJson />)}
                         </TabsContent>
                          <TabsContent value="customLabor" className="pt-4">
-                            {renderUploadTab('customLabor', 'Custom Labour Data', 'Upload a JSON file with all custom labour charges specific to vehicle models and workshops.', <FileJson />)}
+                            {renderUploadTab('customLabor' as any, 'Custom Labour Data', 'Upload a JSON file with all custom labour charges specific to vehicle models and workshops.', <FileJson />)}
                         </TabsContent>
                           <TabsContent value="pmsCharges" className="pt-4">
-                           {renderUploadTab('pmsCharges', 'PMS Charges Data', 'Upload a JSON file defining the periodic maintenance service (PMS) labour charges per workshop.', <FileJson />)}
+                           {renderUploadTab('pmsCharges' as any, 'PMS Charges Data', 'Upload a JSON file defining the periodic maintenance service (PMS) labour charges per workshop.', <FileJson />)}
                         </TabsContent>
                         <TabsContent value="threeMCare" className="pt-4">
-                           {renderUploadTab('threeMCare', '3M Care Data', 'Upload a JSON file with the 3M care services and prices per model.', <Sparkles />)}
+                           {renderUploadTab('threeMCare' as any, '3M Care Data', 'Upload a JSON file with the 3M care services and prices per model.', <Sparkles />)}
                         </TabsContent>
                     </Tabs>
                 </CardContent>
