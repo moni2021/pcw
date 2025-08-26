@@ -23,9 +23,9 @@ const getAdminDb = () => {
             const serviceAccount = JSON.parse(serviceAccountJson);
             const app = initializeAdminApp({
                 credential: cert(serviceAccount),
-                databaseURL: `https://${process.env.GCLOUD_PROJECT || serviceAccount.project_id}.firebaseio.com`
+                databaseURL: `https://${serviceAccount.project_id}.firebaseio.com`
             });
-            console.log("Firebase Admin SDK initialized successfully.");
+            console.log("Firebase Admin SDK initialized successfully for project:", serviceAccount.project_id);
             return getAdminFirestore(app);
         } catch (error: any) {
             console.error('Firebase Admin SDK initialization error:', error.message);
@@ -137,7 +137,7 @@ export async function downloadMasterJson(dataType: DataType): Promise<string> {
     const docRef = db.collection('config').doc('app_data');
     const docSnap = await docRef.get();
     
-    if (docSnap.exists()) {
+    if (docSnap.exists) {
         const data = docSnap.data()?.appData;
         return JSON.stringify(data?.[dataType] || {}, null, 2);
     }
@@ -156,7 +156,7 @@ export async function getFullDataFromFirebase() {
         const docRef = db.collection('config').doc('app_data');
         const docSnap = await docRef.get();
         
-        if (docSnap.exists()) {
+        if (docSnap.exists) {
             const firestoreData = docSnap.data()?.appData;
             return {
                 ...localData,
@@ -182,7 +182,7 @@ async function updateArrayInFirebase(dataType: keyof (ReturnType<typeof getFullL
     try {
         await db.runTransaction(async (transaction) => {
             const doc = await transaction.get(docRef);
-            if (!doc.exists()) {
+            if (!doc.exists) {
                 throw new Error("Data document does not exist!");
             }
             
@@ -228,7 +228,7 @@ async function updateCustomLaborArray(item: CustomLabor, operation: 'add' | 'upd
     try {
         await db.runTransaction(async (transaction) => {
             const doc = await transaction.get(docRef);
-            if (!doc.exists()) throw new Error("Data document does not exist!");
+            if (!doc.exists) throw new Error("Data document does not exist!");
             
             const currentArray: CustomLabor[] = doc.data()?.appData?.customLabor || [];
             let newArray;
@@ -335,3 +335,5 @@ export async function updateFeedbackStatus(ticketId: string, status: 'Open' | 'R
         return { success: false, error: e.message };
     }
 }
+
+    
