@@ -5,6 +5,6 @@ This is a NextJS starter .
 To get started, take a look at src/app/page.tsx.
 
 
-updated version 1.01
+updated version 1.02
 # pcw
 # pcw
