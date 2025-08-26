@@ -2,7 +2,7 @@
 // This file defines which custom labor tasks should be recommended at specific service intervals.
 
 interface LaborRecommendation {
-    [laborName: string]: number[]; // Maps a labor name to an array of kilometers at which it's recommended
+    [laborName: string]: number[] | 'all_paid'; // Maps a labor name to an array of kilometers at which it's recommended or all paid services
 }
 
 // All kilometer values are in thousands (e.g., 20 represents 20,000 km)

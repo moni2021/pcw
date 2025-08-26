@@ -21,6 +21,7 @@ const modelSpecificCharges: { [model: string]: { name: string; charge: number }[
         { name: 'WHEEL BALANCING - 4 WHEEL', charge: 320 },
         { name: 'WHEEL BALANCING - 5 WHEEL', charge: 350 },
         { name: 'DIAGNOSTIC CHARGES', charge: 770 },
+        { name: 'EVAPORATOR CLEANING', charge: 278.88 },
     ],
     'S-Presso': [
         { name: 'WHEEL ALIGNMENT', charge: 330 },
@@ -33,6 +34,7 @@ const modelSpecificCharges: { [model: string]: { name: string; charge: number }[
         { name: 'WHEEL ALIGNMENT (4 HEAD)', charge: 400 },
         { name: 'WHEEL BALANCING - 5 WHEEL', charge: 350 },
         { name: 'DIAGNOSTIC CHARGES', charge: 430 },
+        { name: 'EVAPORATOR CLEANING', charge: 274.03 },
     ],
     'Dzire': [
         { name: 'WHEEL ALIGNMENT', charge: 375 },
@@ -40,6 +42,7 @@ const modelSpecificCharges: { [model: string]: { name: string; charge: number }[
         { name: 'WHEEL BALANCING - 4 WHEEL', charge: 320 },
         { name: 'WHEEL BALANCING - 5 WHEEL', charge: 400 },
         { name: 'DIAGNOSTIC CHARGES', charge: 520 },
+        { name: 'EVAPORATOR CLEANING', charge: 290.38 },
     ],
     'Swift': [
         { name: 'WHEEL ALIGNMENT', charge: 375 },
@@ -47,6 +50,7 @@ const modelSpecificCharges: { [model: string]: { name: string; charge: number }[
         { name: 'WHEEL BALANCING - 4 WHEEL', charge: 320 },
         { name: 'WHEEL BALANCING - 5 WHEEL', charge: 400 },
         { name: 'DIAGNOSTIC CHARGES', charge: 520 },
+        { name: 'EVAPORATOR CLEANING', charge: 290.38 },
     ],
     'Ertiga': [
         { name: 'WHEEL ALIGNMENT', charge: 375 },
@@ -59,22 +63,26 @@ const modelSpecificCharges: { [model: string]: { name: string; charge: number }[
         { name: 'WHEEL ALIGNMENT (4 HEAD)', charge: 400 },
         { name: 'WHEEL BALANCING - 5 WHEEL', charge: 350 },
         { name: 'DIAGNOSTIC CHARGES', charge: 430 },
+        { name: 'EVAPORATOR CLEANING', charge: 274.03 },
     ],
     'Brezza': [
         { name: 'WHEEL ALIGNMENT (4 HEAD)', charge: 400 },
         { name: 'WHEEL BALANCING - 4 WHEEL', charge: 340 },
         { name: 'WHEEL BALANCING - 5 WHEEL', charge: 400 },
         { name: 'DIAGNOSTIC CHARGES', charge: 930 },
+        { name: 'EVAPORATOR CLEANING', charge: 295 },
     ],
     'Celerio': [
         { name: 'WHEEL ALIGNMENT (4 HEAD)', charge: 400 },
         { name: 'WHEEL BALANCING - 5 WHEEL', charge: 350 },
         { name: 'DIAGNOSTIC CHARGES', charge: 770 },
+        { name: 'EVAPORATOR CLEANING', charge: 274.03 },
     ],
     'Baleno': [
         { name: 'WHEEL ALIGNMENT (4 HEAD)', charge: 400 },
         { name: 'WHEEL BALANCING - 5 WHEEL', charge: 400 },
         { name: 'DIAGNOSTIC CHARGES', charge: 520 },
+        { name: 'EVAPORATOR CLEANING', charge: 287.5 },
     ],
     'Ignis': [
         { name: 'WHEEL ALIGNMENT (4 HEAD)', charge: 400 },
@@ -98,6 +106,7 @@ const modelSpecificCharges: { [model: string]: { name: string; charge: number }[
         { name: 'WHEEL ALIGNMENT (4 HEAD)', charge: 400 },
         { name: 'WHEEL BALANCING - 5 WHEEL', charge: 400 },
         { name: 'DIAGNOSTIC CHARGES', charge: 940 },
+        { name: 'EVAPORATOR CLEANING', charge: 312.7 },
     ],
     'Jimny': [
         { name: 'WHEEL ALIGNMENT (4 HEAD)', charge: 400 }
