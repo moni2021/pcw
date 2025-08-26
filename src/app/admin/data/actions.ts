@@ -182,7 +182,7 @@ async function updateArrayInFirebase(dataType: keyof (ReturnType<typeof getFullL
     try {
         await db.runTransaction(async (transaction) => {
             const doc = await transaction.get(docRef);
-            if (!doc.exists) {
+            if (!doc.exists()) {
                 throw new Error("Data document does not exist!");
             }
             
@@ -228,7 +228,7 @@ async function updateCustomLaborArray(item: CustomLabor, operation: 'add' | 'upd
     try {
         await db.runTransaction(async (transaction) => {
             const doc = await transaction.get(docRef);
-            if (!doc.exists) throw new Error("Data document does not exist!");
+            if (!doc.exists()) throw new Error("Data document does not exist!");
             
             const currentArray: CustomLabor[] = doc.data()?.appData?.customLabor || [];
             let newArray;
