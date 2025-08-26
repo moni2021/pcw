@@ -471,7 +471,7 @@ export default function DataManagementPage() {
                         AI JSON Converter
                     </Button>
                     <Button variant="secondary" asChild>
-                        <Link href="/HOW_TO_PUSH_TO_GITHUB.md" target="_blank" rel="noopener noreferrer">
+                        <Link href="https://github.com/moni2021/pcw25/blob/main/HOW_TO_PUSH_TO_GITHUB.md" target="_blank" rel="noopener noreferrer">
                             <Github className="mr-2 h-4 w-4" />
                             How to Deploy
                         </Link>
