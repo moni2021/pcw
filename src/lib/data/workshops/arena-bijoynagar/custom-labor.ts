@@ -130,21 +130,25 @@ const segmentCharges = [
     { name: "STRUT GREASING", segment: 'ALL', charge: 1650 },
     { name: "HEADLAMP FOCUSSING", segment: 'ALL', charge: 400 },
     { name: "ENGINE ROOM PAINTING", segment: 'ALL', charge: 400 },
+    { name: "BLOWER VENT CLEAN", segment: 'ALL', charge: 400 },
 
     // Small Segment
     { name: "AC GAS TOP-UP", segment: 'SMALL', charge: 850 },
     { name: "AC GAS CHARGING", segment: 'SMALL', charge: 1000 },
     { name: "A/C SERVICING", segment: 'SMALL', charge: 1000 },
+    { name: "EVAPORATOR CLEANING", segment: 'SMALL', charge: 275 },
 
     // Medium Segment
     { name: "AC GAS TOP-UP", segment: 'MEDIUM', charge: 1200 },
     { name: "AC GAS CHARGING", segment: 'MEDIUM', charge: 1250 },
     { name: "A/C SERVICING", segment: 'MEDIUM', charge: 1250 },
+    { name: "EVAPORATOR CLEANING", segment: 'MEDIUM', charge: 290 },
 
     // Large Segment
     { name: "AC GAS TOP-UP", segment: 'LARGE', charge: 1450 },
     { name: "AC GAS CHARGING", segment: 'LARGE', charge: 1600 },
     { name: "A/C SERVICING", segment: 'LARGE', charge: 1600 },
+    { name: "EVAPORATOR CLEANING", segment: 'LARGE', charge: 315 },
 ];
 
 const allModels = vehicles.map(v => v.model);
@@ -154,8 +158,9 @@ const getModelSegment = (modelName: string): string => {
     // This is a simplified lookup. A real implementation might be more complex.
     const upperCaseModel = modelName.toUpperCase();
     if (["Alto 800", "Alto K10", "S-Presso", "Celerio", "Wagon R", "Ignis", "Ritz"].some(m => m.toUpperCase() === upperCaseModel)) return 'SMALL';
-    if (["Swift", "Dzire", "Baleno", "Eeco"].some(m => m.toUpperCase() === upperCaseModel)) return 'MEDIUM';
-    if (["Ertiga", "XL6", "Brezza", "S-Cross", "Ciaz", "Grand Vitara", "Jimny"].some(m => m.toUpperCase() === upperCaseModel)) return 'LARGE';
+    if (["Swift", "Dzire", "Baleno", "Eeco", "Eeco Cargo"].some(m => m.toUpperCase() === upperCaseModel)) return 'MEDIUM';
+    if (["Ertiga", "XL6", "Brezza", "S-Cross", "Ciaz", "Grand Vitara", "Jimny", "Invicto"].some(m => m.toUpperCase() === upperCaseModel)) return 'LARGE';
+    if (["Super Carry"].some(m => m.toUpperCase() === upperCaseModel)) return 'COMMERCIAL';
     return 'MEDIUM'; // Default fallback
 }
 
