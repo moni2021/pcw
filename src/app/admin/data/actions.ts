@@ -279,7 +279,7 @@ export async function getFullDataFromFirebase(): Promise<FullLocalDataType> {
     }
 }
 
-async function updateArrayInFirebase(dataType: keyof (ReturnType<typeof getFullLocalData>), item: DataObjectType, operation: 'add' | 'update' | 'delete', identifierKey: keyof DataObjectType) {
+async function updateArrayInFirebase<T extends DataObjectType>(dataType: keyof FullLocalDataType, item: T, operation: 'add' | 'update' | 'delete', identifierKey: keyof T) {
     const db = getAdminDb();
     if (!db) return { success: false, error: "Database not connected." };
     const docRef = db.collection('config').doc('app_data');
@@ -291,17 +291,17 @@ async function updateArrayInFirebase(dataType: keyof (ReturnType<typeof getFullL
                 throw new Error("Data document does not exist!");
             }
             
-            const currentArray = doc.data()?.appData?.[dataType] || [];
-            let newArray;
+            const currentArray: T[] = doc.data()?.appData?.[dataType] || [];
+            let newArray: T[];
 
             if (operation === 'add') {
                 newArray = [...currentArray, item];
             } else {
                 const itemIdentifier = item[identifierKey];
                 if(operation === 'update') {
-                     newArray = currentArray.map((i: any) => i[identifierKey] === itemIdentifier ? item : i);
+                     newArray = currentArray.map((i: T) => i[identifierKey] === itemIdentifier ? item : i);
                 } else { // delete
-                     newArray = currentArray.filter((i: any) => i[identifierKey] !== itemIdentifier);
+                     newArray = currentArray.filter((i: T) => i[identifierKey] !== itemIdentifier);
                 }
             }
             transaction.set(docRef, { appData: { [dataType]: newArray } }, { merge: true });
