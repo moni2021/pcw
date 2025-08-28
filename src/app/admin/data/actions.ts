@@ -67,7 +67,7 @@ const dataSchemas = {
 };
 
 type FullLocalDataType = ReturnType<typeof getFullLocalData>;
-type DataType = keyof FullLocalDataType;
+type DataType = keyof Omit<FullLocalDataType, 'feedback'>;
 
 
 const getFullLocalData = () => ({
@@ -134,8 +134,8 @@ export async function compareLocalAndFirebaseData(): Promise<{ success: boolean;
         const dataKeys = Object.keys(localData) as DataType[];
 
         for (const key of dataKeys) {
-            const localItems = localData[key];
-            const remoteItems = firebaseData[key];
+            const localItems = localData[key as keyof typeof localData];
+            const remoteItems = firebaseData[key as keyof typeof firebaseData];
             
             comparison[key] = { added: [], updated: [], unchanged: 0, removed: [] };
 
@@ -209,7 +209,7 @@ function sortObjectArrays(obj: any) {
 }
 
 
-export async function uploadAndSyncToFirebase(jsonString: string, dataType: keyof typeof dataSchemas): Promise<{ success: boolean, error?: string }> {
+export async function uploadAndSyncToFirebase(jsonString: string, dataType: keyof Omit<typeof dataSchemas, 'feedback'>): Promise<{ success: boolean, error?: string }> {
     let data;
     try {
         data = JSON.parse(jsonString);
@@ -249,7 +249,7 @@ export async function downloadMasterJson(dataType: DataType): Promise<string> {
     return JSON.stringify({}, null, 2);
 }
 
-export async function getFullDataFromFirebase(): Promise<FullLocalDataType> {
+export async function getFullDataFromFirebase(): Promise<ReturnType<typeof getFullLocalData>> {
     const db = getAdminDb();
     const localData = getFullLocalData();
     if (!db) {
@@ -263,13 +263,18 @@ export async function getFullDataFromFirebase(): Promise<FullLocalDataType> {
         
         if (docSnap.exists) {
             const firestoreData = docSnap.data()?.appData;
+            // Return a merged object, preferring Firestore data but falling back to local
             return {
-                ...localData,
-                ...firestoreData
+                workshops: firestoreData?.workshops || localData.workshops,
+                vehicles: firestoreData?.vehicles || localData.vehicles,
+                parts: firestoreData?.parts || localData.parts,
+                customLabor: firestoreData?.customLabor || localData.customLabor,
+                pmsCharges: firestoreData?.pmsCharges || localData.pmsCharges,
+                threeMCare: firestoreData?.threeMCare || localData.threeMCare,
             };
         } else {
-            console.warn("No data in Firestore. Performing initial sync and returning local data.");
-            await syncToFirebase();
+            console.warn("No 'app_data' document in Firestore. Returning local data.");
+            // We don't sync here automatically to avoid accidental overwrites on first load
             return localData;
         }
     } catch (error: any) {
@@ -279,7 +284,7 @@ export async function getFullDataFromFirebase(): Promise<FullLocalDataType> {
     }
 }
 
-async function updateArrayInFirebase<T extends DataObjectType>(dataType: keyof FullLocalDataType, item: T, operation: 'add' | 'update' | 'delete', identifierKey: keyof T) {
+async function updateArrayInFirebase<T extends DataObjectType>(dataType: keyof Omit<FullLocalDataType, 'threeMCare'>, item: T, operation: 'add' | 'update' | 'delete', identifierKey: keyof T) {
     const db = getAdminDb();
     if (!db) return { success: false, error: "Database not connected." };
     const docRef = db.collection('config').doc('app_data');
