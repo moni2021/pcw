@@ -34,8 +34,8 @@ interface User {
 const initialUsers: User[] = [
   { id: 'usr_1', name: 'Yash Poddar', email: 'admin@example.com', role: 'Admin', isAdmin: true, status: 'Active' },
   { id: 'usr_2', name: 'Hiru Mani', email: 'daloihiru8@gmail.com', role: 'Developer', isAdmin: true, status: 'Active' },
-  { id: 'usr_3', email: 'editor@example.com', role: 'User', isAdmin: false, status: 'Active' },
-  { id: 'usr_4', email: 'viewer@example.com', role: 'User', isAdmin: false, status: 'Inactive' },
+  { id: 'usr_3', name: 'Editor User', email: 'editor@example.com', role: 'User', isAdmin: false, status: 'Active' },
+  { id: 'usr_4', name: 'Viewer User', email: 'viewer@example.com', role: 'User', isAdmin: false, status: 'Inactive' },
 ];
 
 
