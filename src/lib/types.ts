@@ -71,7 +71,7 @@ export const WarrantyCoverageSchema = z.object({
 });
 export type WarrantyCoverage = z.infer<typeof WarrantyCoverageSchema>;
 
-export type DataObjectType = Workshop | Part | Vehicle | CustomLabor | PmsCharge | Feedback;
+export type DataObjectType = Workshop | Part | Vehicle | CustomLabor | PmsCharge;
 
 export const ServiceSchema = z.object({
   parts: z.array(PartSchema),

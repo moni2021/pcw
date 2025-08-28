@@ -115,6 +115,11 @@ export type ComparisonResult = {
     }
 };
 
+const getItemIdentifier = (item: any): string => {
+  return item.id || item.name || item.model;
+};
+
+
 export async function compareLocalAndFirebaseData(): Promise<{ success: boolean; data?: ComparisonResult; error?: string }> {
     const db = getAdminDb();
     if (!db) {
@@ -135,8 +140,8 @@ export async function compareLocalAndFirebaseData(): Promise<{ success: boolean;
             comparison[key] = { added: [], updated: [], unchanged: 0, removed: [] };
 
             if (Array.isArray(localItems) && Array.isArray(remoteItems)) {
-                const localMap = new Map(localItems.map(item => [item.id || item.name, item]));
-                const remoteMap = new Map(remoteItems.map(item => [item.id || item.name, item]));
+                const localMap = new Map(localItems.map(item => [getItemIdentifier(item), item]));
+                const remoteMap = new Map(remoteItems.map(item => [getItemIdentifier(item), item]));
 
                 // Check for added and updated items
                 for (const [id, localItem] of localMap.entries()) {
