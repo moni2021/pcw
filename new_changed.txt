@@ -1,0 +1,16 @@
+Here is a summary of the recent changes made to the project:
+
+1.  **Dependency Management:**
+    *   Resolved multiple `npm install` failures by correcting dependency conflicts with `genkit` packages.
+    *   Aligned all `@genkit-ai/*` and related `firebase` packages to stable, compatible versions (v1.4.0).
+    *   Added an `overrides` section to `package.json` to enforce these specific versions, preventing future conflicts from sub-dependencies.
+    *   Installed missing packages required by UI components, including `embla-carousel-react` and `recharts`.
+    *   Removed the deprecated `@types/handlebars` package to clean up installation warnings.
+    *   Re-added the optional `@opentelemetry/exporter-jaeger` package to resolve a build-time module resolution error.
+
+2.  **Code & TypeScript Fixes:**
+    *   Corrected a TypeScript error in `src/app/admin/data/actions.ts` related to a function's type inference, which was preventing the project from building.
+    *   Fixed a build error in `src/app/admin/users/page.tsx` by adding missing `name` properties to the mock user data, ensuring it matched the required `User` type.
+    *   Resolved a type error in `src/app/admin/data/page.tsx` to prevent the app from trying to download "feedback" data as a master JSON file.
+
+These changes have stabilized the project's dependencies and fixed the critical build errors.
