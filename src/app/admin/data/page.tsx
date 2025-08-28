@@ -23,7 +23,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 
-type DataType = 'workshops' | 'vehicles' | 'parts' | 'customLabor' | 'pmsCharges' | 'threeMCare' | 'feedback';
+type DataType = 'workshops' | 'vehicles' | 'parts' | 'customLabor' | 'pmsCharges' | 'threeMCare';
 type JsonFormatType = 'workshops' | 'vehicles' | 'parts' | 'customLabor' | 'pmsCharges' | 'threeMCare';
 
 
@@ -288,7 +288,7 @@ export default function DataManagementPage() {
                     />
                  </div>
                   <div className="flex flex-col sm:flex-row gap-2">
-                     <Button onClick={() => handleFileUpload(dataType as any)} disabled={isUploading[dataType] || !selectedFile[dataType]}>
+                     <Button onClick={() => handleFileUpload(dataType)} disabled={isUploading[dataType] || !selectedFile[dataType]}>
                         {isUploading[dataType] ? (
                             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                         ) : (
@@ -564,7 +564,7 @@ export default function DataManagementPage() {
                                             <Pencil className="h-4 w-4"/> {value.updated.length} Updated
                                         </div>
                                         {value.updated.length > 0 && 
-                                            <pre className="p-2 bg-muted rounded-md text-xs max-h-40 overflow-auto">{JSON.stringify(value.updated.map(u => ({ id: u.local.id || u.local.name, local: u.local, remote: u.remote })), null, 2)}</pre>
+                                            <pre className="p-2 bg-muted rounded-md text-xs max-h-40 overflow-auto">{JSON.stringify(value.updated.map(u => ({ id: (u.local as any).id || (u.local as any).name || (u.local as any).model, local: u.local, remote: u.remote })), null, 2)}</pre>
                                         }
                                          <div className="flex items-center gap-2 text-red-600">
                                             <Trash2 className="h-4 w-4"/> {value.removed.length} Removed (will be added back from local)
@@ -624,13 +624,13 @@ export default function DataManagementPage() {
                            {renderUploadTab('parts', 'Parts Data', 'Upload a JSON file with the master list of all parts and their prices.', <FileJson />)}
                         </TabsContent>
                          <TabsContent value="customLabor" className="pt-4">
-                            {renderUploadTab('customLabor' as any, 'Custom Labour Data', 'Upload a JSON file with all custom labour charges specific to vehicle models and workshops.', <FileJson />)}
+                            {renderUploadTab('customLabor', 'Custom Labour Data', 'Upload a JSON file with all custom labour charges specific to vehicle models and workshops.', <FileJson />)}
                         </TabsContent>
                           <TabsContent value="pmsCharges" className="pt-4">
-                           {renderUploadTab('pmsCharges' as any, 'PMS Charges Data', 'Upload a JSON file defining the periodic maintenance service (PMS) labour charges per workshop.', <FileJson />)}
+                           {renderUploadTab('pmsCharges', 'PMS Charges Data', 'Upload a JSON file defining the periodic maintenance service (PMS) labour charges per workshop.', <FileJson />)}
                         </TabsContent>
                         <TabsContent value="threeMCare" className="pt-4">
-                           {renderUploadTab('threeMCare' as any, '3M Care Data', 'Upload a JSON file with the 3M care services and prices per model.', <Sparkles />)}
+                           {renderUploadTab('threeMCare', '3M Care Data', 'Upload a JSON file with the 3M care services and prices per model.', <Sparkles />)}
                         </TabsContent>
                     </Tabs>
                 </CardContent>
@@ -638,3 +638,5 @@ export default function DataManagementPage() {
         </div>
     );
 }
+
+    
