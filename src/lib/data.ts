@@ -1,7 +1,7 @@
 
 import type { Vehicle, ServiceData, Service } from './types';
 import { allParts } from './data/parts';
-import { serviceSchedules } from './data/service-schedules';
+import { schedules, modelToScheduleMap } from './data/service-schedules';
 
 
 export const vehicles: Vehicle[] = [
@@ -55,8 +55,8 @@ function generateServiceData() {
             const keyPrefix = `${model} ${fuelType}`;
 
             // Get the specific schedule for the model and fuel type
-            const scheduleName = serviceSchedules[model]?.[fuelType] || serviceSchedules[model]?.['default'] || 'default';
-            const schedule = serviceSchedules['schedules'][scheduleName];
+            const scheduleName = modelToScheduleMap[model]?.[fuelType] || modelToScheduleMap[model]?.['default'] || 'default';
+            const schedule = schedules[scheduleName];
             
             if (!schedule) {
                 console.warn(`No service schedule found for ${model} (${fuelType})`);
