@@ -55,7 +55,8 @@ function generateServiceData() {
             const keyPrefix = `${model} ${fuelType}`;
 
             // Get the specific schedule for the model and fuel type
-            const scheduleName = modelToScheduleMap[model]?.[fuelType] || modelToScheduleMap[model]?.['default'] || 'default';
+            const scheduleMap = modelToScheduleMap[model];
+            const scheduleName = (scheduleMap && scheduleMap[fuelType]) || (scheduleMap && scheduleMap['default']) || 'default';
             const schedule = schedules[scheduleName];
             
             if (!schedule) {
