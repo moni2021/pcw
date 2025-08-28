@@ -11,8 +11,8 @@ type VehicleSchedules = {
 };
 
 // Define part lists once to avoid repetition
-const freeService1 = [];
-const freeService2 = [];
+const freeService1: string[] = [];
+const freeService2: string[] = [];
 const freeService3 = ['ENGINE_OIL', 'Oil Filter', 'Drain Plug Gasket'];
 
 const base_10k = ['ENGINE_OIL', 'Oil Filter', 'Drain Plug Gasket'];
