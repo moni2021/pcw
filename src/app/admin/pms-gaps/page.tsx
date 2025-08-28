@@ -10,7 +10,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { FileWarning, Loader2, Search } from 'lucide-react';
-import { serviceSchedules } from '@/lib/data/service-schedules';
+import { schedules } from '@/lib/data/service-schedules';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -26,7 +26,7 @@ type MissingPmsCharge = {
   serviceType: string;
 };
 
-const allServiceTypes = Object.keys(serviceSchedules.schedules.default);
+const allServiceTypes = Object.keys(schedules.default);
 
 export default function PmsGapsPage() {
   const [allData, setAllData] = useState<{ pmsCharges: PmsCharge[], vehicles: Vehicle[], workshops: Workshop[] }>({
