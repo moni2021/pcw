@@ -271,6 +271,25 @@ export async function downloadFullBackup(): Promise<{success: boolean, data?: st
     }
 }
 
+export async function restoreFromBackup(jsonString: string): Promise<{ success: boolean, error?: string }> {
+    let backupData;
+    try {
+        backupData = JSON.parse(jsonString);
+    } catch (error: any) {
+        return { success: false, error: 'Invalid JSON file. Could not parse content.' };
+    }
+
+    // Basic validation to check if it looks like our backup structure
+    if (typeof backupData !== 'object' || backupData === null || !backupData.workshops || !backupData.vehicles) {
+        return { success: false, error: 'The provided JSON file does not appear to be a valid backup file.' };
+    }
+    
+    // The backup file contains the content of 'appData', so we need to wrap it
+    const dataToRestore = { appData: backupData };
+
+    return writeDataToFirebase('config', 'app_data', dataToRestore, false); // merge: false to overwrite
+}
+
 
 export async function getFullDataFromFirebase(): Promise<ReturnType<typeof getFullLocalData>> {
     const db = getAdminDb();

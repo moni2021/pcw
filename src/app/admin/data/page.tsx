@@ -5,12 +5,12 @@ import React, { useState, useRef, useEffect, Fragment } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Download, Database, KeyRound, Save, UploadCloud, ShieldCheck, Loader2, Upload, FileJson, AlertCircle, Building, Sparkles, BrainCircuit, Github, GitCompareArrows, CircleAlert, CircleCheck, CirclePlus, Pencil, Trash2, CheckCircle } from 'lucide-react';
+import { Download, Database, KeyRound, Save, UploadCloud, ShieldCheck, Loader2, Upload, FileJson, AlertCircle, Building, Sparkles, BrainCircuit, Github, GitCompareArrows, CircleAlert, CircleCheck, CirclePlus, Pencil, Trash2, CheckCircle, FileUp, AlertTriangle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { syncToFirebase, uploadAndSyncToFirebase, downloadMasterJson, compareLocalAndFirebaseData, ComparisonResult, setEnvironmentVariable, downloadFullBackup } from './actions';
+import { syncToFirebase, uploadAndSyncToFirebase, downloadMasterJson, compareLocalAndFirebaseData, ComparisonResult, setEnvironmentVariable, downloadFullBackup, restoreFromBackup } from './actions';
 import { Separator } from '@/components/ui/separator';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 import { uploadServiceAccountKey } from '@/ai/flows/secure-key-uploader';
@@ -22,6 +22,8 @@ import { workshops } from '@/lib/data/workshops';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
+
 
 type DataType = 'workshops' | 'vehicles' | 'parts' | 'customLabor' | 'pmsCharges' | 'threeMCare';
 type JsonFormatType = 'workshops' | 'vehicles' | 'parts' | 'customLabor' | 'pmsCharges' | 'threeMCare';
@@ -48,6 +50,10 @@ export default function DataManagementPage() {
     const [comparisonData, setComparisonData] = useState<ComparisonResult | null>(null);
     const [isUploading, setIsUploading] = useState<{ [key in DataType]?: boolean }>({});
     const [selectedFile, setSelectedFile] = useState<{ [key in DataType]?: File | null }>({});
+    const [backupFile, setBackupFile] = useState<File | null>(null);
+    const [isRestoring, setIsRestoring] = useState(false);
+    const [isRestoreConfirmOpen, setIsRestoreConfirmOpen] = useState(false);
+
     
     const [keyValues, setKeyValues] = useState<Record<string, string>>(
       apiKeys.reduce((acc, key) => ({ ...acc, [key.name]: '' }), {})
@@ -315,6 +321,38 @@ export default function DataManagementPage() {
             setIsUploading(prev => ({...prev, [dataType]: false}));
         }
         reader.readAsText(file);
+    };
+
+    const handleRestoreConfirm = () => {
+        if (!backupFile) {
+            toast({ variant: 'destructive', title: 'No File', description: 'Please select a backup file to restore.' });
+            return;
+        }
+        setIsRestoreConfirmOpen(true);
+    };
+
+    const handleRestore = () => {
+        if (!backupFile) return;
+
+        setIsRestoring(true);
+        const reader = new FileReader();
+        reader.onload = async (e) => {
+            const jsonString = e.target?.result as string;
+            try {
+                const result = await restoreFromBackup(jsonString);
+                if (result.success) {
+                    toast({ title: 'Restore Successful', description: 'The database has been restored from the backup file.' });
+                    setBackupFile(null);
+                } else {
+                    throw new Error(result.error || 'An unknown error occurred during restore.');
+                }
+            } catch (error: any) {
+                toast({ variant: 'destructive', title: 'Restore Failed', description: error.message });
+            } finally {
+                setIsRestoring(false);
+            }
+        };
+        reader.readAsText(backupFile);
     };
 
     const renderUploadTab = (dataType: DataType, title: string, description: string, icon: React.ReactNode) => (
@@ -650,6 +688,41 @@ export default function DataManagementPage() {
                 )}
             </Card>
 
+             <Card className="border-orange-500/50">
+                <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                        <FileUp /> Restore from Backup
+                    </CardTitle>
+                    <CardDescription>
+                        This will completely overwrite the live database with the contents of your backup file. This action cannot be undone.
+                    </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                    <div className="space-y-2">
+                        <Label htmlFor="backup-file-input">Upload Backup JSON File</Label>
+                        <Input
+                            id="backup-file-input"
+                            type="file"
+                            accept=".json"
+                            onChange={(e) => setBackupFile(e.target.files?.[0] || null)}
+                            className="max-w-xs"
+                            disabled={isRestoring}
+                        />
+                         {backupFile && <p className="text-sm text-muted-foreground">Selected: {backupFile.name}</p>}
+                    </div>
+                </CardContent>
+                <CardFooter>
+                     <Button onClick={handleRestoreConfirm} disabled={!backupFile || isRestoring} variant="destructive">
+                        {isRestoring ? (
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        ) : (
+                            <AlertTriangle className="mr-2 h-4 w-4" />
+                        )}
+                        Restore Database
+                    </Button>
+                </CardFooter>
+            </Card>
+
             <Separator />
 
              <Card>
@@ -692,12 +765,24 @@ export default function DataManagementPage() {
                     </Tabs>
                 </CardContent>
             </Card>
+
+            <AlertDialog open={isRestoreConfirmOpen} onOpenChange={setIsRestoreConfirmOpen}>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            This action is irreversible. It will completely replace all current data in the live database with the content from the file <span className="font-medium text-foreground">{backupFile?.name}</span>.
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction onClick={handleRestore} disabled={isRestoring}>
+                             {isRestoring && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                            Yes, restore database
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
         </div>
     );
 }
-
-    
-
-    
-
-    
