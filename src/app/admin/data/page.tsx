@@ -472,7 +472,7 @@ export default function DataManagementPage() {
                                                 <p><strong>Key Name:</strong> <code className="font-bold bg-muted-foreground/10 px-1 py-0.5 rounded">NEXT_PUBLIC_FIREBASE_API_KEY</code></p>
                                                 <p><strong>Key Name:</strong> <code className="font-bold bg-muted-foreground/10 px-1 py-0.5 rounded">NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN</code></p>
                                                 <p><strong>Key Name:</strong> <code className="font-bold bg-muted-foreground/10 px-1 py-0.5 rounded">NEXT_PUBLIC_FIREBASE_PROJECT_ID</code></p>
-                                                <p>... and so on for all `NEXT_PUBLIC_` keys.</p>
+                                                <p>... and so on for all `NEXT_PUBLIC_` keys found in your Firebase config.</p>
                                             </div>
                                         </div>
                                     </div>
@@ -483,6 +483,43 @@ export default function DataManagementPage() {
                             </ol>
                         </AlertDescription>
                    </Alert>
+                   
+                   <Separator />
+
+                    <Accordion type="single" collapsible className="w-full">
+                      <AccordionItem value="troubleshooting">
+                        <AccordionTrigger className="text-base text-destructive hover:no-underline">
+                          <div className="flex items-center gap-2">
+                            <CircleAlert className="h-5 w-5" />
+                            Troubleshooting: Keys Not Working?
+                          </div>
+                        </AccordionTrigger>
+                        <AccordionContent>
+                          <div className="space-y-4 px-1 pt-2">
+                            <p className="text-muted-foreground">If you've set your keys on Vercel but are still seeing errors, please check the following:</p>
+                            <ul className="list-disc space-y-3 pl-5 text-sm">
+                              <li>
+                                <strong className="block">A New Deployment is Required:</strong>
+                                After adding or changing environment variables in Vercel, you <strong className="text-destructive">must</strong> trigger a new deployment. The new keys will not apply to an existing deployment.
+                              </li>
+                              <li>
+                                <strong className="block">Key Names Must Be Exact:</strong>
+                                Double-check for typos. The key name in Vercel (e.g., <code className="bg-muted-foreground/10 px-1 py-0.5 rounded">SERVICE_ACCOUNT_KEY</code>) must exactly match the name required by the application.
+                              </li>
+                              <li>
+                                <strong className="block">Entire JSON for Service Account:</strong>
+                                Ensure you copied the <strong className="text-destructive">entire JSON object</strong> for the `SERVICE_ACCOUNT_KEY`, including the opening <code className="bg-muted-foreground/10 px-1 py-0.5 rounded">{`{`}</code> and closing <code className="bg-muted-foreground/10 px-1 py-0.5 rounded">{`}`}</code>.
+                              </li>
+                               <li>
+                                <strong className="block">Correct Environment:</strong>
+                                Make sure you have set the variables for the **Production** environment in Vercel, and not just for Preview or Development.
+                              </li>
+                            </ul>
+                          </div>
+                        </AccordionContent>
+                      </AccordionItem>
+                    </Accordion>
+                   
                    <Separator />
                    <div className="space-y-2">
                        <Label htmlFor="service-account-file" className="font-semibold">Or: Upload Firebase Key for Current Session Only</Label>
@@ -660,6 +697,8 @@ export default function DataManagementPage() {
         </div>
     );
 }
+
+    
 
     
 
