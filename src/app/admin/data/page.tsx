@@ -67,10 +67,6 @@ export default function DataManagementPage() {
     };
 
     const handleMasterDownload = async (dataType: DataType) => {
-        if (dataType === 'feedback') {
-             toast({ variant: "destructive", title: 'Invalid Action', description: 'Feedback data cannot be downloaded as a master file.' });
-            return;
-        }
         try {
             const jsonString = await downloadMasterJson(dataType);
             const blob = new Blob([jsonString], { type: 'application/json' });
@@ -182,8 +178,6 @@ export default function DataManagementPage() {
     };
 
      const handleFileUpload = async (dataType: DataType) => {
-        if (dataType === 'feedback') return;
-
         const file = selectedFile[dataType];
         if (!file) {
             toast({
@@ -448,19 +442,24 @@ export default function DataManagementPage() {
                                 </li>
                                 <li>
                                     <strong>Add Required Keys:</strong> You need to add two keys. For each key, enter the name and paste the value exactly as shown below.
-                                    <div className="my-2 p-2 bg-muted rounded-md text-xs overflow-x-auto font-mono">
-                                        <p><strong>Key Name:</strong> <code className="font-bold">GOOGLE_GENAI_API_KEY</code></p>
-                                        <p><strong>Value:</strong> <code className="break-all">YOUR_GEMINI_API_KEY_HERE</code></p>
-                                        <hr className="my-2 border-border" />
-                                        <p><strong>Key Name:</strong> <code className="font-bold">SERVICE_ACCOUNT_KEY</code></p>
-                                        <p><strong>Value:</strong> <code className="break-all">'&#123;"type": "service_account", ...&#125;'</code></p>
+                                    <div className="my-4 p-4 bg-muted rounded-md text-sm font-mono space-y-4">
+                                        <div>
+                                            <p><strong>Key Name:</strong> <code className="font-bold bg-muted-foreground/10 px-1 py-0.5 rounded">GOOGLE_GENAI_API_KEY</code></p>
+                                            <p><strong>Value:</strong> <code className="break-all text-muted-foreground">Your Gemini API key here</code></p>
+                                        </div>
+                                        <Separator/>
+                                        <div>
+                                            <p><strong>Key Name:</strong> <code className="font-bold bg-muted-foreground/10 px-1 py-0.5 rounded">SERVICE_ACCOUNT_KEY</code></p>
+                                            <p className="mt-1"><strong>Value:</strong> Paste the <strong className="text-destructive">entire content</strong> of your downloaded service account JSON file here. It must start with <code className="text-muted-foreground">{`{"type": "service_account", ...}`}</code> and end with <code className="text-muted-foreground">{`...}`}</code>.</p>
+                                            <p className="mt-2 text-xs text-muted-foreground">Example: <code className='break-all'>{"{...private_key:\"-----BEGIN PRIVATE KEY-----\\n...\\n-----END PRIVATE KEY-----\\n\",...}"}</code></p>
+                                        </div>
                                     </div>
                                     <ul className="list-disc list-inside pl-4 mt-2 text-sm space-y-2">
                                         <li>
                                             Get your <strong>Google AI (Gemini) API Key</strong> from <a href="https://aistudio.google.com/app/keys" target="_blank" rel="noopener noreferrer" className="underline font-semibold">Google AI Studio</a>. This enables the AI JSON Converter.
                                         </li>
                                         <li>
-                                            Get your <strong>Firebase Service Account Key</strong> from your <a href="https://console.firebase.google.com/" target="_blank" rel="noopener noreferrer" className="underline font-semibold">Firebase project settings</a> under `Project settings &gt; Service accounts &gt; Generate new private key`. **Copy the entire content of the downloaded JSON file** and paste it as the value for `SERVICE_ACCOUNT_KEY`.
+                                            Get your <strong>Firebase Service Account Key</strong> from your <a href="https://console.firebase.google.com/" target="_blank" rel="noopener noreferrer" className="underline font-semibold">Firebase project settings</a> under `Project settings &gt; Service accounts &gt; Generate new private key`.
                                         </li>
                                     </ul>
                                 </li>
