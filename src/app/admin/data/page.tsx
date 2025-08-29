@@ -67,6 +67,10 @@ export default function DataManagementPage() {
     };
 
     const handleMasterDownload = async (dataType: DataType) => {
+        if (dataType === 'feedback') {
+             toast({ variant: "destructive", title: 'Invalid Action', description: 'Feedback data cannot be downloaded as a master file.' });
+            return;
+        }
         try {
             const jsonString = await downloadMasterJson(dataType);
             const blob = new Blob([jsonString], { type: 'application/json' });
@@ -178,6 +182,8 @@ export default function DataManagementPage() {
     };
 
      const handleFileUpload = async (dataType: DataType) => {
+        if (dataType === 'feedback') return;
+
         const file = selectedFile[dataType];
         if (!file) {
             toast({
@@ -423,40 +429,43 @@ export default function DataManagementPage() {
             <Card className="border-destructive" ref={setupCardRef}>
                 <CardHeader>
                     <CardTitle className="flex items-center gap-2 text-destructive">
-                        <AlertCircle /> Action Required: API Key Setup
+                        <AlertCircle /> Action Required: API Key Setup for Production
                     </CardTitle>
                     <CardDescription>
-                        To enable all admin features like AI tools and syncing to the database, you must provide your project's API keys.
+                        To enable all admin features on your live Vercel deployment, you must set your API keys as Environment Variables.
                     </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                    <Alert>
-                        <AlertTitle>How to Set Up Keys for Deployment (e.g., Vercel)</AlertTitle>
+                        <AlertTitle>How to Set Environment Variables on Vercel</AlertTitle>
                        <AlertDescription>
                             <ol className="list-decimal list-inside space-y-4">
                                 <li>
-                                    <strong>For Local Development:</strong> Create a file named `.env.local` in your project's root folder and add your keys there. This file is secure and will not be pushed to GitHub.
+                                    <strong>Log in to Vercel:</strong> Go to your Vercel dashboard and select the project for this application.
                                 </li>
                                 <li>
-                                    <strong>For Production/Live Site:</strong> You must add the keys to your hosting provider's (e.g., Vercel, Firebase App Hosting) Environment Variables settings in their dashboard.
+                                    <strong>Go to Settings:</strong> Navigate to the "Settings" tab for your project, then select "Environment Variables" from the side menu.
                                 </li>
                                 <li>
-                                    <strong>Required Keys:</strong> You need two keys.
+                                    <strong>Add Required Keys:</strong> You need to add two keys. For each key, enter the name and paste the value exactly as shown below.
                                     <div className="my-2 p-2 bg-muted rounded-md text-xs overflow-x-auto font-mono">
-                                        <p>GOOGLE_GENAI_API_KEY="YOUR_GEMINI_API_KEY_HERE"</p>
-                                        <p>SERVICE_ACCOUNT_KEY='&#123;"type": "service_account", ...&#125;'</p>
+                                        <p><strong>Key Name:</strong> <code className="font-bold">GOOGLE_GENAI_API_KEY</code></p>
+                                        <p><strong>Value:</strong> <code className="break-all">YOUR_GEMINI_API_KEY_HERE</code></p>
+                                        <hr className="my-2 border-border" />
+                                        <p><strong>Key Name:</strong> <code className="font-bold">SERVICE_ACCOUNT_KEY</code></p>
+                                        <p><strong>Value:</strong> <code className="break-all">'&#123;"type": "service_account", ...&#125;'</code></p>
                                     </div>
                                     <ul className="list-disc list-inside pl-4 mt-2 text-sm space-y-2">
                                         <li>
-                                            Get your <strong>Google AI (Gemini) API Key</strong> from <a href="https://aistudio.google.com/app/keys" target="_blank" rel="noopener noreferrer" className="underline font-semibold">Google AI Studio</a>. This enables AI features.
+                                            Get your <strong>Google AI (Gemini) API Key</strong> from <a href="https://aistudio.google.com/app/keys" target="_blank" rel="noopener noreferrer" className="underline font-semibold">Google AI Studio</a>. This enables the AI JSON Converter.
                                         </li>
                                         <li>
-                                            Get your <strong>Firebase Service Account Key</strong> from your <a href="https://console.firebase.google.com/" target="_blank" rel="noopener noreferrer" className="underline font-semibold">Firebase project</a> settings under `Project settings &gt; Service accounts &gt; Generate new private key`. This allows the admin panel to write data to your database. **Paste the entire content of the downloaded JSON file**.
+                                            Get your <strong>Firebase Service Account Key</strong> from your <a href="https://console.firebase.google.com/" target="_blank" rel="noopener noreferrer" className="underline font-semibold">Firebase project settings</a> under `Project settings &gt; Service accounts &gt; Generate new private key`. **Copy the entire content of the downloaded JSON file** and paste it as the value for `SERVICE_ACCOUNT_KEY`.
                                         </li>
                                     </ul>
                                 </li>
                                  <li>
-                                    <strong>Restart or Redeploy:</strong> After setting your keys, you must **restart the local server** or **redeploy your live site** for the changes to take effect.
+                                    <strong>Redeploy:</strong> After adding both keys, you must trigger a new deployment for the changes to take effect. Go to the "Deployments" tab and redeploy the latest commit.
                                 </li>
                             </ol>
                         </AlertDescription>
@@ -464,7 +473,7 @@ export default function DataManagementPage() {
                    <Separator />
                    <div className="space-y-2">
                        <Label htmlFor="service-account-file" className="font-semibold">Or: Upload Firebase Key for Current Session Only</Label>
-                       <p className="text-sm text-muted-foreground">If you cannot set environment variables, you can upload the Firebase Service Account JSON file here. This will only work for your current browser session and will be forgotten when the server restarts.</p>
+                       <p className="text-sm text-muted-foreground">This option is for temporary local testing. Upload your Firebase Service Account JSON file here to configure the app for your current browser session only. This change will NOT persist.</p>
                         <Input 
                            id="service-account-file"
                            type="file"
