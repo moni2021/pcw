@@ -5,7 +5,7 @@ import React, { useState, useRef, useEffect, Fragment } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Download, Database, KeyRound, Save, UploadCloud, ShieldCheck, Loader2, Upload, FileJson, AlertCircle, Building, Sparkles, BrainCircuit, Github, GitCompareArrows, CircleAlert, CircleCheck, CirclePlus, Pencil, Trash2 } from 'lucide-react';
+import { Download, Database, KeyRound, Save, UploadCloud, ShieldCheck, Loader2, Upload, FileJson, AlertCircle, Building, Sparkles, BrainCircuit, Github, GitCompareArrows, CircleAlert, CircleCheck, CirclePlus, Pencil, Trash2, CheckCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
@@ -51,6 +51,9 @@ export default function DataManagementPage() {
     const [keyValues, setKeyValues] = useState<Record<string, string>>(
       apiKeys.reduce((acc, key) => ({ ...acc, [key.name]: '' }), {})
     );
+    const [savedKeys, setSavedKeys] = useState<Record<string, boolean>>(
+        apiKeys.reduce((acc, key) => ({ ...acc, [key.name]: false }), {})
+    );
     const [isSavingKey, setIsSavingKey] = useState<Record<string, boolean>>({});
 
     const [isConverterOpen, setIsConverterOpen] = useState(false);
@@ -91,18 +94,28 @@ export default function DataManagementPage() {
             const result = await setEnvironmentVariable({ key: keyName, value });
             if (result.success) {
                 toast({ title: 'Success', description: `${keyName} has been set for the current session.` });
+                setSavedKeys(prev => ({...prev, [keyName]: true}));
             } else {
                 throw new Error(result.error || `An unknown error occurred while setting ${keyName}.`);
             }
         } catch (error: any) {
             toast({ variant: 'destructive', title: `Failed to Set Key`, description: error.message });
+             setSavedKeys(prev => ({...prev, [keyName]: false}));
         } finally {
             setIsSavingKey(prev => ({ ...prev, [keyName]: false }));
         }
     };
+    
+    const handleEditKey = (keyName: string) => {
+        setSavedKeys(prev => ({...prev, [keyName]: false}));
+    }
 
     const handleMasterDownload = async (dataType: DataType) => {
         try {
+            if (dataType === 'feedback') {
+                toast({ variant: 'destructive', title: 'Invalid Action', description: 'Feedback data cannot be downloaded as a master JSON.' });
+                return;
+            }
             const jsonString = await downloadMasterJson(dataType);
             const blob = new Blob([jsonString], { type: 'application/json' });
             const url = URL.createObjectURL(blob);
@@ -428,7 +441,7 @@ export default function DataManagementPage() {
                     </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                    <Accordion type="multiple" className="w-full space-y-4">
+                    <Accordion type="multiple" className="w-full space-y-4" defaultValue={apiKeys.map(k => k.name)}>
                         {apiKeys.map(({ name, label, placeholder, isTextarea }) => (
                             <AccordionItem value={name} key={name} className="border rounded-lg px-4">
                                 <AccordionTrigger className="hover:no-underline">
@@ -438,31 +451,43 @@ export default function DataManagementPage() {
                                     </div>
                                 </AccordionTrigger>
                                 <AccordionContent>
-                                    <div className="flex items-end gap-2 pt-2">
-                                        <div className="flex-1 space-y-2">
-                                            <Label htmlFor={name} className="sr-only">{label}</Label>
-                                            {isTextarea ? (
-                                                <Textarea
-                                                    id={name}
-                                                    placeholder={placeholder}
-                                                    value={keyValues[name]}
-                                                    onChange={(e) => setKeyValues(prev => ({ ...prev, [name]: e.target.value }))}
-                                                    className="h-32 font-mono text-xs"
-                                                />
-                                            ) : (
-                                                <Input
-                                                    id={name}
-                                                    placeholder={placeholder}
-                                                    value={keyValues[name]}
-                                                    onChange={(e) => setKeyValues(prev => ({ ...prev, [name]: e.target.value }))}
-                                                />
-                                            )}
+                                     {savedKeys[name] ? (
+                                        <div className="flex items-center justify-between gap-2 p-3 bg-green-500/10 border border-green-500/20 rounded-md">
+                                            <div className="flex items-center gap-2">
+                                                <CheckCircle className="h-5 w-5 text-green-500" />
+                                                <p className="text-sm text-green-700 font-medium">Key has been set for this session.</p>
+                                            </div>
+                                            <Button variant="ghost" size="sm" onClick={() => handleEditKey(name)}>
+                                                <Pencil className="mr-2 h-4 w-4" /> Edit
+                                            </Button>
                                         </div>
-                                        <Button onClick={() => handleSaveKey(name)} disabled={isSavingKey[name] || !keyValues[name]}>
-                                            {isSavingKey[name] ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-                                            <span className="ml-2 hidden sm:inline">Save</span>
-                                        </Button>
-                                    </div>
+                                    ) : (
+                                        <div className="flex items-end gap-2 pt-2">
+                                            <div className="flex-1 space-y-2">
+                                                <Label htmlFor={name} className="sr-only">{label}</Label>
+                                                {isTextarea ? (
+                                                    <Textarea
+                                                        id={name}
+                                                        placeholder={placeholder}
+                                                        value={keyValues[name]}
+                                                        onChange={(e) => setKeyValues(prev => ({ ...prev, [name]: e.target.value }))}
+                                                        className="h-32 font-mono text-xs"
+                                                    />
+                                                ) : (
+                                                    <Input
+                                                        id={name}
+                                                        placeholder={placeholder}
+                                                        value={keyValues[name]}
+                                                        onChange={(e) => setKeyValues(prev => ({ ...prev, [name]: e.target.value }))}
+                                                    />
+                                                )}
+                                            </div>
+                                            <Button onClick={() => handleSaveKey(name)} disabled={isSavingKey[name] || !keyValues[name]}>
+                                                {isSavingKey[name] ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+                                                <span className="ml-2 hidden sm:inline">Save</span>
+                                            </Button>
+                                        </div>
+                                    )}
                                 </AccordionContent>
                             </AccordionItem>
                         ))}
@@ -631,3 +656,4 @@ export default function DataManagementPage() {
     
 
     
+
