@@ -249,6 +249,29 @@ export async function downloadMasterJson(dataType: DataType): Promise<string> {
     return JSON.stringify({}, null, 2);
 }
 
+export async function downloadFullBackup(): Promise<{success: boolean, data?: string, error?: string}> {
+    const db = getAdminDb();
+    if (!db) {
+      return { success: false, error: "Service account key is not configured. Cannot connect to Firebase." };
+    }
+
+    try {
+        const docRef = db.collection('config').doc('app_data');
+        const docSnap = await docRef.get();
+        
+        if (docSnap.exists) {
+            const data = docSnap.data()?.appData;
+            return { success: true, data: JSON.stringify(data || {}, null, 2) };
+        }
+        return { success: false, error: "No 'app_data' document found in Firestore."};
+
+    } catch (error: any) {
+        console.error("Error fetching full backup from Firebase: ", error);
+        return { success: false, error: error.message };
+    }
+}
+
+
 export async function getFullDataFromFirebase(): Promise<ReturnType<typeof getFullLocalData>> {
     const db = getAdminDb();
     const localData = getFullLocalData();

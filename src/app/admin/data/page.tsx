@@ -10,7 +10,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { syncToFirebase, uploadAndSyncToFirebase, downloadMasterJson, compareLocalAndFirebaseData, ComparisonResult, setEnvironmentVariable } from './actions';
+import { syncToFirebase, uploadAndSyncToFirebase, downloadMasterJson, compareLocalAndFirebaseData, ComparisonResult, setEnvironmentVariable, downloadFullBackup } from './actions';
 import { Separator } from '@/components/ui/separator';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 import { uploadServiceAccountKey } from '@/ai/flows/secure-key-uploader';
@@ -44,6 +44,7 @@ export default function DataManagementPage() {
     const [isPasswordDialogOpen, setIsPasswordDialogOpen] = useState(true);
     const [isSyncing, setIsSyncing] = useState(false);
     const [isComparing, setIsComparing] = useState(false);
+    const [isDownloadingBackup, setIsDownloadingBackup] = useState(false);
     const [comparisonData, setComparisonData] = useState<ComparisonResult | null>(null);
     const [isUploading, setIsUploading] = useState<{ [key in DataType]?: boolean }>({});
     const [selectedFile, setSelectedFile] = useState<{ [key in DataType]?: File | null }>({});
@@ -112,10 +113,6 @@ export default function DataManagementPage() {
 
     const handleMasterDownload = async (dataType: DataType) => {
         try {
-            if (dataType === 'feedback') {
-                toast({ variant: 'destructive', title: 'Invalid Action', description: 'Feedback data cannot be downloaded as a master JSON.' });
-                return;
-            }
             const jsonString = await downloadMasterJson(dataType);
             const blob = new Blob([jsonString], { type: 'application/json' });
             const url = URL.createObjectURL(blob);
@@ -139,6 +136,45 @@ export default function DataManagementPage() {
                 title: 'Download Failed',
                 description: 'There was an error preparing the data for download.',
             });
+        }
+    };
+
+     const handleFullBackupDownload = async () => {
+        setIsDownloadingBackup(true);
+        try {
+            const result = await downloadFullBackup();
+            if (result.success && result.data) {
+                const blob = new Blob([result.data], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = `firebase_backup_${new Date().toISOString().split('T')[0]}.json`;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                URL.revokeObjectURL(url);
+                toast({ title: 'Download Started', description: 'Your full Firebase backup is downloading.' });
+            } else {
+                 if (result.error?.includes("Service account key is not configured")) {
+                    toast({
+                        variant: "destructive",
+                        title: 'Action Required',
+                        description: "Please set your Firebase service account key to enable backups.",
+                    });
+                    setupCardRef.current?.scrollIntoView({ behavior: 'smooth' });
+                } else {
+                    throw new Error(result.error || 'An unknown error occurred during backup.');
+                }
+            }
+        } catch (error: any) {
+            toast({
+                variant: "destructive",
+                title: 'Backup Failed',
+                description: error.message,
+            });
+        } finally {
+            setIsDownloadingBackup(false);
         }
     };
     
@@ -296,6 +332,7 @@ export default function DataManagementPage() {
                         accept=".json"
                         onChange={(e) => setSelectedFile(prev => ({...prev, [dataType]: e.target.files?.[0] || null}))}
                         className="max-w-xs"
+                        disabled={isUploading[dataType]}
                     />
                  </div>
                   <div className="flex flex-col sm:flex-row gap-2">
@@ -307,7 +344,7 @@ export default function DataManagementPage() {
                         )}
                         Upload & Sync to Firebase
                     </Button>
-                    <Button onClick={() => handleMasterDownload(dataType)} variant="outline">
+                    <Button onClick={() => handleMasterDownload(dataType)} variant="outline" disabled={isUploading[dataType]}>
                         <Download className="mr-2 h-4 w-4" />
                         Download Master File
                     </Button>
@@ -501,10 +538,10 @@ export default function DataManagementPage() {
                         <Database /> Master Data Sync
                     </CardTitle>
                     <CardDescription>
-                       Push local data changes to Firebase. It is highly recommended to compare data first to see what will change.
+                       Push local data changes to Firebase or create backups. It is highly recommended to compare data first to see what will change before syncing.
                     </CardDescription>
                 </CardHeader>
-                <CardContent className="flex flex-col sm:flex-row gap-2">
+                <CardContent className="flex flex-wrap gap-2">
                      <Button onClick={handleCompare} disabled={isComparing || isSyncing}>
                         {isComparing ? (
                             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -516,6 +553,14 @@ export default function DataManagementPage() {
                      <Button onClick={() => setIsConverterOpen(true)} variant="outline">
                         <BrainCircuit className="mr-2 h-4 w-4" />
                         AI JSON Converter
+                    </Button>
+                    <Button onClick={handleFullBackupDownload} variant="outline" disabled={isDownloadingBackup}>
+                         {isDownloadingBackup ? (
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        ) : (
+                            <Download className="mr-2 h-4 w-4" />
+                        )}
+                        Download Full Backup
                     </Button>
                      <Button variant="secondary" asChild>
                        <Link href="https://github.com/moni2021/estimatortest/blob/main/HOW_TO_PUSH_TO_GITHUB.md" target="_blank" rel="noopener noreferrer">
@@ -656,4 +701,3 @@ export default function DataManagementPage() {
     
 
     
-
