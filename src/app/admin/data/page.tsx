@@ -68,6 +68,14 @@ export default function DataManagementPage() {
 
     const handleMasterDownload = async (dataType: DataType) => {
         try {
+            if (dataType === 'feedback') {
+                 toast({
+                    variant: "destructive",
+                    title: 'Download Not Applicable',
+                    description: 'Feedback data is live and cannot be downloaded as a master file.',
+                });
+                return;
+            }
             const jsonString = await downloadMasterJson(dataType);
             const blob = new Blob([jsonString], { type: 'application/json' });
             const url = URL.createObjectURL(blob);
@@ -435,36 +443,42 @@ export default function DataManagementPage() {
                        <AlertDescription>
                             <ol className="list-decimal list-inside space-y-4">
                                 <li>
-                                    <strong>Log in to Vercel:</strong> Go to your Vercel dashboard and select the project for this application.
+                                    <strong>Log in to Vercel:</strong> Go to your Vercel dashboard and select this project.
                                 </li>
                                 <li>
-                                    <strong>Go to Settings:</strong> Navigate to the "Settings" tab for your project, then select "Environment Variables" from the side menu.
+                                    <strong>Go to Settings:</strong> Navigate to the "Settings" tab, then select "Environment Variables".
                                 </li>
                                 <li>
-                                    <strong>Add Required Keys:</strong> You need to add two keys. For each key, enter the name and paste the value exactly as shown below.
+                                    <strong>Add Required Keys:</strong> You need to add the following keys. For each one, enter the name and paste the corresponding value.
                                     <div className="my-4 p-4 bg-muted rounded-md text-sm font-mono space-y-4">
                                         <div>
+                                            <p className="font-semibold text-base mb-2">Google AI Key</p>
                                             <p><strong>Key Name:</strong> <code className="font-bold bg-muted-foreground/10 px-1 py-0.5 rounded">GOOGLE_GENAI_API_KEY</code></p>
                                             <p><strong>Value:</strong> <code className="break-all text-muted-foreground">Your Gemini API key here</code></p>
+                                             <p className="mt-2 text-xs">Get this from <a href="https://aistudio.google.com/app/keys" target="_blank" rel="noopener noreferrer" className="underline font-semibold">Google AI Studio</a> to enable the AI JSON Converter.</p>
                                         </div>
                                         <Separator/>
                                         <div>
+                                            <p className="font-semibold text-base mb-2">Firebase Server Key (Private)</p>
                                             <p><strong>Key Name:</strong> <code className="font-bold bg-muted-foreground/10 px-1 py-0.5 rounded">SERVICE_ACCOUNT_KEY</code></p>
                                             <p className="mt-1"><strong>Value:</strong> Paste the <strong className="text-destructive">entire content</strong> of your downloaded service account JSON file here. It must start with <code className="text-muted-foreground">{`{"type": "service_account", ...}`}</code> and end with <code className="text-muted-foreground">{`...}`}</code>.</p>
-                                            <p className="mt-2 text-xs text-muted-foreground">Example: <code className='break-all'>{"{...private_key:\"-----BEGIN PRIVATE KEY-----\\n...\\n-----END PRIVATE KEY-----\\n\",...}"}</code></p>
+                                            <p className="mt-2 text-xs">In Firebase, go to <code className="text-xs bg-muted-foreground/10 px-1 py-0.5 rounded">Project settings &gt; Service accounts</code> and click <code className="text-xs bg-muted-foreground/10 px-1 py-0.5 rounded">Generate new private key</code>.</p>
+                                        </div>
+                                        <Separator/>
+                                         <div>
+                                            <p className="font-semibold text-base mb-2">Firebase Web App Keys (Public)</p>
+                                            <p className="text-xs mb-2">In Firebase, go to <code className="text-xs bg-muted-foreground/10 px-1 py-0.5 rounded">Project settings &gt; General</code>, scroll to "Your apps", select your web app, and choose "Config" to find these values.</p>
+                                            <div className="space-y-2">
+                                                <p><strong>Key Name:</strong> <code className="font-bold bg-muted-foreground/10 px-1 py-0.5 rounded">NEXT_PUBLIC_FIREBASE_API_KEY</code></p>
+                                                <p><strong>Key Name:</strong> <code className="font-bold bg-muted-foreground/10 px-1 py-0.5 rounded">NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN</code></p>
+                                                <p><strong>Key Name:</strong> <code className="font-bold bg-muted-foreground/10 px-1 py-0.5 rounded">NEXT_PUBLIC_FIREBASE_PROJECT_ID</code></p>
+                                                <p>... and so on for all `NEXT_PUBLIC_` keys.</p>
+                                            </div>
                                         </div>
                                     </div>
-                                    <ul className="list-disc list-inside pl-4 mt-2 text-sm space-y-2">
-                                        <li>
-                                            Get your <strong>Google AI (Gemini) API Key</strong> from <a href="https://aistudio.google.com/app/keys" target="_blank" rel="noopener noreferrer" className="underline font-semibold">Google AI Studio</a>. This enables the AI JSON Converter.
-                                        </li>
-                                        <li>
-                                            Get your <strong>Firebase Service Account Key</strong> from your <a href="https://console.firebase.google.com/" target="_blank" rel="noopener noreferrer" className="underline font-semibold">Firebase project settings</a> under `Project settings &gt; Service accounts &gt; Generate new private key`.
-                                        </li>
-                                    </ul>
                                 </li>
                                  <li>
-                                    <strong>Redeploy:</strong> After adding both keys, you must trigger a new deployment for the changes to take effect. Go to the "Deployments" tab and redeploy the latest commit.
+                                    <strong>Redeploy:</strong> After adding all keys, you must trigger a new deployment for the changes to take effect. Go to the "Deployments" tab and redeploy the latest commit.
                                 </li>
                             </ol>
                         </AlertDescription>
@@ -646,5 +660,7 @@ export default function DataManagementPage() {
         </div>
     );
 }
+
+    
 
     
