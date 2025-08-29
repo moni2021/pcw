@@ -10,7 +10,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { syncToFirebase, uploadAndSyncToFirebase, downloadMasterJson, compareLocalAndFirebaseData, ComparisonResult } from './actions';
+import { syncToFirebase, uploadAndSyncToFirebase, downloadMasterJson, compareLocalAndFirebaseData, ComparisonResult, setEnvironmentVariable } from './actions';
 import { Separator } from '@/components/ui/separator';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 import { uploadServiceAccountKey } from '@/ai/flows/secure-key-uploader';
@@ -26,6 +26,16 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 type DataType = 'workshops' | 'vehicles' | 'parts' | 'customLabor' | 'pmsCharges' | 'threeMCare';
 type JsonFormatType = 'workshops' | 'vehicles' | 'parts' | 'customLabor' | 'pmsCharges' | 'threeMCare';
 
+const apiKeys = [
+    { name: 'GOOGLE_GENAI_API_KEY', label: 'Google AI API Key', placeholder: 'AIzaSy...' },
+    { name: 'SERVICE_ACCOUNT_KEY', label: 'Firebase Service Account JSON', placeholder: 'Paste the entire JSON content here', isTextarea: true },
+    { name: 'NEXT_PUBLIC_FIREBASE_API_KEY', label: 'Firebase Web API Key', placeholder: 'AIzaSy...' },
+    { name: 'NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN', label: 'Firebase Auth Domain', placeholder: 'your-project-id.firebaseapp.com' },
+    { name: 'NEXT_PUBLIC_FIREBASE_PROJECT_ID', label: 'Firebase Project ID', placeholder: 'your-project-id' },
+    { name: 'NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET', label: 'Firebase Storage Bucket', placeholder: 'your-project-id.appspot.com' },
+    { name: 'NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID', label: 'Firebase Messaging Sender ID', placeholder: '1234567890' },
+    { name: 'NEXT_PUBLIC_FIREBASE_APP_ID', label: 'Firebase App ID', placeholder: '1:12345...' },
+];
 
 export default function DataManagementPage() {
     const { toast } = useToast();
@@ -37,8 +47,12 @@ export default function DataManagementPage() {
     const [comparisonData, setComparisonData] = useState<ComparisonResult | null>(null);
     const [isUploading, setIsUploading] = useState<{ [key in DataType]?: boolean }>({});
     const [selectedFile, setSelectedFile] = useState<{ [key in DataType]?: File | null }>({});
-    const [isUploadingKey, setIsUploadingKey] = useState(false);
-    const [serviceAccountFile, setServiceAccountFile] = useState<File | null>(null);
+    
+    const [keyValues, setKeyValues] = useState<Record<string, string>>(
+      apiKeys.reduce((acc, key) => ({ ...acc, [key.name]: '' }), {})
+    );
+    const [isSavingKey, setIsSavingKey] = useState<Record<string, boolean>>({});
+
     const [isConverterOpen, setIsConverterOpen] = useState(false);
     const [rawText, setRawText] = useState('');
     const [jsonFormat, setJsonFormat] = useState<JsonFormatType>('parts');
@@ -65,17 +79,30 @@ export default function DataManagementPage() {
             });
         }
     };
+    
+    const handleSaveKey = async (keyName: string) => {
+        const value = keyValues[keyName];
+        if (!value) {
+            toast({ variant: 'destructive', title: 'Error', description: `Please enter a value for ${keyName}.` });
+            return;
+        }
+        setIsSavingKey(prev => ({ ...prev, [keyName]: true }));
+        try {
+            const result = await setEnvironmentVariable({ key: keyName, value });
+            if (result.success) {
+                toast({ title: 'Success', description: `${keyName} has been set for the current session.` });
+            } else {
+                throw new Error(result.error || `An unknown error occurred while setting ${keyName}.`);
+            }
+        } catch (error: any) {
+            toast({ variant: 'destructive', title: `Failed to Set Key`, description: error.message });
+        } finally {
+            setIsSavingKey(prev => ({ ...prev, [keyName]: false }));
+        }
+    };
 
     const handleMasterDownload = async (dataType: DataType) => {
         try {
-            if (dataType === 'feedback') {
-                 toast({
-                    variant: "destructive",
-                    title: 'Download Not Applicable',
-                    description: 'Feedback data is live and cannot be downloaded as a master file.',
-                });
-                return;
-            }
             const jsonString = await downloadMasterJson(dataType);
             const blob = new Blob([jsonString], { type: 'application/json' });
             const url = URL.createObjectURL(blob);
@@ -166,7 +193,7 @@ export default function DataManagementPage() {
                     toast({
                         variant: "destructive",
                         title: 'Action Required',
-                        description: "Please upload your Firebase service account key to enable syncing.",
+                        description: "Please set your Firebase service account key to enable syncing.",
                     });
                     setupCardRef.current?.scrollIntoView({ behavior: 'smooth' });
                 } else {
@@ -213,7 +240,7 @@ export default function DataManagementPage() {
                         toast({
                             variant: "destructive",
                             title: 'Action Required',
-                            description: "Please upload your Firebase service account key first.",
+                            description: "Please set your Firebase service account key first.",
                         });
                         setupCardRef.current?.scrollIntoView({ behavior: 'smooth' });
                     } else {
@@ -239,43 +266,6 @@ export default function DataManagementPage() {
             setIsUploading(prev => ({...prev, [dataType]: false}));
         }
         reader.readAsText(file);
-    };
-
-    const handleServiceAccountUpload = async () => {
-        if (!serviceAccountFile) {
-            toast({
-                variant: 'destructive',
-                title: 'No File Selected',
-                description: 'Please select your service account JSON file.',
-            });
-            return;
-        }
-        setIsUploadingKey(true);
-        const reader = new FileReader();
-        reader.onload = async (e) => {
-            const content = e.target?.result as string;
-            try {
-                const result = await uploadServiceAccountKey({ jsonContent: content });
-                if (result.success) {
-                    toast({
-                        title: 'Service Account Key Uploaded',
-                        description: 'Configuration updated for this session only. Redeploy for permanent changes.',
-                    });
-                    setServiceAccountFile(null);
-                } else {
-                    throw new Error(result.error || 'An unknown error occurred.');
-                }
-            } catch (error: any) {
-                toast({
-                    variant: 'destructive',
-                    title: 'Upload Failed',
-                    description: error.message,
-                });
-            } finally {
-                setIsUploadingKey(false);
-            }
-        };
-        reader.readAsText(serviceAccountFile);
     };
 
     const renderUploadTab = (dataType: DataType, title: string, description: string, icon: React.ReactNode) => (
@@ -431,114 +421,52 @@ export default function DataManagementPage() {
             <Card className="border-destructive" ref={setupCardRef}>
                 <CardHeader>
                     <CardTitle className="flex items-center gap-2 text-destructive">
-                        <AlertCircle /> Action Required: API Key Setup for Production
+                        <AlertCircle /> Application Setup
                     </CardTitle>
                     <CardDescription>
-                        To enable all admin features on your live Vercel deployment, you must set your API keys as Environment Variables.
+                        Set your API keys here to enable all features for your current session. For permanent setup on a live server (like Vercel), you must set these as Environment Variables in your hosting provider's dashboard.
                     </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                   <Alert>
-                        <AlertTitle>How to Set Environment Variables on Vercel</AlertTitle>
-                       <AlertDescription>
-                            <ol className="list-decimal list-inside space-y-4">
-                                <li>
-                                    <strong>Log in to Vercel:</strong> Go to your Vercel dashboard and select this project.
-                                </li>
-                                <li>
-                                    <strong>Go to Settings:</strong> Navigate to the "Settings" tab, then select "Environment Variables".
-                                </li>
-                                <li>
-                                    <strong>Add Required Keys:</strong> You need to add the following keys. For each one, enter the name and paste the corresponding value.
-                                    <div className="my-4 p-4 bg-muted rounded-md text-sm font-mono space-y-4">
-                                        <div>
-                                            <p className="font-semibold text-base mb-2">Google AI Key</p>
-                                            <p><strong>Key Name:</strong> <code className="font-bold bg-muted-foreground/10 px-1 py-0.5 rounded">GOOGLE_GENAI_API_KEY</code></p>
-                                            <p><strong>Value:</strong> <code className="break-all text-muted-foreground">Your Gemini API key here</code></p>
-                                             <p className="mt-2 text-xs">Get this from <a href="https://aistudio.google.com/app/keys" target="_blank" rel="noopener noreferrer" className="underline font-semibold">Google AI Studio</a> to enable the AI JSON Converter.</p>
-                                        </div>
-                                        <Separator/>
-                                        <div>
-                                            <p className="font-semibold text-base mb-2">Firebase Server Key (Private)</p>
-                                            <p><strong>Key Name:</strong> <code className="font-bold bg-muted-foreground/10 px-1 py-0.5 rounded">SERVICE_ACCOUNT_KEY</code></p>
-                                            <p className="mt-1"><strong>Value:</strong> Paste the <strong className="text-destructive">entire content</strong> of your downloaded service account JSON file here. It must start with <code className="text-muted-foreground">{`{"type": "service_account", ...}`}</code> and end with <code className="text-muted-foreground">{`...}`}</code>.</p>
-                                            <p className="mt-2 text-xs">In Firebase, go to <code className="text-xs bg-muted-foreground/10 px-1 py-0.5 rounded">Project settings &gt; Service accounts</code> and click <code className="text-xs bg-muted-foreground/10 px-1 py-0.5 rounded">Generate new private key</code>.</p>
-                                        </div>
-                                        <Separator/>
-                                         <div>
-                                            <p className="font-semibold text-base mb-2">Firebase Web App Keys (Public)</p>
-                                            <p className="text-xs mb-2">In Firebase, go to <code className="text-xs bg-muted-foreground/10 px-1 py-0.5 rounded">Project settings &gt; General</code>, scroll to "Your apps", select your web app, and choose "Config" to find these values.</p>
-                                            <div className="space-y-2">
-                                                <p><strong>Key Name:</strong> <code className="font-bold bg-muted-foreground/10 px-1 py-0.5 rounded">NEXT_PUBLIC_FIREBASE_API_KEY</code></p>
-                                                <p><strong>Key Name:</strong> <code className="font-bold bg-muted-foreground/10 px-1 py-0.5 rounded">NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN</code></p>
-                                                <p><strong>Key Name:</strong> <code className="font-bold bg-muted-foreground/10 px-1 py-0.5 rounded">NEXT_PUBLIC_FIREBASE_PROJECT_ID</code></p>
-                                                <p>... and so on for all `NEXT_PUBLIC_` keys found in your Firebase config.</p>
-                                            </div>
-                                        </div>
+                    <Accordion type="multiple" className="w-full space-y-4">
+                        {apiKeys.map(({ name, label, placeholder, isTextarea }) => (
+                            <AccordionItem value={name} key={name} className="border rounded-lg px-4">
+                                <AccordionTrigger className="hover:no-underline">
+                                    <div className="flex flex-col text-left">
+                                        <span className="font-semibold">{label}</span>
+                                        <span className="text-xs text-muted-foreground font-mono">{name}</span>
                                     </div>
-                                </li>
-                                 <li>
-                                    <strong>Redeploy:</strong> After adding all keys, you must trigger a new deployment for the changes to take effect. Go to the "Deployments" tab and redeploy the latest commit.
-                                </li>
-                            </ol>
-                        </AlertDescription>
-                   </Alert>
-                   
-                   <Separator />
-
-                    <Accordion type="single" collapsible className="w-full">
-                      <AccordionItem value="troubleshooting">
-                        <AccordionTrigger className="text-base text-destructive hover:no-underline">
-                          <div className="flex items-center gap-2">
-                            <CircleAlert className="h-5 w-5" />
-                            Troubleshooting: Keys Not Working?
-                          </div>
-                        </AccordionTrigger>
-                        <AccordionContent>
-                          <div className="space-y-4 px-1 pt-2">
-                            <p className="text-muted-foreground">If you've set your keys on Vercel but are still seeing errors, please check the following:</p>
-                            <ul className="list-disc space-y-3 pl-5 text-sm">
-                              <li>
-                                <strong className="block">A New Deployment is Required:</strong>
-                                After adding or changing environment variables in Vercel, you <strong className="text-destructive">must</strong> trigger a new deployment. The new keys will not apply to an existing deployment.
-                              </li>
-                              <li>
-                                <strong className="block">Key Names Must Be Exact:</strong>
-                                Double-check for typos. The key name in Vercel (e.g., <code className="bg-muted-foreground/10 px-1 py-0.5 rounded">SERVICE_ACCOUNT_KEY</code>) must exactly match the name required by the application.
-                              </li>
-                              <li>
-                                <strong className="block">Entire JSON for Service Account:</strong>
-                                Ensure you copied the <strong className="text-destructive">entire JSON object</strong> for the `SERVICE_ACCOUNT_KEY`, including the opening <code className="bg-muted-foreground/10 px-1 py-0.5 rounded">{`{`}</code> and closing <code className="bg-muted-foreground/10 px-1 py-0.5 rounded">{`}`}</code>.
-                              </li>
-                               <li>
-                                <strong className="block">Correct Environment:</strong>
-                                Make sure you have set the variables for the **Production** environment in Vercel, and not just for Preview or Development.
-                              </li>
-                            </ul>
-                          </div>
-                        </AccordionContent>
-                      </AccordionItem>
+                                </AccordionTrigger>
+                                <AccordionContent>
+                                    <div className="flex items-end gap-2 pt-2">
+                                        <div className="flex-1 space-y-2">
+                                            <Label htmlFor={name} className="sr-only">{label}</Label>
+                                            {isTextarea ? (
+                                                <Textarea
+                                                    id={name}
+                                                    placeholder={placeholder}
+                                                    value={keyValues[name]}
+                                                    onChange={(e) => setKeyValues(prev => ({ ...prev, [name]: e.target.value }))}
+                                                    className="h-32 font-mono text-xs"
+                                                />
+                                            ) : (
+                                                <Input
+                                                    id={name}
+                                                    placeholder={placeholder}
+                                                    value={keyValues[name]}
+                                                    onChange={(e) => setKeyValues(prev => ({ ...prev, [name]: e.target.value }))}
+                                                />
+                                            )}
+                                        </div>
+                                        <Button onClick={() => handleSaveKey(name)} disabled={isSavingKey[name] || !keyValues[name]}>
+                                            {isSavingKey[name] ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+                                            <span className="ml-2 hidden sm:inline">Save</span>
+                                        </Button>
+                                    </div>
+                                </AccordionContent>
+                            </AccordionItem>
+                        ))}
                     </Accordion>
-                   
-                   <Separator />
-                   <div className="space-y-2">
-                       <Label htmlFor="service-account-file" className="font-semibold">Or: Upload Firebase Key for Current Session Only</Label>
-                       <p className="text-sm text-muted-foreground">This option is for temporary local testing. Upload your Firebase Service Account JSON file here to configure the app for your current browser session only. This change will NOT persist.</p>
-                        <Input 
-                           id="service-account-file"
-                           type="file"
-                           accept=".json"
-                           onChange={(e) => setServiceAccountFile(e.target.files?.[0] || null)}
-                        />
-                   </div>
-                    <Button onClick={handleServiceAccountUpload} disabled={isUploadingKey || !serviceAccountFile}>
-                        {isUploadingKey ? (
-                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        ) : (
-                            <UploadCloud className="mr-2 h-4 w-4" />
-                        )}
-                        Upload Firebase Key for Session
-                    </Button>
                 </CardContent>
             </Card>
             

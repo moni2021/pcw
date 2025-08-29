@@ -445,3 +445,47 @@ export async function updateFeedbackStatus(ticketId: string, status: 'Open' | 'R
         return { success: false, error: e.message };
     }
 }
+
+// --- Key Management ---
+export async function setEnvironmentVariable({ key, value }: { key: string, value: string }): Promise<{ success: boolean, error?: string }> {
+    if (!key || !value) {
+        return { success: false, error: "Key and value are required." };
+    }
+
+    // List of allowed keys to prevent arbitrary env var setting
+    const allowedKeys = [
+        'GOOGLE_GENAI_API_KEY',
+        'SERVICE_ACCOUNT_KEY',
+        'NEXT_PUBLIC_FIREBASE_API_KEY',
+        'NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN',
+        'NEXT_PUBLIC_FIREBASE_PROJECT_ID',
+        'NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET',
+        'NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID',
+        'NEXT_PUBLIC_FIREBASE_APP_ID'
+    ];
+
+    if (!allowedKeys.includes(key)) {
+        return { success: false, error: `Setting the environment variable '${key}' is not allowed.` };
+    }
+
+    try {
+        // Special validation for SERVICE_ACCOUNT_KEY
+        if (key === 'SERVICE_ACCOUNT_KEY') {
+             const parsedJson = JSON.parse(value);
+            if (!parsedJson.project_id || !parsedJson.private_key || !parsedJson.client_email) {
+                throw new Error('Invalid service account JSON format. Missing required fields.');
+            }
+        }
+        
+        // This sets the environment variable for the CURRENT RUNNING PROCESS ONLY.
+        // It will NOT persist after a server restart or redeployment. This is for session-based configuration.
+        (process.env as any)[key] = value;
+
+        console.log(`Successfully set environment variable '${key}' for the current session.`);
+        
+        return { success: true };
+    } catch (error: any) {
+        console.error(`Failed to set environment variable '${key}':`, error);
+        return { success: false, error: error.message || 'An unknown error occurred.' };
+    }
+}
